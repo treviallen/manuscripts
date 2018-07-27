@@ -47,6 +47,7 @@ def timedelta2days_hours_minutes(td):
 
 bin_width = 0.1
 shpfile  = '/Users/tallen/Documents/Geoscience_Australia/NSHA2018/source_models/zones/shapefiles/NSHA13/NSHA13_NSHA18.shp'
+#shpfile  = '/Users/tallen/Documents/Geoscience_Australia/NSHA2018/source_models/zones/shapefiles/ARUP/ARUP_NSHA18.shp'
 
 magLabels = ['Full Catalogue', 'Declustered Catalogue']
 
@@ -220,31 +221,25 @@ fig = plt.figure(1, figsize=(16, 18))
 k = 0
 for i in srcidx:
     #print '\nFitting MFD for', src_code[i]
-    
-    if i == 49 or i == 51:
+    # 81 = dalton/gunning; 71 = FLDR; 46 = Otway/Gipps; 51 = SWSZ
+    if i == 49 or i == 71:
         k += 1
         ax = fig.add_subplot(2,2,k)
     
         # get completeness periods for zone
         ycomps = array([int(x) for x in src_ycomp[i].split(';')])
         mcomps_mw = array([float(x) for x in src_mcomp[i].split(';')])
-        mcomps_mw[0] = 2.95
-        mcomps_ml = [nsha18_bilin_mw2ml(mw) for mw in mcomps_mw]
-        mcomps_ml[0] = 2.95
+        mcomps_mw[0] = 3.15
         
         print 'if ml based, adjust Mcomp'
         
         # get mag range for zonea
         mcompmin_mw = min(mcomps_mw)
-        mcompmin_ml = min(mcomps_ml)
                 
         # convert min Mx to MW
-        mcompminml = around(ceil(mcompmin_ml*10.) / 10., decimals=1)
-        mcompminml = 2.95
         mcompminmw = around(ceil(mcompmin_mw*10.) / 10., decimals=1)
-        mcompminmw = 2.95
+        mcompminmw = 3.15
         mrng_mw = arange(mcompminmw-bin_width/2, src_mmax[i], bin_width)
-        mrng_ml = arange(mcompminml-bin_width/2, src_mmax[i], bin_width)
                 
         # set null values to avoid plotting issues later
         bval = 1.
@@ -380,7 +375,7 @@ for i in srcidx:
             dates_ge_3 = []
             mvect, mxvect, tvect, dec_tvect, ev_dict = get_events_in_poly_simple(nshaCat, poly)
             for omag, otime in zip(mvect, tvect):
-                if omag >= 3.5 and otime.year >= dcut:
+                if omag >= 3.75 and otime.year >= dcut:
                     # get decimal years
                     dates_ge_3.append(otime.year + float(otime.strftime('%j'))/365.) # ignore leap years for now
                 
@@ -391,23 +386,30 @@ for i in srcidx:
             # make cummulative plot
             plt.step(dates_ge_3[didx], range(0, len(didx)), c=cs[2*jj+1], lw=1.5)
             plt.xlabel('Event Year', fontsize=16)
-                
-            if k == 1:
-                plt.ylabel('Count | MW >= 3.5', fontsize=16)
-                plt.text(1905, 240, 'c)', fontsize=15, va='top', ha='left')
-            else:
-                plt.text(1905, 288, 'd)', fontsize=15, va='top', ha='left')
-            
-            # set xlims
-            tlim = ax.get_xlim()
-            tlim = [int(round(x)) for x in tlim] # converting to ints
-            
-            plt.xlim(tlim)
             
             # sey ylim to zero
+            minyear = 1900
+            plt.xlim([minyear, 2020])
             ylims = array(ax.get_ylim())
+            xlims = array(ax.get_xlim())
             ylims[0] = 0
             plt.ylim(ylims)
+            xlet = xlims[0]+(xlims[1]-xlims[0])*0.02
+            if k == 1:
+                plt.ylabel('Count | MW >= 3.75', fontsize=16)
+                plt.text(xlet, ylims[1]*0.97, 'c)', fontsize=15, va='top', ha='left')
+            else:
+                plt.text(xlet, ylims[1]*0.97, 'd)', fontsize=15, va='top', ha='left')
+            
+            # set xlims & labels
+            xticks = range(minyear, 2021, 20)
+            xlabels = [str('%0.0f' % x) for x in xticks]
+            ax.set_xticks(xticks)
+            ax.set_xticklabels(xlabels) #, fontsize=10)
+            
+            plt.grid()
+            
+            
         
         # save figure
 #plt.savefig(path.join('cat_mfd_test', src_code[i]+'_mfdplt.png'), fmt='png', bbox_inches='tight')
