@@ -31,13 +31,15 @@ elif pltProb == '2':
     probidx = 2
 '''
 
-altPlaces = False
+altPlaces = True
 
-pltLog = True
+pltLog = False
 
 # get colours
-#cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//Paired_08.cpt'
-cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//gay-flag-1978.cpt'
+if getcwd().startswith('/nas'):
+    cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/gay-flag-1978.cpt'
+else:
+    cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//gay-flag-1978.cpt'
 ncolours = 9
 cmap, zvals = cpt2colormap(cptfile, ncolours)
 cmap = remove_last_cmap_colour(cmap)
@@ -94,7 +96,10 @@ for line in lines[2:]:
 cwd = getcwd()
 if cwd.startswith('/Users'): #mac
     citycsv = '/Users/tallen/Documents/Geoscience_Australia/NSHA2018/shared/nsha_cities.csv'
-    lines = open(citycsv).readlines()
+elif cwd.startswith('/nas'):
+    citycsv = '/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/shared/nsha_cities.csv'
+    
+lines = open(citycsv).readlines()
     
 # make city dict
 cityDict = []
@@ -138,6 +143,7 @@ if altPlaces == False:
     places = ['Perth', 'Darwin', 'Adelaide', 'Melbourne', 'Hobart', 'Canberra', 'Sydney', 'Brisbane']
 else:
     places = ['Wongan Hills', 'Kalgoorlie', 'Port Pirie', 'Cooma', 'Yulara', 'Hawker', 'Leongatha', 'Morwell']
+    places = ['Wongan Hills', 'Darwin', 'Adelaide', 'Kimba', 'Hawker', 'Canberra', 'Sydney', 'Morwell']
 
 if plt1170 == False:
     probidx = [0, 2]
