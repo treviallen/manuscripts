@@ -379,10 +379,30 @@ for ii, hazfile in enumerate(hazfiles):
         ytxt = ylim[1] * 0.02
         plt.text(xtxt, ytxt, modnames[ii], fontsize=22, va='bottom', ha='left')
         
+        ##########################################################################################
+        # plt subduction profile
+        ##########################################################################################
+        
+        proffile = '/Users/tallen/Documents/Geoscience_Australia/NSHA2018/shared/north_aus_profile.csv'
+        proflons = []
+        proflats = []
+        lines = open(proffile).readlines()
+        for line in lines:
+            dat = line.strip().split(',')
+            
+            proflons.append(float(dat[0]))
+            proflats.append(float(dat[1]))
+            
+        proflons = array(proflons)
+        proflats = array(proflats)
+        
+        # plot profile on map
+        x,y = m(proflons, proflats)
+        m.plot(x,y,'k+', ms=7)
+        
         # get map bbox
         if i == 0:
             map_bbox = ax.get_position().extents
-        
         
 '''
 ###########################################################################################
