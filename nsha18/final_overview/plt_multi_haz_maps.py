@@ -66,10 +66,14 @@ for line in lines[1:]:
 
 # set figure size based on number of models
 maprows = int(ceil(len(modnames) / 2.))
-figure = plt.figure(1,figsize=(19,9*maprows+1))
+figure = plt.figure(1,figsize=(24,12*maprows+1))
 
 gs1 = gridspec.GridSpec(maprows, 2)
-gs1.update(wspace=0.025, hspace=0.05)
+#gs1.update(wspace=0.025, hspace=0.05)
+
+hspace = -0.09 * maprows - 0.05
+gs1.update(wspace=0.025, hspace=hspace) # negative looks bad in "show", but ok in pngs
+
 
 pltlett = ['a)', 'b)', 'c)', 'd)', 'e)']
 ##############################################################################
@@ -330,6 +334,16 @@ for ii, hazfile in enumerate(hazfiles):
         
         print 'Making map...'    
         cmap.set_bad('w', 1.0)
+        
+        if probability == '10%' or probability == '9.5%':
+            bounds = array([0, 0.005, 0.01, 0.015, 0.02, 0.03, 0.04, 0.05, 0.06, 0.08, 0.12])
+            ncolours = 10
+            norm = colors.BoundaryNorm(boundaries=bounds, ncolors=ncolours)
+        else:
+            bounds = array([0, 0.02, 0.04, 0.06, 0.08, 0.10, 0.12, 0.16, 0.20, 0.3, 0.5])
+            ncolours = 10
+        norm = colors.BoundaryNorm(boundaries=bounds, ncolors=ncolours)
+    
         m.imshow(masked_array, cmap=cmap, extent=extent, vmin=vmin, vmax=vmax, zorder=0)
         
         ##########################################################################################
@@ -372,17 +386,17 @@ for ii, hazfile in enumerate(hazfiles):
         xtxt = xlim[1] * 0.02
         ylim = ax.get_ylim()
         ytxt = ylim[1] * 0.96
-        plt.text(xtxt, ytxt, pltlett[ii], fontsize=24, va='top', ha='left')
+        plt.text(xtxt, ytxt, pltlett[ii], fontsize=30, va='top', ha='left')
         
         xtxt = xlim[1] * 0.02
         ylim = ax.get_ylim()
         ytxt = ylim[1] * 0.02
-        plt.text(xtxt, ytxt, modnames[ii], fontsize=22, va='bottom', ha='left')
+        plt.text(xtxt, ytxt, modnames[ii], fontsize=27, va='bottom', ha='left')
         
         ##########################################################################################
-        # plt subduction profile
+        # plt subduction profile - comment out when not using
         ##########################################################################################
-        
+        '''
         proffile = '/Users/tallen/Documents/Geoscience_Australia/NSHA2018/shared/north_aus_profile.csv'
         proflons = []
         proflats = []
@@ -399,7 +413,7 @@ for ii, hazfile in enumerate(hazfiles):
         # plot profile on map
         x,y = m(proflons, proflats)
         m.plot(x,y,'k+', ms=7)
-        
+        '''
         # get map bbox
         if i == 0:
             map_bbox = ax.get_position().extents
@@ -412,21 +426,21 @@ make colourbar
 
 # set colourbar
 plt.gcf().subplots_adjust(bottom=0.1)
-cax = figure.add_axes([0.33,0.12,0.34,0.035]) # setup colorbar axes.
-norm = colors.Normalize(vmin=vmin, vmax=vmax)
+cby = 0.10 + 0.02/maprows + 0.017*(maprows-1)
+cbh = 0.00 + 0.035 / maprows
+cax = figure.add_axes([0.33,cby,0.34,cbh]) # setup colorbar axes.
+#norm = colors.Normalize(vmin=vmin, vmax=vmax)
 cb = colorbar.ColorbarBase(cax, cmap=cmap, norm=norm, orientation='horizontal')
 
-# set cb labels
-#linticks = array([0.01, 0.03, 0.1, 0.3 ])
-logticks = arange(vmin, vmax+0.25, 0.25)
-cb.set_ticks(logticks)
-labels = [str('%0.3f' % 10**x) for x in logticks]
+cb.set_ticks(bounds)
+labels = ['0'+str('%0.3f' % x).strip('0') for x in bounds]
+labels[0] = '0.0'
 cb.set_ticklabels(labels)
-cb.ax.tick_params(labelsize=16)
+cb.ax.tick_params(labelsize=18)
 
 # set title
 titlestr = ' '.join((T, probability, 'in 50-Year Mean Hazard (g)'))
-cb.set_label(titlestr, fontsize=18)
+cb.set_label(titlestr, fontsize=24)
 '''
 # check to see if maps exists
 if path.isdir('maps') == False:
@@ -434,7 +448,7 @@ if path.isdir('maps') == False:
 '''    
 # now save png file
 plt.savefig(path.join('multi_hazard_maps_'+outfile.replace(' ','_')+'.'+probFraction+'.png'), \
-            dpi=300, format='png', bbox_inches='tight')
+            dpi=200, format='png', bbox_inches='tight')
 
 # save pdf file
 '''
