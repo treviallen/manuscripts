@@ -34,7 +34,8 @@ mpl.use('Agg')
 mpl.style.use('classic')
 mpl.rcParams['pdf.fonttype'] = 42
 
-drawshape = False # decides whether to overlay seismic sources
+drawshape = False # decides whether to overlay seismic sources   
+pltGSHAP = False # don't use this here!
 
 # set map resolution
 res = 'i' 
@@ -243,7 +244,7 @@ for ii, hazfile in enumerate(hazfiles):
         extent = (minlon-mbuff, maxlon+mbuff, minlat-mbuff, maxlat+mbuff)
         xs,ys = mgrid[extent[0]:extent[1]:N, extent[2]:extent[3]:N]
         	
-        resampled = griddata(lonlist, latlist, log10(hazvals), xs, ys, interp='linear')
+        resampled = griddata(lonlist, latlist, hazvals, xs, ys, interp='linear')
         #resampled = griddata(lonlist, latlist, log10(hazvals), lonlist, latlist, interp='linear') # if this suddenly works, I have no idea why!
         
         # get 1D lats and lons for map transform
@@ -270,59 +271,72 @@ for ii, hazfile in enumerate(hazfiles):
         #cmap = cm.rainbow
         #print period
         if period == 'PGA':
-            
+        
             if probability == '10%' or probability == '9.5%': # kluge to get on same scale
-                ncolours = 13
-                vmin = -2.
-                vmax = -0.25 - 0.125 # so there is an odd number for which to split the cpt
+                ncolours = 12
+                #vmin = -2.
+                #vmax = -0.25 - 0.125 # so there is an odd number for which to split the cpt
                 
             elif probability == '2%':
                 ncolours = 12
-                vmin = -1.5
-                vmax = vmin + 0.25 * ncolours/2.
+                #vmin = -1.5
+                #vmax = vmin + 0.25 * ncolours/2.
             T = 'PGA'
+        
+        elif period == 'SA005':
+            
+            if probability == '10%' or probability == '9.5%': # kluge to get on same scale
+                ncolours = 12
+                
+            elif probability == '2%':
+                ncolours = 10
+            T = 'Sa(0.05)'
+            
+        elif period == 'SA01':
+            
+            if probability == '10%' or probability == '9.5%': # kluge to get on same scale
+                ncolours = 12
+                
+            elif probability == '2%':
+                ncolours = 10
+            T = 'Sa(0.1)'
             
         elif period == 'SA02':
-            ncolours = 12
-            ncolours = 13
             if probability == '10%' or probability == '9.5%':
-                vmin = -2
-                vmax = 0.
-                vmax = -0.25 - 0.125 # so there is an odd number for which to split the cpt
-            
+                ncolours = 13
+                
             elif probability == '2%':
                 ncolours = 12
-                vmin = -1.5
-                vmax = vmin + 0.25 * ncolours/2.
                 
             T = 'Sa(0.2)'
             
         elif period == 'SA10':
-            ncolours = 16 
-            ncolours = 13
             if probability == '10%' or probability == '9.5%':
-                vmin = -2.5
-                vmax = vmin + 0.25 * ncolours/2.
-                vmax = -0.75 - 0.125 # so there is an odd number for which to split the cpt
+                ncolours = 13
             
             elif probability == '2%':
                 ncolours = 14
-                vmin = -2.25
-                vmax = vmin + 0.25 * ncolours/2.
-                #vmax = -0.25 - 0.125 # so there is an odd number for which to split the cpt
+                
             T = 'Sa(1.0)'
         
+        #ncolours = 13
+            
         try:
             cmap, zvals = cpt2colormap(cptfile, ncolours, rev=True)
         except:
             try:
-                if gshap == True:
-                    nascptfile = '/nas/gemd/ehp/georisk_earthquake/hazard/DATA/cpt/gshap.cpt'
+                if pltGSHAP == 'True':
+                    nascptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/gshap_mpl.cpt'
+                    ncolours = 10
+                    cmap, zvals = cpt2colormap(nascptfile, ncolours, rev=False)
+                    cmap = remove_last_cmap_colour(cmap)
+                    
                 else:
-                    nascptfile = '/nas/gemd/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/postprocessing/maps/'+ cptfile
+                    nascptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/postprocessing/maps/'+ cptfile
+                    cmap, zvals = cpt2colormap(nascptfile, ncolours, rev=True)
                 
                 #cptfile = '/nas/gemd/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/postprocessing/maps/GMT_no_green.cpt'
-                cmap, zvals = cpt2colormap(nascptfile, ncolours, rev=True)
+                
             except:
                 try:
                     ncicptfile = '/short/w84/NSHA18/sandpit/tia547/NSHA2018/postprocessing/maps/'+ cptfile
@@ -336,15 +350,21 @@ for ii, hazfile in enumerate(hazfiles):
         cmap.set_bad('w', 1.0)
         
         if probability == '10%' or probability == '9.5%':
-            bounds = array([0, 0.005, 0.01, 0.015, 0.02, 0.03, 0.04, 0.05, 0.06, 0.08, 0.12])
-            ncolours = 10
-            norm = colors.BoundaryNorm(boundaries=bounds, ncolors=ncolours)
+            if pltGSHAP == 'True':
+                bounds = array([0., 0.2, 0.4, 0.8, 1.6, 2.4, 3.2, 4.0, 4.8, 6.0])
+                #ncolours = 9
+                #norm = colors.Normalize(vmin=0,vmax=10)
+            else:
+                bounds = array([0, 0.005, 0.01, 0.015, 0.02, 0.03, 0.04, 0.05, 0.06, 0.08, 0.12, 0.16, 0.24])
+                ncolours = 12
+                norm = colors.BoundaryNorm(boundaries=bounds, ncolors=ncolours)
         else:
-            bounds = array([0, 0.02, 0.04, 0.06, 0.08, 0.10, 0.12, 0.16, 0.20, 0.3, 0.5])
-            ncolours = 10
+            bounds = array([0, 0.02, 0.04, 0.06, 0.08, 0.10, 0.12, 0.16, 0.20, 0.3, 0.5, 0.7, 1.0])
+            #ncolours = 12
         norm = colors.BoundaryNorm(boundaries=bounds, ncolors=ncolours)
-    
-        m.imshow(masked_array, cmap=cmap, extent=extent, vmin=vmin, vmax=vmax, zorder=0)
+        
+        #m.imshow(masked_array, cmap=cmap, extent=extent, vmin=vmin, vmax=vmax, zorder=0)
+        m.imshow(masked_array, cmap=cmap, extent=extent, norm=norm, zorder=0)
         
         ##########################################################################################
         # get land & lake polygons for masking
@@ -428,7 +448,7 @@ make colourbar
 plt.gcf().subplots_adjust(bottom=0.1)
 cby = 0.10 + 0.02/maprows + 0.017*(maprows-1)
 cbh = 0.00 + 0.035 / maprows
-cax = figure.add_axes([0.33,cby,0.34,cbh]) # setup colorbar axes.
+cax = figure.add_axes([0.3,cby,0.4,cbh]) # setup colorbar axes.
 #norm = colors.Normalize(vmin=vmin, vmax=vmax)
 cb = colorbar.ColorbarBase(cax, cmap=cmap, norm=norm, orientation='horizontal')
 
