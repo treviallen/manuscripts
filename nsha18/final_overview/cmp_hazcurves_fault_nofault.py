@@ -6,6 +6,8 @@ from os import path, mkdir
 import warnings, sys
 from gmt_tools import cpt2colormap 
 from misc_tools import remove_last_cmap_colour, get_log_xy_locs
+import matplotlib as mpl
+mpl.style.use('classic')
 
 
 reload(sys) # for unicode chars
@@ -78,21 +80,6 @@ if __name__ == "__main__":
     # def to get hazard curve data
     ###############################################################################
     
-    def get_oq_haz_curves(hazcurvefile):
-        if hazcurvefile.endswith('xml'):
-            # Change the number 0.5 to 0.4 in hazard_curve-mean.xml so that it will run with the built-in parser.
-            lines = open(hazcurvefile, 'r').readlines()
-            lines[2] = 'xmlns="http://openquake.org/xmlns/nrml/0.4"\n'
-            out = open(hazcurvefile, 'w')
-            out.writelines(lines)
-            out.close()
-        
-        # get annualize the curves
-        curves, curlon, curlat, metadata = return_annualised_haz_curves(hazcurvefile)
-        imls = array(metadata['imls'])
-        
-        return curves, curlon, curlat, metadata, imls
-    
     i = 1
     ii = 0
     fig = plt.figure(i, figsize=(9, 10))
@@ -106,26 +93,24 @@ if __name__ == "__main__":
     # make path to hazcurvefile
     #hazcurvefile1 = path.join(relativepaths[0], ''.join(('hazard_curve-mean_',jobs[0],'-SA(',period,').xml'))) # will need to be changed with OQ V2.2
     rootpath = path.split(conf_file)[0]
-    hazcurvefile1 = path.join(rootpath, relativepaths[0], 'hazard_curve-mean_1.csv')
+    hazcurvefile1 = path.join(rootpath, relativepaths[0], 'hazard_curve-mean-PGA_1.csv')
     
     # get data from first job
-    curves1, curlon1, curlat1, metadata1, imls1 = get_oq_haz_curves(hazcurvefile1)
-    
-    
+    #curves1, curlon1, curlat1, metadata1, imls1 = get_oq_haz_curves(hazcurvefile1)
+    siteDict1, imls, investigation_time = return_annualised_haz_curves(hazcurvefile1)
     
     # loop thru sites in first job file and plot
-    for lon1, lat1, curve1 in zip(curlon1, curlat1, curves1):
+    for sd1 in siteDict1:
         pltTrue = False
         #ii += 1
         ax = plt.subplot(1,1,1)
                     
-                
         ###############################################################################
         # loops thru places to get title - check if want to plot
         ###############################################################################
         for place, plon, plat in zip(places, place_lon, place_lat):
-            if around(plon, decimals=2) == around(lon1, decimals=2) \
-               and around(plat, decimals=2) == around(lat1, decimals=2):
+            if around(plon, decimals=2) == around(sd1['lon'], decimals=2) \
+               and around(plat, decimals=2) == around(sd1['lat'], decimals=2):
                 
                 # now loop through places we want to plot
                 for pp in plt_places:
@@ -135,7 +120,7 @@ if __name__ == "__main__":
                         
                         # plot first curve
                         p += 1
-                        h1 = plt.semilogy(imls1, curve1, color=cs[p*2], lw=2.0, label=label_place+' (F)')
+                        h1 = plt.semilogy(imls, sd1['poe_probs_annual'], color=cs[p*2], lw=2.0, label=label_place+' (F)')
                         
                         pltTrue = True
         
@@ -152,23 +137,23 @@ if __name__ == "__main__":
             filestr = ''.join(('hazard_curve-mean-SA(',period,')_',jobs[jj].strip(),'.csv'))
             hazcurvefilex = path.join(root, relativepaths[jj].strip(), filestr)
             '''
-            hazcurvefilex = path.join(rootpath, relativepaths[1].strip(), 'hazard_curve-mean_1.csv')
+            hazcurvefilex = path.join(rootpath, relativepaths[1].strip(), 'hazard_curve-mean-PGA_1.csv')
             
             # get data from subsequent jobs
             curvepath = path.join(conf_file.split(path.sep)[0:-1])
             	
-            curvesx, curlonx, curlatx, metadatax, imlsx = get_oq_haz_curves(hazcurvefilex)
+            siteDictx, imls, investigation_time = return_annualised_haz_curves(hazcurvefilex)
     
             # loop thru Xnd OQ curves in job
-            for lonx, latx, curvex in zip(curlonx, curlatx, curvesx):
+            for sdx in siteDictx:
                 
                 # if matches lon1 & lat1
-                if around(lonx, decimals=2) == around(lon1, decimals=2) \
-                   and around(latx, decimals=2) == around(lat1, decimals=2):
+                if around(sdx['lon'], decimals=2) == around(sd1['lon'], decimals=2) \
+                   and around(sdx['lat'], decimals=2) == around(sd1['lat'], decimals=2):
                     
                     # plt haz curves
                     if pltTrue == True:
-                        hx = plt.semilogy(imlsx, curvex, '--', color=cs[p*2+1], lw=2.0, label=label_place+' (NF)')
+                        hx = plt.semilogy(imls, sdx['poe_probs_annual'], '--', color=cs[p*2+1], lw=2.0, label=label_place+' (NF)')
         
 ###############################################################################
 # make plot pretty
@@ -184,7 +169,7 @@ plt.legend()
 plt.grid(which='both')
  
 # get x lims from haz curve 1
-thaz = exp(interp(log(1e-4), log(curve1[::-1]), log(imls1[::-1])))
+thaz = exp(interp(log(1e-4), log(sd1['poe_probs_annual'][::-1]), log(imls[::-1])))
 
 # round to neares t 0.1
 xmax = ceil(thaz / 0.1)  * 0.1
