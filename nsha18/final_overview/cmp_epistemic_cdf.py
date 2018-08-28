@@ -138,6 +138,7 @@ for k, key in enumerate(keys[:2]):
         # loop thru fracDict
         for frac1, frac2 in zip(fracDict1, fracDict2):
             if place == frac1['place']:
+                print frac1['place'], frac2['place']
             
                 # plot fig
                 ax = plt.subplot(4, 2, i+1)
@@ -158,11 +159,13 @@ for k, key in enumerate(keys[:2]):
                     plt.legend(loc=2)
                 
                 plt.grid(which='both')
-                plt.xlim([0.003, 0.3])
+                plt.xlim([0.003, 0.1])
                 
-                '''
+                
                 # plt mean
-                plt.semilogx([frac['mean_'+key],frac['mean_'+key]], [0,1], '--', c='seagreen', lw=1.5, label='Mean')
+                plt.semilogx([frac1['mean_'+key],frac1['mean_'+key]], [0,1], '--', c='seagreen', lw=1.5, label='Mean')
+                plt.semilogx([frac2['mean_'+key],frac2['mean_'+key]], [0,1], '--', c='orangered', lw=1.5, label='Mean')
+                '''
                 # plt median
                 plt.semilogx([frac['quant_'+key][50],frac['quant_'+key][50]], [0,1], '--', c='dodgerblue', lw=1.5, label='50th Percentile')
                 # plt 84th
@@ -175,7 +178,7 @@ for k, key in enumerate(keys[:2]):
     #plt.suptitle(fracFolder.split(sep)[1] + ' ' + key, fontsize=20)
 
     # set fig file
-    figFile = '_'.join((outfile,key,'CDF.png'))
+    figFile = '_'.join((path.join('cdf',outfile),key,'CDF.png'))
     plt.savefig(figFile, fmt='png', bbox_inches='tight')
     
     
