@@ -203,6 +203,7 @@ if altPlaces == False:
     caps = 'capitals'
 else:
     caps = 'regions'
+    caps = 'nrwmf'
     
 if pltLog == True:
     axtype = 'log'
