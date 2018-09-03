@@ -15,7 +15,7 @@ sys.setdefaultencoding("latin-1")
 warnings.filterwarnings("ignore")
 
 #plt_places = ['Adelaide', 'Canberra', 'Melbourne', 'Perth']
-plt_places = ['York', 'Adelaide', 'Morwell']
+plt_places = ['York', 'Meckering', 'Adelaide', 'Morwell']
 if getcwd().startswith('/nas'):
     cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/Paired_08.cpt'
 else:
