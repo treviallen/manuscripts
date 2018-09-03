@@ -131,6 +131,9 @@ plt.text(yhaz10+yoff, 1.1E-4, '1/475-year AEP', rotation=90., va='bottom',ha='ri
 yoff = get_log_xy_locs([1e-5, .1], .005)
 plt.text(yhaz2+yoff/5., 1.1E-4, '1/2475-year AEP', rotation=90., va='bottom',ha='right',fontsize=14)
 plt.legend(loc=4, fontsize=12)
+yoff = get_log_xy_locs([1E-4, 10.], .97)
+xoff = get_log_xy_locs([1E-5, 0.1], .985)
+plt.text(xoff, yoff, '(a)', va='top',ha='left',fontsize=18)
 
 plt.grid(which='both')
 
@@ -160,6 +163,9 @@ yoff = get_log_xy_locs([1e-5, .1], .015)
 plt.text(yhaz10+yoff, 1.1E-4, '1/475-year AEP', rotation=90., va='bottom',ha='right',fontsize=14)
 yoff = get_log_xy_locs([1e-5, .1], .005)
 plt.text(yhaz2+yoff/5., 1.1E-4, '1/2475-year AEP', rotation=90., va='bottom',ha='right',fontsize=14)
+yoff = get_log_xy_locs([1E-4, 10], .97)
+xoff = get_log_xy_locs([1E-5, 0.1], .985)
+plt.text(xoff, yoff, '(b)', va='top',ha='left',fontsize=18)
 #plt.legend(loc=4, fontsize=12)
 
 plt.grid(which='both')
@@ -170,7 +176,7 @@ plt.xlim([.1, 1e-5])
 #plt.xlim([0, .25])
 ax.tick_params(labelsize=14)
 
-plt.xlabel('Annual Probabability of Exceedance', fontsize=16)
+plt.xlabel('Annual Probabability of Exceedance (/yr)', fontsize=16)
 
 plt.ylabel('Normalised Mean PGA Hazard', fontsize=16)
 
