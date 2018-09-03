@@ -14,10 +14,10 @@ reload(sys) # for unicode chars
 sys.setdefaultencoding("latin-1")
 warnings.filterwarnings("ignore")
 
-plt_au_places = ['Perth', 'Adelaide', 'Canberra']
-#cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//Paired_08.cpt'
-cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//qual-dark-06.cpt'
-ncolours = 7
+plt_au_places = ['Perth', 'Darwin', 'Adelaide', 'Canberra']
+cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//gay-flag-1978-9.cpt'
+#cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//qual-dark-06.cpt'
+ncolours = 8
 cmap, zvals = cpt2colormap(cptfile, ncolours)
 cmap = remove_last_cmap_colour(cmap)
 p = -1
@@ -130,7 +130,7 @@ yoff = get_log_xy_locs([1e-5, .1], .015)
 plt.text(yhaz10+yoff, 1.1E-4, '1/475-year AEP', rotation=90., va='bottom',ha='right',fontsize=14)
 yoff = get_log_xy_locs([1e-5, .1], .005)
 plt.text(yhaz2+yoff/5., 1.1E-4, '1/2475-year AEP', rotation=90., va='bottom',ha='right',fontsize=14)
-plt.legend(loc=4, fontsize=12)
+plt.legend(loc=4, fontsize=13)
 yoff = get_log_xy_locs([1E-4, 10.], .97)
 xoff = get_log_xy_locs([1E-5, 0.1], .985)
 plt.text(xoff, yoff, '(a)', va='top',ha='left',fontsize=18)
