@@ -81,12 +81,12 @@ cs = (cmap(arange(2)))
 # parse first job file to define plotting order
 ###############################################################################
 
-pltT = 'SA(1.0)'
+pltT = 'PGA'
 
 hazpath = '/Users/tallen/Documents/Geoscience_Australia/NSHA2018/source_models/complete_model/final/results_fractiles'
 hazcurvefile = path.join(hazpath, ''.join(('hazard_curve-mean-',pltT,'_1.csv')))
 
-curveDict = get_nsha18_city_curve(['Darwin', 'Canberra'], hazcurvefile)
+curveDict = get_nsha18_city_curve(['Darwin', 'Newcastle'], hazcurvefile)
 
 ###################################################################################
 # set up figure
@@ -96,9 +96,9 @@ figure = plt.figure(1,figsize=(16,12))
 
 colours = ['r', 'b']
 
-locs = ['Darwin, NT', 'Canberra, ACT']
-RTGMs = [0.061755, 0.063473] # at sites above
-#RTGMs = [0.081323, 0.063473] # at sites above
+locs = ['Darwin, NT', 'Newcastle, NSW']
+#RTGMs = [0.061755, 0.063473] # at sites above
+RTGMs = [0.061248, 0.060562] # at sites above
 beta = 0.6
 targetProb = 1/2475.
 
@@ -183,7 +183,7 @@ for col, siteCurve in zip(colours, curveDict):
     # plot fragility curve
     ax = plt.subplot(3, 2, 3)
     plt.semilogx(upSAs, FragilityCurve['PDF'], '-', lw=3., color=col)
-    plt.semilogx([targetSA, targetSA], [0, 6.], '--', lw=1.5, color=col)
+    plt.semilogx([targetSA, targetSA], [0, 7.], '--', lw=1.5, color=col)
     
     # plot risk integrand
     ax = plt.subplot(3, 2, 5)
@@ -230,7 +230,7 @@ plt.grid(which='minor', color='gray', linestyle='--', linewidth=0.5)
 
 ax = plt.subplot(3, 2, 5)
 plt.xlim([0.3E-2, 0.3])
-plt.ylim([0, 5E-3])
+plt.ylim([0, 3E-3])
 plt.title('Risk Integrand', fontsize=14)
 plt.xlabel('Sa('+pltT[3:6]+' s) in g', fontsize=14)
 plt.ylabel('$P[Sa > a] . f_{capacity}(a)$', fontsize=16)
@@ -299,7 +299,7 @@ for col, siteCurve, RTGM in zip(colours, curveDict, RTGMs):
     # plot fragility curve
     ax = plt.subplot(3, 2, 4)
     plt.semilogx(upSAs, FragilityCurve['PDF'], '-', lw=3., color=col)
-    plt.semilogx([RTGM, RTGM], [0, 6], '--', lw=1.5, color=col)
+    plt.semilogx([RTGM, RTGM], [0, 7], '--', lw=1.5, color=col)
     
     # plot risk integrand
     ax = plt.subplot(3, 2, 6)
@@ -347,7 +347,7 @@ plt.grid(which='minor', color='gray', linestyle='--', linewidth=0.5)
 
 ax = plt.subplot(3, 2, 6)
 plt.xlim([0.3E-2, 0.3])
-plt.ylim([0, 5E-3])
+plt.ylim([0, 3E-3])
 plt.title('Risk Integrand', fontsize=14)
 plt.xlabel('Sa('+pltT[3:6]+' s) in g', fontsize=14)
 plt.ylabel('$P[Sa > a] . f_{capacity}(a)$', fontsize=16)
