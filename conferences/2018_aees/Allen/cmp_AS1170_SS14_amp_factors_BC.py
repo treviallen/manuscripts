@@ -268,6 +268,6 @@ for i, pga in enumerate(pltpga):
     ax.set_xticklabels(xlabels)
     plt.xlim([0.05, 5.])
         
-plt.savefig('cmp_AS1170_SS14_factors_BC.png', format='png', bbox_inches='tight', dpi=150)
+plt.savefig('cmp_AS1170_SS14_factors_BC.png', format='png', bbox_inches='tight')
 
 plt.show()
