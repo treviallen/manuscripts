@@ -4,6 +4,7 @@
 
 locs02 = 'interp_haz_curves_SA(0.2).csv';
 locs10 = 'interp_haz_curves_SA(1.0).csv';
+locsPGA = 'interp_haz_curves_PGA.csv';
 
 locsfile = locs10;
 
@@ -22,25 +23,43 @@ RiskCoeffs = [];
 Iplot = 0;
 HazardCurve.AFEs = probs';
 for i=1:length(places)
-	%if ref(i) == 40 % for testing
-		HazardCurve.SAs = SAs(i,:)'	
+	%if strcmp(places{i},'Adelaide') > 0 % for testing
+		HazardCurve.SAs = SAs(i,:)'	;
 		disp(['Calculating RTGM for ',places{i}]);
-		[ RTGM, RiskCoefficient ] = RTGM_Calculator_Ver131017( HazardCurve, Iplot );
+		[ RTGM, RiskCoefficient FragilityCurves ] = RTGM_Calculator_Ver131017( HazardCurve, Iplot );
 		RTGMs = [RTGMs RTGM];
-		RiskCoeffs = [RiskCoeffs RiskCoefficient];	
+		RiskCoeffs = [RiskCoeffs RiskCoefficient ];	
 	%end
 end
 
 % export RTGM values
-header = 'PLACE,LON,LAT,RTGM,RISKCOEFF';
+header = ['PLACE,LON,LAT,RTGM,RISKCOEFF' char(10)];
 
-data = [places lon lat RTGMs' RiskCoeffs'];
+%places = char(places);
+%data = [places lon lat RTGMs' RiskCoeffs'];
 
-if locsfile == locs02
+if strcmp(locsfile, locs02) > 0
 	outfile = 'NSHA18_RTGM_SA(0.2).csv';
-else
+elseif strcmp(locsfile, locs10) > 0
 	outfile = 'NSHA18_RTGM_SA(1.0).csv';
+else
+	outfile = 'NSHA18_RTGM_PGA.csv';
 end
-dlmwrite(outfile, header, 'delimiter','');
-dlmwrite(outfile, data, 'delimiter',',', '-append');
+
+% make out txt
+outtxt = header;
+for i=1:length(places)
+    line = [places{i},',',num2str(lon(i)),',',num2str(lat(i)),',', ...
+            num2str(RTGMs(i)),',',num2str(RiskCoeffs(i)),char(10)];
+    outtxt = [outtxt line];
+end
+    
+dlmwrite(outfile, outtxt, 'delimiter','');
+%dlmwrite(outfile, data, 'delimiter',',', '-append');
+
+
+
+
+
+
 
