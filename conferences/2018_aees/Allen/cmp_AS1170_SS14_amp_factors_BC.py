@@ -23,19 +23,27 @@ Outputs CSV file of amp factors relative to B/C site conditions
 """
 
 #from boore_atkinson_site_2008 import boore_atkinson_siteamp
+import matplotlib as mpl
 from atkinson_boore_site_2006 import atkinson_boore_siteamp
 from seyhan_stewart_2014 import seyhan_stewart_siteamp
+from hazard_tools import return_AS1170_4_shape
 from numpy import array, arange, where, log, exp, interp, hstack
 from gmt_tools import cpt2colormap
+from misc_tools import remove_last_cmap_colour
+#mpl.style.use('classic')
+
 
 # periods for NBCC2015 (PGA = 0; PGV = -1)     
-T = [0.05, 0.075, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1., 1.25, \
-     1.5, 2., 2.25, 2.5, 2.75, 3., 3.25, 3.5, 4., 4.5, 5., 0., -1.] # in s
+T = array([0.05, 0.075, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1., 1.25, \
+           1.5, 2., 2.25, 2.5, 2.75, 3., 3.25, 3.5, 4., 4.5, 5., 0., -1.]) # in s
+asT = arange(0.05, 5., 0.01)
 #T = [0.1, 0.2, 0.3, 0.5, 1., 2., 5., 10., 0., -1.] # in s - NBCC
 
 
-# Set Vs30 array
-vs30 = [115, 180, 270, 412, 560, 760, 1100] # in m/s 
+# Set Vs30 array - equivalent to 
+vs30 = [115, 270, 412, 760, 1100] # in m/s 
+rev_vs30 = vs30[::-1] # reverse vs30 order for tables
+as1170_site_class = ['E', 'D', 'C', 'B', 'A']
 
 # frist get B/C pga4nl
 target_pga4nl_BC = array([0.1, 0.2, 0.3, 0.4, 0.5]) # in g
@@ -62,7 +70,7 @@ for i, pga in enumerate(pga4nl_BC):
     # set dictionary and loop thru velocity
     vdict = {}
     # loop thru Vs30
-    for v in vs30:
+    for v, asc in zip(vs30, as1170_site_class):
         # loop thru periods
         amp = []
         for t in T:
@@ -83,8 +91,7 @@ BC_ampfactors['periods'] = array(T)
 
 ##########################################################################
 '''
-Re-cast amp factors in terms of site class C 
-This gets appropriate amp factors for classes C-E
+Re-cast amp factors in terms of site class B/C 
 '''
 # set empty dictionary
 C_ampfactors  = {}
@@ -93,23 +100,32 @@ C_ampfactors  = {}
 for i, pga in enumerate(pga4nl_BC):
     # set dictionary and loop thru velocity
     vdict = {}
-    for v in vs30:
+    asvdict = {}
+    for v, asc in zip(vs30, as1170_site_class):
         # loop thru periods
         amp = []
         for t in T:
-            if v < 1000:
-                # get amp factor for each period relative to C and append to amp
-                amp.append(seyhan_stewart_siteamp(v, t, pga) / 
-                           seyhan_stewart_siteamp(760., t, pga))
-                           
+            #if v < 1000:
+            # get amp factor for each period relative to C and append to amp
+            amp.append(seyhan_stewart_siteamp(v, t, pga) / 
+                       seyhan_stewart_siteamp(760., t, pga))
+                       
+            '''
             else:
                 amp.append(atkinson_boore_siteamp(v, t, pga))
+            '''
         
         # add amp factors to velocity dictionary
         vdict['vs'+str(v)] = array(amp)
+        
+        # add AS1170 factors
+        asv = return_AS1170_4_shape(asT, asc) / return_AS1170_4_shape(asT, 'B')
+        asvdict['as_vs'+str(v)] = asv
+        
     
     # add velocity dictionary to amp factor dictionary
     C_ampfactors[str(target_pga4nl_BC[i])+'g'] = vdict
+    C_ampfactors['as'+str(target_pga4nl_BC[i])+'g'] = asvdict
 
 # add periods to amp factor dictionary 
 C_ampfactors['periods'] = array(T)
@@ -120,11 +136,11 @@ C_ampfactors['periods'] = array(T)
 '''
 Get CSV text for output to match NBCC tables
 '''
-
+"""
 # set params
 ascii_no = range(65, 70) # ascii chars A-E
-site_class = ['B', 'B/C', 'C', 'C/D', 'D', 'D/E', 'E'] # convert ascii number to char
-rev_vs30 = vs30[::-1] # reverse vs30 order for tables
+site_class = ['B (Ae)', 'B/C (Be)', 'C/D (Ce)', 'D (De)', 'E (Ee)'] # convert ascii number to char
+
 PGAref_header = ','+','.join(['PGAref='+str(x)+'g' for x in target_pga4nl_BC])+'\n'
 NBCCtxt = ''
 
@@ -157,14 +173,14 @@ for i, t in enumerate(T):
 f = open('SS14_ampfactors_BC.csv', 'wb')
 f.write(NBCCtxt)
 f.close()
-
+"""
 ##########################################################################
 '''
 plt amp factors
 '''
 
 import matplotlib.pyplot as plt
-import matplotlib as mpl
+#import matplotlib as mpl
 
 pltpga = [0.1, 0.4]
 
@@ -172,16 +188,17 @@ mpl.rcParams['pdf.fonttype'] = 42
 plt.rcParams['xtick.labelsize'] = 14
 plt.rcParams['ytick.labelsize'] = 14 
 
-numcols = 7
+numcols = 6
 cmap, zvals = cpt2colormap('/Users/tallen/Documents/DATA/GMT/cpt/temperature.cpt', numcols)
+cmap = remove_last_cmap_colour(cmap)
 cs = (cmap(arange(numcols)))
 
 # remove yellow
 #idx=array([0, 1, 3, 4, 5])
 #cs = cs[idx]
 
-legtxt = ['Site Class B', 'Site Class B/C', 'Site Class C', 'Site Class C/D', 'Site Class D', \
-          'Site Class D/E', 'Site Class E'] #, 'F(T)', 'Fa & Fv']
+legtxt = ['Site Class B', 'Site Class B/C', 'Site Class C', 'Site Class D', \
+          'Site Class E'] #, 'F(T)', 'Fa & Fv']
 figure = plt.figure(1,figsize=(19,8))
 
 # Boarcherdt 1994 for 0.1 and 0.4 g
@@ -209,7 +226,10 @@ for i, pga in enumerate(pltpga):
     # loop thru vs
     for j, v in enumerate(rev_vs30):
         pltamps = C_ampfactors[str(pga)+'g']['vs'+str(v)][:-2]
-        plt.semilogx(T[:-2], pltamps, '-', lw=4.,color=[cs[j][0],cs[j][1],cs[j][2]])        
+        plt.semilogx(T[:-2], pltamps, '-', lw=2.5,color=cs[j], label=legtxt[j]) 
+        	
+        aspltamps = C_ampfactors['as'+str(pga)+'g']['as_vs'+str(v)]
+        plt.semilogx(asT, aspltamps, '--', lw=2.5,color=cs[j])       
         	
     plt.ylim([0.5, 7.])
     plt.title('PGAref = ' + str(pga) + ' g', fontsize=18)
@@ -225,9 +245,11 @@ for i, pga in enumerate(pltpga):
         plt.legend((h1[0], h2[0]),('F(T)', 'Fa & Fv') ,loc=2, fontsize=14)
     '''
     # at John's request
-    plt.semilogx([0.1, 1.],[9999., 9999.], 'k-', lw=4.)
-    plt.semilogx([0.1, 1.],[9999., 9999.], 'k--', lw=4.)
-    plt.legend(legtxt ,loc=2, fontsize=13)
+    plt.semilogx([0.1, 1.],[9999., 9999.], 'k-', lw=2.5)
+    plt.semilogx([0.1, 1.],[9999., 9999.], 'k--', lw=2.5)
+    
+    if i == 0:
+        plt.legend(loc=2, fontsize=13)
     
     '''    
     for j, v in enumerate(rev_vs30):	
@@ -246,6 +268,6 @@ for i, pga in enumerate(pltpga):
     ax.set_xticklabels(xlabels)
     plt.xlim([0.05, 5.])
         
-plt.savefig('SS14_F(T)_factors_BC.png', format='png', bbox_inches='tight', dpi=150)
+plt.savefig('cmp_AS1170_SS14_factors_BC.png', format='png', bbox_inches='tight', dpi=150)
 
 plt.show()
