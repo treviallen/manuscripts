@@ -23,15 +23,15 @@ Outputs CSV file of amp factors relative to B/C site conditions
 """
 
 #from boore_atkinson_site_2008 import boore_atkinson_siteamp
-import matplotlib as mpl
+#import matplotlib as mpl
 from atkinson_boore_site_2006 import atkinson_boore_siteamp
 from seyhan_stewart_2014 import seyhan_stewart_siteamp
 from hazard_tools import return_AS1170_4_shape
 from numpy import array, arange, where, log, exp, interp, hstack
 from gmt_tools import cpt2colormap
 from misc_tools import remove_last_cmap_colour
+import matplotlib as mpl
 #mpl.style.use('classic')
-
 
 # periods for NBCC2015 (PGA = 0; PGV = -1)     
 T = array([0.05, 0.075, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1., 1.25, \
@@ -189,6 +189,7 @@ plt.rcParams['xtick.labelsize'] = 14
 plt.rcParams['ytick.labelsize'] = 14 
 
 numcols = 6
+cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//qual-dark-06.cpt' # try me!
 cmap, zvals = cpt2colormap('/Users/tallen/Documents/DATA/GMT/cpt/temperature.cpt', numcols)
 cmap = remove_last_cmap_colour(cmap)
 cs = (cmap(arange(numcols)))
@@ -199,6 +200,7 @@ cs = (cmap(arange(numcols)))
 
 legtxt = ['Site Class B', 'Site Class B/C', 'Site Class C', 'Site Class D', \
           'Site Class E'] #, 'F(T)', 'Fa & Fv']
+
 figure = plt.figure(1,figsize=(19,8))
 
 # Boarcherdt 1994 for 0.1 and 0.4 g
@@ -245,11 +247,16 @@ for i, pga in enumerate(pltpga):
         plt.legend((h1[0], h2[0]),('F(T)', 'Fa & Fv') ,loc=2, fontsize=14)
     '''
     # at John's request
-    plt.semilogx([0.1, 1.],[9999., 9999.], 'k-', lw=2.5)
-    plt.semilogx([0.1, 1.],[9999., 9999.], 'k--', lw=2.5)
+    h1 = plt.semilogx([0.1, 1.],[9999., 9999.], 'k-', lw=2.5)
+    h2 = plt.semilogx([0.1, 1.],[9999., 9999.], 'k--', lw=2.5)
     
     if i == 0:
         plt.legend(loc=2, fontsize=13)
+        plt.title('No Linear Amplification Only')
+    
+    elif i == 1:
+        plt.legend((h1[0], h2[0]), ('Seyhan & Stewart (2014)', 'AS1170.4-2007'), loc=2, fontsize=13)
+        plt.title('Non-Linear Amplification Considered')
     
     '''    
     for j, v in enumerate(rev_vs30):	

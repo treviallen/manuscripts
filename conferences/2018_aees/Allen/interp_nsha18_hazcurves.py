@@ -2,7 +2,7 @@ from tools.oq_tools import return_annualised_haz_curves
 from numpy import interp, exp, log, array, around
 from os import getcwd
 
-probs = array([0.02,0.01375,0.01,0.00445,0.0021,0.001,0.0005,0.000404,0.0002,0.0001])
+probs = array([0.02,0.01375,0.01,0.00445,0.002,0.0021,0.001,0.0005,0.000404,0.0002,0.0001])
 
 if getcwd().startswith('/nas'):
     hazcurvefile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/source_models/complete_model/final/results_fractilesUHS/hazard_curve-mean-SA(1.0)_1.csv'
