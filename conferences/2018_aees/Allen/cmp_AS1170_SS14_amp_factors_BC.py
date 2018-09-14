@@ -31,7 +31,7 @@ from numpy import array, arange, where, log, exp, interp, hstack
 from gmt_tools import cpt2colormap
 from misc_tools import remove_last_cmap_colour
 import matplotlib as mpl
-#mpl.style.use('classic')
+mpl.style.use('classic')
 
 # periods for NBCC2015 (PGA = 0; PGV = -1)     
 T = array([0.05, 0.075, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1., 1.25, \
@@ -189,8 +189,9 @@ plt.rcParams['xtick.labelsize'] = 14
 plt.rcParams['ytick.labelsize'] = 14 
 
 numcols = 6
+cptfile = '/Users/tallen/Documents/DATA/GMT/cpt/temperature.cpt'
 cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//qual-dark-06.cpt' # try me!
-cmap, zvals = cpt2colormap('/Users/tallen/Documents/DATA/GMT/cpt/temperature.cpt', numcols)
+cmap, zvals = cpt2colormap(cptfile, numcols)
 cmap = remove_last_cmap_colour(cmap)
 cs = (cmap(arange(numcols)))
 
@@ -198,8 +199,8 @@ cs = (cmap(arange(numcols)))
 #idx=array([0, 1, 3, 4, 5])
 #cs = cs[idx]
 
-legtxt = ['Site Class B', 'Site Class B/C', 'Site Class C', 'Site Class D', \
-          'Site Class E'] #, 'F(T)', 'Fa & Fv']
+legtxt = ['Site Class B (Ae)', 'Site Class B/C (Be)', 'Site Class C (Ce)', 'Site Class D (De)', \
+          'Site Class E (Ee)'] #, 'F(T)', 'Fa & Fv']
 
 figure = plt.figure(1,figsize=(19,8))
 
@@ -234,7 +235,7 @@ for i, pga in enumerate(pltpga):
         plt.semilogx(asT, aspltamps, '--', lw=2.5,color=cs[j])       
         	
     plt.ylim([0.5, 7.])
-    plt.title('PGAref = ' + str(pga) + ' g', fontsize=18)
+    plt.title('PGAref = ' + str(pga) + ' g', fontsize=24)
     plt.xlabel('Period (s)', fontsize=16)
     plt.ylabel('Amplification Factor (Relative to B/C)', fontsize=16)
     
@@ -252,11 +253,11 @@ for i, pga in enumerate(pltpga):
     
     if i == 0:
         plt.legend(loc=2, fontsize=13)
-        plt.title('No Linear Amplification Only')
+        plt.title('No Linear Amplification Only', fontsize=20)
     
     elif i == 1:
         plt.legend((h1[0], h2[0]), ('Seyhan & Stewart (2014)', 'AS1170.4-2007'), loc=2, fontsize=13)
-        plt.title('Non-Linear Amplification Considered')
+        plt.title('Non-Linear Amplification Considered', fontsize=20)
     
     '''    
     for j, v in enumerate(rev_vs30):	
