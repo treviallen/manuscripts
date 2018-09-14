@@ -13,20 +13,16 @@ mpl.style.use('classic')
 # set params
 ###############################################################################
 
-uhsfile = argv[1]
+if getcwd().startswith('/nas'):
+    uhsfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/source_models/complete_model/final/results_fractilesUHS/hazard_uhs-mean_1.csv'
 
-plt1170 = argv[2]
-
+'''
 if plt1170 == 'True':
     plt1170 = True
 else:
     plt1170 = False
-
-
-altPlaces = True
-
-pltLog = False
-
+    
+    
 # get colours
 if getcwd().startswith('/nas'):
     cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/gay-flag-1978.cpt'
@@ -37,6 +33,14 @@ cmap, zvals = cpt2colormap(cptfile, ncolours)
 cmap = remove_last_cmap_colour(cmap)
 cs = (cmap(arange(ncolours-1)))
 
+
+'''
+
+plt1170 = False
+
+altPlaces = True
+
+pltLog = False
 
 ###############################################################################
 # parse uhs file
@@ -126,90 +130,41 @@ for t in per1170:
 shp1170 = array(shp1170)
            
 ###################################################################################
-# plt 10 & 2% hazard curves
+# write to csvs
 ###################################################################################
-
-fig = plt.figure(1, figsize=(11, 11))
-
-if altPlaces == False:
-    places = ['Perth', 'Darwin', 'Adelaide', 'Melbourne', 'Hobart', 'Canberra', 'Sydney', 'Brisbane']
-else:
-    places = ['Wongan Hills', 'Kalgoorlie', 'Port Pirie', 'Cooma', 'Yulara', 'Hawker', 'Leongatha', 'Morwell']
-    places = ['Wongan Hills', 'Darwin', 'Adelaide', 'Kimba', 'Hawker', 'Canberra', 'Sydney', 'Morwell']
-
-if plt1170 == False:
-    probidx = [0, 2]
-else:
-    probidx = [0]
-
-for j, pi in enumerate(probidx):
-    ax = plt.subplot(2,1,j+1)
-    # match city for plotting
-    for i, place in enumerate(places):
-        for uhs in uhsDict:
-            if place == uhs['place']:
-                if pltLog == True:
-                    if plt1170 == True:
-                        normSA = uhs[probabilities[pi]] / uhs[probabilities[pi]][0]
-                        plt.loglog(periods[1:], normSA[1:], lw=2.0, c=cs[i], label=place)
-                    else:
-                        plt.loglog(periods[1:], uhs[probabilities[pi]][1:], lw=2.0, c=cs[i], label=place)
-                else:
-                    if plt1170 == True:
-                        normSA = uhs[probabilities[pi]] / uhs[probabilities[pi]][0]
-                        plt.plot(periods[0:], normSA, lw=2.0, c=cs[i], label=place)
-                    else:
-                        plt.plot(periods[0:], uhs[probabilities[pi]][0:], lw=2.0, c=cs[i], label=place)
-                    
-    # plt AS1170.4 spectra
-    if plt1170 == True:
-        if pltLog == True:
-            plt.plot(per1170[1:], shp1170[1:], 'k-', lw=2.0, label='AS1170.4 Be')
-        else:
-            plt.plot(per1170, shp1170, 'k-', lw=2.0, label='AS1170.4 Be')
+for i, prob in enumerate(probabilities):
+    uhstxt = 'GEOSCIENCE AUSTRALIA NSHA18 UHS ACCELERATION VALUES IN UNITS OF G\nPLACE,LON,LAT,' + ','.join(['SA'+str(t) for t in periods]) + '\n'
+    
+    # loop through places
+    for ud in uhsDict:
+        uhstxt += ','.join((ud['place'], str('%0.2f' % ud['lon']), str('%0.2f' % ud['lat']), \
+                            ','.join([str(h) for h in ud[prob]]))) + '\n'
+                            
+    # write to file
+    uhsOutFile = 'nsha18_uhs_'+prob+'.csv'
+    f = open(uhsOutFile, 'wb')
+    f.write(uhstxt)
+    f.close()
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
         
-    plt.xlabel('Period (s)', fontsize=15)
-    if plt1170 == True:
-        plt.ylabel('Normalised '+str('%0.0f' % (100*float(probabilities[pi])))+'% in 50-year AEP Sa (g)', fontsize=15)
-    else:
-        plt.ylabel(str('%0.0f' % (100*float(probabilities[pi])))+'% in 50-year AEP Sa (g)', fontsize=15)
-    
-    if j == 0:
-        if pltLog == True:
-            plt.legend(loc=3, fontsize=13)
-            plt.xlim([0.1, 5])
-        else:
-            plt.legend(loc=1, fontsize=13)
         
-
-
-ylims = array(ax.get_ylim())
-xlims = array(ax.get_xlim())
-
-#plt.text(2.6, 85, 'a)', fontsize=15, va='top', ha='left')
-
-###############################################################################
-# save figs
-###############################################################################
-if altPlaces == False:
-    caps = 'capitals'
-else:
-    caps = 'regions'
-    caps = 'nrwmf'
+        
+        
+        
+        
+        
+        
+        
+        
+        
     
-if pltLog == True:
-    axtype = 'log'
-else:
-    axtype = 'lin'
-
-if plt1170 == True:
-    pngname = '_'.join(('uhs',caps,axtype,'norm.png'))
-
-    plt.savefig(pngname, fmt='png', bbox_inches='tight')
     
-else:
-    pngname = '_'.join(('uhs',caps,axtype+'.png'))
-
-    plt.savefig(pngname, fmt='png', bbox_inches='tight')
-
-plt.show()
