@@ -41,7 +41,7 @@ asT = arange(0.05, 5., 0.01)
 
 
 # Set Vs30 array - equivalent to 
-vs30 = [115, 270, 412, 760, 1100] # in m/s 
+vs30 = [150, 270, 464, 760, 1100] # in m/s 
 rev_vs30 = vs30[::-1] # reverse vs30 order for tables
 as1170_site_class = ['E', 'D', 'C', 'B', 'A']
 
@@ -191,6 +191,7 @@ plt.rcParams['ytick.labelsize'] = 14
 numcols = 6
 cptfile = '/Users/tallen/Documents/DATA/GMT/cpt/temperature.cpt'
 cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//qual-dark-06.cpt' # try me!
+cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//humidity.cpt'
 cmap, zvals = cpt2colormap(cptfile, numcols)
 cmap = remove_last_cmap_colour(cmap)
 cs = (cmap(arange(numcols)))
@@ -234,7 +235,7 @@ for i, pga in enumerate(pltpga):
         aspltamps = C_ampfactors['as'+str(pga)+'g']['as_vs'+str(v)]
         plt.semilogx(asT, aspltamps, '--', lw=2.5,color=cs[j])       
         	
-    plt.ylim([0.5, 7.])
+    plt.ylim([0.5, 6.])
     plt.title('PGAref = ' + str(pga) + ' g', fontsize=24)
     plt.xlabel('Period (s)', fontsize=16)
     plt.ylabel('Amplification Factor (Relative to B/C)', fontsize=16)
@@ -253,7 +254,7 @@ for i, pga in enumerate(pltpga):
     
     if i == 0:
         plt.legend(loc=2, fontsize=13)
-        plt.title('No Linear Amplification Only', fontsize=20)
+        plt.title('Linear Amplification Only', fontsize=20)
     
     elif i == 1:
         plt.legend((h1[0], h2[0]), ('Seyhan & Stewart (2014)', 'AS1170.4-2007'), loc=2, fontsize=13)
