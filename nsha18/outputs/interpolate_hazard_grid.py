@@ -131,6 +131,10 @@ def get_nsha18_haz_curves(interp_lon, interp_lat, siteName):
     interp_lon = array([interp_lon])
     interp_lat = array([interp_lat])
     
+    # check latitude
+    if interp_lat[0] >= 0:
+        interp_lat[0] *= -1
+    
     haz_curve_dict = {}
     for period in periods:
         hazcurvefile = path.join(gridFolder,'hazard_curve-mean_'+period+'.csv')
@@ -144,7 +148,7 @@ def get_nsha18_haz_curves(interp_lon, interp_lat, siteName):
         
         # set filename
         outhazcurve = '_'.join(('hazard_curve-mean-' + period, \
-                                str(interp_lon[0]), str(interp_lat[0]), siteName + '.csv'))
+                                str(interp_lon[0])+'E', str(abs(interp_lat[0]))+'S', siteName + '.csv'))
         
         # interp hazard curves to common probabilities and export
         interphaz, return_period_num = interp_hazard_curves(investigation_time, spatial_interp_poe, poe_imls, outhazcurve)
@@ -159,7 +163,7 @@ def get_nsha18_haz_curves(interp_lon, interp_lat, siteName):
 # set some default values here
 ##############################################################################
 
-def get_nsha18_uhs(interp_lon, interp_lat, pertun_period, investigation_time, siteName):
+def get_nsha18_uhs(interp_lon, interp_lat, percent_chance, investigation_time, siteName):
 
     from os import path
     from numpy import array
@@ -169,11 +173,17 @@ def get_nsha18_uhs(interp_lon, interp_lat, pertun_period, investigation_time, si
     gridFolder = 'hazard_curve_grids'
     
     # canberra: 149.13	-35.3
+    '''
     interp_lon = array([149.13])
     interp_lat = array([-35.3])
     siteName = 'Canberra'
     return_period = 475.
     investigation_time = 50
+    '''
+    
+    # check latitude
+    if interp_lat[0] >= 0:
+        interp_lat[0] *= -1
     
     sa_values = []
     for period in periods:
@@ -187,7 +197,7 @@ def get_nsha18_uhs(interp_lon, interp_lat, pertun_period, investigation_time, si
         spatial_interp_poe = interp_hazard_grid(poe_imls, gridDict, interp_lon, interp_lat, period)
         
         # get interpolation probability
-        percent_chance = get_percent_chance_from_return_period(return_period, investigation_time)
+        #percent_chance = get_percent_chance_from_return_period(return_period, investigation_time)
         return_period, probability = get_probability_from_percent_chance(percent_chance, investigation_time)
         
         # interp spatial_interp_poe to get value for return period of interest
@@ -212,7 +222,7 @@ def get_nsha18_uhs(interp_lon, interp_lat, pertun_period, investigation_time, si
     
     # set filename
     outuhsfile = '_'.join(('uhs-mean-' + str(return_period), \
-                            str(interp_lon[0]), str(interp_lat[0]), siteName + '.csv'))
+                            str(interp_lon[0])+'E', str(abs(interp_lat[0]))+'S', siteName + '.csv'))
                                     
     # write to file
     print 'Writing file:', outuhsfile
