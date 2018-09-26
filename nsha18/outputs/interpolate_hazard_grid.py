@@ -9,8 +9,6 @@ from numpy import array, mgrid, linspace, isinf, hstack, interp, log, exp
 from misc_tools import dictlist2array
 from scipy.interpolate import griddata
 from os import path, mkdir
-from hazard_tools import get_percent_chance_from_return_period, \
-                         get_probability_from_percent_chance
 
 ##############################################################################
 # some basic functions
@@ -105,12 +103,12 @@ def interp_hazard_curves(investigation_time, interp_poe, poe_imls, outhazcurve):
         haztxt += ','.join((return_period, str('%0.4e' % probability), str('%0.4e' % interphaz))) + '\n'
         
     # check if folder exists
-    if path.isdir('interp_hazard_curve') == False:
-        mkdir('interp_hazard_curve')
+    if path.isdir('4.3.1_interp_hazard_curve') == False:
+        mkdir('4.3.1_interp_hazard_curve')
         
     # write to file
     print 'Writing file:', outhazcurve
-    f = open(path.join('interp_hazard_curve', outhazcurve), 'wb')
+    f = open(path.join('4.3.1_interp_hazard_curve', outhazcurve), 'wb')
     f.write(haztxt)
     f.close()
     
@@ -126,7 +124,7 @@ def get_nsha18_haz_curves(interp_lon, interp_lat, siteName):
     from os import path
     
     periods = ['PGA', 'SA0.2', 'SA1.0']
-    gridFolder = 'hazard_curve_grids'
+    gridFolder = path.join('..', '4.2_hazard_curve_grid_files')
     
     interp_lon = array([interp_lon])
     interp_lat = array([interp_lat])
@@ -170,7 +168,7 @@ def get_nsha18_uhs(interp_lon, interp_lat, percent_chance, investigation_time, s
     
     periods = ['PGA', 'SA0.2', 'SA1.0']
     plt_periods = [0, 0.2, 1.0]
-    gridFolder = 'hazard_curve_grids'
+    gridFolder = path.join('..', '4.2_hazard_curve_grid_files')
     
     # canberra: 149.13	-35.3
     '''
@@ -217,8 +215,8 @@ def get_nsha18_uhs(interp_lon, interp_lat, percent_chance, investigation_time, s
         uhstxt += ','.join((t, str('%0.4e' % sa))) + '\n'
     
     # check if folder exists
-    if path.isdir('interp_uhs') == False:
-        mkdir('interp_uhs')
+    if path.isdir('4.3.2_interp_uhs') == False:
+        mkdir('4.3.2_interp_uhs')
     
     # set filename
     outuhsfile = '_'.join(('uhs-mean-' + str(return_period), \
@@ -226,7 +224,7 @@ def get_nsha18_uhs(interp_lon, interp_lat, percent_chance, investigation_time, s
                                     
     # write to file
     print 'Writing file:', outuhsfile
-    f = open(path.join('interp_uhs', outuhsfile), 'wb')
+    f = open(path.join('4.3.2_interp_uhs', outuhsfile), 'wb')
     f.write(uhstxt)
     f.close()
     
