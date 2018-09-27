@@ -221,7 +221,7 @@ def get_nsha18_uhs(interp_lon, interp_lat, percent_chance, investigation_time, s
         mkdir('interp_uhs')
     
     # set filename
-    outuhsfile = '_'.join(('uhs-mean-' + str(return_period), \
+    outuhsfile = '_'.join(('uhs-mean-' + str('%0.4f' % probability), \
                             str(interp_lon[0])+'E', str(abs(interp_lat[0]))+'S', siteName + '.csv'))
                                     
     # write to file
