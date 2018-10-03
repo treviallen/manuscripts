@@ -4,12 +4,13 @@ Created on Tue Aug 28 12:25:12 2018
 
 @author: u56903
 """
+'''
 from tools.oq_tools import return_annualised_haz_curves
 from numpy import array, mgrid, linspace, isinf, hstack, interp, log, exp
 from misc_tools import dictlist2array
 from scipy.interpolate import griddata
 from os import path, mkdir
-
+'''
 ##############################################################################
 # some basic functions
 ##############################################################################
@@ -33,12 +34,86 @@ def get_percent_chance_from_return_period(return_period, investigation_time):
 
     return percent_chance
 
+# flattens a single key value from a list of dictionaries
+def dictlist2array(dictList, key):
+    from numpy import array
+    
+    flatList = []
+    for dl in dictList:
+        flatList.append(dl[key])
+        
+    return array(flatList)
+
+##############################################################################
+# parse OpenQuake hazard curve grid files
+##############################################################################
+
+def return_annualised_haz_curves(hazcurvefile):
+    from numpy import array, log, unique, where
+            
+    csvlines = open(hazcurvefile).readlines()
+    
+    # get investigation time
+    for header in csvlines[0].split(','):
+        if header.strip().startswith('investigation_time'):
+            investigation_time = float(header.split('=')[-1])
+    
+    # get intesity measures
+    header = csvlines[1].strip().split(',')[3:] # changed to 3 for oq version 3.1
+
+    try:
+        imls = array([float(x.split(':')[0]) for x in header])
+    
+    except:
+        imls = []
+        imts = []
+        for iml in header:
+            iml = iml.split('-')
+            if len(iml) > 2:
+                imls.append(float('-'.join(iml[1:])))
+            else:
+                imls.append(float(iml[-1]))
+                
+            imts.append(iml[0].strip(')').split('(')[-1])
+                
+        imls = array(imls)
+        imts = array(imts)
+    
+    # get unique periods
+    uimts = unique(imts) 
+    
+    # get site data
+    siteDict = []
+    for line in csvlines[2:]:
+        dat = line.split(',')
+        tmpdict = {'lon': float(dat[0]), 'lat': float(dat[1]), 'depth': float(dat[2])}
+        
+        dat = dat[3:]
+        # loop through imts
+        for ut in uimts:
+            idx = where(imts == ut)[0]
+            poe50 = array([float(x) for x in array(dat)[idx]])
+            
+            # now get annualised curves
+            P0 = 1 - array(poe50)
+            n = -1*log(P0)
+            annual_probs = n / investigation_time
+            
+            tmpdict[ut+'_probs_annual'] = annual_probs
+            tmpdict[ut+'_probs_invtime'] = poe50
+            
+        siteDict.append(tmpdict)
+
+    return siteDict, imls, investigation_time
+
 ##############################################################################
 # parse hazard grid
 ##############################################################################
 
 # parse grid file
 def prep_hazcurve_grid(hazcurvefile):
+    from numpy import hstack
+    
     gridDict, poe_imls, investigation_time = return_annualised_haz_curves(hazcurvefile)
     
     lons = dictlist2array(gridDict, 'lon')
@@ -56,7 +131,10 @@ def prep_hazcurve_grid(hazcurvefile):
 ##############################################################################
 
 # for each IML, grid and interpolate
-def interp_hazard_grid(poe_imls, gridDict, interp_lon, interp_lat, period):
+def interp_hazard_grid(poe_imls, gridDict, localities, interp_lon, interp_lat, period):
+    from scipy.interpolate import griddata
+    from numpy import array, isinf
+    
     interp_poe = []
     
     # strip "SA"
@@ -88,7 +166,7 @@ def interp_hazard_grid(poe_imls, gridDict, interp_lon, interp_lat, period):
 
 def interp_hazard_curves(investigation_time, interp_poe, poe_imls, outhazcurve):
     from os import path, mkdir
-    from numpy import array
+    from numpy import array, exp, log, interp
     
     # set grid return periods for hazard curve
     return_periods = ['100', '250', '475', '500', '800', '1000', '1500', '2000', '2475', \
@@ -114,7 +192,6 @@ def interp_hazard_curves(investigation_time, interp_poe, poe_imls, outhazcurve):
     
     return interphaz, array(return_period_num)
 
-
 ##############################################################################
 # set some default values here
 ##############################################################################
@@ -122,9 +199,10 @@ def interp_hazard_curves(investigation_time, interp_poe, poe_imls, outhazcurve):
 
 def get_nsha18_haz_curves(interp_lon, interp_lat, siteName):
     from os import path
+    from numpy import array
     
     periods = ['PGA',  'SA005' 'SA01'  'SA02'  'SA03'  'SA05'  'SA07'  'SA10'  'SA15'  'SA20'  'SA40']
-    #periods = ['PGA', 'SA0.2', 'SA1.0']
+    
     gridFolder = path.join('..', '4.2_hazard_curve_grid_files')
     
     interp_lon = array([interp_lon])
@@ -143,7 +221,7 @@ def get_nsha18_haz_curves(interp_lon, interp_lat, siteName):
         
         # get interpolated PoEs
         print 'Interplolating', period, 'grid...'
-        spatial_interp_poe = interp_hazard_grid(poe_imls, gridDict, interp_lon, interp_lat, period)
+        spatial_interp_poe = interp_hazard_grid(poe_imls, gridDict, localities, interp_lon, interp_lat, period)
         
         # set filename
         outhazcurve = '_'.join(('hazard_curve-mean-' + period, \
@@ -164,8 +242,8 @@ def get_nsha18_haz_curves(interp_lon, interp_lat, siteName):
 
 def get_nsha18_uhs(interp_lon, interp_lat, percent_chance, investigation_time, siteName):
 
-    #from os import path
-    from numpy import array
+    from os import path, mkdir
+    from numpy import array, exp, log, interp
     
     #periods = ['PGA', 'SA0.2', 'SA1.0']
     periods = ['PGA',  'SA005' 'SA01'  'SA02'  'SA03'  'SA05'  'SA07'  'SA10'  'SA15'  'SA20'  'SA40']
