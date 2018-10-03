@@ -123,7 +123,8 @@ def interp_hazard_curves(investigation_time, interp_poe, poe_imls, outhazcurve):
 def get_nsha18_haz_curves(interp_lon, interp_lat, siteName):
     from os import path
     
-    periods = ['PGA', 'SA0.2', 'SA1.0']
+    periods = ['PGA',  'SA005' 'SA01'  'SA02'  'SA03'  'SA05'  'SA07'  'SA10'  'SA15'  'SA20'  'SA40']
+    #periods = ['PGA', 'SA0.2', 'SA1.0']
     gridFolder = path.join('..', '4.2_hazard_curve_grid_files')
     
     interp_lon = array([interp_lon])
@@ -163,11 +164,13 @@ def get_nsha18_haz_curves(interp_lon, interp_lat, siteName):
 
 def get_nsha18_uhs(interp_lon, interp_lat, percent_chance, investigation_time, siteName):
 
-    from os import path
+    #from os import path
     from numpy import array
     
-    periods = ['PGA', 'SA0.2', 'SA1.0']
-    plt_periods = [0, 0.2, 1.0]
+    #periods = ['PGA', 'SA0.2', 'SA1.0']
+    periods = ['PGA',  'SA005' 'SA01'  'SA02'  'SA03'  'SA05'  'SA07'  'SA10'  'SA15'  'SA20'  'SA40']
+    
+    plt_periods = [0, 0.05, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.5, 2.0, 4.0]
     gridFolder = path.join('..', '4.2_hazard_curve_grid_files')
     
     # canberra: 149.13	-35.3
@@ -200,13 +203,12 @@ def get_nsha18_uhs(interp_lon, interp_lat, percent_chance, investigation_time, s
         
         # interp spatial_interp_poe to get value for return period of interest
         sa_values.append(exp(interp(log(probability), log(spatial_interp_poe[::-1]), log(poe_imls[::-1]))))
-        	
-    '''
+        	    
     # now test plot
     import matplotlib.pyplot as plt
     plt.plot(plt_periods, sa_values, 'r')
     plt.show()
-    '''
+    
     # set UHS header
     uhstxt = '1/'+str(return_period)+'-YEAR UNIFORM HAZARD SPECTRA FOR SITE LON: '+str(interp_lon[0])+', LAT: '+str(interp_lat[0]) + '\n'
     
