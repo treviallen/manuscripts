@@ -50,7 +50,9 @@ def dictlist2array(dictList, key):
 
 def return_annualised_haz_curves(hazcurvefile):
     from numpy import array, log, unique, where
-            
+    
+    # get period
+    period = hazcurvefile.strip('.csv').split('-')[-1]
     csvlines = open(hazcurvefile).readlines()
     
     # get investigation time
@@ -80,7 +82,7 @@ def return_annualised_haz_curves(hazcurvefile):
         imts = array(imts)
     
     # get unique periods
-    uimts = unique(imts) 
+    uimts = unique(imts)
     
     # get site data
     siteDict = []
@@ -89,6 +91,7 @@ def return_annualised_haz_curves(hazcurvefile):
         tmpdict = {'lon': float(dat[0]), 'lat': float(dat[1]), 'depth': float(dat[2])}
         
         dat = dat[3:]
+        
         # loop through imts
         for ut in uimts:
             idx = where(imts == ut)[0]
@@ -99,8 +102,8 @@ def return_annualised_haz_curves(hazcurvefile):
             n = -1*log(P0)
             annual_probs = n / investigation_time
             
-            tmpdict[ut+'_probs_annual'] = annual_probs
-            tmpdict[ut+'_probs_invtime'] = poe50
+            tmpdict[period+'_probs_annual'] = annual_probs
+            tmpdict[period+'_probs_invtime'] = poe50
             
         siteDict.append(tmpdict)
 
@@ -138,7 +141,7 @@ def interp_hazard_grid(poe_imls, gridDict, localities, interp_lon, interp_lat, p
     interp_poe = []
     
     # strip "SA"
-    period = period.replace('SA','')
+    #period = period.replace('SA','')
     
     hazcurvetxt = 'IML, Annual PoE\n'
     for i, iml in enumerate(poe_imls):
@@ -171,6 +174,7 @@ def interp_hazard_curves(investigation_time, interp_poe, poe_imls, outhazcurve):
     # set grid return periods for hazard curve
     return_periods = ['100', '250', '475', '500', '800', '1000', '1500', '2000', '2475', \
                       '2500', '3000', '5000']
+    interphazArray = []
     
     haztxt = 'RETURN_PERIOD,ANNUAL_PROBABILITY,HAZARD_LEVEL(g)\n'
     for return_period in return_periods:
@@ -179,6 +183,8 @@ def interp_hazard_curves(investigation_time, interp_poe, poe_imls, outhazcurve):
         
         interphaz = exp(interp(log(probability), log(interp_poe[::-1]), log(poe_imls[::-1])))
         haztxt += ','.join((return_period, str('%0.4e' % probability), str('%0.4e' % interphaz))) + '\n'
+        
+        interphazArray.append(interphaz)
         
     # check if folder exists
     if path.isdir('4.3.1_interp_hazard_curve') == False:
@@ -190,7 +196,7 @@ def interp_hazard_curves(investigation_time, interp_poe, poe_imls, outhazcurve):
     f.write(haztxt)
     f.close()
     
-    return interphaz, array(return_period_num)
+    return array(interphazArray), array(return_period_num)
 
 ##############################################################################
 # set some default values here
@@ -200,8 +206,20 @@ def interp_hazard_curves(investigation_time, interp_poe, poe_imls, outhazcurve):
 def get_nsha18_haz_curves(interp_lon, interp_lat, siteName):
     from os import path
     from numpy import array
+    import warnings
+    warnings.filterwarnings("ignore")
     
-    periods = ['PGA',  'SA005' 'SA01'  'SA02'  'SA03'  'SA05'  'SA07'  'SA10'  'SA15'  'SA20'  'SA40']
+    '''
+    # test data
+    interp_lon=149.13
+    interp_lat=-35.3
+    investigation_time=50.
+    percent_chance=10.
+    siteName='Canberra'
+    '''
+    
+    periods = ['PGA', 'SA(0.05)', 'SA(0.1)', 'SA(0.2)', 'SA(0.3)', 'SA(0.5)', 'SA(0.7)',  \
+               'SA(1.0)', 'SA(1.5)', 'SA(2.0)', 'SA(4.0)']
     
     gridFolder = path.join('..', '4.2_hazard_curve_grid_files')
     
@@ -214,11 +232,12 @@ def get_nsha18_haz_curves(interp_lon, interp_lat, siteName):
     
     haz_curve_dict = {}
     for period in periods:
-        hazcurvefile = path.join(gridFolder,'hazard_curve-mean_'+period+'.csv')
+        hazcurvefile = path.join(gridFolder,'hazard_curve-mean-'+period+'.csv')
+        print 'Parsing', hazcurvefile
         
         # parse data for interpolation
         lons, lats, localities, gridDict, poe_imls, investigation_time = prep_hazcurve_grid(hazcurvefile)
-        
+
         # get interpolated PoEs
         print 'Interplolating', period, 'grid...'
         spatial_interp_poe = interp_hazard_grid(poe_imls, gridDict, localities, interp_lon, interp_lat, period)
@@ -228,12 +247,13 @@ def get_nsha18_haz_curves(interp_lon, interp_lat, siteName):
                                 str(interp_lon[0])+'E', str(abs(interp_lat[0]))+'S', siteName + '.csv'))
         
         # interp hazard curves to common probabilities and export
-        interphaz, return_period_num = interp_hazard_curves(investigation_time, spatial_interp_poe, poe_imls, outhazcurve)
+        interphazArray, return_period_num = interp_hazard_curves(investigation_time, spatial_interp_poe, poe_imls, outhazcurve)
         
-        haz_curve_dict[period] = interphaz
+        haz_curve_dict[period] = interphazArray
         
-    haz_curve_dict['Return Periods'] = return_period_num
-    
+    haz_curve_dict['Return Periods'] = array([100, 250, 475, 500, 800, 1000, 1500, 2000, 2475, \
+                                        2500, 3000, 5000])
+
     return haz_curve_dict
 
 ##############################################################################
@@ -243,22 +263,33 @@ def get_nsha18_haz_curves(interp_lon, interp_lat, siteName):
 def get_nsha18_uhs(interp_lon, interp_lat, percent_chance, investigation_time, siteName):
 
     from os import path, mkdir
-    from numpy import array, exp, log, interp
+    from numpy import array, diff, exp, log, interp, where
+    import warnings
+    warnings.filterwarnings("ignore")
     
-    #periods = ['PGA', 'SA0.2', 'SA1.0']
-    periods = ['PGA',  'SA005' 'SA01'  'SA02'  'SA03'  'SA05'  'SA07'  'SA10'  'SA15'  'SA20'  'SA40']
+    periods = ['PGA', 'SA(0.05)', 'SA(0.1)', 'SA(0.2)', 'SA(0.3)', 'SA(0.5)', 'SA(0.7)',  \
+               'SA(1.0)', 'SA(1.5)', 'SA(2.0)', 'SA(4.0)']
     
     plt_periods = [0, 0.05, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.5, 2.0, 4.0]
     gridFolder = path.join('..', '4.2_hazard_curve_grid_files')
     
-    # canberra: 149.13	-35.3
     '''
-    interp_lon = array([149.13])
-    interp_lat = array([-35.3])
-    siteName = 'Canberra'
-    return_period = 475.
-    investigation_time = 50
+    # test data
+    interp_lon=138.6
+    interp_lat=-34.93
+    investigation_time=50.
+    percent_chance=10.
+    siteName='Adelaide'
+    
+    interp_lon=130.83
+    interp_lat=-12.45
+    investigation_time=50.
+    percent_chance=10.
+    siteName='Darwin'
     '''
+    
+    interp_lon = array([interp_lon])
+    interp_lat = array([interp_lat])
     
     # check latitude
     if interp_lat[0] >= 0:
@@ -266,40 +297,52 @@ def get_nsha18_uhs(interp_lon, interp_lat, percent_chance, investigation_time, s
     
     sa_values = []
     for period in periods:
-        hazcurvefile = path.join(gridFolder,'hazard_curve-mean_'+period+'.csv')
+        hazcurvefile = path.join(gridFolder,'hazard_curve-mean-'+period+'.csv')
         
         # parse data for interpolation
         lons, lats, localities, gridDict, poe_imls, investigation_time = prep_hazcurve_grid(hazcurvefile)
         
         # get interpolated PoEs
         print 'Interplolating', period, 'grid...'
-        spatial_interp_poe = interp_hazard_grid(poe_imls, gridDict, interp_lon, interp_lat, period)
+        spatial_interp_poe = interp_hazard_grid(poe_imls, gridDict, localities, interp_lon, interp_lat, period)
         
         # get interpolation probability
         #percent_chance = get_percent_chance_from_return_period(return_period, investigation_time)
         return_period, probability = get_probability_from_percent_chance(percent_chance, investigation_time)
         
+        # find and strip negative exceedance probabilites
+        idx = where(spatial_interp_poe >= 0.0)[0]
+        spatial_interp_poe = spatial_interp_poe[idx]
+        poe_imls = poe_imls[idx]
+        
+        # find decreasing exceedance probabilites
+        idx = where(diff(spatial_interp_poe[::-1]) >= 0.0)[0]
+        idx = idx + 1
+    
         # interp spatial_interp_poe to get value for return period of interest
-        sa_values.append(exp(interp(log(probability), log(spatial_interp_poe[::-1]), log(poe_imls[::-1]))))
+        sa_values.append(exp(interp(log(probability), log(spatial_interp_poe[::-1][idx]), log(poe_imls[::-1][idx]))))
         	    
     # now test plot
+    '''
     import matplotlib.pyplot as plt
     plt.plot(plt_periods, sa_values, 'r')
     plt.show()
+    '''
     
     # set UHS header
-    uhstxt = '1/'+str(return_period)+'-YEAR UNIFORM HAZARD SPECTRA FOR SITE LON: '+str(interp_lon[0])+', LAT: '+str(interp_lat[0]) + '\n'
+    uhstxt = '1/'+str(round(return_period, 1))+'-YEAR UNIFORM HAZARD SPECTRA FOR SITE, LON: '+str(interp_lon[0])+', LAT: '+str(interp_lat[0]) + '\n'
+    uhstxt += 'PERIOD,SA(g)\n'
     
     # make remaining text
-    for t, sa in zip(periods, sa_values):
-        uhstxt += ','.join((t, str('%0.4e' % sa))) + '\n'
+    for t, sa in zip(plt_periods, sa_values):
+        uhstxt += ','.join((str(t), str('%0.4e' % sa))) + '\n'
     
     # check if folder exists
     if path.isdir('4.3.2_interp_uhs') == False:
         mkdir('4.3.2_interp_uhs')
     
     # set filename
-    outuhsfile = '_'.join(('uhs-mean-' + str(return_period), \
+    outuhsfile = '_'.join(('uhs-mean-' + str(round(return_period, 1)), \
                             str(interp_lon[0])+'E', str(abs(interp_lat[0]))+'S', siteName + '.csv'))
                                     
     # write to file
@@ -307,7 +350,7 @@ def get_nsha18_uhs(interp_lon, interp_lat, percent_chance, investigation_time, s
     f = open(path.join('4.3.2_interp_uhs', outuhsfile), 'wb')
     f.write(uhstxt)
     f.close()
-    
+
     return array(periods), array(plt_periods), array(sa_values)
 
 
