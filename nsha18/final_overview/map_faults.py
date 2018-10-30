@@ -63,8 +63,8 @@ def get_basemap(llcrnrlon, urcrnrlon, llcrnrlat, urcrnrlat, res, fig, useGEBCO):
     if useGEBCO == True:
         print 'Reading netCDF file...'
         if cwd.startswith('/nas'):
-            nc = NetCDFFile('//nas//gemd//ehp//georisk_earthquake//hazard//DATA//GEBCO//au_gebco.nc')
-            cptfile = '//nas//gemd//ehp//georisk_earthquake//hazard//DATA//cpt//mby_topo-bath.cpt'
+            nc = NetCDFFile('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard//DATA//GEBCO//au_gebco.nc')
+            cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard//DATA//cpt//wiki-2.0.cpt'
             #cptfile = '//nas//gemd//ehp//georisk_earthquake//hazard//DATA//cpt//gray.cpt'
             #cptfile = '//nas//gemd//ehp//georisk_earthquake//hazard//DATA//cpt//mby_topo-bath_mod.cpt'
         else:
@@ -97,7 +97,7 @@ def get_basemap(llcrnrlon, urcrnrlon, llcrnrlat, urcrnrlat, res, fig, useGEBCO):
         #norm = mpl.colors.Normalize(vmin=-8000/zscale, vmax=5000/zscale)#myb
         norm = mpl.colors.Normalize(vmin=-1000/zscale, vmax=1900/zscale)#wiki
         rgb = ls.shade(topodat, cmap=cmap, norm=norm) #norm=norm)
-        im = m.imshow(rgb, alpha=0.7)
+        im = m.imshow(rgb, alpha=1.)
     
     return m, ax
 
@@ -143,7 +143,7 @@ plt.plot(x, y, 'h', mfc='b', mec='w', mew=0.75, markersize=9, label='Large Dams'
 
 cwd = getcwd()
 if cwd.startswith('/nas'):
-    nfsmshp = '//nas//gemd//ehp//georisk_earthquake//neotectonic//Seismicity_Scenario_models//Hazard Map working 2018//ARCGIS//FSM lines//FSD_simple_faults.shp'
+    nfsmshp = '/nas/active/ops/community_safety/ehp/georisk_earthquake/neotectonic//Seismicity_Scenario_models//Hazard Map working 2018//ARCGIS//FSM lines//FSD_simple_faults.shp'
 else:
     nfsmshp = '/Users/tallen/Documents/Geoscience_Australia/NSHA2018/source_models/faults/FSM/FSD_simple_faults.shp'
     
@@ -157,7 +157,7 @@ st_rates = array(st_rates)
 
 
 if cwd.startswith('/nas'):
-    cptfile = '//nas//gemd//ehp//georisk_earthquake//hazard//DATA//cpt//temperature.cpt'
+    cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard//DATA//cpt//humidity.cpt'
 else:
     cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//temperature.cpt'
     cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//humidity.cpt'
@@ -240,7 +240,7 @@ annotate cities
 ###########################################################################################
 '''
 if cwd.startswith('/nas'):
-    capfile = '/Users/tallen/Documents/Geoscience_Australia/NSHA2018/shared/capitals_names.csv'
+    capfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/shared/capitals_names.csv'
 else:
     capfile = '/Users/tallen/Documents/Geoscience_Australia/NSHA2018/shared/capitals_names.csv'
 

@@ -163,7 +163,7 @@ for k, key in enumerate(keys[:2]):
                 
                 
                 # plt mean
-                plt.semilogx([frac1['mean_'+key],frac1['mean_'+key]], [0,1], '--', c='seagreen', lw=1.5, label='Mean')
+                plt.semilogx([frac1['mean_'+key],frac1['mean_'+key]], [0,1], '-', c='seagreen', lw=1.5, label='Mean')
                 plt.semilogx([frac2['mean_'+key],frac2['mean_'+key]], [0,1], '--', c='orangered', lw=1.5, label='Mean')
                 '''
                 # plt median
