@@ -3,11 +3,27 @@ from numpy import arange, array, interp
 from os import path, getcwd, sep
 from sys import argv
 import matplotlib as mpl
+from gmt_tools import cpt2colormap 
+from misc_tools import remove_last_cmap_colour
 
 mpl.style.use('classic')
 mpl.rcParams['pdf.fonttype'] = 42
 
 paramfile = argv[1] # param file with locs folder where fractile files sit
+
+##############################################################################
+# parse cpt
+##############################################################################
+
+# get colours
+if getcwd().startswith('/nas'):
+    cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/gay-flag-1978.cpt'
+else:
+    cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//gay-flag-1978.cpt'
+ncolours = 9
+cmap, zvals = cpt2colormap(cptfile, ncolours)
+cmap = remove_last_cmap_colour(cmap)
+cs = (cmap(arange(ncolours-1)))
 
 ##############################################################################
 # parse param file
@@ -115,9 +131,7 @@ def parse_plot_fractiles(fracfolder):
 ###################################################################################
 # start main code here
 ###################################################################################
-
-fracDict1, keys = parse_plot_fractiles(fracpaths[0])
-fracDict2, keys = parse_plot_fractiles(fracpaths[1])
+fracDict, keys = parse_plot_fractiles(fracpaths[0])
     
 ###################################################################################
 # let's make the plots
@@ -127,65 +141,58 @@ places = ['Perth', 'Darwin', 'Adelaide', 'Melbourne', 'Hobart', 'Canberra', 'Syd
 letters = ['(a)','(b)','(c)','(d)','(e)','(f)','(g)','(h)','(i)']
 
 
-# loop through keys
-
 # just do PGA
-for k, key in enumerate(keys[:2]):
+for k, key in enumerate(keys[:1]):
     # set up figure
     fig = plt.figure(k+1, figsize=(15, 15))
-    
+
     # loop thru places to plot
     for i, place in enumerate(places):
-        # loop thru fracDict
-        for frac1, frac2 in zip(fracDict1, fracDict2):
-            if place == frac1['place']:
-                print frac1['place'], frac2['place']
+        ax = plt.subplot(4, 2, i+1)
+                    
+        # loop through models
+        j = 0
+        for modname, fracpath in zip(modnames, fracpaths):
+         
+            # loop thru fracDict
+            fracDict, keys = parse_plot_fractiles(fracpath)
+         
+            for frac in fracDict:
+                if place == frac['place']:
+                    print frac['place']
+                
+                    # plot fig
+                    if modname.endswith('(B)'):
+                        plt.semilogx(frac['quant_'+key], fractiles, '-', c=cs[j], lw=1.5, label=modname)
+                    else:
+                        plt.semilogx(frac['quant_'+key], fractiles, '-', c=cs[j], lw=1.5, label=modname)
+                    
+                    j += 1        
+        
+        # make pretty
+        plt.title(place, fontsize=15)
+        #plt.text(0.095, 0.02, place, fontsize=18, va='bottom', ha='right')
+        plt.text(0.095, 0.98, letters[i], fontsize=18, va='top', ha='right')
+        if i == 0 or i == 2 or i == 4 or i == 6:
+            plt.ylabel('Fractile', fontsize=16)
             
-                # plot fig
-                ax = plt.subplot(4, 2, i+1)
-                plt.semilogx(frac1['quant_'+key], fractiles, '-', c='g', lw=1.5, label=modnames[0])
-                plt.semilogx(frac2['quant_'+key], fractiles, '-', c='b', lw=1.5, label=modnames[1])
-                
-                
-                # make pretty
-                plt.title(place, fontsize=15)
-                #plt.text(0.095, 0.02, place, fontsize=18, va='bottom', ha='right')
-                plt.text(0.095, 0.98, letters[i], fontsize=18, va='top', ha='right')
-                if i == 0 or i == 2 or i == 4 or i == 6:
-                    plt.ylabel('Fractile', fontsize=16)
+        
+        if i >= 6:
+            plt.xlabel(key.replace('(','').replace(')','').split('-')[0] + ' (g)', fontsize=16)
+            
                     
-                
-                if i >= 6:
-                    plt.xlabel(key.replace('(','').replace(')','').split('-')[0] + ' (g)', fontsize=16)
-                    
-                
-                plt.grid(which='both')
-                plt.xlim([0.003, 0.1])
-                
-                
-                # plt mean
-                plt.semilogx([frac1['mean_'+key],frac1['mean_'+key]], [0,1], '-', c='orange', lw=1.5,   label=modnames[0]+' Mean')
-                plt.semilogx([frac2['mean_'+key],frac2['mean_'+key]], [0,1], '--', c='r', lw=2.5, label=modnames[1]+' Mean')
-                
-                if i == 0:
-                    plt.legend(loc=2, fontsize=11)
-                
-                '''
-                # plt median
-                plt.semilogx([frac['quant_'+key][50],frac['quant_'+key][50]], [0,1], '--', c='dodgerblue', lw=1.5, label='50th Percentile')
-                # plt 84th
-                plt.semilogx([frac['quant_'+key][84],frac['quant_'+key][84]], [0,1], '--', c='orange', lw=1.5, label='84th Percentile')
-                # plt 95th
-                plt.semilogx([frac['quant_'+key][95],frac['quant_'+key][95]], [0,1], '--', c='r', lw=1.5, label='95th Percentile')
-                '''
-                
-                
-    #plt.suptitle(fracFolder.split(sep)[1] + ' ' + key, fontsize=20)
-
-    # set fig file
-    figFile = '_'.join((path.join('cdf',outfile),key,'CDF.png'))
-    plt.savefig(figFile, fmt='png', bbox_inches='tight')
+        plt.grid(which='both')
+        plt.xlim([0.003, 0.1])
+        
+        if i == 0:
+            plt.legend(loc=2, fontsize=11)
+            
+            
     
+        # set fig file
+        figFile = '_'.join((path.join('cdf','multi'+outfile),key,'CDF.png'))
+        plt.savefig(figFile, fmt='png', bbox_inches='tight')
+        
     
     
 plt.show()
