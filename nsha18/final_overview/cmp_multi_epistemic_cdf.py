@@ -153,38 +153,41 @@ for k, key in enumerate(keys[:1]):
         # loop through models
         j = 0
         for modname, fracpath in zip(modnames, fracpaths):
-    
+         
             # loop thru fracDict
             fracDict, keys = parse_plot_fractiles(fracpath)
-
+         
             for frac in fracDict:
                 if place == frac['place']:
                     print frac['place']
                 
                     # plot fig
-                    plt.semilogx(frac['quant_'+key], fractiles, '-', c=cs[j], lw=1.5, label=modname)
+                    if modname.endswith('(B)'):
+                        plt.semilogx(frac['quant_'+key], fractiles, '-', c=cs[j], lw=1.5, label=modname)
+                    else:
+                        plt.semilogx(frac['quant_'+key], fractiles, '-', c=cs[j], lw=1.5, label=modname)
                     
-                    
-                    # make pretty
-                    plt.title(place, fontsize=15)
-                    #plt.text(0.095, 0.02, place, fontsize=18, va='bottom', ha='right')
-                    plt.text(0.095, 0.98, letters[i], fontsize=18, va='top', ha='right')
-                    if i == 0 or i == 2 or i == 4 or i == 6:
-                        plt.ylabel('Fractile', fontsize=16)
-                        
-                    
-                    if i >= 6:
-                        plt.xlabel(key.replace('(','').replace(')','').split('-')[0] + ' (g)', fontsize=16)
-                        
-                    
-                    plt.grid(which='both')
-                    plt.xlim([0.003, 0.1])
-                    
-                    
-                    if i == 0:
-                        plt.legend(loc=2, fontsize=11)
+                    j += 1        
+        
+        # make pretty
+        plt.title(place, fontsize=15)
+        #plt.text(0.095, 0.02, place, fontsize=18, va='bottom', ha='right')
+        plt.text(0.095, 0.98, letters[i], fontsize=18, va='top', ha='right')
+        if i == 0 or i == 2 or i == 4 or i == 6:
+            plt.ylabel('Fractile', fontsize=16)
             
-            j += 1        
+        
+        if i >= 6:
+            plt.xlabel(key.replace('(','').replace(')','').split('-')[0] + ' (g)', fontsize=16)
+            
+                    
+        plt.grid(which='both')
+        plt.xlim([0.003, 0.1])
+        
+        if i == 0:
+            plt.legend(loc=2, fontsize=11)
+            
+            
     
         # set fig file
         figFile = '_'.join((path.join('cdf','multi'+outfile),key,'CDF.png'))
