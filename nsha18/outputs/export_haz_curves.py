@@ -49,7 +49,8 @@ warnings.filterwarnings("ignore")
 
 # set file
 if getcwd().startswith('/nas'):
-    hazcurvefile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/gay-flag-1978.cpt'
+    hazcurvefile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/source_models/complete_model/final/results_fractilesUHS/hazard_curve-mean-'+period+'_1.csv'
+    sitelistfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/shared/nsha_cities.csv'
 else:
     hazcurvefile = '/Users/tallen/Documents/Geoscience_Australia/NSHA2018/source_models/complete_model/final/results_fractiles/hazard_curve-mean-'+period+'_1.csv'
     sitelistfile = '/Users/tallen/Documents/Geoscience_Australia/NSHA2018/shared/nsha_cities.csv'
@@ -103,8 +104,8 @@ for sd1 in siteDict1:
                 writeLat.append(sd1['lat'])
             
 # set header lines
-outtxt = 'RETURN PERIODS,,,'+','.join(return_periods) + '\n'
-outtxt += 'ANN_PROBABILITY,LON,LAT,'+','.join(['P'+str('%0.6f' % x) for x in probabilityArray]) + '\n'
+#outtxt = 'RETURN PERIODS,LON,LAT,'+','.join(return_periods) + '\n'
+outtxt = 'ANNUAL_PROBABILITY,LON,LAT,'+','.join(['P'+str('%0.6f' % x) for x in probabilityArray]) + '\n'
 
 for place, interpHaz, lon, lat in zip(writePlaces, interphazArrays, writeLon, writeLat):
     outtxt += ','.join((place, str('%0.2f' % lon), str('%0.2f' % lat))) \
