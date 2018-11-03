@@ -1,8 +1,8 @@
-fractiles_NSHM12_full_collapse
+fractiles_collapse
 AUS6 (R);/Users/tallen/Documents/Geoscience_Australia/NSHA2018/source_models/zones/2018_mw/AUS6/results_fractiles
 DIMAUS (R);/Users/tallen/Documents/Geoscience_Australia/NSHA2018/source_models/zones/2018_mw/DIMAUS/results_fractiles
 NSHM13 (R);/Users/tallen/Documents/Geoscience_Australia/NSHA2018/source_models/zones/2018_mw/NSHA13/results_fractiles_mul
 Domains (B);/Users/tallen/Documents/Geoscience_Australia/NSHA2018/source_models/zones/2018_mw/Domains_multi_mc/results_fractiles
 Leonard (2008) (B);/Users/tallen/Documents/Geoscience_Australia/NSHA2018/source_models/zones/2018_mw/Leonard2008/results_fractiles
 NSHM13 BG (B);/Users/tallen/Documents/Geoscience_Australia/NSHA2018/source_models/zones/2018_mw/NSHA13_Background/results_fractiles
-GA Adaptive (S);/Users/tallen/Documents/Geoscience_Australia/NSHA2018/source_models/zones/2018_mw/NSHA13_Background/results_fractiles
+GA Adaptive (S);/Users/tallen/Documents/Geoscience_Australia/NSHA2018/source_models/smoothed_seismicity/GA_adaptive/results_fractiles
