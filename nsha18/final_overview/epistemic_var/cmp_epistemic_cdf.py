@@ -164,17 +164,12 @@ for k, key in enumerate(keys[:2]):
                 
                 
                 # plt mean
-<<<<<<< HEAD:nsha18/final_overview/cmp_epistemic_cdf.py
                 plt.semilogx([frac1['mean_'+key],frac1['mean_'+key]], [0,1], '-', c='orange', lw=1.5,   label=modnames[0]+' Mean')
                 plt.semilogx([frac2['mean_'+key],frac2['mean_'+key]], [0,1], '--', c='r', lw=2.5, label=modnames[1]+' Mean')
                 
                 if i == 0:
                     plt.legend(loc=2, fontsize=11)
                 
-=======
-                plt.semilogx([frac1['mean_'+key],frac1['mean_'+key]], [0,1], '-', c='seagreen', lw=1.5, label='Mean')
-                plt.semilogx([frac2['mean_'+key],frac2['mean_'+key]], [0,1], '--', c='orangered', lw=1.5, label='Mean')
->>>>>>> b65b55bbd20cf2f0d96bec3183bfa573befa7e34:nsha18/final_overview/epistemic_var/cmp_epistemic_cdf.py
                 '''
                 # plt median
                 plt.semilogx([frac['quant_'+key][50],frac['quant_'+key][50]], [0,1], '--', c='dodgerblue', lw=1.5, label='50th Percentile')
