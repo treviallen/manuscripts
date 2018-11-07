@@ -168,7 +168,7 @@ for k, key in enumerate(keys[:2]):
                 plt.semilogx([frac2['mean_'+key],frac2['mean_'+key]], [0,1], '--', c='r', lw=2.5, label=modnames[1]+' Mean')
                 
                 if i == 0:
-                    plt.legend(loc=2, fontsize=11)
+                    plt.legend(loc=2, fontsize=11.5)
                 
                 '''
                 # plt median

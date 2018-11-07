@@ -5,4 +5,5 @@ NSHM13 (R);/Users/tallen/Documents/Geoscience_Australia/NSHA2018/source_models/z
 Domains (B);/Users/tallen/Documents/Geoscience_Australia/NSHA2018/source_models/zones/2018_mw/Domains_multi_mc/results_fractiles
 Leonard (2008) (B);/Users/tallen/Documents/Geoscience_Australia/NSHA2018/source_models/zones/2018_mw/Leonard2008/results_fractiles
 NSHM13 BG (B);/Users/tallen/Documents/Geoscience_Australia/NSHA2018/source_models/zones/2018_mw/NSHA13_Background/results_fractiles
-GA Adaptive (S);/Users/tallen/Documents/Geoscience_Australia/NSHA2018/source_models/smoothed_seismicity/GA_adaptive/results_fractiles
+GA Adaptive (SS);/Users/tallen/Documents/Geoscience_Australia/NSHA2018/source_models/smoothed_seismicity/GA_adaptive/results_fractiles
+NSHM13 (ST);/Users/tallen/Documents/Geoscience_Australia/NSHA2018/source_models/zones/2018_mw/NSHA13/seismotectonic_results_fractiles
