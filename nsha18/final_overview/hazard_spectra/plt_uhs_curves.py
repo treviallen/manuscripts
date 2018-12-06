@@ -148,7 +148,7 @@ fig = plt.figure(1, figsize=(11, 11))
 if altPlaces == False:
     places = ['Perth', 'Darwin', 'Adelaide', 'Melbourne', 'Hobart', 'Canberra', 'Sydney', 'Brisbane']
 else:
-    places = ['Wongan Hills', 'Karratha', 'Yulara', 'Port Pirie', 'Hawker', 'Cooma', 'Leongatha', 'Morwell']
+    places = ['Wongan Hills', 'Kalgoorlie', 'Karratha', 'Yulara', 'Port Pirie', 'Hawker', 'Cooma', 'Morwell']
     #places = ['Wongan Hills', 'Darwin', 'Adelaide', 'Kimba', 'Hawker', 'Canberra', 'Sydney', 'Morwell']
 
 if plt1170 == False:
