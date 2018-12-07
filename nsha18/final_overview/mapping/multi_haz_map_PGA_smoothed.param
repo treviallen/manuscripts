@@ -1,0 +1,5 @@
+NSHA18_smoothed_models
+Cuthbertson (2016);/Users/tallen/Documents/Geoscience_Australia/NSHA2018/source_models/smoothed_seismicity/Cuthbertson2018/results_maps_PGA/hazard_map-mean_1.csv
+Geoscience Australia (Fixed);/Users/tallen/Documents/Geoscience_Australia/NSHA2018/source_models/smoothed_seismicity/GA_fixed/results_maps_PGA/hazard_map-mean_1.csv
+Geoscience Australia (Adaptive);/Users/tallen/Documents/Geoscience_Australia/NSHA2018/source_models/smoothed_seismicity/GA_adaptive/results_maps_PGA/hazard_map-mean_1.csv
+Risk Frontiers (2018);/Users/tallen/Documents/Geoscience_Australia/NSHA2018/source_models/smoothed_seismicity/Hall2007_2018/results_maps_PGA/hazard_map-mean_1.csv
