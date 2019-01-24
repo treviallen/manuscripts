@@ -1,4 +1,4 @@
 NSHA18_model_classes
 NSHM12 Background;/Users/tallen/Documents/Geoscience_Australia/NSHA2018/source_models/zones/2018_mw/NSHA13_Background/results_maps_PGA/hazard_map-mean_1.csv
-AUS6;/Users/tallen/Documents/Geoscience_Australia/NSHA2018/source_models/zones/2018_mw/AUS6/results_maps_PGA/hazard_map-mean_1.csv
-GA (Fixed);/Users/tallen/Documents/Geoscience_Australia/NSHA2018/source_models/smoothed_seismicity/GA_fixed/results_maps_PGA/hazard_map-mean_1.csv
+NSHM12 Regional;/Users/tallen/Documents/Geoscience_Australia/NSHA2018/source_models/zones/2018_mw/NSHA13/results_maps_PGA/hazard_map-mean_1.csv
+GA (Fixed Smoothing);/Users/tallen/Documents/Geoscience_Australia/NSHA2018/source_models/smoothed_seismicity/GA_fixed/results_maps_PGA/hazard_map-mean_1.csv
