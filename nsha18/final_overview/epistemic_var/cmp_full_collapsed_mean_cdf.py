@@ -1,13 +1,19 @@
+'''
+For plotting best, collapsed and full epistemic models
+'''
+
 import matplotlib.pyplot as plt
 from numpy import arange, array, interp
 from os import path, getcwd, sep
 from sys import argv
 import matplotlib as mpl
+import matplotlib.gridspec as gridspec
 
 mpl.style.use('classic')
 mpl.rcParams['pdf.fonttype'] = 42
 
 paramfile = argv[1] # param file with locs folder where fractile files sit
+            # fractiles_NSHA12_col_mul_mean.param
 
 ##############################################################################
 # parse param file
@@ -146,6 +152,9 @@ cs = (cmap(arange(ncolours-1)))
 places = ['Perth', 'Darwin', 'Adelaide', 'Melbourne', 'Hobart', 'Canberra', 'Sydney', 'Brisbane']
 letters = ['(a)','(b)','(c)','(d)','(e)','(f)','(g)','(h)','(i)']
 
+gs1 = gridspec.GridSpec(4, 2)
+gs1.update(wspace=0.095, hspace=0.2) # negative looks bad in "show", but ok in pngs
+
 # loop through keys
 
 # just do PGA
@@ -161,7 +170,8 @@ for k, key in enumerate(keys[:2]):
                 print frac1['place'], frac2['place']
             
                 # plot fig
-                ax = plt.subplot(4, 2, i+1)
+                #ax = plt.subplot(4, 2, i+1)
+                ax = fig.add_subplot(gs1[i])
                 plt.semilogx(frac1['quant_'+key], fractiles, '-', c=cs[0], lw=1.5, label=modnames[0])
                 plt.semilogx(frac2['quant_'+key], fractiles, '-', c=cs[1], lw=1.5, label=modnames[1])
                 plt.semilogx(frac3['quant_'+key], fractiles, '-', c=cs[2], lw=1.5, label=modnames[2])                

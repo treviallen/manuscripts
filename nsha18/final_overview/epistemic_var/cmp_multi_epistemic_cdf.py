@@ -5,11 +5,13 @@ from sys import argv
 import matplotlib as mpl
 from gmt_tools import cpt2colormap 
 from misc_tools import remove_last_cmap_colour
+import matplotlib.gridspec as gridspec
 
 mpl.style.use('classic')
 mpl.rcParams['pdf.fonttype'] = 42
 
-paramfile = argv[1] # param file with locs folder where fractile files sit
+paramfile = argv[1] # param file with locs folder where fractile files sit 
+           # fractiles_NSHA12_regional_background.param
 
 ##############################################################################
 # parse cpt
@@ -140,6 +142,8 @@ fracDict, keys = parse_plot_fractiles(fracpaths[0])
 places = ['Perth', 'Darwin', 'Adelaide', 'Melbourne', 'Hobart', 'Canberra', 'Sydney', 'Brisbane']
 letters = ['(a)','(b)','(c)','(d)','(e)','(f)','(g)','(h)','(i)']
 
+gs1 = gridspec.GridSpec(4, 2)
+gs1.update(wspace=0.095, hspace=0.2) # negative looks bad in "show", but ok in pngs
 
 # just do PGA
 for k, key in enumerate(keys[:1]):
@@ -148,8 +152,9 @@ for k, key in enumerate(keys[:1]):
 
     # loop thru places to plot
     for i, place in enumerate(places):
-        ax = plt.subplot(4, 2, i+1)
-                    
+        #ax = plt.subplot(4, 2, i+1)
+        ax = fig.add_subplot(gs1[i])
+        
         # loop through models
         j = 0
         for modname, fracpath in zip(modnames, fracpaths):
