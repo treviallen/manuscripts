@@ -8,8 +8,11 @@ import matplotlib.gridspec as gridspec
 
 mpl.style.use('classic')
 mpl.rcParams['pdf.fonttype'] = 42
+plt.rc('xtick',labelsize=13)
+plt.rc('ytick',labelsize=13)
 
-fracFolder = argv[1] # folder where fractile files sit
+#fracFolder = argv[1] # folder where fractile files sit
+fracFolder  = '/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/source_models/complete_model/final/results_fractilesUHS'
 
 altPlaces = False
     
@@ -78,7 +81,7 @@ cwd = getcwd()
 if cwd.startswith('/Users'): #mac
     citycsv = '/Users/tallen/Documents/Geoscience_Australia/NSHA2018/shared/nsha_cities.csv'
 else:
-    citycsv = '../../shared/nsha_cities.csv'
+    citycsv = '/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/shared/nsha_cities.csv'
 lines = open(citycsv).readlines()
     
 # make city dict
@@ -106,7 +109,7 @@ fracPath = path.join('final', 'fractile_tables')
 placesOrd = dictlist2array(fracDict,'place')
 sortidx = argsort(placesOrd)
 header = 'PLACE,LONGITUDE,LATITUDE,MEAN,16TH PERCENTILE,50TH PERCENTILE,84TH PERCENTILE,MEAN PERCENTILE\n'
-
+"""
 for key in keys:
     csvfile = 'fractile_table_' + key + '.csv'
     #fracFilePath = path.join(fracPath, csvfile)
@@ -132,7 +135,7 @@ for key in keys:
     f = open(fracFilePath, 'wb')
     f.write(pctltxt)
     f.close()
-
+"""
 ###################################################################################
 # let's make the plots
 ###################################################################################
@@ -194,12 +197,16 @@ for k, key in enumerate(keys[:3]):
                     
                 plt.text(xtxt, ytxt, pltlett[i], fontsize=18, va='top', ha='right')
                 
+                ticks = [0.005, 0.01, 0.02, 0.05, 0.1, 0.2]
+                ax.set_xticks(ticks)
+                ax.set_xticklabels([str(x) for x in ticks])
+                            
     #plt.suptitle(fracFolder.split(sep)[1] + ' ' + key, fontsize=20)
     
     # set fig file
     if altPlaces == True:
-        figFile = path.join(fracFolder, '_'.join((fracFolder.split(sep)[1],key,'alt_CDF.png')))
+        figFile = '_'.join(('full_model',key,'alt_CDF.png'))
     else:
-        figFile = path.join(fracFolder, '_'.join((fracFolder.split(sep)[1],key,'CDF.png')))
+        figFile = '_'.join(('full_model',key,'CDF.png'))
     plt.savefig(figFile, fmt='png', bbox_inches='tight')
 plt.show()
