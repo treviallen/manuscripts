@@ -194,12 +194,12 @@ for k, key in enumerate(keys[:1]):
         plt.grid(which='both')
         plt.xlim([0.003, 0.1])
         
-        ticks = [0.005, 0.01, 0.02, 0.05, 0.1, 0.2]
+        ticks = [0.005, 0.01, 0.02, 0.05, 0.1]
         ax.set_xticks(ticks)
         ax.set_xticklabels([str(x) for x in ticks])
         
-        if i == 0:
-            plt.legend(loc=2, fontsize=11)
+        if i == 7:
+            plt.legend(loc=4, fontsize=12.5)
             
             
     

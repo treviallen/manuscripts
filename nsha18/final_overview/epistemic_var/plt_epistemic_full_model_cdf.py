@@ -197,7 +197,7 @@ for k, key in enumerate(keys[:3]):
                     
                 plt.text(xtxt, ytxt, pltlett[i], fontsize=18, va='top', ha='right')
                 
-                ticks = [0.005, 0.01, 0.02, 0.05, 0.1, 0.2]
+                ticks = [0.005, 0.01, 0.02, 0.05, 0.1 0.2]
                 ax.set_xticks(ticks)
                 ax.set_xticklabels([str(x) for x in ticks])
                             

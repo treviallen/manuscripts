@@ -11,6 +11,8 @@ import matplotlib.gridspec as gridspec
 
 mpl.style.use('classic')
 mpl.rcParams['pdf.fonttype'] = 42
+plt.rc('xtick',labelsize=13)
+plt.rc('ytick',labelsize=13)
 
 paramfile = argv[1] # param file with locs folder where fractile files sit
             # fractiles_NSHA12_col_mul_mean.param
@@ -191,7 +193,6 @@ for k, key in enumerate(keys[:2]):
                 plt.grid(which='both')
                 plt.xlim([0.003, 0.1])
                 
-                
                 # plt mean
                 plt.semilogx([frac1['mean_'+key],frac1['mean_'+key]], [0,1], '-', c='gold', lw=1.5,   label=modnames[0]+' Mean')
                 plt.semilogx([frac2['mean_'+key],frac2['mean_'+key]], [0,1], '-', c=cs[4], lw=1.5, label=modnames[1]+' Mean')
@@ -203,6 +204,11 @@ for k, key in enumerate(keys[:2]):
                 
                 if i == 0:
                     plt.legend(loc=2, fontsize=10.5)
+                
+                
+                ticks = [0.005, 0.01, 0.02, 0.05, 0.1]
+                ax.set_xticks(ticks)
+                ax.set_xticklabels([str(x) for x in ticks])
                 
                 '''
                 # plt median
