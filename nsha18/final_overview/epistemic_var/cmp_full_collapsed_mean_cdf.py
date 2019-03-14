@@ -15,8 +15,9 @@ plt.rc('xtick',labelsize=13)
 plt.rc('ytick',labelsize=13)
 
 paramfile = argv[1] # param file with locs folder where fractile files sit
-            # fractiles_NSHA12_col_mul_mean.param
-
+'''
+run cmp_full_collapsed_mean_cdf.py fractiles_NSHA12_col_mul_mean.param
+'''
 ##############################################################################
 # parse param file
 ##############################################################################
@@ -181,7 +182,7 @@ for k, key in enumerate(keys[:2]):
                 # make pretty
                 plt.title(place, fontsize=15)
                 #plt.text(0.095, 0.02, place, fontsize=18, va='bottom', ha='right')
-                plt.text(0.095, 0.98, letters[i], fontsize=18, va='top', ha='right')
+                plt.text(0.057, 0.02, letters[i], fontsize=18, va='bottom', ha='right')
                 if i == 0 or i == 2 or i == 4 or i == 6:
                     plt.ylabel('Fractile', fontsize=16)
                     
@@ -191,22 +192,27 @@ for k, key in enumerate(keys[:2]):
                     
                 
                 plt.grid(which='both')
-                plt.xlim([0.003, 0.1])
+                plt.xlim([0.004, 0.06])
                 
                 # plt mean
                 plt.semilogx([frac1['mean_'+key],frac1['mean_'+key]], [0,1], '-', c='gold', lw=1.5,   label=modnames[0]+' Mean')
                 plt.semilogx([frac2['mean_'+key],frac2['mean_'+key]], [0,1], '-', c=cs[4], lw=1.5, label=modnames[1]+' Mean')
                 plt.semilogx([frac3['mean_'+key],frac3['mean_'+key]], [0,1], '--', c=cs[5], lw=1.5, label=modnames[2]+' Mean')
                 
-                # get % difference
+                # get % difference between best and full epistemic
                 pcdiff = 100 * ((frac1['mean_'+key] - frac3['mean_'+key]) / frac1['mean_'+key])
-                print '% differenec:', abs(pcdiff)
+                print 'Best/Full % differenec:', abs(pcdiff)
+                
+                # get % difference between collapsed and full epistemic
+                pcdiff = 100 * ((frac2['mean_'+key] - frac3['mean_'+key]) / frac2['mean_'+key])
+                print 'Col/Full % differene: ', abs(pcdiff)
                 
                 if i == 0:
-                    plt.legend(loc=2, fontsize=10.5)
+                    plt.legend(loc=2, fontsize=12)
                 
                 
-                ticks = [0.005, 0.01, 0.02, 0.05, 0.1]
+                
+                ticks = [0.005, 0.01, 0.02, 0.05]
                 ax.set_xticks(ticks)
                 ax.set_xticklabels([str(x) for x in ticks])
                 

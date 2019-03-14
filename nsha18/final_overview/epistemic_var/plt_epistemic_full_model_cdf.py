@@ -148,8 +148,8 @@ gs1 = gridspec.GridSpec(4, 2)
 gs1.update(wspace=0.095, hspace=0.2) # negative looks bad in "show", but ok in pngs
 
 # loop through keys
-xtxt = 0.28
-ytxt = 0.97
+xtxt = 0.097
+ytxt = 0.02
 # just do PGA
 for k, key in enumerate(keys[:3]):
     # set up figure
@@ -181,7 +181,7 @@ for k, key in enumerate(keys[:3]):
                 if key.endswith('0.02'):
                     plt.xlim([0.01, 0.8])
                 else:
-                    plt.xlim([0.003, 0.3])
+                    plt.xlim([0.003, 0.1])
                 
                 # plt mean
                 plt.semilogx([frac['mean_'+key],frac['mean_'+key]], [0,1], '--', c='seagreen', lw=1.5, label='Mean')
@@ -193,11 +193,11 @@ for k, key in enumerate(keys[:3]):
                 plt.semilogx([frac['quant_'+key][95],frac['quant_'+key][95]], [0,1], '--', c='r', lw=1.5, label='95th Percentile')
                 
                 if i == 0:
-                    plt.legend(loc=2, fontsize=13)
+                    plt.legend(loc=2, fontsize=14)
                     
-                plt.text(xtxt, ytxt, pltlett[i], fontsize=18, va='top', ha='right')
+                plt.text(xtxt, ytxt, pltlett[i], fontsize=18, va='bottom', ha='right')
                 
-                ticks = [0.005, 0.01, 0.02, 0.05, 0.1 0.2]
+                ticks = [0.005, 0.01, 0.02, 0.05, 0.1]
                 ax.set_xticks(ticks)
                 ax.set_xticklabels([str(x) for x in ticks])
                             
