@@ -47,7 +47,7 @@ hazFactAS1170[idx] = 0.08
 ##########################################################################################
 ncols = 17
 try:
-    cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//temp_18lev.cpt'
+    cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//temp_19lev.cpt'
     cmap, zvals = cpt2colormap(cptfile, ncols)
 except:
     cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/temp_19lev.cpt'
@@ -134,7 +134,7 @@ cb = colorbar.ColorbarBase(cax, cmap=cmap, norm=norm, orientation='horizontal')
 
 cb.set_ticks(bounds)
 labels = [str(round(10**x, 2)) for x in bounds]
-labels[0] = '0.0'
+#labels[0] = '0.0'
 cb.set_ticklabels(labels)
 cb.ax.tick_params(labelsize=16)
 
@@ -205,7 +205,7 @@ cb = colorbar.ColorbarBase(cax, cmap=cmap, norm=norm, orientation='horizontal')
 
 cb.set_ticks(bounds)
 labels = [str(round(10**x, 2)) for x in bounds]
-labels[0] = '0.0'
+#labels[0] = '0.0'
 cb.set_ticklabels(labels)
 cb.ax.tick_params(labelsize=16)
 
