@@ -95,7 +95,7 @@ for sd in siteDict:
 # Get AKL data
 akl_hazcurvefile = '../2018_aees/Allen/hazard_curve-2010SHM_AKL/hazard_curve-rlz-000-PGA_44.csv'
 siteDict, imls, investigation_time = return_annualised_haz_curves(akl_hazcurvefile)
-siteDict[0]['place'] = 'Aukland'
+siteDict[0]['place'] = 'Auckland'
 siteDict[0]['imls'] = imls
 pltDict.append(siteDict[0])
 
