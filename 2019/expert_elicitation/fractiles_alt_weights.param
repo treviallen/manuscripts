@@ -1,5 +1,8 @@
 fractiles_altweights
 NSHA18;/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/source_models/complete_model/final/results_fractilesUHS
+Calibration Power = 0.0;/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/source_models/complete_model/ee_working/results_fractiles_p0.0
+Calibration Power = 1.0;/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/source_models/complete_model/ee_working/results_fractiles_p1.0
+Uniform Weights;/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/source_models/complete_model/ee_working/results_fractiles_uniform
 Uniform Intra-Class;/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/source_models/complete_model/ee_working/results_fractiles_intraclass
 Uniform Inter-Class;/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/source_models/complete_model/ee_working/results_fractiles_interclass
 GA Alternate;/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/source_models/complete_model/ee_working/results_fractiles_gapref

@@ -28,6 +28,7 @@ if getcwd().startswith('/nas'):
 else:
     cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//gay-flag-1978.cpt'
 ncolours = 9
+#ncolours = 8
 cmap, zvals = cpt2colormap(cptfile, ncolours)
 cmap = remove_last_cmap_colour(cmap)
 cs = (cmap(arange(ncolours-1)))
@@ -148,7 +149,7 @@ fracDict, keys = parse_plot_fractiles(fracpaths[0])
 # let's make the plots
 ###################################################################################
 
-altPlaces = True
+altPlaces = False
 
 if altPlaces == False:
     places = ['Perth', 'Darwin', 'Adelaide', 'Melbourne', 'Hobart', 'Canberra', 'Sydney', 'Brisbane']
@@ -192,7 +193,7 @@ for k, key in enumerate(keys[:1]):
         # make pretty
         plt.title(place, fontsize=15)
         #plt.text(0.095, 0.02, place, fontsize=18, va='bottom', ha='right')
-        plt.text(0.095, 0.98, letters[i], fontsize=18, va='top', ha='right')
+        plt.text(0.98*0.2, 0.98, letters[i], fontsize=18, va='top', ha='right')
         if i == 0 or i == 2 or i == 4 or i == 6:
             plt.ylabel('Fractile', fontsize=16)
             
@@ -203,7 +204,7 @@ for k, key in enumerate(keys[:1]):
                     
         plt.grid(which='both')
         
-        ticks = [0.005, 0.01, 0.02, 0.05, 0.1]
+        ticks = [0.005, 0.01, 0.02, 0.05, 0.1, 0.2]
         
         # reset ticks
         if i == 7 and i == 0:
@@ -211,15 +212,15 @@ for k, key in enumerate(keys[:1]):
                 plt.xlim([0.01, 0.3])        
                 ticks = [0.01, 0.02, 0.05, 0.1, 0.2]
             else:
-                plt.xlim([0.003, 0.1])
+                plt.xlim([0.003, 0.2])
         else:
-            plt.xlim([0.003, 0.1])
+            plt.xlim([0.003, 0.2])
 
         ax.set_xticks(ticks)
         ax.set_xticklabels([str(x) for x in ticks])
         
         if i == 0:
-            plt.legend(loc=2, fontsize=12.5)
+            plt.legend(loc=2, fontsize=11)
             
             
     
