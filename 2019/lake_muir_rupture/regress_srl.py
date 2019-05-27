@@ -116,12 +116,31 @@ plt.fill_between(mag, 10**lower, 10**upper, color='0.85', edgecolor='', zorder=0
 lrng = 10**(m * mrng + c)
 plt.semilogy(mrng, lrng, '-', c='k', lw=1.5, label='Present Study')
 
+plt.ylim([0.1, 100])
 plt.legend(loc=4, numpoints=1, fontsize=11)
-
 
 ##############################################################################
 # export & show
 ##############################################################################
 
 plt.savefig('2019_srl_regression.png', fmt='png', dpi=300, bbox_inches='tight')
+plt.show()
+
+##############################################################################
+# get ratio of DSRL vs VSRL
+##############################################################################
+
+
+fig = plt.figure(1, figsize=(13,6))
+ax = plt.subplot(121)
+
+rat_vdsrl = vsrl/dsrl
+idx = rat_vdsrl != 1.
+plt.semilogy(mag[idx], rat_vdsrl[idx], 's', c='seagreen', label='DSRL Data')
+
+plt.grid(which='both')
+plt.xlabel('Moment Magnitude', fontsize=14)
+plt.ylabel('VSRL/DSRL', fontsize=14)
+
+plt.savefig('2019_vsrl-dsrl_ratio.png', fmt='png', dpi=300, bbox_inches='tight')
 plt.show()
