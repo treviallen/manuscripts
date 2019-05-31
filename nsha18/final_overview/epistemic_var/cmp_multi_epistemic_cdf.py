@@ -115,8 +115,10 @@ def parse_plot_fractiles(fracfolder):
     cwd = getcwd()
     if cwd.startswith('/Users'): #mac
         citycsv = '/Users/tallen/Documents/Geoscience_Australia/NSHA2018/shared/nsha_cities.csv'
-        lines = open(citycsv).readlines()
-        
+    else:
+        citycsv = '/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/shared/nsha_cities.csv'
+    lines = open(citycsv).readlines()
+
     # make city dict
     cityDict = []
     for line in lines:
