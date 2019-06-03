@@ -181,12 +181,15 @@ for k, key in enumerate(keys[:1]):
             for frac in fracDict:
                 if place == frac['place']:
                     print(frac['place'], mean(frac['quant_'+key]))
-                
+                    if j == 4:
+                        col = 'gold'
+                    else:
+                        col = cs[j]
                     # plot fig
                     if modname.endswith('(B)'):
-                        plt.semilogx(frac['quant_'+key], fractiles, '-', c=cs[j], lw=1.5, label=modname)
+                        plt.semilogx(frac['quant_'+key], fractiles, '-', c=col, lw=1.5, label=modname)
                     else:
-                        plt.semilogx(frac['quant_'+key], fractiles, '-', c=cs[j], lw=1.5, label=modname)
+                        plt.semilogx(frac['quant_'+key], fractiles, '-', c=col, lw=1.5, label=modname)
                     
                     j += 1        
         
@@ -220,7 +223,7 @@ for k, key in enumerate(keys[:1]):
         ax.set_xticklabels([str(x) for x in ticks])
         
         if i == 0:
-            plt.legend(loc=2, fontsize=11)
+            plt.legend(loc=2, fontsize=10)
             
             
     

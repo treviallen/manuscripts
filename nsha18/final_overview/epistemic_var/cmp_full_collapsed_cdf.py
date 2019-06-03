@@ -122,8 +122,13 @@ fracDict2, keys = parse_plot_fractiles(fracpaths[1])
 ###################################################################################
 # let's make the plots
 ###################################################################################
+altPlaces = True
 
-places = ['Perth', 'Darwin', 'Adelaide', 'Melbourne', 'Hobart', 'Canberra', 'Sydney', 'Brisbane']
+if altPlaces == False:
+    places = ['Perth', 'Darwin', 'Adelaide', 'Melbourne', 'Hobart', 'Canberra', 'Sydney', 'Brisbane']
+else:
+    places = ['Wongan Hills', 'Kalgoorlie', 'Karratha', 'Yulara', 'Port Pirie', 'Hawker', 'Cooma', 'Morwell']
+
 letters = ['(a)','(b)','(c)','(d)','(e)','(f)','(g)','(h)','(i)']
 
 
@@ -183,7 +188,10 @@ for k, key in enumerate(keys[:2]):
     #plt.suptitle(fracFolder.split(sep)[1] + ' ' + key, fontsize=20)
 
     # set fig file
-    figFile = '_'.join((path.join('cdf',outfile),key,'CDF.png'))
+    if altPlaces == True:
+        figFile = '_'.join((path.join('cdf','regional_'+outfile),key,'CDF.png'))
+    else:
+        figFile = '_'.join((path.join('cdf','capital_'+outfile),key,'CDF.png'))
     plt.savefig(figFile, fmt='png', bbox_inches='tight')
     
     
