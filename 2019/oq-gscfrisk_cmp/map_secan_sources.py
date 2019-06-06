@@ -411,5 +411,5 @@ cb.set_ticklabels(labels)
 cb.set_label('Year of Earthquake', rotation=270, labelpad=20, fontsize=15)
 '''
 
-plt.savefig('swcan_source_map.png', format='png', bbox_inches='tight', dpi=300)
+plt.savefig('secan_source_map.png', format='png', bbox_inches='tight', dpi=300)
 plt.show()
