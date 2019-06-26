@@ -18,20 +18,6 @@ paramfile = argv[1] # param file with locs folder where fractile files sit
 '''
 run cmp_multi_epistemic_cdf.py fractiles_NSHA12_regional_background.param
 '''
-##############################################################################
-# parse cpt
-##############################################################################
-
-# get colours
-if getcwd().startswith('/nas'):
-    cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/gay-flag-1978.cpt'
-else:
-    cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//gay-flag-1978.cpt'
-ncolours = 9
-#ncolours = 8
-cmap, zvals = cpt2colormap(cptfile, ncolours)
-cmap = remove_last_cmap_colour(cmap)
-cs = (cmap(arange(ncolours-1)))
 
 ##############################################################################
 # parse param file
@@ -46,6 +32,27 @@ for line in lines[1:]:
     fracpaths.append(line.strip().split(';')[1])
     
 fractiles = arange(0., 1.01, 0.01)
+
+##############################################################################
+# parse cpt
+##############################################################################
+
+# get colours
+if getcwd().startswith('/nas'):
+    cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/gay-flag-1978.cpt'
+else:
+    cptfile = '/Users/trev/Documents/DATA/GMT/cpt/gay-flag-1978.cpt'
+ncolours = len(modnames)+1
+#ncolours = 8
+cmap, zvals = cpt2colormap(cptfile, ncolours)
+cmap = remove_last_cmap_colour(cmap)
+cs = (cmap(arange(ncolours-1)))
+ls = '-'
+lw = 1.5
+
+if ncolours < 4:
+    cs = ['orangered', 'dodgerblue']
+    ls = ['-', '--']
 
 ##############################################################################
 # call parsing & plotting function
@@ -115,7 +122,7 @@ def parse_plot_fractiles(fracfolder):
     # first parse city file
     cwd = getcwd()
     if cwd.startswith('/Users'): #mac
-        citycsv = '/Users/tallen/Documents/Geoscience_Australia/NSHA2018/shared/nsha_cities.csv'
+        citycsv = '/Users/trev/Documents/Geoscience_Australia/NSHA2018/shared/nsha_cities.csv'
     else:
         citycsv = '/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/shared/nsha_cities.csv'
     lines = open(citycsv).readlines()
@@ -227,12 +234,12 @@ for k, key in enumerate(keys[:1]):
             
             
     
-        # set fig file
-        if altPlaces == True:
-            figFile = '_'.join((path.join('cdf','regional_'+outfile),key,'CDF.png'))
-        else:
-            figFile = '_'.join((path.join('cdf','capital_'+outfile),key,'CDF.png'))
-        plt.savefig(figFile, fmt='png', bbox_inches='tight')
+    # set fig file
+    if altPlaces == True:
+        figFile = '_'.join(('regional_'+outfile,key,'CDF.png'))
+    else:
+        figFile = '_'.join(('capital_'+outfile,key,'CDF.png'))
+    plt.savefig(figFile, fmt='png', bbox_inches='tight')
         
     
     
