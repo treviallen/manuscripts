@@ -37,6 +37,11 @@ def get_iris_event_data(bulk, folder, timestr, dataless, event):
                     staloc = dataless.get_coordinates(seedid,b[4])
                 except:
                     a=1 # dummy call
+                seedid = '.'.join((b[0], b[1], '', channel)) #'AU.DPH..BNZ'
+                try:
+                    staloc = dataless.get_coordinates(seedid,b[4])
+                except:
+                    a=1 # dummy call
             
             # now get distance and azimuth
             rngkm, az, baz = distance(event['lat'], event['lon'], staloc['latitude'], staloc['longitude'])
@@ -218,6 +223,14 @@ for ev in evdict:
                         ("AU", "QIS", "*", "*", t1, t2),
                         ("AU", "CN1H", "*", "*", t1, t2),
                         ("AU", "CN2S", "*", "*", t1, t2),
+                        ("AU", "TV1H", "*", "*", t1, t2),
+                        ("AU", "TV2S", "*", "*", t1, t2),
+                        ("AU", "BW1H", "*", "*", t1, t2),
+                        ("AU", "BW2S", "*", "*", t1, t2),
+                        ("AU", "RK1H", "*", "*", t1, t2),
+                        ("AU", "RK2S", "*", "*", t1, t2),
+                        ("AU", "GD1S", "*", "*", t1, t2),
+                        ("AU", "EIDS", "*", "*", t1, t2),
                         ("AU", "MBWA", "*", "*", t1, t2),
                         ("AU", "MTSU", "*", "*", t1, t2),
                         ("AU", "WB2", "*", "*", t1, t2),
@@ -227,7 +240,9 @@ for ev in evdict:
                         ("AU", "NTNOZ", "*", "*", t1, t2),
                         ("AU", "BOXOZ", "*", "*", t1, t2),
                         ("AU", "LAROZ", "*", "*", t1, t2),
+                        ("AU", "AXCOZ", "*", "*", t1, t2),
                         ("AU", "GIRL", "*", "*", t1, t2),
+                        ("AU", "MEEK", "*", "*", t1, t2),
                         ("AU", "CVQOZ", "*", "*", t1, t2),
                         ("AU", "MUKOZ", "*", "*", t1, t2),
                         ("AU", "CTA", "*", "*", t1, t2)]
