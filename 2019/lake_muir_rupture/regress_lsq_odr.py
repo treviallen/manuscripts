@@ -181,7 +181,7 @@ ax = plt.subplot(121)
 plt.loglog(vsrl[idx], rat_vdsrl[idx], 's', c='seagreen', label='DSRL Data')
 
 plt.grid(which='both')
-plt.xlabel('VSRL', fontsize=14)
+plt.xlabel('VSRL (km)', fontsize=14)
 plt.ylabel('VSRL/DSRL', fontsize=14)
 plt.xlim([0.1, 40])
 
@@ -195,6 +195,13 @@ plt.ylim([0.1, 1])
 
 xpos = get_log_xy_locs([0.1, 40], 0.02)
 ypos = get_log_xy_locs([0.1, 1], 0.98)
+
+# set y ticks
+ticks = array([0.1, 0.2, 0.5, 1.0])
+ticklabels = [str(x) for x in ticks]
+ax.set_yticks(ticks)
+ax.set_yticklabels(ticklabels)
+
 plt.text(xpos, ypos, '(a)', va='top', ha='left', fontsize=18)
 
 print('\nRatio coeffs')
@@ -210,6 +217,9 @@ copyto(cor_dsrl, dsrl)
 
 fidx = rat_vdsrl == 1.
 cor_factor = 10**(om * log10(vsrl) + oc)
+
+print('\ncorr factor = 10**(',om,'* log10(VSRL) +',oc,')\n' )
+
 # fix max to 1
 cidx = cor_factor > 1.
 cor_factor[cidx] = 1.
@@ -217,7 +227,7 @@ cor_dsrl[fidx] = vsrl[fidx] / cor_factor[fidx]
 
 plt.grid(which='both')
 plt.xlabel('Moment Magnitude', fontsize=14)
-plt.ylabel("DSRL'", fontsize=14)
+plt.ylabel("DSRL' (km)", fontsize=14)
 
 plt.semilogy(mag, dsrl, 's', mfc='w', label='DSRL = VSRL')
 plt.semilogy(mag[idx], cor_dsrl[idx], 's', c='darkorange', label='Observed DSRL')
@@ -240,7 +250,12 @@ print('lsq', m, c)
 print('odr', om, oc)
 
 plt.legend(loc=4, numpoints=1, fontsize=11)
-plt.ylim([0.1, 100])
+plt.ylim([1, 100])
+
+ticks = array([1.0, 10, 100])
+ticklabels = [str(x).replace('.0','') for x in ticks]
+ax.set_yticks(ticks)
+ax.set_yticklabels(ticklabels)
 
 plt.text(4.55, 90, '(b)', va='top', ha='left', fontsize=18)
 
