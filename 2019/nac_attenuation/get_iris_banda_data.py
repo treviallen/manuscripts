@@ -10,7 +10,7 @@ def get_iris_event_data(bulk, folder, timestr, dataless, event):
     from obspy.clients.fdsn.client import Client
     #from obspy.fdsn import Client
     from os import path
-    from numpy import nan
+    from numpy import nan, isnan
     from mapping_tools import distance
     
     '''
@@ -50,6 +50,10 @@ def get_iris_event_data(bulk, folder, timestr, dataless, event):
             getRecord = False
             if rngkm <= 2000. and az > 130. and az < 230.:
                 getRecord = True
+            elif rngkm <= 2000. and az > 120. and az < 240. and b[1] == 'RABL':
+                getRecord = True
+            elif rngkm <= 2000. and az > 120. and az < 240. and b[1] == 'PMG':
+                getRecord = True
                                
             # second, check if file exists
             if not path.isfile(fpath) and getRecord == True:
@@ -74,10 +78,13 @@ def get_iris_event_data(bulk, folder, timestr, dataless, event):
            
 def get_arclink_event_data(bulk, fname, dataless, event):     
     from obspy.core.utcdatetime import UTCDateTime
-    from obspy.arclink.client import Client
-    #import obspy.clients.arclink
+    try:
+        from obspy.arclink.client import Client
+    except:
+        from obspy.clients.arclink.client import Client
+        #from obspy.clients.fdsn.client import Client
     from os import path
-    from numpy import nan
+    from numpy import nan, isnan
     from mapping_tools import distance
     
     '''
@@ -88,26 +95,32 @@ def get_arclink_event_data(bulk, fname, dataless, event):
     sta = station
     '''
     try:
-        staloc = nan
         #first, check it site is in distance and azimuthal range
         for channel in ['SHZ', 'EHZ', 'BHZ', 'HHZ', 'BNZ', 'HNZ']:
             seedid = '.'.join((b[0], b[1], '00', channel)) #'AU.DPH.00.BNZ'
+            
+            try:
+                staloc = dataless.get_coordinates(seedid,b[4])
+            except:
+                a=1 # dummy call
+            # try another seed id fmt
+            seedid = '.'.join((b[0], b[1], '', channel)) #'AU.DPH.00.BNZ'
             try:
                 staloc = dataless.get_coordinates(seedid,b[4])
             except:
                 a=1 # dummy call
         
         # now get distance and azimuth
-        print(staloc)
         rngkm, az, baz = distance(event['lat'], event['lon'], staloc['latitude'], staloc['longitude'])
         print(rngkm, az, baz)
         
         getRecord = False
-        if rngkm <= 2000. and az > 130. and az < 230.:
+        if rngkm <= 2000. and az > 120. and az < 240.:
             getRecord = True
-            
+        
         # check if file already exists
         if not path.isfile(fname) and getRecord == True:
+            print('Getting:', fname)
             client = Client(user='trevor.allen@ga.gov.au')
             st = client.get_waveforms(bulk[0], bulk[1], bulk[2], bulk[3], bulk[4], bulk[5])
             st = st.merge(method=0, fill_value='interpolate')
@@ -179,11 +192,16 @@ print('Reading dataless seed volumes...')
 if getcwd().startswith('/nas'):
     au_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/AU/AU.IRIS.dataless')
     s1_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/S1/S1.IRIS.dataless')
-    ge_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/GE/GE.IRIS.dataless')
+    ge1_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/GE/GE1.IRIS.dataless')
+    ge2_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/GE/GE1.IRIS.dataless')
     iu_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/IU/IU.IRIS.dataless')
     
 else:
-    au_parser = Parser('/Users/trev/Documents/Earthquake_Data/AU.dataless')
+    au_parser = Parser('/Users/trev/Documents/Networks/AU/AU.IRIS.dataless')
+    s1_parser = Parser('/Users/trev/Documents/Networks/S1/S1.IRIS.dataless')
+    iu_parser = Parser('/Users/trev/Documents/Networks/IU/IU.IRIS.dataless')
+    ge1_parser = Parser('/Users/trev/Documents/Networks/GE/GE1.IRIS.dataless')
+    ge2_parser = Parser('/Users/trev/Documents/Networks/GE/GE2.IRIS.dataless')
     
 folder = 'mseed_dump'
 
@@ -194,7 +212,7 @@ for ev in evdict:
     pt = Point(ev['lon'], ev['lat'])
     for poly, zcode in zip(polygons, zone_code):
         # set Mmin
-        if zcode == 'BS':
+        if zcode == 'BS' or zcode == 'PNGT':
            mmin = 5.25
         else:
            mmin = 5.75
@@ -254,6 +272,12 @@ for ev in evdict:
                 # get S1 network
                 bulk = [("S1", "AUDHS", "*", "*", t1, t2),
                         ("S1", "AUNHS", "*", "*", t1, t2),
+                        ("S1", "AUAYR", "*", "*", t1, t2),
+                        ("S1", "AUMOU", "*", "*", t1, t2),
+                        ("S1", "AUCSH", "*", "*", t1, t2),
+                        ("S1", "AUNRC", "*", "*", t1, t2),
+                        ("S1", "AUKAR", "*", "*", t1, t2),
+                        ("S1", "AUCAR", "*", "*", t1, t2),
                         ("S1", "AUKAT", "*", "*", t1, t2)]  
                 
                 st = get_iris_event_data(bulk, folder, ev['timestr'][:16], s1_parser, ev)
@@ -272,7 +296,6 @@ for ev in evdict:
                 # get IA network
                 t1 = ev['starttime'] - 60
                 t2 = t1 + 1500 
-                
                 bulk = [("IA", "MMPI", "*", "*", t1, t2),
                         ("IA", "WAMI", "*", "*", t1, t2),
                         ("IA", "SRPI", "*", "*", t1, t2),
@@ -298,34 +321,47 @@ for ev in evdict:
                         ("IA", "WBSI", "*", "*", t1, t2),
                         ("IA", "MBPI", "*", "*", t1, t2)]  
                 
-                st = get_iris_event_data(bulk, folder, ev['timestr'][:16])
-                '''
+                #st = get_iris_event_data(bulk, folder, ev['timestr'][:16])
                 
-                ###########################################################################
-                
-                # get GE network
-                t1 = ev['starttime'] - 60
-                t2 = t1 + 1500
-                bulk = [("GE", "SAUI", "*", "BH*", t1, t2),
-                        ("GE", "SOEI", "*", "BH*", t1, t2),
-                        ("GE", "GENI", "*", "BH*", t1, t2),
-                        ("GE", "PMG", "*", "BH*", t1, t2),
-                        ("GE", "MMRI", "*", "BH*", t1, t2),
-                        ("GE", "BNDI", "*", "BH*", t1, t2),
-                        ("GE", "PLAI", "*", "BH*", t1, t2),
-                        ("GE", "FAKI", "*", "BH*", t1, t2)]  
-                
-                #print fname
-                #st = get_iris_event_data(bulk, folder, ev['timestr'][:16], ge_parser, ev)
-                
-                #try:
                 for b in bulk:
-                    fname = '.'.join((ev['timestr'][:16],'GE',b[1],'mseed')).replace(':','.')
+                    fname = '.'.join((ev['timestr'][:16],'IA',b[1],'mseed')).replace(':','.')
                     fpath = path.join('mseed_dump', fname)
                     try:
                         st = get_arclink_event_data(b, fpath, ge_parser, ev)
                     except:
                         b = 1
+                '''        
+                ###########################################################################
+                
+                # get GE network
+                t1 = ev['starttime'] - 60
+                t2 = t1 + 1500
+                bulk = [("GE", "SAUI", "*", "[BH]H*", t1, t2),
+                        ("GE", "SOEI", "*", "[BH]H*", t1, t2),
+                        ("GE", "GENI", "*", "[BH]H*", t1, t2),
+                        ("GE", "PMG", "*", "[BH]H*", t1, t2),
+                        ("GE", "MMRI", "*", "[BH]H*", t1, t2),
+                        ("GE", "BNDI", "*", "[BH]H*", t1, t2),
+                        ("GE", "PLAI", "*", "[BH]H*", t1, t2),
+                        ("GE", "JAGI", "*", "[BH]H*", t1, t2),
+                        ("GE", "FAKI", "*", "[BH]H*", t1, t2)]  
+                
+                #print fname
+                #st = get_iris_event_data(bulk, folder, ev['timestr'][:16], ge_parser, ev)
+                
+                #try:
+                
+                for b in bulk:
+                    fname = '.'.join((ev['timestr'][:16],'GE',b[1],'mseed')).replace(':','.')
+                    fpath = path.join('mseed_dump', fname)
+                    #st = get_arclink_event_data(b, fpath, ge_parser, ev)
+                    try:
+                        st = get_arclink_event_data(b, fpath, ge1_parser, ev)
+                    except:
+                        try:
+                            st = get_arclink_event_data(b, fpath, ge2_parser, ev)
+                        except:
+                            b = 1
                 #except:
                 #    print('No GEOFON data...')
                 
