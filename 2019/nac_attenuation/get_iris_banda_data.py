@@ -32,12 +32,12 @@ def get_iris_event_data(bulk, folder, timestr, dataless, event):
             staloc = nan
             #first, check it site is in distance and azimuthal range
             for channel in ['SHZ', 'EHZ', 'BHZ', 'HHZ', 'BNZ', 'HNZ']:
-                seedid = '.'.join((b[0], b[1], '00', channel)) #'AU.DPH.00.BNZ'
+                seedid = '.'.join((b[0], b[1], '00', channel)) # e.g., 'AU.DPH.00.BNZ'
                 try:
                     staloc = dataless.get_coordinates(seedid,b[4])
                 except:
                     a=1 # dummy call
-                seedid = '.'.join((b[0], b[1], '', channel)) #'AU.DPH..BNZ'
+                seedid = '.'.join((b[0], b[1], '', channel)) # e.g., 'AU.DPH..BNZ'
                 try:
                     staloc = dataless.get_coordinates(seedid,b[4])
                 except:
@@ -185,6 +185,11 @@ for poly in shapes:
     
 zone_code = get_field_data(sf, 'CODE', 'str')
 
+# parse catalogue
+evdict = parse_usgs_events(usgscsv)
+
+#a=b # kill
+
 from obspy.io.xseed import Parser
 
 # read dataless seed volumes
@@ -206,8 +211,9 @@ else:
 folder = 'mseed_dump'
 
 cnt = 0
-evdict = parse_usgs_events(usgscsv)
+
 for ev in evdict:
+    #print(ev.keys())
     # check if event in polygons
     pt = Point(ev['lon'], ev['lat'])
     for poly, zcode in zip(polygons, zone_code):
@@ -270,18 +276,19 @@ for ev in evdict:
                 ###########################################################################
                 
                 # get S1 network
-                bulk = [("S1", "AUDHS", "*", "*", t1, t2),
-                        ("S1", "AUNHS", "*", "*", t1, t2),
-                        ("S1", "AUAYR", "*", "*", t1, t2),
-                        ("S1", "AUMOU", "*", "*", t1, t2),
-                        ("S1", "AUCSH", "*", "*", t1, t2),
-                        ("S1", "AUNRC", "*", "*", t1, t2),
-                        ("S1", "AUKAR", "*", "*", t1, t2),
-                        ("S1", "AUCAR", "*", "*", t1, t2),
-                        ("S1", "AUKAT", "*", "*", t1, t2)]  
-                
-                st = get_iris_event_data(bulk, folder, ev['timestr'][:16], s1_parser, ev)
-                
+                if ev['starttime'].year >= 2013:
+                    bulk = [("S1", "AUDHS", "*", "*", t1, t2),
+                            ("S1", "AUNHS", "*", "*", t1, t2),
+                            ("S1", "AUAYR", "*", "*", t1, t2),
+                            ("S1", "AUMOU", "*", "*", t1, t2),
+                            ("S1", "AUCSH", "*", "*", t1, t2),
+                            ("S1", "AUNRC", "*", "*", t1, t2),
+                            ("S1", "AUKAR", "*", "*", t1, t2),
+                            ("S1", "AUCAR", "*", "*", t1, t2),
+                            ("S1", "AUKAT", "*", "*", t1, t2)]  
+                    
+                    st = get_iris_event_data(bulk, folder, ev['timestr'][:16], s1_parser, ev)
+                    
                 ###########################################################################
                 
                 # get IU network
