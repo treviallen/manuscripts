@@ -1,4 +1,4 @@
-from matplotlib.mlab import griddata
+from scipy.interpolate import griddata
 from matplotlib import colors, colorbar
 import matplotlib.pyplot as plt
 import matplotlib as mpl
@@ -9,10 +9,10 @@ from netCDF4 import Dataset as NetCDFFile
 from gmt_tools import cpt2colormap
 from os import path, walk, system
 from obspy.imaging.beachball import Beach
-from hmtk.parsers.catalogue.csv_catalogue_parser import CsvCatalogueParser, CsvCatalogueWriter
+#from hmtk.parsers.catalogue.csv_catalogue_parser import CsvCatalogueParser, CsvCatalogueWriter
 from misc_tools import remove_last_cmap_colour, listdir_extension
 
-
+mpl.style.use('classic')
 plt.rcParams['pdf.fonttype'] = 42
 
 ##########################################################################################
@@ -124,8 +124,8 @@ m.drawmeridians(arange(0.,360.,6.), labels=[0,0,0,1], fontsize=16, dashes=[2, 2]
 # plot gebco
 ##########################################################################################
 
-print 'Reading netCDF file...'
-nc = NetCDFFile('//Users//tallen//Documents//DATA//GMT//GEBCO//Australia_30c.nc')
+print('Reading netCDF file...')
+nc = NetCDFFile('//Users//trev//Documents//DATA//GMT//GEBCO//Australia_30c.nc')
 
 #zscale =20. #gray
 zscale =50. #colour
@@ -139,16 +139,16 @@ ny = int((m.ymax-m.ymin)/500.)+1
 
 topodat = m.transform_scalar(data,lons,lats,nx,ny)
 
-print 'Getting colormap...'
+print('Getting colormap...')
 # get colormap
-cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//mby_topo-bath.cpt'
+cptfile = '//Users//trev//Documents//DATA//GMT//cpt//mby_topo-bath.cpt'
 #cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//gray.cpt'
 cmap, zvals = cpt2colormap(cptfile, 256)
 cmap = remove_last_cmap_colour(cmap)
 #cmap = cm.get_cmap('terrain', 256)
 
 # make shading
-print 'Making map...'
+print('Making map...')
 ls = LightSource(azdeg = 180, altdeg = 45)
 norm = mpl.colors.Normalize(vmin=-8000/zscale, vmax=5000/zscale)#myb
 rgb = ls.shade(topodat, cmap=cmap, norm=norm)
@@ -158,39 +158,60 @@ im = m.imshow(rgb)
 ##########################################################################################
 # add epicentres
 ##########################################################################################
+# get colormap
+cptfile = '//Users//trev//Documents//DATA//GMT//cpt//Paired_10.cpt'
+ncols = 10
+cmap, zvals = cpt2colormap(cptfile, ncols+1)
+cmap = remove_last_cmap_colour(cmap)
+cs = (cmap(arange(ncols)))
 
-ncols = 18
+# load shape
+import shapefile
+shpfile = 'shapefiles/nac_gmm_zones.shp'
+sf = shapefile.Reader(shpfile)
+shapes = sf.shapes()
+polygons = []
+for poly in shapes:
+    polygons.append(Polygon(poly.points))
 
-eqlo = []
-eqla = []
-emag = []
-stlo = []
-stla = []
-
-# plt paths
-for rec in recs: #[0:100])):
-    if rec['dep'] >= 50:
-        #plt eq
-        x1, y1 = m(rec['eqlo'], rec['eqla'])
-        x2, y2 = m(rec['stlo'], rec['stla'])
-        
-        plt.plot([x1, x2], [y1, y2], '-', c='0.6', lw=0.5, alpha=0.7)
-        
-        eqlo.append(rec['eqlo'])
-        eqla.append(rec['eqla'])
-        stlo.append(rec['stlo'])
-        stla.append(rec['stla'])
-        emag.append(rec['mag'])
+# loop thru zones
+i = 0
+for poly, zcode in zip(polygons, zone_code):
     
-# plt stns and events
-for i in range(0, len(eqlo)):
-
-    x, y = m(eqlo[i], eqla[i])
-    plt.plot(x, y, 'ro', mec='k', markeredgewidth=0.5, markersize=(-15 + emag[i]*4.), alpha=1.)
+    eqlo = []
+    eqla = []
+    emag = []
+    stlo = []
+    stla = []
     
-    x, y = m(stlo[i], stla[i])
-    plt.plot(x, y, '^', markerfacecolor='w', markeredgecolor='k', markeredgewidth=0.5, \
-             markersize=9, alpha=1)
+    # plt paths
+    for rec in recs: #[0:100])):
+        #if rec['dep'] >= 50:
+        
+        pt = Point(rec['eqlo'], rec['eqla'])
+        if pt.within(poly):
+            #plt eq
+            x1, y1 = m(rec['eqlo'], rec['eqla'])
+            x2, y2 = m(rec['stlo'], rec['stla'])
+            
+            plt.plot([x1, x2], [y1, y2], '-', c='0.6', lw=0.5, alpha=0.7)
+            
+            eqlo.append(rec['eqlo'])
+            eqla.append(rec['eqla'])
+            stlo.append(rec['stlo'])
+            stla.append(rec['stla'])
+            emag.append(rec['mag'])
+        
+    # plt stns and events
+    for i in range(0, len(eqlo)):
+    
+        x, y = m(eqlo[i], eqla[i])
+        plt.plot(x, y, 'o', mfc=cs[i*2+1], mec='k', markeredgewidth=0.5, markersize=(-15 + emag[i]*4.), alpha=1.)
+        
+        x, y = m(stlo[i], stla[i])
+        plt.plot(x, y, '^', markerfacecolor='w', markeredgecolor='k', markeredgewidth=0.5, \
+                 markersize=9, alpha=1)
+    i+=1
     
 # make legend
 legmag = [6., 7., 8.]
@@ -254,11 +275,11 @@ for stn in stns:
     stlat.append(lat)
     stlon.append(lon)
     stnet.append(net)
-    print stn, net, lat
+    print(stn, net, lat)
 stlat = array(stlat)
 stlon = array(stlon)
 #unet = unique(array(stnet))
-#print stns, stnet
+#print(stns, stnet
 
 
 # loop thru networks and plot
