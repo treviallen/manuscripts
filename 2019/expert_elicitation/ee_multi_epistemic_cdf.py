@@ -171,7 +171,7 @@ gs1.update(wspace=0.095, hspace=0.2) # negative looks bad in "show", but ok in p
 # just do PGA
 for k, key in enumerate(keys[:1]):
     # set up figure
-    fig = plt.figure(k+1, figsize=(15, 15))
+    fig = plt.figure(k+1, figsize=(15, 17))
 
     # loop thru places to plot
     for i, place in enumerate(places):
