@@ -11,6 +11,7 @@ from misc_tools import get_log_xy_locs
 from fault_tools import mag2ruplen_WC94, mag2srl_WC94, mag2srl_Cea14, mag2len_L14, mag2lsr_L14
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+import matplotlib.patheffects as PathEffects
 mpl.style.use('classic')
 
 # parse SRL table
@@ -49,8 +50,8 @@ vsrl = vsrl[idx]
 # plot VSRL data
 ##############################################################################
 
-fig = plt.figure(1, figsize=(13,6))
-ax = plt.subplot(121)
+fig = plt.figure(1, figsize=(13,13))
+ax = plt.subplot(221)
 
 plt.semilogy(mag, vsrl, 's', c='seagreen', label='VSRL Data')
 plt.grid(which='both')
@@ -88,14 +89,15 @@ lrng = 10**(m * mrng + c)
 plt.semilogy(mrng, lrng, '-', c='k', lw=1.5, label='Present Study (LSQ)')
 
 plt.legend(loc=4, numpoints=1, fontsize=11)
-plt.text(4.55, 90, '(a)', va='top', ha='left', fontsize=18)
+txt = plt.text(4.55, 90, '(a)', va='top', ha='left', fontsize=18)
+txt.set_path_effects([PathEffects.withStroke(linewidth=5, foreground='w')])
 plt.ylim([0.1, 100])
 
 ##############################################################################
 # plot DSRL data
 ##############################################################################
 
-ax = plt.subplot(122)
+ax = plt.subplot(222)
 
 plt.semilogy(mag, dsrl, 's', c='seagreen', label='DSRL Data')
 plt.grid(which='both')
@@ -135,13 +137,14 @@ odrsl_lrng = 10**(m * mrng + c) # keep for later
 plt.semilogy(mrng, lrng, '-', c='k', lw=1.5, label='Present Study (LSQ)')
 
 plt.legend(loc=4, numpoints=1, fontsize=11)
-plt.text(4.55, 90, '(b)', va='top', ha='left', fontsize=18)
+txt = plt.text(4.55, 90, '(b)', va='top', ha='left', fontsize=18)
+txt.set_path_effects([PathEffects.withStroke(linewidth=5, foreground='w')])
 
 ##############################################################################
 # export & show
 ##############################################################################
 
-plt.savefig('2019_srl_regression.png', fmt='png', dpi=300, bbox_inches='tight')
+#plt.savefig('2019_srl_regression.png', fmt='png', dpi=300, bbox_inches='tight')
 #plt.show()
 
 ##############################################################################
@@ -149,7 +152,7 @@ plt.savefig('2019_srl_regression.png', fmt='png', dpi=300, bbox_inches='tight')
 ##############################################################################
 
 #fig = plt.figure(2, figsize=(19.5,6))
-fig = plt.figure(2, figsize=(13,6))
+#fig = plt.figure(2, figsize=(13,6))
 
 rat_vdsrl = vsrl/dsrl
 idx = rat_vdsrl != 1.
@@ -176,7 +179,7 @@ print('odr1', om, oc)
 '''
 ##############################################################################
 
-ax = plt.subplot(121)
+ax = plt.subplot(223)
 
 plt.loglog(vsrl[idx], rat_vdsrl[idx], 's', c='seagreen', label='DSRL Data')
 
@@ -202,7 +205,8 @@ ticklabels = [str(x) for x in ticks]
 ax.set_yticks(ticks)
 ax.set_yticklabels(ticklabels)
 
-plt.text(xpos, ypos, '(a)', va='top', ha='left', fontsize=18)
+txt = plt.text(xpos, ypos, '(c)', va='top', ha='left', fontsize=18)
+txt.set_path_effects([PathEffects.withStroke(linewidth=5, foreground='w')])
 
 print('\nRatio coeffs')
 print('odr2', om, oc)
@@ -210,7 +214,7 @@ print('odr2', om, oc)
 ##############################################################################
 # correct non-drsl data
 
-ax = plt.subplot(122)
+ax = plt.subplot(224)
 
 cor_dsrl = zeros_like(dsrl)
 copyto(cor_dsrl, dsrl)
@@ -257,7 +261,8 @@ ticklabels = [str(x).replace('.0','') for x in ticks]
 ax.set_yticks(ticks)
 ax.set_yticklabels(ticklabels)
 
-plt.text(4.55, 90, '(b)', va='top', ha='left', fontsize=18)
+txt = plt.text(4.55, 90, '(d)', va='top', ha='left', fontsize=18)
+txt.set_path_effects([PathEffects.withStroke(linewidth=5, foreground='w')])
 
 plt.savefig('2019_vsrl-dsrl_ratio.png', fmt='png', dpi=300, bbox_inches='tight')
 plt.show()

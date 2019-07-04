@@ -4,8 +4,9 @@ from os import path, getcwd, sep
 from sys import argv
 import matplotlib as mpl
 from gmt_tools import cpt2colormap 
-from misc_tools import remove_last_cmap_colour
+from misc_tools import remove_last_cmap_colour, get_log_xy_locs
 import matplotlib.gridspec as gridspec
+import matplotlib.patheffects as PathEffects
 
 mpl.style.use('classic')
 mpl.rcParams['pdf.fonttype'] = 42
@@ -40,6 +41,7 @@ fractiles = arange(0., 1.01, 0.01)
 # get colours
 if getcwd().startswith('/nas'):
     cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/gay-flag-1978.cpt'
+    #cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/sst.cpt'
 else:
     cptfile = '/Users/trev/Documents/DATA/GMT/cpt/gay-flag-1978.cpt'
 ncolours = len(modnames)+1
@@ -48,7 +50,7 @@ cmap, zvals = cpt2colormap(cptfile, ncolours)
 cmap = remove_last_cmap_colour(cmap)
 cs = (cmap(arange(ncolours-1)))
 ls = '-'
-lw = 1.5
+lw = 1.75
 
 if ncolours < 4:
     cs = ['orangered', 'dodgerblue']
@@ -156,7 +158,7 @@ fracDict, keys = parse_plot_fractiles(fracpaths[0])
 # let's make the plots
 ###################################################################################
 
-altPlaces = False
+altPlaces = True
 
 if altPlaces == False:
     places = ['Perth', 'Darwin', 'Adelaide', 'Melbourne', 'Hobart', 'Canberra', 'Sydney', 'Brisbane']
@@ -194,20 +196,18 @@ for k, key in enumerate(keys[:1]):
                         col = cs[j]
                     # plot fig
                     if modname.endswith('(B)'):
-                        plt.semilogx(frac['quant_'+key], fractiles, '-', c=col, lw=1.5, label=modname)
+                        plt.semilogx(frac['quant_'+key], fractiles, '-', c=col, lw=lw, label=modname)
                     else:
-                        plt.semilogx(frac['quant_'+key], fractiles, '-', c=col, lw=1.5, label=modname)
+                        plt.semilogx(frac['quant_'+key], fractiles, '-', c=col, lw=lw, label=modname)
                     
                     j += 1        
         
         # make pretty
         plt.title(place, fontsize=15)
-        #plt.text(0.095, 0.02, place, fontsize=18, va='bottom', ha='right')
-        plt.text(0.98*0.2, 0.98, letters[i], fontsize=18, va='top', ha='right')
+        
         if i == 0 or i == 2 or i == 4 or i == 6:
             plt.ylabel('Fractile', fontsize=16)
-            
-        
+                  
         if i >= 6:
             plt.xlabel(key.replace('(','').replace(')','').split('-')[0] + ' (g)', fontsize=16)
             
@@ -225,16 +225,27 @@ for k, key in enumerate(keys[:1]):
                 plt.xlim([0.003, 0.2])
         else:
             plt.xlim([0.003, 0.2])
+        
+        # set letters
+        if altPlaces == False:
+            xplt = get_log_xy_locs(ax.get_xlim(), 0.02)
+            txt = plt.text(xplt, 0.98, letters[i], fontsize=18, va='top', ha='left')
+        else:
+            xplt = get_log_xy_locs(ax.get_xlim(), 0.98)
+            txt = plt.text(xplt, 0.98, letters[i], fontsize=18, va='top', ha='right')
+        txt.set_path_effects([PathEffects.withStroke(linewidth=5, foreground='w')])
 
         ax.set_xticks(ticks)
         ax.set_xticklabels([str(x) for x in ticks])
         
-        if i == 0:
-            plt.legend(loc=2, fontsize=10)
+        if altPlaces == False:
+            if i == 7:
+                plt.legend(loc=4, fontsize=14)
+        else:
+            if i == 0:
+                plt.legend(loc=2, fontsize=13)
             
-            
-    
-    # set fig file
+     # set fig file
     if altPlaces == True:
         figFile = '_'.join(('regional_'+outfile,key,'CDF.png'))
     else:
