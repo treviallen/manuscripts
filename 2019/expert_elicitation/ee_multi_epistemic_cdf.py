@@ -158,7 +158,7 @@ fracDict, keys = parse_plot_fractiles(fracpaths[0])
 # let's make the plots
 ###################################################################################
 
-altPlaces = True
+altPlaces = False
 
 if altPlaces == False:
     places = ['Perth', 'Darwin', 'Adelaide', 'Melbourne', 'Hobart', 'Canberra', 'Sydney', 'Brisbane']
