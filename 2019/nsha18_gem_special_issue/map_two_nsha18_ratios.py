@@ -97,7 +97,7 @@ def parse_grd_file(gridfile):
     # make grid dictionary
     grddict = []
     
-    print '\nReading', modelName
+    print('\nReading', modelName)
     for line in lines[2:]:
         dat = line.strip().split(',')
         tmpdict = {'lon':float(dat[0]), 'lat':float(dat[1])}
@@ -125,7 +125,7 @@ for gridfile1, gridfile2 in zip(gridfiles1, gridfiles2):
     grddict2, keys  = parse_grd_file(gridfile2)
     
     # make ratio grddict - just 10% in 50 for now!!!
-    print '\nJust 10% in 50 for now!!!\n'
+    print('\nJust 10% in 50 for now!!!\n')
     grddict = []
     for gd1, gd2 in zip(grddict1, grddict2):
         if gd1['lon'] == gd2['lon'] and gd1['lat'] == gd2['lat']:
@@ -233,7 +233,7 @@ for gridfile1, gridfile2 in zip(gridfiles1, gridfiles2):
         m.drawmeridians(arange(0.,360.,xlabel), labels=[0,0,0,0], fontsize=10, dashes=[2, 2], color='0.5', linewidth=0.5)
         
         # first make regular cartesian grid
-        print 'Resampling data...'
+        print('Resampling data...')
         N = 500j
         extent = (minlon-mbuff, maxlon+mbuff, minlat-mbuff, maxlat+mbuff)
         xs,ys = mgrid[extent[0]:extent[1]:N, extent[2]:extent[3]:N]
@@ -288,7 +288,7 @@ for gridfile1, gridfile2 in zip(gridfiles1, gridfiles2):
                 cmap = remove_last_cmap_colour(cmap)
     
         
-        print 'Making map...'    
+        print('Making map...')
         cmap.set_bad('w', 1.0)
         m.imshow(masked_array, cmap=cmap, extent=extent, vmin=vmin, vmax=vmax, zorder=0)
         
@@ -379,7 +379,7 @@ for gridfile1, gridfile2 in zip(gridfiles1, gridfiles2):
                 #levels = arange(0.05, 0.31, 0.05)
                 levels = bounds[1:]
             '''
-            print levels
+            print(levels)
             csm = plt.contour(x, y, resampled, levels, colors='0.2', lw=0.3)    
             #csm_lo = plt.contour(x, y, resampled, levels_lo, colors='0.2', lw=0.3)
             
@@ -482,7 +482,7 @@ cb.set_ticklabels(labels)
 cb.ax.tick_params(labelsize=16)
 
 # set title
-titlestr = ' '.join(('Ratio of', T, probability, 'in 50-Year Mean Hazard (g)'))
+titlestr = ' '.join(('Ratio of', T, probability, 'in 50-Year Mean Hazard'))
 cb.set_label(titlestr, fontsize=20)
 
 # check to see if maps exists
@@ -490,7 +490,7 @@ if path.isdir('map_ratio') == False:
     mkdir('map_ratio')
     
 # now save png file
-print 'Saving', 'map_ratio_'+modelName.replace(' ','_')+'.'+key+'.png'
+print('Saving', 'map_ratio_'+modelName.replace(' ','_')+'.'+key+'.png')
 plt.savefig('map_ratio_'+modelName.replace(' ','_')+'.'+key+'.png', \
             dpi=300, format='png', bbox_inches='tight')
 
