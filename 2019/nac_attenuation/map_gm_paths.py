@@ -1,4 +1,4 @@
-from scipy.interpolate import griddata
+#from scipy.interpolate import griddata
 from matplotlib import colors, colorbar
 import matplotlib.pyplot as plt
 import matplotlib as mpl
