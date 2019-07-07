@@ -82,7 +82,7 @@ from scipy.stats import linregress
 ################################################################################
 # loop through sa files and get data
 ################################################################################
-#usgscsv = 'neic_banda_png_gt_6.csv'
+#usgscsv = '20190625_merged_events.csv'
 #evdict = parse_usgs_events(usgscsv)
 
 folder = 'psa'
@@ -241,13 +241,14 @@ for i, st in enumerate(stdict):
                 stdict[i]['network'] = rec['network']
                 
 didx = []
+'''
 for j, st in enumerate(stdict):
     if 'rhyp' in st:
         if st['net'] == 'GE' and st['rhyp'] > 400:
              didx.append(j)
     else:
         didx.append(j)
-     
+'''
 stdict = delete(stdict, array(didx))
          	
 
@@ -282,11 +283,41 @@ def fit_atten(c, x):
     
     return ans
 '''
+
+################################################################################
+# parse shapefile and filter stdict
+################################################################################
+'''
+BS = Banda Sea
+NGH = New Guinea Highlands
+OB = Oceanic Basin-Extended Margin
+'''
+# load shape
+import shapefile
+from shapely import Point, Polygon
+shpfile = 'shapefiles/nac_gmm_zones.shp'
+sf = shapefile.Reader(shpfile)
+shapes = sf.shapes()
+polygons = []
+for poly in shapes:
+    polygons.append(Polygon(poly.points))
+
+# loop thru zones
+i = 0
+
+reg_stdict = []
+for sd in stdict:
+    for poly, zcode, zgroup in zip(polygons, zone_code, zone_group):
+        pt = Point(sd['eqlo'], sd['eqla'])
+        if zgroup == 'BS' and pt.within(poly):
+            reg_stdict.append(sd)
+    
+
 ################################################################################
 # now get geometric atten for all mags
 ################################################################################
     
-mrng = arange(5.7, 7.7, 0.1)
+mrng = arange(5.3, 7.7, 0.1)
 mpltrng = 0.05
 Tplt = array([0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0, 4.0]) # secs; PGA = 0.01; PGV = -99
 
@@ -329,8 +360,8 @@ for ii, T in enumerate(Tplt):
         auth = dictlist2array(stdict, 'network')
         
         # get events within mag and T bin
-        midx = where((mags >= (mplt-mpltrng)) & (mags < (mplt+mpltrng)) & (deps >= 30.))[0]
-        #midx = where((mags >= (mplt-mpltrng)) & (mags < (mplt+mpltrng)))[0]
+        #midx = where((mags >= (mplt-mpltrng)) & (mags < (mplt+mpltrng)) & (deps >= 30.))[0]
+        midx = where((mags >= (mplt-mpltrng)) & (mags < (mplt+mpltrng)))[0]
         
         if len(midx) > 0:
     
@@ -670,7 +701,7 @@ for tt, T in enumerate(Tplt):
             def fit_atten(c, x):
                 from numpy import sqrt, log10
                 
-                xref = 100.
+                #xref = 100.
                 ans = c[0] - c2*log10(x) - c3*x 
                 
                 return ans
