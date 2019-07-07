@@ -49,7 +49,7 @@ ncolours = len(modnames)+1
 cmap, zvals = cpt2colormap(cptfile, ncolours)
 cmap = remove_last_cmap_colour(cmap)
 cs = (cmap(arange(ncolours-1)))
-ls = '-'
+ls = ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-']
 lw = 1.75
 
 if ncolours < 4:
@@ -158,7 +158,7 @@ fracDict, keys = parse_plot_fractiles(fracpaths[0])
 # let's make the plots
 ###################################################################################
 
-altPlaces = False
+altPlaces = True
 
 if altPlaces == False:
     places = ['Perth', 'Darwin', 'Adelaide', 'Melbourne', 'Hobart', 'Canberra', 'Sydney', 'Brisbane']
@@ -196,9 +196,9 @@ for k, key in enumerate(keys[:1]):
                         col = cs[j]
                     # plot fig
                     if modname.endswith('(B)'):
-                        plt.semilogx(frac['quant_'+key], fractiles, '-', c=col, lw=lw, label=modname)
+                        plt.semilogx(frac['quant_'+key], fractiles, ls=ls[j], c=col, lw=lw, label=modname)
                     else:
-                        plt.semilogx(frac['quant_'+key], fractiles, '-', c=col, lw=lw, label=modname)
+                        plt.semilogx(frac['quant_'+key], fractiles, ls=ls[j], c=col, lw=lw, label=modname)
                     
                     j += 1        
         
