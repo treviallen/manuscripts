@@ -53,7 +53,7 @@ ls = ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-']
 lw = 1.75
 
 if ncolours < 4:
-    cs = ['orangered', 'dodgerblue']
+    cs = ['0.6', 'k']
     ls = ['-', '--']
 
 ##############################################################################
@@ -158,7 +158,7 @@ fracDict, keys = parse_plot_fractiles(fracpaths[0])
 # let's make the plots
 ###################################################################################
 
-altPlaces = True
+altPlaces = False
 
 if altPlaces == False:
     places = ['Perth', 'Darwin', 'Adelaide', 'Melbourne', 'Hobart', 'Canberra', 'Sydney', 'Brisbane']
