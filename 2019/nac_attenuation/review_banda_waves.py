@@ -37,7 +37,7 @@ for msf in mseedfiles:
        freqmax = st_filt[0].stats.sampling_rate * 0.45
        st_filt = st_filt.filter('bandpass', freqmin=0.1, freqmax=freqmax)
        for j, tr in enumerate(st_filt):
-           if tr.stats.channel[1] != 'N':
+           if tr.stats.channel[1] != 'N' and len(st_filt) > 3:
                i += 1
                ax = plt.subplot(3, 1, i)
                
