@@ -222,13 +222,13 @@ for mseedfile in mseedfiles:
 # plot
 ###############################################################################
         # plot verticals only
-        picks, x1, x2, x3 = do_picks(st, eqdt)
+        picks, x1, x2, x3, channels = do_picks(st, eqdt)
                 
         # capture data proc file
         tr = st[0]
         outtxt = ','.join((tr.stats.starttime.strftime('%Y-%m-%dT%H:%M:%S.%f'), eqdt.strftime('%Y-%m-%dT%H:%M:%S.%f'), \
                            str(eqlo), str(eqla), str(eqdp), str(eqmag), str('%0.2f' % rngkm), str('%0.1f' % azim), \
-                           str(st[0].stats.sampling_rate), \
+                           str(st[0].stats.sampling_rate), channels[0], channels[1], channels[2], \
                            str('%0.3f' % picks[0,0]), str('%0.3f' % picks[1,0]), str('%0.3f' % picks[2,0]), \
                            str(x1), str(x2), str(x3), \
                            path.join(getcwd(), 'mseed_dump', mseedfile)))
