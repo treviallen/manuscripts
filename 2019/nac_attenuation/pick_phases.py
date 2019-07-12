@@ -163,99 +163,98 @@ mseedfiles = listdir_extension('mseed_dump', 'mseed')
 m = 1
 for mseedfile in mseedfiles:
     
-    # read mseed
-    st = read(path.join('mseed_dump', mseedfile))
-    
-    # remove junk channels
-    st = remove_low_sample_data(st)
     
 ###############################################################################
-# associate event and get distance
+# first check to see if the pick file exists
 ###############################################################################
-
-    evFound = False
-    for evnum, ev in enumerate(evdict): 
-	
-        if st[0].stats.starttime > UTCDateTime(ev['datetime']-timedelta(seconds=360)) \
-           and st[0].stats.starttime < UTCDateTime(ev['datetime']+timedelta(seconds=60)):
-            evFound = True
-            eqlo = ev['lon']
-            eqla = ev['lat']
-            eqmag = ev['mag']
-            eqdp = ev['dep']
-            eqdt = ev['datetime']            
+    recfile = path.split(mseedfile)[-1][:-5]+'picks'
+    pick_path = path.join('record_picks',recfile)
     
-    if evFound == True:
-        # get station details
-        print('Getting picks for', mseedfile)
+    # check if pick file exists
+    if not path.isfile(pick_path):
+    
+        # read mseed
+        st = read(path.join('mseed_dump', mseedfile))
         
-        sta_data = return_sta_data(st[0].stats.station)
-        rngkm, azim, baz = distance(eqla, eqlo, sta_data['stla'], sta_data['stlo'])
-        rngdeg = km2deg(rngkm)
+        # remove junk channels
+        st = remove_low_sample_data(st)
         
-        # get arrivals
-        if eqdp < 0:
-            arrival_dep = 0.
-        else:
-            arrival_dep = eqdp
+        
+    ###############################################################################
+    # associate event and get distance
+    ###############################################################################
+    
+        evFound = False
+        for evnum, ev in enumerate(evdict): 
+    	
+            if st[0].stats.starttime > UTCDateTime(ev['datetime']-timedelta(seconds=360)) \
+               and st[0].stats.starttime < UTCDateTime(ev['datetime']+timedelta(seconds=60)):
+                evFound = True
+                eqlo = ev['lon']
+                eqla = ev['lat']
+                eqmag = ev['mag']
+                eqdp = ev['dep']
+                eqdt = ev['datetime']            
+        
+        if evFound == True:
+            # get station details
+            print('Getting picks for', mseedfile)
             
-        arrivals = model.get_travel_times(source_depth_in_km=arrival_dep, distance_in_degree=rngdeg)
-        
-        # find P and S
-        p = []
-        s = []
-        for a in arrivals:
-            if a.name.upper() == 'P':
-                p.append(a.time)
-            if a.name.upper() == 'S':
-                s.append(a.time)
+            sta_data = return_sta_data(st[0].stats.station)
+            rngkm, azim, baz = distance(eqla, eqlo, sta_data['stla'], sta_data['stlo'])
+            rngdeg = km2deg(rngkm)
+            
+            # get arrivals
+            if eqdp < 0:
+                arrival_dep = 0.
+            else:
+                arrival_dep = eqdp
                 
-        pTravelTime = p[0]
-        sTravelTime = s[0]
-        # estimate Lg Arrival (from Goulet et al 2014 P25-26)
-        lgTravelTime = sTravelTime + 8.71 * 0.026*rngkm
-        
-        # estimate Rg
-        rgTravelTime = rngkm/3.05
-        
-###############################################################################
-# plot
-###############################################################################
-        # plot verticals only
-        picks, x1, x2, x3, channels = do_picks(st, eqdt)
+            arrivals = model.get_travel_times(source_depth_in_km=arrival_dep, distance_in_degree=rngdeg)
+            
+            # find P and S
+            p = []
+            s = []
+            for a in arrivals:
+                if a.name.upper() == 'P':
+                    p.append(a.time)
+                if a.name.upper() == 'S':
+                    s.append(a.time)
+                    
+            pTravelTime = p[0]
+            sTravelTime = s[0]
+            # estimate Lg Arrival (from Goulet et al 2014 P25-26)
+            lgTravelTime = sTravelTime + 8.71 * 0.026*rngkm
+            
+            # estimate Rg
+            rgTravelTime = rngkm/3.05
+            
+    ###############################################################################
+    # plot
+    ###############################################################################
+            # plot verticals only
+            picks, x1, x2, x3, channels = do_picks(st, eqdt)
+                    
+            # capture data proc file
+            tr = st[0]
+            outtxt = ','.join((tr.stats.starttime.strftime('%Y-%m-%dT%H:%M:%S.%f'), eqdt.strftime('%Y-%m-%dT%H:%M:%S.%f'), \
+                               str(eqlo), str(eqla), str(eqdp), str(eqmag), str('%0.2f' % rngkm), str('%0.1f' % azim), \
+                               str(st[0].stats.sampling_rate), channels[0], channels[1], channels[2], \
+                               str('%0.3f' % picks[0,0]), str('%0.3f' % picks[1,0]), str('%0.3f' % picks[2,0]), \
+                               str(x1), str(x2), str(x3), \
+                               path.join(getcwd(), 'mseed_dump', mseedfile)))
+            
+            # only write if x3 > x1
+            if x3 > x1:
+                # save processing file
                 
-        # capture data proc file
-        tr = st[0]
-        outtxt = ','.join((tr.stats.starttime.strftime('%Y-%m-%dT%H:%M:%S.%f'), eqdt.strftime('%Y-%m-%dT%H:%M:%S.%f'), \
-                           str(eqlo), str(eqla), str(eqdp), str(eqmag), str('%0.2f' % rngkm), str('%0.1f' % azim), \
-                           str(st[0].stats.sampling_rate), channels[0], channels[1], channels[2], \
-                           str('%0.3f' % picks[0,0]), str('%0.3f' % picks[1,0]), str('%0.3f' % picks[2,0]), \
-                           str(x1), str(x2), str(x3), \
-                           path.join(getcwd(), 'mseed_dump', mseedfile)))
+                outfile = path.join('record_picks',recfile)
+                f = open(outfile, 'w')
+                f.write(outtxt)
+                f.close()
+            
+        elif evFound == False:
+           print('Cannot associate event for:', mseedfile)
+           
+        m += 1
         
-        # only write if x3 > x1
-        if x3 > x1:
-            # save processing file
-            recfile = path.split(mseedfile)[-1][:-5]+'picks'
-            outfile = path.join('record_picks',recfile)
-            f = open(outfile, 'w')
-            f.write(outtxt)
-            f.close()
-        
-    elif evFound == False:
-       print('Cannot associate event for:', mseedfile)
-       
-    m += 1
-    
-'''        
-        outtxt += ','.join((tr.stats.starttime.strftime('%Y-%m-%dT%H:%M:%S.%f'), \
-					           str(eqlo), str(eqla), str(eqdp), str(eqmag), str(repi), str(azim), \
-						        str(st[0].stats.sampling_rate), mseedfile)) + '\n'
-'''
-###############################################################################
-# set arrival times
-###############################################################################
-
-                            
-
-    

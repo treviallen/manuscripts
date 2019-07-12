@@ -346,7 +346,7 @@ for ev in evdict:
                 bulk = [("GE", "SAUI", "*", "[BH]H*", t1, t2),
                         ("GE", "SOEI", "*", "[BH]H*", t1, t2),
                         ("GE", "GENI", "*", "[BH]H*", t1, t2),
-                        ("GE", "PMG", "*", "[BH]H*", t1, t2),
+                        ("GE", "PMG",  "*", "[BH]H*", t1, t2),
                         ("GE", "MMRI", "*", "[BH]H*", t1, t2),
                         ("GE", "BNDI", "*", "[BH]H*", t1, t2),
                         ("GE", "PLAI", "*", "[BH]H*", t1, t2),

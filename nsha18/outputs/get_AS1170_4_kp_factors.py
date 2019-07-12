@@ -136,7 +136,7 @@ array([   21.7147241 ,    26.35573944,    36.06737602,    54.5678334 ,
 '''
 from hazard_tools import get_percent_chance_from_return_period, get_probability_from_percent_chance
 
-return_periods = array([5000, 4000, 3000, 2500, 2475, 2000, 1500, 1000, 800, 500, 475, 250, 200, 100, 50, 25, 20])
+return_periods = array([10000, 7500, 5000, 4000, 3000, 2500, 2475, 2000, 1500, 1000, 800, 500, 475, 250, 200, 100, 50, 25, 20])
 investigation_time = 50.
 percent_chance = get_percent_chance_from_return_period(return_periods, investigation_time)
 
@@ -174,7 +174,8 @@ for sd2018 in siteDict:
         # interp to as1170.4 probs
         haz2018 = exp(interp(log(kpprobs), log(sd2018[probkey][::-1]), log(imls[::-1]))) #[::-1]
         #haz2018 = exp(interp(log(kpprobs), log(curve2018[::-1]), log(imls[::-1])))#[::-1]
-        kpfacts = haz2018 / haz2018[9]
+        kpfacts = haz2018 / haz2018[9] # assumes 5000-year max
+        kpfacts = haz2018 / haz2018[11] # assumes 10,000-year max
         
         tmp = {'place': curve_city, 'pga2018': haz2018, 'kpfact':kpfacts}
                

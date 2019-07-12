@@ -52,16 +52,17 @@ cwd = getcwd()
 gridfile = argv[1]
 
 # assign map name for plotting
-modelName = argv[2]
+modelName = 'NSHA18'
 
 # add contours?
-addContours = argv[3] # True or False
+#addContours = argv[3] # True or False
 
 # which probability - acceptable values are: 2 (2%), 9 (9.5%) or 10 (10%)
-pltProbability = argv[4]
+pltProbability = argv[2]
 
 # plt GSHAP colours 
-pltGSHAP = argv[5]  # True or False
+#pltGSHAP = argv[5]  # True or False
+pltGSHAP = 'False'
 
 ##############################################################################
 # parse hazard map file
@@ -82,7 +83,6 @@ keys = line.strip().split(',')[2:]
 # make grid dictionary
 grddict = []
 
-print '\nReading', modelName
 for line in lines[2:]:
     dat = line.strip().split(',')
     '''
@@ -231,7 +231,7 @@ for i, key in enumerate([keys[mapidx]]): # just plot 1 for now!
     
     # draw parallels and meridians.
     if maxlon-minlon > 40:
-        xlabel = 6.
+        xlabel = 8.
     elif maxlon-minlon > 20:
         xlabel = 4.
     elif maxlon-minlon > 10:
@@ -240,9 +240,9 @@ for i, key in enumerate([keys[mapidx]]): # just plot 1 for now!
         xlabel = 1.
         
     if maxlat-minlat > 40:
-        ylabel = 6.
+        ylabel = 8.
     elif maxlat-minlat > 20:
-        ylabel = 4.
+        ylabel = 6.
     elif maxlat-minlat > 10:
         ylabel = 2.
     else:
@@ -312,7 +312,7 @@ for i, key in enumerate([keys[mapidx]]): # just plot 1 for now!
             else:
                 nascptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/postprocessing/maps/'+ cptfile
                 capfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/shared/capitals_names.csv'
-                regfile = 'regional_names.csv'
+                
                 cmap, zvals = cpt2colormap(nascptfile, ncolours, rev=True)
                 #cmap = remove_last_cmap_colour(cmap)
             
@@ -366,6 +366,7 @@ for i, key in enumerate([keys[mapidx]]): # just plot 1 for now!
     ##########################################################################################
     # plot contours
     ##########################################################################################
+    addContours = 'False'
     if addContours == 'True':
         x, y = m(xs, ys)
         if probability == '10%':
@@ -447,10 +448,10 @@ for i, key in enumerate([keys[mapidx]]): # just plot 1 for now!
     annotate cities
     ###########################################################################################
     '''
-    capfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/shared/capitals_names.csv'
+    capfile = 'capitals_names.csv'
     
     import matplotlib.patheffects as PathEffects
-    pe = [PathEffects.withStroke(linewidth=2.5, foreground="w")]
+    pe = [PathEffects.withStroke(linewidth=1.5, foreground="w")]
               
     llat = []
     llon = []
@@ -467,24 +468,23 @@ for i, key in enumerate([keys[mapidx]]): # just plot 1 for now!
     
     # plot locs on map
     x, y = m(array(llon), array(llat))
-    plt.plot(x, y, 's', markerfacecolor='None', markeredgecolor='k', markeredgewidth=0.5, markersize=8)
+    plt.plot(x, y, 's', markerfacecolor='None', markeredgecolor='k', markeredgewidth=0.75, markersize=5)
     
     # label cities
     for i, loc in enumerate(locs):
         loc = loc.upper()
         if textoffset[i] == 0.:
-            x, y = m(llon[i]-0.35, llat[i]+0.12)
-            plt.text(x, y, loc, size=15, ha='right', va='bottom', weight='light')
+            x, y = m(llon[i]-0.43, llat[i]+0.12)
+            plt.text(x, y, loc, size=11, ha='right', va='bottom', weight='normal', path_effects=pe)
         elif textoffset[i] == 1.:
-            x, y = m(llon[i]+0.35, llat[i]+0.12)
-            #plt.text(x, y, loc, size=15, ha='left', va='bottom', weight='light', path_effects=pe)
-            plt.text(x, y, loc, size=15, ha='left', va='bottom', weight='light')
+            x, y = m(llon[i]+0.43, llat[i]+0.12)
+            plt.text(x, y, loc, size=11, ha='left', va='bottom', weight='normal', path_effects=pe)
         elif textoffset[i] == 2.:
-            x, y = m(llon[i]+0.3, llat[i]-0.3)
-            plt.text(x, y, loc, size=15, ha='left', va='top', weight='light')
+            x, y = m(llon[i]+0.43, llat[i]-0.2)
+            plt.text(x, y, loc, size=11, ha='left', va='top', weight='normal', path_effects=pe)
         elif textoffset[i] == 3.:
-            x, y = m(llon[i]-0.3, llat[i]-0.2)
-            plt.text(x, y, loc, size=15, ha='right', va='top', weight='light')
+            x, y = m(llon[i]-0.43, llat[i]-0.2)
+            plt.text(x, y, loc, size=11, ha='right', va='top', weight='normal', path_effects=pe)
     '''
     ###########################################################################################
     annotate regions
@@ -494,6 +494,8 @@ for i, key in enumerate([keys[mapidx]]): # just plot 1 for now!
     llon = []
     locs = []
     textoffset = []
+    
+    regfile = 'reg_loc_names.csv'
     
     # read data
     lines = open(regfile).readlines()
@@ -505,23 +507,22 @@ for i, key in enumerate([keys[mapidx]]): # just plot 1 for now!
     
     # plot locs on map
     x, y = m(array(llon), array(llat))
-    plt.plot(x, y, 's', markerfacecolor='None', markeredgecolor='k', markeredgewidth=0.5, markersize=8)
+    plt.plot(x, y, 's', markerfacecolor='None', markeredgecolor='k', markeredgewidth=0.75, markersize=5)
     
     # label cities
     for i, loc in enumerate(locs):
         if textoffset[i] == 0.:
-            x, y = m(llon[i]-0.35, llat[i]+0.12)
-            plt.text(x, y, loc, size=15, ha='right', va='bottom', weight='light')
+            x, y = m(llon[i]-0.43, llat[i]+0.12)
+            plt.text(x, y, loc, size=11, ha='right', va='bottom', weight='normal', path_effects=pe)
         elif textoffset[i] == 1.:
-            x, y = m(llon[i]+0.35, llat[i]+0.12)
-            #plt.text(x, y, loc, size=15, ha='left', va='bottom', weight='light', path_effects=pe)
-            plt.text(x, y, loc, size=15, ha='left', va='bottom', weight='light')
+            x, y = m(llon[i]+0.43, llat[i]+0.12)
+            plt.text(x, y, loc, size=11, ha='left', va='bottom', weight='normal', path_effects=pe)
         elif textoffset[i] == 2.:
-            x, y = m(llon[i]+0.3, llat[i]-0.3)
-            plt.text(x, y, loc, size=15, ha='left', va='top', weight='light')
+            x, y = m(llon[i]+0.43, llat[i]-0.23)
+            plt.text(x, y, loc, size=11, ha='left', va='top', weight='normal', path_effects=pe)
         elif textoffset[i] == 3.:
-            x, y = m(llon[i]-0.3, llat[i]-0.2)
-            plt.text(x, y, loc, size=15, ha='right', va='top', weight='light')
+            x, y = m(llon[i]-0.43, llat[i]-0.23)
+            plt.text(x, y, loc, size=11, ha='right', va='top', weight='normal', path_effects=pe)
        
     '''
     ###########################################################################################
@@ -531,7 +532,7 @@ for i, key in enumerate([keys[mapidx]]): # just plot 1 for now!
     
     # set colourbar
     plt.gcf().subplots_adjust(bottom=0.1)
-    cax = figure.add_axes([0.31,0.05,0.38,0.02]) # setup colorbar axes.
+    cax = figure.add_axes([0.31,0.04,0.38,0.02]) # setup colorbar axes.
     #norm = colors.Normalize(vmin=vmin, vmax=vmax)
     cb = colorbar.ColorbarBase(cax, cmap=cmap, norm=norm, orientation='horizontal')
     
@@ -541,11 +542,12 @@ for i, key in enumerate([keys[mapidx]]): # just plot 1 for now!
     #cb.set_ticks(logticks)
     #labels = [str('%0.3f' % 10**x) for x in logticks]
     
-    cb.set_ticks(bounds)
+    bounds_space = bounds[range(0,len(bounds),2)]
+    cb.set_ticks(bounds_space)
     if pltGSHAP == 'True':
-        labels = [str('%0.1f' % x) for x in bounds]
+        labels = [str('%0.1f' % x) for x in bounds_space]
     else:
-        labels = ['0'+str('%0.3f' % x).strip('0') for x in bounds]
+        labels = ['0'+str('%0.3f' % x).strip('0') for x in bounds_space]
     labels[0] = '0.0'
     if labels[-1] == '01.':
         labels[-1] = '1.0'
@@ -567,117 +569,14 @@ for i, key in enumerate([keys[mapidx]]): # just plot 1 for now!
         mkdir('maps')
         
     # now save png file
-    plt.savefig(path.join('maps', 'hazard_map_'+modelName.replace(' ','_')+'.'+period+'.'+probFraction+'.png'), \
-                dpi=300, format='png', bbox_inches='tight')
+    plt.savefig('ee_locality_map'+'.'+period+'.'+probFraction+'.png', \
+                dpi=600, format='png', bbox_inches='tight')
     
     # save pdf file
     '''
     plt.savefig(path.join('maps', 'hazard_map_'+modelName.replace(' ','_')+'.'+key+'.pdf'), \
                 dpi=300, format='pdf', bbox_inches='tight')
     '''
-    #plt.show()
-    plt.close('all')
+    plt.show()
+    #plt.close('all')
     
-    ##########################################################################################
-    # make shapefile of contour lines
-    ##########################################################################################
-    
-    print 'Masking maritime boundaries...'
-    if getcwd().startswith('/nas'):
-        inshape = '/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/postprocessing/maps/shapefiles//au_maritime_boundary_digitised.shp'
-    else:
-        inshape = '/Users/tallen/Documents/Geoscience_Australia/NSHA2018/postprocessing/maps/shapefiles/au_maritime_boundary_digitised.shp'
-    
-    sf = shapefile.Reader(inshape)
-    sf = sf.shapes()
-    poly = Polygon(sf[0].points)
-    
-    
-    # check to see if shapefile contours exists
-    if path.isdir('contours') == False:
-        mkdir('contours')
-        
-    # make list of levels - old levels array([0.005, 0.01, 0.02, 0.04, 0.06, 0.08, 0.12, 0.18, 0.24])
-    allLevels = [bounds] #,
-    '''
-                 array([0.03, 0.04, 0.06, 0.08, 0.10, 0.12, 0.16, 0.20, 0.25, 0.30]),
-                 array([0.005, 0.01, 0.015, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10]),
-                 array([0.005, 0.01, 0.015, 0.02, 0.03, 0.04, 0.05, 0.06, 0.08, 0.12, 0.15]),
-                 array([0.003, 0.004, 0.006, 0.008, 0.01, 0.012, 0.015, 0.02])]
-    '''
-    levelNames = ['lev_nat', 'lev_swsz','lev_ntsa', 'lev_nswtas', 'lev_qld'] #, 'lev_0_01', 'lev_0_02', 'lev_0_05']  
-    levelNames = ['lev_nat']
-    
-    # loop thru levels
-    for levels, levelName in zip(allLevels, levelNames):
-        
-        # setup shapefile
-        outshp = path.join('contours', '_'.join((modelName.replace(' ','_'), key, \
-                           levelName, 'contours.shp')))
-    
-        # set shapefile to write to
-        w = shapefile.Writer(shapefile.POLYLINE)
-        w.field('LEVELS','F', 5, 3)
-            
-        # have to re-contour using un-transformed lat/lons
-        cs = plt.contour(xs, ys, resampled, levels, colors='k')
-        
-        plt.close(figure)
-        
-        # loop through contour levels
-        for l, lev in enumerate(cs.levels):
-            contours = cs.collections[l].get_paths()
-            
-            # now loop through multiple paths within level
-            for cnt in contours:
-                # check if verticies within maritime boundaries
-                newcnt = []
-                for vert in cnt.vertices:
-                    point = Point(vert)
-                    if point.within(poly) == True:
-                        newcnt.append(vert)
-                    
-                    # add polyline to shapefile
-                    elif point.within(poly) == False and len(newcnt) > 0:
-                        #w.line(parts=[newcnt.vertices], shapeType=shapefile.POLYLINE)
-                        w.line(parts=array([newcnt]), shapeType=shapefile.POLYLINE)                        
-                        # add level attribute
-                        w.record(lev)
-                        
-                        newcnt = []
-                        
-                # do final addition of contours
-                if len(newcnt) > 0:
-                    w.line(parts=array([newcnt]), shapeType=shapefile.POLYLINE)
-                    # add level attribute
-                    w.record(lev)
-                
-        # now save area shapefile
-        w.save(outshp)
-        
-        # write projection file
-        prjfile = outshp.strip().split('.shp')[0]+'.prj'
-        f = open(prjfile, 'wb')
-        f.write('GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]]')
-        f.close()
-        
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
