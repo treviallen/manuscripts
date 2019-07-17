@@ -229,7 +229,7 @@ for ev in evdict:
             # only use MW
             if ev['magType'].upper().startswith('MW') and ev['mag'] >= mmin:
                 cnt += 1
-                
+                """
                 # get AU network    
                 t1 = ev['starttime'] + 60
                 t2 = t1 + 2100
@@ -290,11 +290,13 @@ for ev in evdict:
                     st = get_iris_event_data(bulk, folder, ev['timestr'][:16], s1_parser, ev)
                     
                 ###########################################################################
-                
+                """
                 # get IU network
-                bulk = [("IU", "MBWA", "*", "*", t1, t2),
-                        ("IU", "CTAO", "*", "*", t1, t2),
-                        ("IU", "PMG", "*", "*", t1, t2)]  
+                t1 = ev['starttime'] - 60
+                t2 = t1 + 2100 
+                bulk = [("IU", "MBWA", "*", "[BH][HN]*", t1, t2),
+                        ("IU", "CTAO", "*", "[BH][HN]*", t1, t2),
+                        ("IU", "PMG", "*", "[BH][HN]*", t1, t2)]  
                 
                 st = get_iris_event_data(bulk, folder, ev['timestr'][:16], iu_parser, ev)
                 
@@ -337,7 +339,7 @@ for ev in evdict:
                         st = get_arclink_event_data(b, fpath, ge_parser, ev)
                     except:
                         b = 1
-                '''        
+                        
                 ###########################################################################
                 
                 # get GE network
@@ -369,6 +371,7 @@ for ev in evdict:
                             st = get_arclink_event_data(b, fpath, ge2_parser, ev)
                         except:
                             b = 1
+                '''
                 #except:
                 #    print('No GEOFON data...')
                 

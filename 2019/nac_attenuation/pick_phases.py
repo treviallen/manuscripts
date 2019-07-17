@@ -11,10 +11,13 @@ from response import get_response_info
 from misc_tools import listdir_extension
 from data_fmt_tools import return_sta_data
 from datetime import datetime, timedelta
-from os import path, getcwd
+from os import path, getcwd, remove
 from numpy import asarray
 import matplotlib.pyplot as plt
 plt.ion()
+import matplotlib as mpl
+mpl.style.use('classic')
+
 
 from data_fmt_tools import get_stn_dataless_seed, get_station_distance, \
                            get_sta_cwb_data, remove_low_sample_data
@@ -24,7 +27,7 @@ from data_fmt_tools import get_stn_dataless_seed, get_station_distance, \
 ###############################################################################
 
 def do_picks(st, eqdt):
-    fig = plt.figure(1, figsize=(15, 10))
+    fig = plt.figure(1, figsize=(16, 11))
     
     # get reference time for record
     reftime = st[0].stats.starttime-UTCDateTime(eqdt)
@@ -32,20 +35,28 @@ def do_picks(st, eqdt):
     i = 0
     channels = []
     # loop through traces
+    #print(st)
     for j, tr in enumerate(st):
+        if i < 3:
            if tr.stats.channel[1] != 'N' and len(st) > 3:
                i += 1
                ax = plt.subplot(3, 1, i)
                plt_trace(tr, plt, ax, reftime)
                channels.append(tr.stats.channel)
            
+           elif tr.stats.channel[1] != 'N' and len(st) == 2:
+               i += 1
+               ax = plt.subplot(3, 1, i)
+               plt_trace(tr, plt, ax, reftime)
+               channels.append(tr.stats.channel)
+               
            elif len(st) == 3:
                i += 1
                ax = plt.subplot(3, 1, i)
                plt_trace(tr, plt, ax, reftime)
                channels.append(tr.stats.channel)
            
-           elif len(st) < 3:
+           elif len(st) < 3 and tr.stats.channel[1] != 'N':
                i += 1
                ax = plt.subplot(3, 1, i)
                plt_trace(tr, plt, ax, reftime)
@@ -74,6 +85,60 @@ def do_picks(st, eqdt):
         channels.append('')
     
     return picks, x1, x2, x3, channels
+    
+###############################################################################
+# acc plotting function
+###############################################################################
+
+def do_acc_picks(st, eqdt):
+    fig = plt.figure(1, figsize=(16, 11))
+    
+    # get reference time for record
+    reftime = st[0].stats.starttime-UTCDateTime(eqdt)
+    
+    i = 0
+    channels = []
+    # loop through traces
+    #print(st)
+    for j, tr in enumerate(st):
+        if i < 3:
+           if tr.stats.channel[1] == 'N' and len(st) > 3:
+               i += 1
+               ax = plt.subplot(3, 1, i)
+               plt_trace(tr, plt, ax, reftime)
+               channels.append(tr.stats.channel)
+           
+           elif tr.stats.channel[1] == 'N' and len(st) == 2:
+               i += 1
+               ax = plt.subplot(3, 1, i)
+               plt_trace(tr, plt, ax, reftime)
+               channels.append(tr.stats.channel)
+               
+    
+    # labels last
+    plt.xlabel('Time Since Earthquake (s)')
+    
+    plt.suptitle(' '.join((tr.stats.starttime.strftime('%Y-%m-%dT%H:%M:%S.%f'), tr.stats.station)))
+    
+    # now traces are plotted, pick phases
+    picks = asarray(plt.ginput(3,timeout=-1))
+
+    # get x indicies for fft
+    x1 = int((picks[0,0]-reftime) * tr.stats.sampling_rate)
+    x2 = int((picks[1,0]-reftime) * tr.stats.sampling_rate)
+    x3 = int((picks[2,0]-reftime) * tr.stats.sampling_rate)
+    
+    plt.close(fig)
+    
+    # check channels length
+    if len(channels) == 2:
+        channels.append('')
+    if len(channels) == 1:
+        channels.append('')
+        channels.append('')
+    
+    return picks, x1, x2, x3, channels
+
 
 # plot individual traces
 def plt_trace(tr, plt, ax, reftime):    
@@ -83,7 +148,7 @@ def plt_trace(tr, plt, ax, reftime):
     
     # fiter record
     tr_filt = tr.copy()
-    tr_filt.filter('bandpass', freqmin=0.2, freqmax=10, corners=2, zerophase=True)
+    tr_filt.filter('bandpass', freqmin=0.2, freqmax=tr.stats.sampling_rate*0.45, corners=2, zerophase=True)
     
     # get absolute arrival times
     #pArrival = UTCDateTime(eqdt) + pTravelTime
@@ -95,17 +160,21 @@ def plt_trace(tr, plt, ax, reftime):
     
     # set x lims based on distance
     if rngkm < 20.:
-        plt.xlim([pTravelTime-5, pTravelTime+15])
+        plt.xlim([pTravelTime-10, pTravelTime+60])
     elif rngkm >= 20. and rngkm < 100.:
-        plt.xlim([pTravelTime-10, pTravelTime+50])
-    elif rngkm >= 100. and rngkm < 400:
-        plt.xlim([pTravelTime-10, pTravelTime+120])
+        plt.xlim([pTravelTime-20, pTravelTime+200])
+    elif rngkm >= 100. and rngkm < 200:
+        plt.xlim([pTravelTime-20, pTravelTime+300])
+    elif rngkm >= 200. and rngkm < 400:
+        plt.xlim([pTravelTime-30, pTravelTime+400])
     elif rngkm >= 400. and rngkm < 700:
-        plt.xlim([pTravelTime-10, pTravelTime+180])
-    elif rngkm >= 700. and rngkm < 1200:
-        plt.xlim([pTravelTime-10, pTravelTime+500])
+        plt.xlim([pTravelTime-60, pTravelTime+600])
+    elif rngkm >= 700. and rngkm < 1000:
+        plt.xlim([pTravelTime-60, pTravelTime+900])
+    elif rngkm >= 1000. and rngkm < 1300:
+        plt.xlim([pTravelTime-60, pTravelTime+1200])
     else:
-        plt.xlim([pTravelTime-20, pTravelTime+1000])
+        plt.xlim([pTravelTime-60, pTravelTime+1500])
     
     # plt theoretical arrivals
     plt.plot([pTravelTime, pTravelTime], ylims, 'r--', label='P Phase')
@@ -115,10 +184,8 @@ def plt_trace(tr, plt, ax, reftime):
     plt.plot([lgTravelTime, lgTravelTime], ylims, 'm--', label='Lg Phase')
     
     
-    plt.ylabel(tr.stats.channel, fontsize=16)
+    plt.ylabel(' '.join((tr.stats.channel,'-',str('%0.0f' % rngkm),'km')), fontsize=15)
     plt.legend(fontsize=10)
-    
-    
 
 ###############################################################################
 # set velocity mdel
@@ -172,13 +239,12 @@ for mseedfile in mseedfiles:
     
     # check if pick file exists
     if not path.isfile(pick_path):
-    
+        
         # read mseed
         st = read(path.join('mseed_dump', mseedfile))
         
         # remove junk channels
         st = remove_low_sample_data(st)
-        
         
     ###############################################################################
     # associate event and get distance
@@ -187,14 +253,14 @@ for mseedfile in mseedfiles:
         evFound = False
         for evnum, ev in enumerate(evdict): 
     	
-            if st[0].stats.starttime > UTCDateTime(ev['datetime']-timedelta(seconds=360)) \
+            if st[0].stats.starttime > UTCDateTime(ev['datetime']-timedelta(seconds=901)) \
                and st[0].stats.starttime < UTCDateTime(ev['datetime']+timedelta(seconds=60)):
                 evFound = True
                 eqlo = ev['lon']
                 eqla = ev['lat']
                 eqmag = ev['mag']
                 eqdp = ev['dep']
-                eqdt = ev['datetime']            
+                eqdt = ev['datetime']
         
         if evFound == True:
             # get station details
@@ -232,8 +298,17 @@ for mseedfile in mseedfiles:
     ###############################################################################
     # plot
     ###############################################################################
-            # plot verticals only
+            # plot seismos only
             picks, x1, x2, x3, channels = do_picks(st, eqdt)
+            
+            # check acc
+            if rngkm < 800 and x1 > x3:
+                doAcc = False
+                for tr in st:
+                    if tr.stats.channel[1] == 'N':
+                       doAcc = True
+                if doAcc == True:
+                    picks, x1, x2, x3, channels = do_acc_picks(st, eqdt)
                     
             # capture data proc file
             tr = st[0]
@@ -252,9 +327,17 @@ for mseedfile in mseedfiles:
                 f = open(outfile, 'w')
                 f.write(outtxt)
                 f.close()
+             
+            # write junk file so don't reveiw again
+            else:
+                outfile = path.join('record_picks',recfile)
+                f = open(outfile, 'w')
+                f.write('junk')
+                f.close()
             
         elif evFound == False:
            print('Cannot associate event for:', mseedfile)
+           #remove(path.join('mseed_dump', mseedfile))
            
         m += 1
         
