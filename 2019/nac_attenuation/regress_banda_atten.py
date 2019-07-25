@@ -73,14 +73,17 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 from matplotlib import colors, colorbar
 from numpy import where, zeros, exp, log, interp, array, logspace, log10, sqrt, arange, \
-                  concatenate, around, mean, polyfit, delete, isnan
+                  concatenate, around, mean, polyfit, delete, isnan, nan, isfinite
 from misc_tools import listdir_extension, dictlist2array, get_binned_stats, savitzky_golay
 #from calc_oq_gmpes import inslab_gsims
 from os import path
 from scipy.stats import linregress
+import pickle
 mpl.style.use('classic')
+import warnings
+warnings.filterwarnings("ignore")
 
-
+"""
 ################################################################################
 # loop through sa files and get data
 ################################################################################
@@ -91,6 +94,7 @@ folder = 'psa'
 extension = 'psa'
 safiles = listdir_extension(folder, extension)
 recs = []
+print('Building dataset...')
 for saf in safiles:
     rec = read_sa(path.join(folder, saf))
     recs.append(rec)
@@ -141,7 +145,8 @@ for saf in safiles:
         
         sd = {'ev':saf[0:16], 'sta':fsplit[3], 'chans':chans, 'chstr':chstr, 'net':fsplit[2]}
         
-        stdict.append(sd)
+        if not sd['sta'] == 'AS31':
+            stdict.append(sd)
             
 ################################################################################
 # now get geometric mean for each stn
@@ -252,14 +257,29 @@ for j, st in enumerate(stdict):
         didx.append(j)
 '''
 stdict = delete(stdict, array(didx))
-         	
+
+################################################################################
+# save/load pickle
+################################################################################
+
+print('Saving pkl file...')
+pklfile = open("stdict.pkl", "wb" )
+pickle.dump(stdict, pklfile, protocol=-1)
+pklfile.close()
+"""
+print('Loading pkl file...')
+stdict = pickle.load(open("stdict.pkl", "rb" ))
 
 ################################################################################
 # setup inversions
 ################################################################################
 import scipy.odr.odrpack as odrpack
-xref = 750. '''!!!!!!! CHECK THIS !!!!!!'''
-    
+xref = 500. #'''!!!!!!! CHECK THIS !!!!!!'''
+maxDist = 2500.
+mrng = arange(5.3, 7.9, 0.1)
+mpltrng = 0.05
+
+
 def fit_atten(c, x):
     from numpy import sqrt, log10
     
@@ -273,7 +293,19 @@ def fit_gr(c, x):
     ans = c[0] - c[1]*log10(x)
     
     return ans
+
+def polyfitmag(c, x):
+    from numpy import sqrt, log10
     
+    ans = c[0] + c[1]*(x-6)**2
+    
+    return ans
+    
+def fit_quadratic_vertex(c, x):
+    
+    xx = x - 8.
+    
+    return c[0] * xx**2 + c[1]   
 
 
 '''
@@ -286,21 +318,84 @@ def fit_atten(c, x):
     return ans
 '''
 
+def normalise_data(stdict, T):
+    
+    
+    print('Regressing T =', str(T))
+    init_mw = []
+    norm_amp_all = []
+    norm_rhyp = []
+    norm_dep = []
+    norm_mag = []
+    norm_stas = []
+    
+    for i, mplt in enumerate(mrng):
+                
+        # for each record, log interpolate across period
+        amp_plt = []
+        addData = True # just for PGA & PGV
+        for st in stdict:
+            if T == 0.01:
+                amp_plt.append(st['pga'])
+            elif T == -99:
+                amp_plt.append(st['pgv'])
+            else:
+                # add logic to remove short T data for long T
+                addData = False
+                if T > 4.0:
+                    if st['chstr'][-1].startswith('H') or st['chstr'][-1].startswith('B'):
+                        addData = True
+                else:
+                    addData = True
+        
+            if addData == True:
+                amp_plt.append(exp(interp(log(T), log(st['per']), log(st['geom']))))
+            else:
+                amp_plt.append(nan)
+        
+        amp_plt = array(amp_plt)
+        
+        # get data
+        rhyp = dictlist2array(stdict, 'rhyp')
+        mags = dictlist2array(stdict, 'mag')
+        deps = dictlist2array(stdict, 'dep')
+        azim = dictlist2array(stdict, 'azim')
+        auth = dictlist2array(stdict, 'network')
+        stas = dictlist2array(stdict, 'sta')
+        
+        # get events within mag and T bin
+        #midx = where((mags >= (mplt-mpltrng)) & (mags < (mplt+mpltrng)) & (deps >= 30.))[0]
+        midx = where((mags >= (mplt-mpltrng)) & (mags < (mplt+mpltrng)))[0]
+        
+        if len(midx) > 0:
+    
+            # get binned medians
+            bins = arange(2.0, log10(maxDist), 0.1)
+            logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(rhyp[midx]), log10(amp_plt[midx]))
+            
+            # normalise at XREF km
+            bidx = where(around(binstrp, 1) == around(log10(xref),1))[0]
+            if len(bidx) == 1:
+                norm_amp = amp_plt[midx] / 10**logmedamp[bidx]
+                norm_amp_all = concatenate((norm_amp_all, norm_amp))
+                norm_rhyp = concatenate((norm_rhyp, rhyp[midx]))
+                norm_dep = concatenate((norm_dep, deps[midx]))
+                norm_mag = concatenate((norm_mag, mags[midx]))
+                norm_stas = concatenate((norm_stas, stas[midx]))
+                
+    return norm_rhyp, norm_amp_all, norm_dep, norm_stas, norm_mag
 
 ################################################################################
 # now get geometric atten for all mags
 ################################################################################
-def regress_zone(stdict):
-    print('len stdict', len(stdict))
-    mrng = arange(5.3, 7.7, 0.1)
-    maxDist = 2500
-    mpltrng = 0.05
+def regress_zone(stdict, zgroup):
     Tplt = array([0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0, 4.0, 5.0, 7.5, 10.]) # secs; PGA = 0.01; PGV = -99
     Tplt = array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0, 4.0, 5.0, 7.5, 10.]) # secs; PGA = 0.01; PGV = -99
+    bins = arange(2.0, log10(maxDist), 0.1)
     
     # compute inslab gmpes
     rrup = logspace(2, log10(maxDist))
-    #xref = 750.
+
     #fig = plt.figure(1, figsize=(22,18))
     ii = 0    
     fig = plt.figure(1, figsize=(18,10))
@@ -308,67 +403,28 @@ def regress_zone(stdict):
     init_c2 = []
     init_c3 = []
     for ii, T in enumerate(Tplt):
-        
-        print('Regressing T =', str(T))
-        init_mw = []
-        norm_amp_all = []
-        norm_rhyp = []
-        norm_dep = []
-        norm_mag = []
-        
-        for i, mplt in enumerate(mrng):
-                    
-            # for each record, log interpolate across period
-            amp_plt = []
-            for st in stdict:
-                if T == 0.01:
-                    amp_plt.append(st['pga'])
-                elif T == -99:
-                    amp_plt.append(st['pgv'])
-                else:
-                    amp_plt.append(exp(interp(log(T), log(st['per']), log(st['geom']))))
-            
-            amp_plt = array(amp_plt)
-            
-            # get data
-            rhyp = dictlist2array(stdict, 'rhyp')
-            mags = dictlist2array(stdict, 'mag')
-            deps = dictlist2array(stdict, 'dep')
-            azim = dictlist2array(stdict, 'azim')
-            auth = dictlist2array(stdict, 'network')
-            
-            # get events within mag and T bin
-            midx = where((mags >= (mplt-mpltrng)) & (mags < (mplt+mpltrng)) & (deps >= 30.))[0]
-            #midx = where((mags >= (mplt-mpltrng)) & (mags < (mplt+mpltrng)))[0]
-            
-            if len(midx) > 0:
-        
-                # get binned medians
-                bins = arange(2.0, log10(maxDist), 0.1)
-        
-                logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(rhyp[midx]), log10(amp_plt[midx]))
-                
-                # normalise at XREF km
-                bidx = where(around(binstrp, 1) == around(log10(xref),1))[0]
-                if len(bidx) == 1:
-                    norm_amp = amp_plt[midx] / 10**logmedamp[bidx]
-                    norm_amp_all = concatenate((norm_amp_all, norm_amp))
-                    norm_rhyp = concatenate((norm_rhyp, rhyp[midx]))
-                    norm_dep = concatenate((norm_dep, deps[midx]))
-                    norm_mag = concatenate((norm_mag, mags[midx]))
-        
+    
+        norm_rhyp, norm_amp_all, norm_dep, norm_stas, norm_mag = normalise_data(stdict, T)
+         
         ################################################################################
         # now get atten for normalised data
         ################################################################################
-        
+         
         ax = plt.subplot(4,5,ii+1)
-        
+         
         logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(norm_rhyp), log10(norm_amp_all))
         
         norm = mpl.colors.Normalize(vmin=0, vmax=500)
         
-        sc = plt.scatter(norm_rhyp, norm_amp_all, c=norm_dep, marker='o', s=40, \
+        sc = plt.scatter(norm_rhyp, norm_amp_all, c=norm_dep, marker='o', s=30, \
                          cmap='Spectral_r', norm=norm, alpha=0.6)
+                         
+        # find suspect data
+        index = where(norm_amp_all > 10)[0]
+        
+        if len(index) > 0:
+            for idx in index:
+                print('Suspect:', norm_rhyp[idx], norm_mag[idx], norm_dep[idx], norm_stas[idx])
         
         #plt.plot(norm_rhyp, norm_amp_all,'bo')
         plt.loglog(10**medx, 10**logmedamp, 'rs', ms=6.5)
@@ -380,7 +436,7 @@ def regress_zone(stdict):
         #data = odrpack.RealData(norm_rhyp[ridx], log10(norm_amp_all[ridx]))
         
         # use binned data
-        ridx = where(10**medx <= 1000.)[0]
+        ridx = where(10**medx <= 800.)[0]
         data = odrpack.RealData(10**medx[ridx], logmedamp[ridx])
         
         ''' GR + Q '''
@@ -405,59 +461,13 @@ def regress_zone(stdict):
     ################################################################################
     # smooth GR and calc Q
     ################################################################################    
-    smooth_c2 = savitzky_golay(init_c2, 7, 3)
+    
+    smooth_c2 = savitzky_golay(init_c2, 5, 3)
     
     for ii, T in enumerate(Tplt):
-    	
         ax = plt.subplot(4,5,ii+1)
+        norm_rhyp, norm_amp_all, norm_dep, norm_stas, norm_mag = normalise_data(stdict, T)
         
-        init_mw = []
-        norm_amp_all = []
-        norm_rhyp = []
-        norm_dep = []
-        norm_mag = []
-        
-        for i, mplt in enumerate(mrng):
-                    
-            # for each record, log interpolate across period
-            amp_plt = []
-            for st in stdict:
-                if T == 0.01:
-                    amp_plt.append(st['pga'])
-                elif T == -99:
-                    amp_plt.append(st['pgv'])
-                else:
-                    amp_plt.append(exp(interp(log(T), log(st['per']), log(st['geom']))))
-            
-            amp_plt = array(amp_plt)
-            
-            # get data
-            rhyp = dictlist2array(stdict, 'rhyp')
-            mags = dictlist2array(stdict, 'mag')
-            deps = dictlist2array(stdict, 'dep')
-            azim = dictlist2array(stdict, 'azim')
-            auth = dictlist2array(stdict, 'network')
-            
-            # get events within mag and T bin
-            midx = where((mags >= (mplt-mpltrng)) & (mags < (mplt+mpltrng)) & (deps >= 30.))[0]
-            #midx = where((mags >= (mplt-mpltrng)) & (mags < (mplt+mpltrng)))[0]
-            
-            if len(midx) > 0:
-        
-                # get binned medians
-                bins = arange(2.0, log10(maxDist), 0.1)
-        
-                logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(rhyp[midx]), log10(amp_plt[midx]))
-                
-                # normalise at 1000 km
-                bidx = where(around(binstrp, 1) == around(2.8,1))[0]
-                if len(bidx) == 1:
-                    norm_amp = amp_plt[midx] / 10**logmedamp[bidx]
-                    norm_amp_all = concatenate((norm_amp_all, norm_amp))
-                    norm_rhyp = concatenate((norm_rhyp, rhyp[midx]))
-                    norm_dep = concatenate((norm_dep, deps[midx]))
-                    norm_mag = concatenate((norm_mag, mags[midx]))
-    	
         ################################################################################
         # make pretty
         ################################################################################
@@ -470,23 +480,19 @@ def regress_zone(stdict):
         #plt.title('Normalised Amplitudes')
         
         plt.ylabel('SA('+str(T)+') in g')
-        if ii > 5:
+        if ii > 15:
             plt.xlabel('Hypocental Distance (km)')
             
-        # use mean c2
-        #c2_mean = mean(array(init_c2))
-        
         # use period dependent c2
         c2T = smooth_c2[ii]
         
         def fit_q(c, x):
             from numpy import sqrt, log10
-            
+            #print('c2T', c2T)
             ans = c[0] - c[1]*x - c2T*log10(x)
             
             return ans
     
-        
         ################################################################################
         # fit GR + Q 
         ################################################################################
@@ -497,7 +503,7 @@ def regress_zone(stdict):
         logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(norm_rhyp), log10(norm_amp_all))
         
         # use binned data
-        ridx = where(10**medx < 1750.)[0]
+        ridx = where(10**medx < maxDist)[0]
         data = odrpack.RealData(10**medx[ridx], logmedamp[ridx])
         
         #ridx = where(norm_rhyp < 2000.)[0]
@@ -543,12 +549,12 @@ def regress_zone(stdict):
     
     plt.ylabel('c3 (Q)')
     #plt.semilogx(Tplt, c2_bilin, 'r-', lw=2)
-    
+    '''
     plt.subplot(313)
     plt.semilogx(Tplt, init_c0, 'bo')
     plt.ylabel('c0 init mag') # i think
     plt.xlabel("T (sec)")
-    
+    '''
     plt.show()
 
     #slope, intercept, r_value, p_value, std_err = linregress(Tplt, smooth_c2)
@@ -599,10 +605,8 @@ def regress_zone(stdict):
     ################################################################################
     # loop through T and M to get mag scaling
     ################################################################################
-    #fig = plt.figure(3, figsize=(18,10))
+    print('Fitting magnitude dependence...')
     fig = plt.figure(3, figsize=(12,6))
-    
-    # Tplt = array([0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.25, 1.5, 2.0, 3.0, 4.0]) # secs; PGA = 0.01; PGV = -99
     
     tidx = 2
     #init_mw = zeros((len(Tplt), len(mrng)))
@@ -615,6 +619,8 @@ def regress_zone(stdict):
     
     t_dept_c0 = []
     t_dept_mw = []
+    
+    t_amplitudes = []
     
     for tt, T in enumerate(Tplt):
         init_mw = []
@@ -633,6 +639,7 @@ def regress_zone(stdict):
                     amp_plt.append(exp(interp(log(T), log(st['per']), log(st['geom']))))
             
             amp_plt = array(amp_plt)
+            t_amplitudes.append(amp_plt)
             
             # get data
             rhyp = dictlist2array(stdict, 'rhyp')
@@ -640,7 +647,8 @@ def regress_zone(stdict):
             deps = dictlist2array(stdict, 'dep')
             azim = dictlist2array(stdict, 'azim')
             
-            midx = where((mags >= (mplt-mpltrng)) & (mags < (mplt+mpltrng)) & (deps >= 30.))[0]
+            #midx = where((mags >= (mplt-mpltrng)) & (mags < (mplt+mpltrng)) & (deps >= 30.))[0]
+            midx = where((mags >= (mplt-mpltrng)) & (mags < (mplt+mpltrng)))[0]
             
             if len(midx) > 0:
         
@@ -650,28 +658,7 @@ def regress_zone(stdict):
                 logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(rhyp[midx]), log10(amp_plt[midx]))
                 
                 ii += 1
-                '''
-                ax = plt.subplot(4,4, ii)
-                norm = mpl.colors.Normalize(vmin=0, vmax=500)
-                sc = plt.scatter(rhyp[midx], amp_plt[midx], c=deps[midx], marker='o', s=50, \
-                            cmap='Spectral_r', norm=norm, alpha=0.8)
                 
-                plt.plot(10**medx, 10**logmedamp, 'rs', ms=6.5)
-                ax.set_xscale("log")
-                ax.set_yscale("log")
-                plt.xlim([100, maxDist])
-                plt.ylim([1E-7, 1E-1])
-                plt.grid(which='both')
-                plt.title('MW '+str(mplt))
-                
-                if ii == 0:
-                    plt.legend(fontsize=10)
-                    
-                if ii == 1 or ii == 5 or ii == 9 or ii == 13:
-                    plt.ylabel('SA('+str(Tplt[tidx])+') in g')
-                if ii > 10:
-                    plt.xlabel('Hypocental Distance (km)')
-                '''
                 # fit m-scaling
                 #c3 = init_c3[tidx]
                 c3 = smooth_c3[tt]
@@ -693,17 +680,9 @@ def regress_zone(stdict):
                 out = odr.run()
                 c = out.beta
                 
-                '''
-                # now plt
-                attenfit = c[0] - c3*rrup - c2*log10(rrup)
-                plt.loglog(rrup, 10**attenfit, 'k-', lw=1.5)
-                '''
                 # add to array
                 init_c0.append(c[0])
                 init_mw.append(mplt)   
-                
-                #plt.savefig('banda_gmm_fit_'+str(Tplt[tidx])+'.png', fmt='png', bbox_inches='tight')
-                #plt.show()
                 
         
         # fit straight quadratic
@@ -716,34 +695,9 @@ def regress_zone(stdict):
         t_dept_c0.append(array(init_c0))
         t_dept_mw.append(array(init_mw))
         
-        '''
-        # fit mag scaling for period
-        def fit_quadratic_vertex(c, x):
-            
-            xx = x - 8.
-            
-            return c[0] * xx**2 + c[1]
-    
-        
-        data = odrpack.RealData(array(init_mw), array(init_c0))
-    
-        magfit = odrpack.Model(fit_quadratic_vertex)
-        odr = odrpack.ODR(data, magfit, beta0=[1., 1.])
-        
-        odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
-        out = odr.run()
-        m = out.beta
-        
-        
-        mag_per_fit.append(m)
-        mag_c0_fit.append(init_c0)
-        '''
-        
-        
     m0_array = array(m0_array)
     m1_array = array(m1_array)
     m2_array = array(m2_array)
-        
     
     # plot polynomial coefs
     plt.subplot(223)
@@ -756,40 +710,66 @@ def regress_zone(stdict):
     # plot M1
     plt.subplot(221)
     plt.semilogx(Tplt, array(m0_array), 'bo')
-    smooth_m0 = savitzky_golay(array(m0_array), 7, 3)
+    smooth_m0 = savitzky_golay(array(m0_array), 5, 3)
     plt.semilogx(Tplt, smooth_m0, 'ro')
     plt.title('m0')
-    # plot M2            
-    plt.subplot(222)
-    plt.semilogx(Tplt, array(m1_array), 'bo')
-    smooth_m1 = savitzky_golay(array(m1_array), 7, 3)
-    plt.semilogx(Tplt, smooth_m1, 'ro')
-    plt.title('m1')
-    
-    # plot M2            
-    plt.subplot(224)
-    m_scaling = m0_array + m1_array*(7.0-6)**2 + m2_array*(7.0-6)
-    plt.semilogx(Tplt, m_scaling, 'bo')
-    plt.title('m7')
-    
-    
     
     ######################################################################################
-    # refit M2 with smoothed M!
+    # refit M1 with smoothed M!
+    refit_m1 = []
     refit_m2 = []
-    for c0_dat, sm1 in zip(mag_c0_fit, smooth_m0):
-    	
-        
+    # m0_array[i] + m1_array[i]*(mrng-6)**2 + m2_array[i]*(mrng-6)
+    #for c0_dat, sm1 in zip(mag_c0_fit, smooth_m0): # t_dept_c0, t_dept_mw
+    for c0_dat, mw_dat, sm0 in zip(t_dept_c0, t_dept_mw, smooth_m0):
+        '''
         # fit mag scaling for period
         def fit_m2_vertex(c, x):
             
             xx = x - 8.
             
             return sm1 * xx**2 + c[0]
+        '''  
+        # check nan values
+        nn = where(isnan(c0_dat)==False)[0]  
+        
+        def fit_fixed_polynomial1(c, x):
+            return sm0 + c[0]*(mw_dat[nn]-6.)**2 + c[1]*(mw_dat[nn]-6.)
+        
+        data = odrpack.RealData(mw_dat[nn], c0_dat[nn])
     
-        data = odrpack.RealData(array(init_mw), array(c0_dat))
+        magfit = odrpack.Model(fit_fixed_polynomial1)
+        odr = odrpack.ODR(data, magfit, beta0=[0.1, 1.])
+        
+        odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
+        out = odr.run()
+        m = out.beta
+        
+        refit_m1.append(m[0])
+        refit_m2.append(m[1])
     
-        magfit = odrpack.Model(fit_m2_vertex)
+    smooth_m1 = savitzky_golay(array(refit_m1), 5, 3)
+    
+    # plot M2            
+    plt.subplot(222)
+    plt.semilogx(Tplt, array(m1_array), 'bo')
+    plt.semilogx(Tplt, smooth_m1, 'ro')
+    plt.title('m1')
+    
+    ######################################################################################
+    # refit M2 with smoothed M!
+    refit_m2 = []
+    #for c0_dat, sm1 in zip(mag_c0_fit, smooth_m0): # t_dept_c0, t_dept_mw
+    for c0_dat, mw_dat, sm0, sm1 in zip(t_dept_c0, t_dept_mw, smooth_m0, smooth_m1):
+        # check nan values
+        nn = where(isnan(c0_dat)==False)[0]  
+        
+        def fit_fixed_polynomial2(c, x):
+            
+            return sm0 + sm1*(mw_dat[nn]-6.)**2 + c[0]*(mw_dat[nn]-6.)
+    
+        data = odrpack.RealData(array(mw_dat[nn]), array(c0_dat[nn]))
+    
+        magfit = odrpack.Model(fit_fixed_polynomial2)
         odr = odrpack.ODR(data, magfit, beta0=[1.])
         
         odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
@@ -798,9 +778,13 @@ def regress_zone(stdict):
         
         refit_m2.append(m[0])
     
-    #plt.semilogx(Tplt, array(refit_m2), 'go-')
+    smooth_m2 = savitzky_golay(array(refit_m2), 5, 3)
     
-    #smooth_m2 = savitzky_golay(array(mag_per_fit)[:,1], 5, 3)
+    # plot M2
+    plt.subplot(224)
+    plt.semilogx(Tplt, array(m2_array), 'bo')
+    plt.semilogx(Tplt, smooth_m2, 'ro')
+    plt.title('m2')
     
     plt.show()
     
@@ -810,14 +794,18 @@ def regress_zone(stdict):
     fig = plt.figure(10, figsize=(18,10))
     
     i = 0
-    for T, ym, xm in zip(Tplt,t_dept_c0, t_dept_mw):
+    for T, ym, xm in zip(Tplt, t_dept_c0, t_dept_mw):
         plt.subplot(4,5,i+1)
         plt.plot(xm, ym, 'bo')
         plt.ylabel(str(T))
         
-        mfit = m0_array[i] + m1_array[i]*(mrng-6)**2 + m2_array[i]*(mrng-6)
+        #mfit = m0_array[i] + m1_array[i]*(mrng-6)**2 + m2_array[i]*(mrng-6)
+        mfit = smooth_m0[i] + smooth_m1[i]*(mrng-6)**2 + smooth_m2[i]*(mrng-6)
         plt.plot(mrng, mfit, 'g-', lw=2.)
         #plt.ylim([4.5, 7])
+        
+        #print(m2_array)
+        #print(smooth_m2)
         
         if i >= 16:
             plt.xlabel('MW')
@@ -826,91 +814,206 @@ def regress_zone(stdict):
     
     plt.show()
     
+    ######################################################################################
+    # calculate model residual and plot with depth
+    ######################################################################################
+    print('Fitting depth dependence...')
+    #log Y = c0 + c1*(M-6)**2 + c2*(M-6) - c3*log Rhyp - c4*Rhyp
+    fig = plt.figure(11, figsize=(18,10))
+    mod_res = []
+    log_drng = arange(1, 2.9, 0.1)
     
-    def polyfitmag(c, x):
-        from numpy import sqrt, log10
+    # set coef array
+    d0_array = []
+    d1_array = []
+    d2_array = []
+    d3_array = []
+    t_dept_res = []
+    t_dept_logdep = []
+    
+    for i, T in enumerate(Tplt):
+        logY = smooth_m0[i] + smooth_m1[i]*(mags-6)**2 + smooth_m2[i]*(mags-6) \
+               - smooth_c2[i]*log10(rhyp) - init_c3[i]*(rhyp)
+              
+        resY = log10(t_amplitudes[i]) - logY
+         
+        # plot
+        ax = plt.subplot(4,5,i+1)
+         
+        norm = mpl.colors.Normalize(vmin=0, vmax=2000)
         
-        ans = c[0] + c[1]*(x-6)**2
+        sc = plt.scatter(log10(deps), resY, c=rhyp, marker='o', s=25, \
+                         cmap='viridis_r', norm=norm, alpha=1.0)
+        plt.plot([1,3], [0,0], 'r--', lw=1.5)
         
-        return ans
+        plt.ylabel(str(T))
+        if i >= 16:
+            plt.xlabel('log Depth (km)')
+        plt.xlim([0.4, 3])
+        plt.ylim([-3, 3])
         
-    def fit_quadratic_vertex(c, x):
+        # get binned medians
+        bins = arange(0.5, 2.8, 0.1)
         
-        xx = x - 8.
+        nn = where((isnan(resY) == False) & (isnan(log10(deps)) == False) & (isfinite(resY) == True))[0]
+        logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(deps[nn]), resY[nn])
+        plt.plot(medx, logmedamp, 'rs', ms=6.5)
         
-        return c[0] * xx**2 + c[1]
+        # fit straight quadratic
+        d1, d2, d3, d0 = polyfit(array(medx), array(logmedamp), 3) # binned data
+        #print(log10(deps[nn]), resY[nn])
+        #d1, d2, d0 = polyfit(log10(deps[nn]), resY[nn], 2) # full data
+        d0_array.append(d0)
+        d1_array.append(d1)
+        d2_array.append(d2)
+        d3_array.append(d3)
+        #print(d1, d2, d0)
+        
+        #try cubic!
+        
+        # store data for refitting smoothed params
+        t_dept_res.append(logmedamp)
+        t_dept_logdep.append(medx)
+        
+        # plot quadratics
+        dx = arange(0.5, 2.9, 0.01)
+        dy = d0 + d1*dx**3 + d2*dx**2 + d3*dx
+        #print(dx, dy)
+        plt.plot(dx, dy, 'g-', lw=2.)
+        
+    d0_array = array(d0_array)
+    d1_array = array(d1_array)
+    d2_array = array(d2_array)
+    d3_array = array(d3_array)
     
-    '''
-    fig = plt.figure(4)
-    plt.plot(init_mw, init_c0, 'bo') # ignore last data point
-    
-    #data = odrpack.RealData(array(init_mw[0:-1]), array(init_c0[0:-1]))
-    data = odrpack.RealData(array(init_mw), array(init_c0))
-    
-    magfit = odrpack.Model(fit_quadratic_vertex)
-    odr = odrpack.ODR(data, magfit, beta0=[1., 1.])
-    
-    odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
-    out = odr.run()
-    m = out.beta
-    print m
-    
-    mfit = m[0]*(mrng-8)**2 + m[1]
-    plt.plot(mrng, mfit, 'g-', lw=2.)
-    
-    
-    m0, m1, m2 = polyfit(array(init_mw)-6, init_c0, 2)
-    mfit = m0*(mrng-6)**2 + m1*(mrng-6) + m2
-    plt.plot(mrng, mfit, 'r-', lw=2.)
-    print 'DO POLYNOMAL FUNCTION!!!!'
-    # 
-    
-    plt.xlabel("MW")
-    plt.ylabel('c0')
     plt.show()
-    '''
+    
+    # smooth coefs
+    smooth_d0 = savitzky_golay(d0_array, 5, 3)
+    
+    # plot depth coeffs
+    fig = plt.figure(13, figsize=(18,10))
+    # plot D0
+    plt.subplot(221)
+    plt.semilogx(Tplt, array(d0_array), 'bo')
+    plt.semilogx(Tplt, smooth_d0, 'ro')
+    plt.title('d0')
+    
+    plt.subplot(222)
+    plt.semilogx(Tplt, array(d1_array), 'bo')
+    #plt.semilogx(dx, smooth_d0, 'ro')
+    plt.title('d1')
+    
+    plt.subplot(223)
+    plt.semilogx(Tplt, array(d3_array), 'bo')
+    #plt.semilogx(dx, smooth_d0, 'ro')
+    plt.title('d3')
+    
+    plt.subplot(224)
+    plt.semilogx(Tplt, array(d4_array), 'bo')
+    #plt.semilogx(dx, smooth_d0, 'ro')
+    plt.title('d4')
+    
+    plt.show()
+    
+    ######################################################################################
+    # refit M1 with smoothed M
+    ######################################################################################
+    # 
+    refit_d1 = []
+    refit_d2 = []
+    # m0_array[i] + d1_array[i]*(mrng-6)**2 + d2_array[i]*(mrng-6)
+    #for c0_dat, sd1 in zip(mag_c0_fit, smooth_m0): # t_dept_c0, t_dept_mw
+    for t_res, dep_dat, sd0 in zip(t_dept_res, t_dept_logdep, smooth_d0):
+         
+        # check nan values
+        nn = where(isnan(t_res)==False)[0]  
+        
+        def fit_fixed_polynomial1(c, x):
+            return sd0 + c[0]*dep_dat[nn]**2 + c[1]*dep_dat[nn]
+        
+        data = odrpack.RealData(dep_dat[nn], t_res[nn])
+    
+        depfit = odrpack.Model(fit_fixed_polynomial1)
+        odr = odrpack.ODR(data, depfit, beta0=[0.1, 1.])
+        
+        odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
+        out = odr.run()
+        m = out.beta
+        
+        refit_d1.append(m[0])
+        refit_d2.append(m[1])
+    
+    smooth_d1 = savitzky_golay(array(refit_d1), 5, 3)
+    
+    ######################################################################################
+    # refit d2 with smoothed M!
+    refit_d2 = []
+    #for c0_dat, sd1 in zip(mag_c0_fit, smooth_m0): # t_dept_c0, t_dept_mw
+    for t_res, dep_dat, sd0, sd1 in zip(t_dept_res, t_dept_logdep, smooth_d0, smooth_d1):
+        # check nan values
+        nn = where(isnan(t_res)==False)[0]  
+        
+        def fit_fixed_polynomial2(c, x):
+            
+            return sd0 + sd1*dep_dat[nn]**2 + c[0]*(dep_dat[nn]-6.)
+    
+        data = odrpack.RealData(dep_dat[nn], t_res[nn])
+    
+        depfit = odrpack.Model(fit_fixed_polynomial2)
+        odr = odrpack.ODR(data, depfit, beta0=[1.])
+        
+        odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
+        out = odr.run()
+        m = out.beta
+        
+        refit_d2.append(m[0])
+    
+    smooth_d2 = savitzky_golay(array(refit_d2), 5, 3)
+    
+    ######################################################################################
+    # calculate model residual and plot with distance again
+    ######################################################################################
+    print('Fitting 2nd distance dependence...')
+    #log Y = c0 + c1*(M-6)**2 + c2*(M-6) - c3*log Rhyp - c4*Rhyp
+    fig = plt.figure(14, figsize=(18,10))
+    mod_res = []
+    log_drng = arange(1, 2.9, 0.1)
+    
+    for i, T in enumerate(Tplt):
+        dep_cor = d0_array + d1_array*log10(deps)**3 + d2_array*log10(deps)**2 + d3_array*log10(deps)
+        logY = smooth_m0[i] + smooth_m1[i]*(mags-6)**2 + smooth_m2[i]*(mags-6) \
+               - smooth_c2[i]*log10(rhyp) - init_c3[i]*(rhyp) + dep_cor
+              
+        resY = log10(t_amplitudes[i]) - logY
+         
+        # plot
+        ax = plt.subplot(4,5,i+1)
+        
+        norm = mpl.colors.Normalize(vmin=0, vmax=700)
+        
+        sc = plt.scatter(log10(rhyp), resY, c=dep, marker='o', s=25, \
+                         cmap='viridis_r', norm=norm, alpha=1.0)
+        plt.plot([1,3.4], [0,0], 'r--', lw=1.5)
+        plt.xlim([1,3.4])
+        plt.ylim([-3, 3])
+        plt.ylabel(str(T))
+    
     
     #################################################################################
     # export coeffs
     #################################################################################
     
-    ctxt = '#log Y = c0 + c1*(M-6)**2 + c2*(M-6) - c3*log Rhyp - c4*Rhyp\nT, c0, c1, c2, c3, c4\n'
+    ctxt = '#log10 Y = c0 + c1*(M-6)**2 + c2*(M-6) - c3*log10(Rhyp) - c4*(Rhyp) + (d0 + d1*h**3 + d2*h**2 + d4*h)\nT, c0, c1, c2, c3, c4, d0, d1, d2, d3, d4\n'
     for i, t in enumerate(Tplt):
-        ctxt += ','.join((str(t), str('%0.5f' % m0_array[i]), str('%0.5f' % m1_array[i]), str('%0.5f' % m2_array[i]), \
+        ctxt += ','.join((str(t), str('%0.5f' % smooth_m0[i]), str('%0.5f' % smooth_m1[i]), str('%0.5f' % smooth_m2[i]), \
                           str('%0.5f' % smooth_c2[i]), str('%0.5e' % init_c3[i]))) + '\n'
                           
-    f = open('ncc_gmm_coeffs.csv', 'wb')
+    f = open('.'.join(('ncc_gmm_coeffs', zgroup, '.csv')), 'w')
     f.write(ctxt)
     f.close()
     
-'''
-
-data = odrpack.RealData(log10(Tplt), array(init_c2))
-bilin = odrpack.Model(bilinear_reg_free)
-odr = odrpack.ODR(data, bilin, beta0=[.5, 3., -0.5])
-
-odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
-out = odr.run()
-
-a = out.beta[0]
-b = out.beta[1]
-c = out.beta[2]
-hx = 0. #out.beta[3]
-
-c2_bilin = b + a * log10(Tplt)
-hy = b + a * hx
-idx = log10(Tplt) > hx
-c2_bilin[idx] = c * (log10(Tplt)[idx]-hx) + hy
-
-fig = plt.figure(2)
-plt.semilogx(Tplt, init_c2, 'bo')
-#c2_fit = slope * Tplt + intercept
-#plt.semilogx(Tplt, c2_fit, 'k-', lw=2)
-
-#c2_fit = -1 * log10(Tplt)**2 - c
-plt.semilogx(Tplt, c2_bilin, 'r-', lw=2)
-plt.show()
-'''
+    return resY, deps
 
 ################################################################################
 # parse shapefile and filter stdict, and regress
@@ -939,128 +1042,19 @@ zone_group = get_field_data(sf, 'ZONE_GROUP', 'str')
 # loop thru zones
 i = 0
 reg_stdict = []
-    
+
+print('Starting inversion...')
 for poly, zcode, zgroup in zip(polygons, zone_code, zone_group):
     for sd in stdict:
         pt = Point(sd['eqlo'], sd['eqla'])
-        if zgroup == 'BS' and pt.within(poly):
-            reg_stdict.append(sd)
+        if pt.within(poly):
+            if zgroup == 'BS' or zgroup == 'BS':
+                reg_stdict.append(sd)
             
 # do regression for each polygon
-regress_zone(reg_stdict)
+resY, deps = regress_zone(reg_stdict, zgroup)
 
 
-
-"""
-
-        ii += 1
-    
-        ax = plt.subplot(4,4, ii)
-        norm = mpl.colors.Normalize(vmin=0, vmax=500)
-        sc = plt.scatter(rhyp[idx], amp_plt[midx], c=deps[midx], marker='o', s=50, \
-                    cmap='Spectral_r', norm=norm, alpha=0.8)
-        
-        ax.set_xscale("log")
-        ax.set_yscale("log")
-        plt.xlim([100, maxDist])
-        plt.ylim([1E-7, 1E-1])
-        plt.grid(which='both')
-        plt.title('MW '+str(mplt))
-        
-        if ii == 0:
-            plt.legend(fontsize=10)
-            
-        if ii == 1 or ii == 5 or ii == 9 or ii == 13:
-            plt.ylabel('SA('+str(Tplt)+') in g')
-        if ii > 10:
-            plt.xlabel('Hypocental Distance (km)')
-
-        ################################################################################
-        # now fit binned GR
-        ################################################################################
-        
-        #data = odrpack.RealData(10**medx, logmedamp)#, sx=sx, sy=sy)
-        #data = odrpack.RealData(rhyp[idx], log10(amp_plt[idx]))#, sx=sx, sy=sy)
-        
-        ridx = where(rhyp <= 1000.)[0]
-        logmedamp_all, stdbin, medx_all, binstrp, nperbin = get_binned_stats(bins, log10(rhyp[ridx]), log10(amp_plt[ridx]))
-        data = odrpack.RealData(10**medx_all, logmedamp_all)
-        #data = odrpack.RealData(rhyp, log10(amp_plt))
-        
-        afit = odrpack.Model(fit_atten)
-        odr = odrpack.ODR(data, afit, beta0=[1.0, 1.0, 1.0])
-        odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
-        out = odr.run()
-        c = out.beta
-        print c
-        
-        # now plt
-        #attenfit = c[0] - c[1]*(rrup) - c[2]*log10(rrup)
-        attenfit = c[0] - c[1]*rrup - c[2]*log10(rrup)
-        #attenfit = c[0] - c[1] * (rrup**pwr + c[2]**pwr)**(1./pwr)
-        plt.loglog(rrup, 10**attenfit, 'k-', lw=1.5)
-        
-        ################################################################################
-        # now fit binned data for each mag
-        ################################################################################
-        
-        geospread = c[2]
-        qfactor = c[1]
-        
-        def fit_atten_fix_gr_q(c, x):
-            from numpy import sqrt, log10
-            
-            xref = 100.
-            ans = c[0] - qfactor*(x) - geospread*log10(x)
-            
-            return ans
-            
-        # set mag specific reg
-        data = odrpack.RealData(10**medx_all, logmedamp_all)#, sx=sx, sy=sy)
-        data = odrpack.RealData(rhyp[idx], log10(amp_plt[idx]))#, sx=sx, sy=sy)
-        afit = odrpack.Model(fit_atten_fix_gr_q)
-        odr = odrpack.ODR(data, afit, beta0=[1.0])
-        odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
-        out = odr.run()
-        c = out.beta
-        print c
-        
-        # now plt
-        attenfit = c[0] - qfactor*(rrup) - geospread*log10(rrup)
-        plt.loglog(rrup, 10**attenfit, 'r-', lw=1.5)
-        
-        if min(rhyp[idx]) < 1000. and mplt < 7.7:
-            init_c0.append(c[0])
-            #init_c1.append(c[1])
-            init_mw.append(mplt)
-
-
-# make colorbar
-plt.gcf().subplots_adjust(right=0.93)
-cax = fig.add_axes([0.94,0.33,0.02,0.33]) # setup colorbar axes.
-#norm = colors.Normalize(vmin=0, vmax=500)
-cb = colorbar.ColorbarBase(cax, cmap='Spectral_r', norm=norm, orientation='vertical', alpha=0.8)
-cb.set_label("Hypocentral Depth (km)", fontsize=12)
-    
-plt.savefig('banda_atten.'+str(Tplt)+'.png', fmt='png', bbox_inches='tight')
-plt.show()
-
-
-################################################################################
-# plot mag scaling
-################################################################################
-
-fig = plt.figure(2)
-plt.plot(init_mw, init_c0, 'bo')
-plt.xlabel('MW')
-plt.ylabel('c0')
-
-slope, intercept, r_value, p_value, std_err = linregress(init_mw, init_c0)
-mscale = slope * mrng +intercept
-plt.plot(mrng, mscale, 'k-', lw=2.)
-plt.xlim([5.9, 7.7])
-plt.show()
-"""
 
 
 
