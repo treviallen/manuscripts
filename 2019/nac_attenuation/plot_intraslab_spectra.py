@@ -1,7 +1,8 @@
-def calc_nac_gmm_spectra(mag, rhyp):
+def calc_nac_gmm_spectra(mag, rhyp, dep):
     from numpy import loadtxt, log10, log
     
-    coeffile = '//Users//tallen//Documents//Earthquake_Data//2017_NAC_GMM//ncc_gmm_coeffs.csv'
+    #coeffile = '//Users//trev//Documents//Earthquake_Data//2017_NAC_GMM//ncc_gmm_coeffs.BS.csv'
+    coeffile = 'ncc_gmm_coeffs.BS.csv'
     
     coeffs = loadtxt(coeffile, delimiter=',', skiprows=2)  
     
@@ -11,12 +12,18 @@ def calc_nac_gmm_spectra(mag, rhyp):
     c2 = coeffs[:,3]
     c3 = coeffs[:,4]
     c4 = coeffs[:,5]
+    d0 = coeffs[:,6]
+    d1 = coeffs[:,7]
+    d2 = coeffs[:,8]
+    d3 = coeffs[:,9]
     
-    lnsa = log(10**(c0 + c1*(mag-6)**2 + c2*(mag-6) - c3*log10(rhyp) - c4*rhyp))
+    logdep = log10(dep)
+    lnsa = log(10**(c0 + c1*(mag-6)**2 + c2*(mag-6) - c3*log10(rhyp) - c4*rhyp \
+               + (d0 + d1*logdep**3 + d2*logdep**2 + d3*logdep)))
     
-    A17imt = {'per':T, 'sa':lnsa}
+    A19imt = {'per':T, 'sa':lnsa}
 
-    return A17imt
+    return A19imt
 
 
 # finds files and gets geometric mean of two horizonal componets
@@ -50,7 +57,7 @@ def get_site_geomean(stn, folder):
             # read data 
             T, SAe = read_psa(efile)
             T, SAn = read_psa(nfile)
-            print efile, nfile
+            print(efile, nfile)
             
             # read psa deatails
             esta, esps, erhyp, epga, epgv, mag, dep, stlo, stla = read_psa_details(efile)
@@ -65,7 +72,7 @@ def get_site_geomean(stn, folder):
         # just E-comp
         except:
             # read data
-            print efile
+            print(efile)
             T, geomean = read_psa(efile)
             geomean = geomean / 9.81
             
@@ -75,7 +82,7 @@ def get_site_geomean(stn, folder):
         
     except:
         # read data
-        print zfile
+        print(zfile)
         T, geomean = read_psa(zfile)
         geomean = geomean / 9.81
         
@@ -140,8 +147,8 @@ def makesubplt(i, fig, plt, sta, sps, mag, dep, ztor, dip, rake, rhyp, vs30):
     Yea97imt, AB03imt, AB03CISimt, Gea05imt, Zea06imt, Zea06CISimt, MP10imt, Aea15imt, Zea16imt \
              = inslab_gsims(mag, dep, ztor, dip, rake, rrup, rjb, vs30)
              
-    A17imt = calc_nac_gmm_spectra(mag, rrup) # use rrup
-    print A17imt['sa']
+    A19imt = calc_nac_gmm_spectra(mag, rrup, dep) # use rrup
+    print(exp(A19imt['sa']))
 
     ax = plt.subplot(3, 3, i)
     if colTrue == 'True':
@@ -161,7 +168,7 @@ def makesubplt(i, fig, plt, sta, sps, mag, dep, ztor, dip, rake, rhyp, vs30):
         plt.loglog(Zea06imt['per'], exp(Zea06imt['sa']), '-' , lw=1.5, color=cs[3])
         plt.loglog(MP10imt['per'], exp(MP10imt['sa']), '-' , lw=1.5, color=cs[4])
         plt.loglog(Aea15imt['per'], exp(Aea15imt['sa']),     '-' , lw=1.5, color=cs[5])
-        plt.loglog(A17imt['per'], exp(A17imt['sa']),     '-' , lw=1.5, color=cs[6])
+        plt.loglog(A19imt['per'], exp(A19imt['sa']),     '-' , lw=1.5, color=cs[6])
     else:
         plt.loglog(Yea97imt['per'], exp(Yea97imt['sa']), '-', lw=1.5,  color='0.35')
         plt.loglog(AB03imt['per'], exp(AB03imt['sa']),     '--', lw=1.5, color='0.15')
@@ -180,13 +187,13 @@ def makesubplt(i, fig, plt, sta, sps, mag, dep, ztor, dip, rake, rhyp, vs30):
     if i == 1 or i == 4 or i == 7:
         plt.ylabel('Spectral Acceleration (g)', fontsize=9)
         
-    plt.xlim([0.02, 5])
+    plt.xlim([0.02, 10])
     #plt.title(' '.join((sta+'; MW =',str("%0.1f" % mag)+'; Rrup =',str(rrup),'km')), fontsize=9)
     plt.title(' '.join((sta+'; Rhyp =',str(rrup),'km')), fontsize=9)
     plt.grid(which='both', color='0.75')
 
     if i == 1:
-        plt.legend(['Yea97', 'AB03','Gea05','Zea06','MP10','Aea15', 'A18', 'Data'],loc=3, fontsize=7.)
+        plt.legend(['Yea97', 'AB03','Gea05','Zea06','MP10','Aea15', 'A19', 'Data'],loc=3, fontsize=7.)
         '''
         leg = plt.gca().get_legend()
         ltext  = leg.get_texts()
@@ -207,7 +214,8 @@ from gmt_tools import cpt2colormap, remove_last_cmap_colour
 
 folder = argv[1]
 prefix = argv[2]
-colTrue = argv[3]
+colTrue = 'True'
+#colTrue = argv[3]
 
 # set event details
 '''
@@ -225,7 +233,7 @@ ii = 1
 fig = plt.figure(ii, figsize=(10, 10))
 #cmap = plt.cm.get_cmap('Spectral', 7)
 ncols = 7
-cptfile = '/Users/tallen/Documents/DATA/GMT/cpt/gay-flag-1978.cpt'
+cptfile = '/Users/trev/Documents/DATA/GMT/cpt/gay-flag-1978.cpt'
 #cptfile = 'U:\\DATA\\GMT\\cpt\\gay-flag-1978.cpt'
 cmap, zvals = cpt2colormap(cptfile, ncols+1)
 cmap = remove_last_cmap_colour(cmap)
@@ -285,7 +293,7 @@ for stn in usites:
     udists.append(rhyp)
     lolatxt += '\t'.join((stlo, stla, sta))+'\n'
 
-f = open('staloc.txt', 'wb')
+f = open('staloc.txt', 'w')
 f.write(lolatxt)
 f.close()
     
@@ -322,7 +330,7 @@ for stn in usites:
     #mag = 4.57 # 2012-07-20
     #mag = 5.12 # 2012-06-19
     #mag = 4.9 # 2012-06-19 from Hadi
-    print 'mag', mag
+    print('mag', mag)
     
     # now plot
     # make sub plot
@@ -331,7 +339,7 @@ for stn in usites:
         makesubplt(i, fig, plt, stn, sps, mag, dep, ztor, dip, rake, rhyp, vs30)
         if ii == 1:
             if i <= 4:
-                plt.ylim([1e-6, 0.01])
+                plt.ylim([1e-5, 1])
             else:
                 plt.ylim([1e-6, 0.01])
                 

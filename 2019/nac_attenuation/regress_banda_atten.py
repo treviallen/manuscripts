@@ -390,7 +390,7 @@ def normalise_data(stdict, T):
 ################################################################################
 def regress_zone(stdict, zgroup):
     Tplt = array([0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0, 4.0, 5.0, 7.5, 10.]) # secs; PGA = 0.01; PGV = -99
-    Tplt = array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0, 4.0, 5.0, 7.5, 10.]) # secs; PGA = 0.01; PGV = -99
+    Tplt = array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0, 4.0, 5.0, 7.5, 9.5]) #, 10.]) # secs; PGA = 0.01; PGV = -99
     bins = arange(2.0, log10(maxDist), 0.1)
     
     # compute inslab gmpes
@@ -416,11 +416,13 @@ def regress_zone(stdict, zgroup):
         
         norm = mpl.colors.Normalize(vmin=0, vmax=500)
         
+        #if ii < 20:
+        
         sc = plt.scatter(norm_rhyp, norm_amp_all, c=norm_dep, marker='o', s=30, \
                          cmap='Spectral_r', norm=norm, alpha=0.6)
                          
         # find suspect data
-        index = where(norm_amp_all > 10)[0]
+        index = where((norm_amp_all > 10) & (isnan(norm_amp_all) == False))[0]
         
         if len(index) > 0:
             for idx in index:
@@ -462,7 +464,7 @@ def regress_zone(stdict, zgroup):
     # smooth GR and calc Q
     ################################################################################    
     
-    smooth_c2 = savitzky_golay(init_c2, 5, 3)
+    smooth_c2 = savitzky_golay(init_c2, 7, 3)
     
     for ii, T in enumerate(Tplt):
         ax = plt.subplot(4,5,ii+1)
@@ -527,6 +529,7 @@ def regress_zone(stdict, zgroup):
         
         # keep intercept
     
+    plt.suptitle('G(R) and Q')
     plt.show()
             
     ################################################################################
@@ -544,7 +547,7 @@ def regress_zone(stdict, zgroup):
     plt.semilogx(Tplt, init_c3, 'bo')
     
     # smooth Q
-    smooth_c3 = savitzky_golay(init_c3, 5, 3)
+    smooth_c3 = savitzky_golay(init_c3, 7, 3)
     plt.semilogx(Tplt, smooth_c3, 'ro')
     
     plt.ylabel('c3 (Q)')
@@ -710,7 +713,7 @@ def regress_zone(stdict, zgroup):
     # plot M1
     plt.subplot(221)
     plt.semilogx(Tplt, array(m0_array), 'bo')
-    smooth_m0 = savitzky_golay(array(m0_array), 5, 3)
+    smooth_m0 = savitzky_golay(array(m0_array), 7, 3)
     plt.semilogx(Tplt, smooth_m0, 'ro')
     plt.title('m0')
     
@@ -747,7 +750,7 @@ def regress_zone(stdict, zgroup):
         refit_m1.append(m[0])
         refit_m2.append(m[1])
     
-    smooth_m1 = savitzky_golay(array(refit_m1), 5, 3)
+    smooth_m1 = savitzky_golay(array(refit_m1), 7, 3)
     
     # plot M2            
     plt.subplot(222)
@@ -778,7 +781,7 @@ def regress_zone(stdict, zgroup):
         
         refit_m2.append(m[0])
     
-    smooth_m2 = savitzky_golay(array(refit_m2), 5, 3)
+    smooth_m2 = savitzky_golay(array(refit_m2), 7, 3)
     
     # plot M2
     plt.subplot(224)
@@ -786,6 +789,7 @@ def regress_zone(stdict, zgroup):
     plt.semilogx(Tplt, smooth_m2, 'ro')
     plt.title('m2')
     
+    plt.suptitle('Mag Coefs')
     plt.show()
     
     ######################################################################################
@@ -812,6 +816,7 @@ def regress_zone(stdict, zgroup):
         
         i += 1
     
+    plt.suptitle('mag scaling')
     plt.show()
     
     ######################################################################################
@@ -844,7 +849,7 @@ def regress_zone(stdict, zgroup):
         
         sc = plt.scatter(log10(deps), resY, c=rhyp, marker='o', s=25, \
                          cmap='viridis_r', norm=norm, alpha=1.0)
-        plt.plot([1,3], [0,0], 'r--', lw=1.5)
+        plt.plot([0.4,3], [0,0], 'r--', lw=1.5)
         
         plt.ylabel(str(T))
         if i >= 16:
@@ -869,8 +874,6 @@ def regress_zone(stdict, zgroup):
         d3_array.append(d3)
         #print(d1, d2, d0)
         
-        #try cubic!
-        
         # store data for refitting smoothed params
         t_dept_res.append(logmedamp)
         t_dept_logdep.append(medx)
@@ -886,10 +889,11 @@ def regress_zone(stdict, zgroup):
     d2_array = array(d2_array)
     d3_array = array(d3_array)
     
+    plt.suptitle('Depth Residuals')
     plt.show()
     
     # smooth coefs
-    smooth_d0 = savitzky_golay(d0_array, 5, 3)
+    smooth_d0 = savitzky_golay(d0_array, 7, 3)
     
     # plot depth coeffs
     fig = plt.figure(13, figsize=(18,10))
@@ -905,16 +909,15 @@ def regress_zone(stdict, zgroup):
     plt.title('d1')
     
     plt.subplot(223)
+    plt.semilogx(Tplt, array(d2_array), 'bo')
+    #plt.semilogx(dx, smooth_d0, 'ro')
+    plt.title('d2')
+    
+    plt.subplot(224)
     plt.semilogx(Tplt, array(d3_array), 'bo')
     #plt.semilogx(dx, smooth_d0, 'ro')
     plt.title('d3')
     
-    plt.subplot(224)
-    plt.semilogx(Tplt, array(d4_array), 'bo')
-    #plt.semilogx(dx, smooth_d0, 'ro')
-    plt.title('d4')
-    
-    plt.show()
     
     ######################################################################################
     # refit M1 with smoothed M
@@ -922,6 +925,7 @@ def regress_zone(stdict, zgroup):
     # 
     refit_d1 = []
     refit_d2 = []
+    refit_d3 = []
     # m0_array[i] + d1_array[i]*(mrng-6)**2 + d2_array[i]*(mrng-6)
     #for c0_dat, sd1 in zip(mag_c0_fit, smooth_m0): # t_dept_c0, t_dept_mw
     for t_res, dep_dat, sd0 in zip(t_dept_res, t_dept_logdep, smooth_d0):
@@ -930,12 +934,12 @@ def regress_zone(stdict, zgroup):
         nn = where(isnan(t_res)==False)[0]  
         
         def fit_fixed_polynomial1(c, x):
-            return sd0 + c[0]*dep_dat[nn]**2 + c[1]*dep_dat[nn]
+            return sd0 + c[0]*dep_dat[nn]**3 + c[1]*dep_dat[nn]**2 + c[2]*dep_dat[nn]
         
         data = odrpack.RealData(dep_dat[nn], t_res[nn])
     
         depfit = odrpack.Model(fit_fixed_polynomial1)
-        odr = odrpack.ODR(data, depfit, beta0=[0.1, 1.])
+        odr = odrpack.ODR(data, depfit, beta0=[0.1, 1., 1.])
         
         odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
         out = odr.run()
@@ -943,33 +947,76 @@ def regress_zone(stdict, zgroup):
         
         refit_d1.append(m[0])
         refit_d2.append(m[1])
+        refit_d3.append(m[2])
     
-    smooth_d1 = savitzky_golay(array(refit_d1), 5, 3)
+    smooth_d1 = savitzky_golay(array(refit_d1), 7, 3)
     
     ######################################################################################
     # refit d2 with smoothed M!
     refit_d2 = []
+    refit_d3 = []
+    # m0_array[i] + d1_array[i]*(mrng-6)**2 + d2_array[i]*(mrng-6)
     #for c0_dat, sd1 in zip(mag_c0_fit, smooth_m0): # t_dept_c0, t_dept_mw
     for t_res, dep_dat, sd0, sd1 in zip(t_dept_res, t_dept_logdep, smooth_d0, smooth_d1):
+         
         # check nan values
         nn = where(isnan(t_res)==False)[0]  
         
-        def fit_fixed_polynomial2(c, x):
-            
-            return sd0 + sd1*dep_dat[nn]**2 + c[0]*(dep_dat[nn]-6.)
-    
+        def fit_fixed_polynomial1(c, x):
+            return sd0 + sd1*dep_dat[nn]**3 + c[0]*dep_dat[nn]**2 + c[1]*dep_dat[nn]
+        
         data = odrpack.RealData(dep_dat[nn], t_res[nn])
     
-        depfit = odrpack.Model(fit_fixed_polynomial2)
-        odr = odrpack.ODR(data, depfit, beta0=[1.])
+        depfit = odrpack.Model(fit_fixed_polynomial1)
+        odr = odrpack.ODR(data, depfit, beta0=[1., 1.])
         
         odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
         out = odr.run()
         m = out.beta
         
         refit_d2.append(m[0])
+        refit_d3.append(m[1])
     
-    smooth_d2 = savitzky_golay(array(refit_d2), 5, 3)
+    smooth_d2 = savitzky_golay(array(refit_d2), 7, 3)
+    
+    ######################################################################################
+    # refit d3 with smoothed M!
+    refit_d3 = []
+    # m0_array[i] + d1_array[i]*(mrng-6)**2 + d2_array[i]*(mrng-6)
+    #for c0_dat, sd1 in zip(mag_c0_fit, smooth_m0): # t_dept_c0, t_dept_mw
+    for t_res, dep_dat, sd0, sd1, sd2 in zip(t_dept_res, t_dept_logdep, smooth_d0, smooth_d1, smooth_d2):
+         
+        # check nan values
+        nn = where(isnan(t_res)==False)[0]  
+        
+        def fit_fixed_polynomial1(c, x):
+            return sd0 + sd1*dep_dat[nn]**3 + sd2*dep_dat[nn]**2 + c[0]*dep_dat[nn]
+        
+        data = odrpack.RealData(dep_dat[nn], t_res[nn])
+    
+        depfit = odrpack.Model(fit_fixed_polynomial1)
+        odr = odrpack.ODR(data, depfit, beta0=[1.])
+        
+        odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
+        out = odr.run()
+        m = out.beta
+        
+        refit_d3.append(m[0])
+    
+    smooth_d3 = savitzky_golay(array(refit_d3), 7, 3)
+    
+    # plt smoothed params
+    plt.subplot(222)
+    plt.semilogx(Tplt, smooth_d1, 'ro')
+    
+    plt.subplot(223)
+    plt.semilogx(Tplt, smooth_d2, 'ro')
+    
+    plt.subplot(224)
+    plt.semilogx(Tplt, smooth_d3, 'ro')
+    
+    plt.suptitle('Depth Coefs')
+    plt.show()
     
     ######################################################################################
     # calculate model residual and plot with distance again
@@ -981,7 +1028,7 @@ def regress_zone(stdict, zgroup):
     log_drng = arange(1, 2.9, 0.1)
     
     for i, T in enumerate(Tplt):
-        dep_cor = d0_array + d1_array*log10(deps)**3 + d2_array*log10(deps)**2 + d3_array*log10(deps)
+        dep_cor = smooth_d0[i] + smooth_d1[i]*log10(deps)**3 + smooth_d2[i]*log10(deps)**2 + smooth_d3[i]*log10(deps)
         logY = smooth_m0[i] + smooth_m1[i]*(mags-6)**2 + smooth_m2[i]*(mags-6) \
                - smooth_c2[i]*log10(rhyp) - init_c3[i]*(rhyp) + dep_cor
               
@@ -992,14 +1039,25 @@ def regress_zone(stdict, zgroup):
         
         norm = mpl.colors.Normalize(vmin=0, vmax=700)
         
-        sc = plt.scatter(log10(rhyp), resY, c=dep, marker='o', s=25, \
+        sc = plt.scatter(log10(rhyp), resY, c=deps, marker='o', s=25, \
                          cmap='viridis_r', norm=norm, alpha=1.0)
         plt.plot([1,3.4], [0,0], 'r--', lw=1.5)
-        plt.xlim([1,3.4])
+        
+        # get binned medians
+        bins = arange(2, 3.51, 0.1)
+        nn = where((isnan(resY) == False) & (isnan(log10(rhyp)) == False) & (isfinite(resY) == True))[0]
+        logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(rhyp[nn]), resY[nn])
+        plt.plot(medx, logmedamp, 'rs', ms=6.5)
+        
+        plt.xlim([2,3.4])
         plt.ylim([-3, 3])
         plt.ylabel(str(T))
+        
+        if i >= 16:
+            plt.xlabel('log Rhyp (km)')
     
-    
+    plt.suptitle('Dist Residuals')
+    plt.show()
     #################################################################################
     # export coeffs
     #################################################################################
@@ -1007,7 +1065,9 @@ def regress_zone(stdict, zgroup):
     ctxt = '#log10 Y = c0 + c1*(M-6)**2 + c2*(M-6) - c3*log10(Rhyp) - c4*(Rhyp) + (d0 + d1*h**3 + d2*h**2 + d4*h)\nT, c0, c1, c2, c3, c4, d0, d1, d2, d3, d4\n'
     for i, t in enumerate(Tplt):
         ctxt += ','.join((str(t), str('%0.5f' % smooth_m0[i]), str('%0.5f' % smooth_m1[i]), str('%0.5f' % smooth_m2[i]), \
-                          str('%0.5f' % smooth_c2[i]), str('%0.5e' % init_c3[i]))) + '\n'
+                          str('%0.5f' % smooth_c2[i]), str('%0.5e' % init_c3[i]), \
+                          str('%0.5f' % smooth_d0[i]), str('%0.5f' % smooth_d1[i]), \
+                          str('%0.5f' % smooth_d2[i]), str('%0.5f' % smooth_d3[i]))) + '\n'
                           
     f = open('.'.join(('ncc_gmm_coeffs', zgroup, '.csv')), 'w')
     f.write(ctxt)
@@ -1043,16 +1103,23 @@ zone_group = get_field_data(sf, 'ZONE_GROUP', 'str')
 i = 0
 reg_stdict = []
 
+zgroup1 = 'BS'
+zgroup2 = 'BS'
+
+if zgroup1 == 'BS':
+    mmin = 5.25
+else:
+    mmin = 5.75
 print('Starting inversion...')
 for poly, zcode, zgroup in zip(polygons, zone_code, zone_group):
     for sd in stdict:
         pt = Point(sd['eqlo'], sd['eqla'])
-        if pt.within(poly):
-            if zgroup == 'BS' or zgroup == 'BS':
+        if pt.within(poly) and sd['mag'] >= mmin:
+            if zgroup == zgroup1 or zgroup == zgroup1:
                 reg_stdict.append(sd)
             
 # do regression for each polygon
-resY, deps = regress_zone(reg_stdict, zgroup)
+resY, deps = regress_zone(reg_stdict, zgroup1)
 
 
 
