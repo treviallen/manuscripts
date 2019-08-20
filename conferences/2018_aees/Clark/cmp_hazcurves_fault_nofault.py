@@ -165,9 +165,9 @@ if __name__ == "__main__":
 plt.semilogy([0, 2.5], [yhaz2, yhaz2], 'k--')
 plt.semilogy([0, 2.5], [yhaz10, yhaz10], 'k--')
 yoff = get_log_xy_locs([1e-4, .1], .015)
-plt.text(0.295, yhaz10+yoff, '1/475-year AEP', va='bottom',ha='right',fontsize=16)
+plt.text(0.295, yhaz10+yoff, '1/475 AEP', va='bottom',ha='right',fontsize=16)
 yoff = get_log_xy_locs([1e-4, .1], .005)
-plt.text(0.295, yhaz2+yoff/5., '1/2475-year AEP', va='bottom',ha='right',fontsize=16)
+plt.text(0.295, yhaz2+yoff/5., '1/2475 AEP', va='bottom',ha='right',fontsize=16)
 plt.legend()
 
 plt.grid(which='both')
