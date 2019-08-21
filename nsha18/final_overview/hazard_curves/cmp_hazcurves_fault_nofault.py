@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 from numpy import array, exp, log, interp, ceil, around, arange
 from tools.oq_tools import return_annualised_haz_curves
 import matplotlib.pylab as plt
-from os import path, mkdir
+from os import path, mkdir, getcwd
 import warnings, sys
 from gmt_tools import cpt2colormap 
 from misc_tools import remove_last_cmap_colour, get_log_xy_locs
@@ -15,7 +15,11 @@ sys.setdefaultencoding("latin-1")
 warnings.filterwarnings("ignore")
 
 plt_places = ['Adelaide', 'Canberra', 'Melbourne', 'Perth']
-cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//Paired_08.cpt'
+
+if getcwd().startswith('/nas'):
+    cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/Paired_08.cpt'
+else:
+    cptfile = '//Users//trev//Documents//DATA//GMT//cpt//Paired_08.cpt'
 #cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//qual-dark-06.cpt'
 ncolours = 9
 cmap, zvals = cpt2colormap(cptfile, ncolours)
@@ -161,9 +165,9 @@ if __name__ == "__main__":
 plt.semilogy([0, 2.5], [yhaz2, yhaz2], 'k--')
 plt.semilogy([0, 2.5], [yhaz10, yhaz10], 'k--')
 yoff = get_log_xy_locs([1e-4, .1], .015)
-plt.text(0.245, yhaz10+yoff, '1/475-year AEP', va='bottom',ha='right',fontsize=16)
+plt.text(0.245, yhaz10+yoff, '1/475 AEP', va='bottom',ha='right',fontsize=16)
 yoff = get_log_xy_locs([1e-4, .1], .005)
-plt.text(0.245, yhaz2+yoff/5., '1/2475-year AEP', va='bottom',ha='right',fontsize=16)
+plt.text(0.245, yhaz2+yoff/5., '1/2475 AEP', va='bottom',ha='right',fontsize=16)
 plt.legend()
 
 plt.grid(which='both')
