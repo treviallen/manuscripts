@@ -70,12 +70,13 @@ lon_0 = mean([llcrnrlon, urcrnrlon])
 lat_1 = percentile([llcrnrlat, urcrnrlat], 25)
 lat_2 = percentile([llcrnrlat, urcrnrlat], 75)
 
-fig = plt.figure(figsize=(20,11))
-gs1 = gridspec.GridSpec(1, 2)
+fig = plt.figure(figsize=(9,15))
+gs1 = gridspec.GridSpec(2, 1)
 hspace = 0.01
-gs1.update(wspace=0.11, hspace=hspace) # negative looks bad in "show", but ok in pngs
+#gs1.update(wspace=0.11, hspace=hspace) # negative looks bad in "show", but ok in pngs
 
-ax = fig.add_subplot(gs1[0])
+#ax = fig.add_subplot(gs1[0])
+ax = plt.subplot(2, 1, 1)
 plt.tick_params(labelsize=8)
 
 m = Basemap(projection='lcc',\
@@ -89,8 +90,8 @@ m = Basemap(projection='lcc',\
 m.shadedrelief()
 m.drawstates()
 #m.drawcountries()
-m.drawparallels(arange(-90.,90.,6.), labels=[1,0,0,0],fontsize=16, dashes=[2, 2], color='0.5', linewidth=0.75)
-m.drawmeridians(arange(0.,360.,8.), labels=[0,0,0,1], fontsize=16, dashes=[2, 2], color='0.5', linewidth=0.75)
+m.drawparallels(arange(-90.,90.,6.), labels=[0,0,0,0],fontsize=16, dashes=[2, 2], color='0.5', linewidth=0.75)
+m.drawmeridians(arange(0.,360.,8.), labels=[0,0,0,0], fontsize=16, dashes=[2, 2], color='0.5', linewidth=0.75)
 
 logRatios = log10(hazFactNSHA10 / hazFactAS1170)
 
@@ -109,7 +110,7 @@ for lat, lon, lograt in zip(locLats, locLons, logRatios):
         plt.plot(x, y, 'o', mfc=list(cs[colidx][0:3]), markeredgecolor='k', markeredgewidth=0.5, \
                  markersize=9, alpha=1.)
 
-plt.title('Ratio of NSHA18 1/500 AEP and\nAS1170.4 Hazard Factors', fontsize=22)
+plt.title('Ratio of NSHA18 1/500 AEP and\nAS1170.4 Hazard Factors', fontsize=18)
 xlim = ax.get_xlim()
 xtxt = xlim[1] * 0.02
 ylim = ax.get_ylim()
@@ -120,7 +121,8 @@ plt.text(xtxt, ytxt, 'a)', fontsize=26, va='bottom', ha='left')
 # make second plot AS1170.4-2018 / NSHA 2%
 ##########################################################################################
 
-ax = fig.add_subplot(gs1[1])
+#ax = fig.add_subplot(gs1[1])
+ax = plt.subplot(2, 1, 2)
 plt.tick_params(labelsize=8)
 
 m = Basemap(projection='lcc',\
@@ -134,8 +136,8 @@ m = Basemap(projection='lcc',\
 m.shadedrelief()
 m.drawstates()
 #m.drawcountries()
-m.drawparallels(arange(-90.,90.,6.), labels=[1,0,0,0],fontsize=16, dashes=[2, 2], color='0.5', linewidth=0.75)
-m.drawmeridians(arange(0.,360.,8.), labels=[0,0,0,1], fontsize=16, dashes=[2, 2], color='0.5', linewidth=0.75)
+m.drawparallels(arange(-90.,90.,6.), labels=[0,0,0,0],fontsize=16, dashes=[2, 2], color='0.5', linewidth=0.75)
+m.drawmeridians(arange(0.,360.,8.), labels=[0,0,0,0], fontsize=16, dashes=[2, 2], color='0.5', linewidth=0.75)
 
 logRatios = log10(hazFactNSHA2 / hazFactAS1170)
 
@@ -154,7 +156,7 @@ for lat, lon, lograt in zip(locLats, locLons, logRatios):
         plt.plot(x, y, 'o', mfc=list(cs[colidx][0:3]), markeredgecolor='k', markeredgewidth=0.5, \
                  markersize=9, alpha=1.)
 
-plt.title('Ratio of NSHA18 1/2475 AEP and\nAS1170.4 Hazard Factors', fontsize=22)
+plt.title('Ratio of NSHA18 1/2475 AEP and\nAS1170.4 Hazard Factors', fontsize=18)
 plt.text(xtxt, ytxt, 'b)', fontsize=26, va='bottom', ha='left')
 
 '''
@@ -167,10 +169,10 @@ bounds = linspace(log10(0.25),log10(4),9)
 colbounds = linspace(log10(0.25),log10(4),17)
 norm = colors.BoundaryNorm(boundaries=colbounds, ncolors=ncols-1)
 # set colourbar
-plt.gcf().subplots_adjust(bottom=0.1)
-cby = 0.12
-cbh = 0.035
-cax = fig.add_axes([0.3,cby,0.4,cbh]) # setup colorbar axes.
+plt.gcf().subplots_adjust(bottom=0.07)
+cby = 0.02
+cbh = 0.025
+cax = fig.add_axes([0.225,cby,0.55,cbh]) # setup colorbar axes.
 #norm = colors.Normalize(vmin=vmin, vmax=vmax)
 cb = colorbar.ColorbarBase(cax, cmap=cmap, norm=norm, orientation='horizontal')
 
@@ -182,7 +184,7 @@ cb.ax.tick_params(labelsize=16)
 
 # set title
 titlestr = 'Hazard Ratio (NSHA18 / AS1170.4-2017 [R2108])'
-cb.set_label(titlestr, fontsize=22)
+cb.set_label(titlestr, fontsize=18)
 
-plt.savefig('map_design_ratios.png', format='png', bbox_inches='tight', dpi=200)
+plt.savefig('map_design_ratios.png', format='png', bbox_inches='tight', dpi=300)
 plt.show()
