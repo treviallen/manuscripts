@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 from numpy import array, exp, log, interp, ceil, around, arange
 from tools.oq_tools import return_annualised_haz_curves
 import matplotlib.pylab as plt
-from os import path, mkdir
+from os import path, mkdir, getcwd
 import warnings, sys
 from gmt_tools import cpt2colormap 
 from misc_tools import remove_last_cmap_colour, get_log_xy_locs
@@ -15,7 +15,10 @@ sys.setdefaultencoding("latin-1")
 warnings.filterwarnings("ignore")
 
 plt_au_places = ['Perth', 'Darwin', 'Adelaide', 'Canberra']
-cptfile = '//Users//trev//Documents//DATA//GMT//cpt//gay-flag-1978-9.cpt'
+if getcwd().startswith('/nas'):
+    cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/gay-flag-1978-9.cpt'
+else:
+    cptfile = '//Users//trev//Documents//DATA//GMT//cpt//gay-flag-1978-9.cpt'
 #cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//qual-dark-06.cpt'
 ncolours = 8
 cmap, zvals = cpt2colormap(cptfile, ncolours)
@@ -25,7 +28,11 @@ p = -1
 ###############################################################################
 # parse site file
 ###############################################################################
-sitelistfile = '/Users/trev/Documents/Geoscience_Australia/NSHA2018/shared/nsha_cities.csv'
+if getcwd().startswith('/nas'):
+    sitelistfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/shared/nsha_cities.csv'
+else:
+    sitelistfile = '/Users/trev/Documents/Geoscience_Australia/NSHA2018/shared/nsha_cities.csv'
+    
 lines = open(sitelistfile).readlines()
 places = []
 place_lat = []
@@ -45,7 +52,10 @@ for line in lines:
 ##cmap, zvals = cpt2colormap(cptfile, ncolours, rev=False)
 #cmap = plt.cm.get_cmap('hsv', ncolours)
 cs = (cmap(arange(ncolours-1)))
-
+'''
+from misc_tools import manual_colour_list
+cs = manual_colour_list(8)
+'''
 ###############################################################################
 # def to get hazard curve data
 ###############################################################################
@@ -61,7 +71,10 @@ yhaz10 = 1./475.
 ###############################################################################
 
 # make path to hazcurvefile
-au_hazcurvefile = '/Users/trev/Documents/Geoscience_Australia/NSHA2018/source_models/complete_model/final/results_fractiles/hazard_curve-mean-PGA_1.csv'
+if getcwd().startswith('/nas'):
+    au_hazcurvefile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/source_models/complete_model/final/results_fractilesUHS/hazard_curve-mean-PGA_1.csv'
+else:
+    au_hazcurvefile = '/Users/trev/Documents/Geoscience_Australia/NSHA2018/source_models/complete_model/final/results_fractiles/hazard_curve-mean-PGA_1.csv'
 
 # get data from first job
 siteDict, imls, investigation_time = return_annualised_haz_curves(au_hazcurvefile)
@@ -93,7 +106,7 @@ for sd in siteDict:
 #   parse gns hazard curves
 ###############################################################################
 # Get AKL data
-akl_hazcurvefile = '../2018_aees/Allen/hazard_curve-2010SHM_AKL/hazard_curve-rlz-000-PGA_44.csv'
+akl_hazcurvefile = 'hazard_curve-2010SHM_AKL/hazard_curve-rlz-000-PGA_44.csv'
 siteDict, imls, investigation_time = return_annualised_haz_curves(akl_hazcurvefile)
 siteDict[0]['place'] = 'Auckland'
 siteDict[0]['imls'] = imls
@@ -101,36 +114,41 @@ pltDict.append(siteDict[0])
 
 
 # Get AKL data
-akl_hazcurvefile = '../2018_aees/Allen/hazard_curve-2010SHM_WLG/hazard_curve-rlz-000-PGA_46.csv'
+akl_hazcurvefile = 'hazard_curve-2010SHM_WLG/hazard_curve-rlz-000-PGA_46.csv'
 siteDict, imls, investigation_time = return_annualised_haz_curves(akl_hazcurvefile)
 siteDict[0]['place'] = 'Wellington'
 siteDict[0]['imls'] = imls
 pltDict.append(siteDict[0])
 
 # Get AKL data
-akl_hazcurvefile = '../2018_aees/Allen/hazard_curve-2010SHM_CHCH/hazard_curve-rlz-000-PGA_45.csv'
+akl_hazcurvefile = 'hazard_curve-2010SHM_CHCH/hazard_curve-rlz-000-PGA_45.csv'
 siteDict, imls, investigation_time = return_annualised_haz_curves(akl_hazcurvefile)
 siteDict[0]['place'] = 'Christchurch'
 siteDict[0]['imls'] = imls
 pltDict.append(siteDict[0])
 
-   
+
 ###############################################################################
 # make plot 1
 ###############################################################################
 ax = plt.subplot(2,1,1)
 
+i = 0
 for pd, c in zip(pltDict, cs):
-    plt.loglog(pd['poe_probs_annual'], pd['imls'], c=c, lw=2.0, label=pd['place'])
+    if i != 4:
+        plt.loglog(pd['poe_probs_annual'], pd['imls'], c=c, lw=2.5, label=pd['place'])
+    else:
+        plt.loglog(pd['poe_probs_annual'], pd['imls'], c='gold', lw=2.5, label=pd['place'])
+    i += 1
 
 
 plt.semilogy([yhaz2, yhaz2], [1E-4, 10], 'k--')
 plt.semilogy([yhaz10, yhaz10], [1E-4, 10], 'k--')
 yoff = get_log_xy_locs([1e-5, .1], .015)
-plt.text(yhaz10+yoff, 1.1E-4, '1/475 AEP', rotation=90., va='bottom',ha='right',fontsize=14)
+plt.text(yhaz10+yoff, 1.1E-4, '1/475 AEP', rotation=90., va='bottom',ha='right',fontsize=16)
 yoff = get_log_xy_locs([1e-5, .1], .005)
-plt.text(yhaz2+yoff/5., 1.1E-4, '1/2475 AEP', rotation=90., va='bottom',ha='right',fontsize=14)
-plt.legend(loc=4, fontsize=13)
+plt.text(yhaz2+yoff/5., 1.1E-4, '1/2475 AEP', rotation=90., va='bottom',ha='right',fontsize=16)
+plt.legend(loc=4, fontsize=15)
 yoff = get_log_xy_locs([1E-4, 10.], .97)
 xoff = get_log_xy_locs([1E-5, 0.1], .985)
 plt.text(xoff, yoff, '(a)', va='top',ha='left',fontsize=18)
@@ -150,20 +168,23 @@ plt.ylabel('Mean PGA Hazard (g)', fontsize=16)
 # make plot 2
 ###############################################################################
 ax = plt.subplot(2,1,2)
-
+i = 0
 # normalise at 1/475
 for pd, c in zip(pltDict, cs):
     # interp to 1/2475-year
     normhaz = interp(yhaz10, pd['poe_probs_annual'][::-1], pd['imls'][::-1])
-    plt.loglog(pd['poe_probs_annual'], pd['imls']/normhaz, c=c, lw=2.0, label=pd['place'])
+    if i != 4:
+        plt.loglog(pd['poe_probs_annual'], pd['imls']/normhaz, c=c, lw=2.5, label=pd['place'])
+    else:
+        plt.loglog(pd['poe_probs_annual'], pd['imls']/normhaz, c='gold', lw=2.5, label=pd['place'])
 
 
 plt.semilogy([yhaz2, yhaz2], [1E-5, 100], 'k--')
 plt.semilogy([yhaz10, yhaz10], [1E-5, 100], 'k--')
 yoff = get_log_xy_locs([1e-5, .1], .015)
-plt.text(yhaz10+yoff, 1.1E-3, '1/475 AEP', rotation=90., va='bottom',ha='right',fontsize=14)
+plt.text(yhaz10+yoff, 1.1E-3, '1/475 AEP', rotation=90., va='bottom',ha='right',fontsize=16)
 yoff = get_log_xy_locs([1e-5, .1], .005)
-plt.text(yhaz2+yoff/5., 1.1E-3, '1/2475 AEP', rotation=90., va='bottom',ha='right',fontsize=14)
+plt.text(yhaz2+yoff/5., 1.1E-3, '1/2475 AEP', rotation=90., va='bottom',ha='right',fontsize=16)
 yoff = get_log_xy_locs([1E-3, 100], .97)
 xoff = get_log_xy_locs([1E-5, 0.1], .985)
 plt.text(xoff, yoff, '(b)', va='top',ha='left',fontsize=18)

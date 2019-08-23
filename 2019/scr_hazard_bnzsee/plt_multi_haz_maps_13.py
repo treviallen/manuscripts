@@ -408,7 +408,7 @@ for ii, hazfile in enumerate(hazfiles):
         xtxt = xlim[1] * 0.02
         ylim = ax.get_ylim()
         ytxt = ylim[1] * 0.02
-        plt.text(xtxt, ytxt, modnames[ii], fontsize=27, va='bottom', ha='left')
+        plt.text(xtxt, ytxt, modnames[ii], fontsize=22, va='bottom', ha='left')
         
         ##########################################################################################
         # plt subduction profile - comment out when not using
@@ -443,21 +443,20 @@ make colourbar
 
 # set colourbar
 plt.gcf().subplots_adjust(bottom=0.1)
-cby = 0.23 
-cbh = 0.00 + 0.035 / maprows
-cax = figure.add_axes([0.3,cby,0.4,cbh]) # setup colorbar axes.
+cax = figure.add_axes([0.225,0.13,0.55,0.02]) # setup colorbar axes.
 #norm = colors.Normalize(vmin=vmin, vmax=vmax)
 cb = colorbar.ColorbarBase(cax, cmap=cmap, norm=norm, orientation='horizontal')
 
-cb.set_ticks(bounds)
-labels = ['0'+str('%0.3f' % x).strip('0') for x in bounds]
+bounds2 = bounds[range(0,len(bounds),2)]
+cb.set_ticks(bounds2)
+labels = ['0'+str('%0.3f' % x).strip('0') for x in bounds2]
 labels[0] = '0.0'
 cb.set_ticklabels(labels)
-cb.ax.tick_params(labelsize=18)
+cb.ax.tick_params(labelsize=16)
 
 # set title
 titlestr = ' '.join((T, probability, 'in 50-Year Mean Hazard (g)'))
-cb.set_label(titlestr, fontsize=24)
+cb.set_label(titlestr, fontsize=20)
 '''
 # check to see if maps exists
 if path.isdir('maps') == False:
@@ -465,7 +464,7 @@ if path.isdir('maps') == False:
 '''    
 # now save png file
 plt.savefig(path.join('multi_hazard_maps_'+outfile.replace(' ','_')+'.'+probFraction+'.png'), \
-            dpi=200, format='png', bbox_inches='tight')
+            dpi=300, format='png', bbox_inches='tight')
 
 # save pdf file
 '''
