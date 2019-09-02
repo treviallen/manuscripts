@@ -75,9 +75,26 @@ ticks = ax.get_xticks()
 labels = [mpl.dates.num2date(t).strftime('%H:%M:%S') for t in ticks]
 ax.set_xticklabels(labels)
 
+# annotate arrows
+ptime1 = starttime + timedelta(seconds=2)
+ptime2 = starttime + timedelta(seconds=5)
+ax.annotate('P-wave', xy=([ptime1, -0.1]), xytext=(ptime2, -1.5), color='k', \
+            arrowprops=dict(fc='k', shrink=0.03, headwidth=10, width=1.25, ec='k'), fontsize=15)
+            
+stime1 = starttime + timedelta(seconds=22)
+stime2 = starttime + timedelta(seconds=24.)
+ax.annotate('S-wave', xy=([stime1, -0.43]), xytext=(stime2, -1.82), color='k', \
+            arrowprops=dict(fc='k', shrink=0.03, headwidth=10, width=1.25, ec='k'), fontsize=15)
+
+rtime1 = starttime + timedelta(seconds=35)
+rtime2 = starttime + timedelta(seconds=42)
+ax.annotate('Rg-wave', xy=([rtime1, -0.75]), xytext=(rtime2, -1.70), color='k', \
+            arrowprops=dict(fc='k', shrink=0.03, headwidth=10, width=1.25, ec='k'), fontsize=15)
+
+
 # save plt
 plt.savefig('20180916_NWAO_Rg.png', bbox_inches='tight')
-plt.savefig('20180916_NWAO_Rg.pdf', bbox_inches='tight')
+#plt.savefig('20180916_NWAO_Rg.pdf', bbox_inches='tight')
 
 plt.show()
 
