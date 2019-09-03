@@ -26,6 +26,7 @@ from misc_tools import listdir_extension
 from numpy import array, isnan, nan, unique, mean, percentile, arange, where
 from os import path, getcwd
 from mapping_tools import make_street_map, get_map_polygons, mask_outside_polygons, annotate_cities
+from datetime import datetime
 
 ###############################################################################
 # parse catalogue
@@ -53,6 +54,7 @@ for jsonfile in all_geojson:
 # loop through events and match json files
 ###############################################################################
 
+first_date = datetime(2030, 12, 12)
 for i, event in enumerate(events):
     events[i]['dyfi'] = nan # initialise
     
@@ -61,6 +63,11 @@ for i, event in enumerate(events):
             dyfi_dict = return_dyfi_data(path.join(json_folder, jsonfile))
             
             events[i]['dyfi'] = dyfi_dict
+            
+            if event['datetime'] < first_date:
+                first_date = event['datetime']
+                
+print('First Date', first_date)
 
 ###############################################################################
 # loop through events get unique centroids
@@ -71,6 +78,7 @@ cent_latlist = []
 cent_mmi = []
 cent_nresp = []
 total_nresp = 0
+ev_count = 0
 
 centroids = []
 for i, event in enumerate(events):
@@ -85,7 +93,12 @@ for i, event in enumerate(events):
            
            # add nresp
            total_nresp += rec['nresp']
+           len_recs = len(event['dyfi'])
+       
+       if len_recs > 2:
+           ev_count += 1
 
+crash = crash
 cent_lonlist = array(cent_lonlist)
 cent_latlist = array(cent_latlist)
 cent_mmi = array(cent_mmi)
@@ -143,10 +156,10 @@ mpl.style.use('classic')
 ##########################################################################################
 # get colormap
 if getcwd().startswith('/nas'):
-    cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/mi_pop.cpt'
+    cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/qual-dark-06.cpt'
 else:
-    cptfile = '//Users//trev//Documents//DATA//GMT//cpt//mi_pop.cpt'
-ncols = 10
+    cptfile = '//Users//trev//Documents//DATA//GMT//cpt//qual-dark-06.cpt'
+ncols = 6
 cmap, zvals = cpt2colormap(cptfile, ncols+1, rev=False)
 cmap = remove_last_cmap_colour(cmap)
 cs = (cmap(arange(ncols)))
@@ -241,6 +254,7 @@ while lon_grd < maxlon:
        if len(idx) > 0:
            grd_mmi.append(max(cent_mmi[idx]))
            grd_count.append(len(idx))
+           #!!! need to add datetimes and hstack then get unique!!!
        else:
            grd_mmi.append(nan)
            grd_count.append(nan)
@@ -249,8 +263,10 @@ while lon_grd < maxlon:
        
     lon_grd = nxt_lon
 
-for geom, mi in zip(grd_geom, grd_mmi):
-    if not isnan(mi):
+# make coulour idx for counts
+bounds = array([1, 3, 5, 10, 20, 100])
+for geom, gcnt in zip(grd_geom, grd_count):
+    if not isnan(gcnt):
     
         # map grid
         pltx = array(geom)[:,0]
@@ -258,8 +274,8 @@ for geom, mi in zip(grd_geom, grd_mmi):
         
         x, y = m(pltx, plty) 
         
-        colidx = int(round(mi))-1
-        c= tuple(cs[colidx][:-1])
+        cidx = where(bounds <= gcnt)[0][-1] # take last idx
+        c= tuple(cs[cidx][:-1])
         plt.fill(x, y, fc=c, ec='0.45', lw=0.25, zorder=100)
         
        # plt.plot(x, y, '-', c='0.5', lw=0.5)   
@@ -293,18 +309,18 @@ axins = inset_axes(ax,
                    loc=3,
                    bbox_to_anchor=(0.01,0.062,1,1), bbox_transform=ax.transAxes)
                     
-norm = mpl.colors.Normalize(vmin=0.5, vmax=10.5)#myb
+norm = mpl.colors.Normalize(vmin=0, vmax=6)#myb
 cb = colorbar.ColorbarBase(axins, cmap=cmap, norm=norm, orientation='horizontal')
 
 # set cb labels
-ticks = range(1,11)
-rom_num = ['I', 'II', 'III', 'IV', 'V', 'VI','VII','VIII','IX','X']
+ticks = arange(0.5,6)
+cnt_rng = ['1', '2-3', '4-5', '6-10', '11-20', '21+']
 cb.set_ticks(ticks)
-cb.set_ticklabels(rom_num)
+cb.set_ticklabels(cnt_rng)
 
-titlestr = 'Macroseismic Intensity'
+titlestr = 'Number of Felt Events'
 cb.set_label(titlestr, fontsize=16)
 
 
-plt.savefig('map_nat_agg_mmi.png', fmt='png', bbox_inches='tight')
+plt.savefig('map_nat_agg_mmi_count.png', fmt='png', bbox_inches='tight')
 plt.show()

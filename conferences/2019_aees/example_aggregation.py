@@ -24,15 +24,18 @@ cs = (cmap(arange(ncols)))
 # set mmi
 ##########################
 
-rand_mmi = 10*random.rand(25) / 2 + 1
-rand_mmi[7] = 7.
+rand_mmi = 10*random.rand(49) / 2 + 1
+rand_mmi[10] = 7.
+rand_mmi[29] = 7.
 
 idx = rand_mmi < 2.5
 rand_mmi[idx] = 3.
 rand_mmi[21] = 2.
 rand_mmi[4] = 2.
+rand_mmi[42] = 2.
+rand_mmi[18] = 2.
 
-locs = arange(0,51,10)
+locs = arange(0,36,5)
 
 ##########################
 # set figs
@@ -42,8 +45,8 @@ fig = plt.figure(1, figsize=(12, 6))
 ax = plt.subplot(121)
 
 k = 0
-for i in arange(0, 5):
-    for j in arange(0, 5):
+for i in arange(0, 7):
+    for j in arange(0, 7):
 
         # now plot
         pltx = [locs[i], locs[i+1], locs[i+1], locs[i], locs[i]]
@@ -57,7 +60,7 @@ for i in arange(0, 5):
 
 plt.xlabel('Easting (km)', fontsize=16)
 plt.ylabel('Northing (km)', fontsize=16)
-plt.text(1, 49, '(a)', va='top', ha='left', fontsize=20)
+plt.text(35*0.02, 35*0.98, '(a)', va='top', ha='left', fontsize=20)
 
 ##########################
 # set figs 2
@@ -76,7 +79,7 @@ plt.fill(pltx, plty, fc=c, ec='k', lw=0.75)
 
 plt.xlabel('Easting (km)', fontsize=16)
 plt.ylabel('Northing (km)', fontsize=16)
-plt.text(1, 49, '(b)', va='top', ha='left', fontsize=20, zorder=100)
+plt.text(35*0.02, 35*0.98, '(b)', va='top', ha='left', fontsize=20, zorder=100)
 
 ##########################
 # make colorbar
