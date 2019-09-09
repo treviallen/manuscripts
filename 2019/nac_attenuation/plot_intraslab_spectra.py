@@ -18,8 +18,8 @@ def calc_nac_gmm_spectra(mag, rhyp, dep):
     d3 = coeffs[:,9]
     
     logdep = log10(dep)
-    lnsa = log(10**(c0 + c1*(mag-6)**2 + c2*(mag-6) - c3*log10(rhyp) - c4*rhyp \
-               + (d0 + d1*logdep**3 + d2*logdep**2 + d3*logdep)))
+    lnsa = c0 + c1*(mag-6)**2 + c2*(mag-6) - c3*log10(rhyp) - c4*rhyp # \
+#               + (d0 + d1*logdep**3 + d2*logdep**2 + d3*logdep)
     
     A19imt = {'per':T, 'sa':lnsa}
 
@@ -28,6 +28,7 @@ def calc_nac_gmm_spectra(mag, rhyp, dep):
 
 # finds files and gets geometric mean of two horizonal componets
 def get_site_geomean(stn, folder):
+    print(stn)
     from fnmatch import filter
     from os import path, walk, system
     from numpy import sqrt
@@ -142,13 +143,16 @@ def makesubplt(i, fig, plt, sta, sps, mag, dep, ztor, dip, rake, rhyp, vs30):
     
     rrup = rhyp
     rjb = sqrt(rrup**2 - dep**2) # assume point source; i.e. repi = rjb
-    
+    print('rhyp2',rhyp)
     # get ground motion estimates from GMPEs
     Yea97imt, AB03imt, AB03CISimt, Gea05imt, Zea06imt, Zea06CISimt, MP10imt, Aea15imt, Zea16imt \
-             = inslab_gsims(mag, dep, ztor, dip, rake, rrup, rjb, vs30)
+             = inslab_gsims(mag, dep, ztor, dip, rake, rhyp, rjb, vs30)
              
-    A19imt = calc_nac_gmm_spectra(mag, rrup, dep) # use rrup
-    print(exp(A19imt['sa']))
+    Tea02imt, C03imt, AB06imt, Sea09imt, Sea09YCimt, Pea11imt, A12imt, Bea14imt \
+             = scr_gsims(mag, dep, ztor, dip, rake, rrup, rjb, vs30)
+             
+    A19imt = calc_nac_gmm_spectra(mag, rhyp, dep) # use rrup
+    #print(exp(A19imt['sa']))
 
     ax = plt.subplot(3, 3, i)
     if colTrue == 'True':
@@ -166,7 +170,7 @@ def makesubplt(i, fig, plt, sta, sps, mag, dep, ztor, dip, rake, rhyp, vs30):
         plt.loglog(AB03imt['per'][:-1], exp(AB03imt['sa'][:-1]),     '-' , lw=1.5, color=cs[1])
         plt.loglog(Gea05imt['per'], exp(Gea05imt['sa']),   '-' , lw=1.5, color=cs[2])
         plt.loglog(Zea06imt['per'], exp(Zea06imt['sa']), '-' , lw=1.5, color=cs[3])
-        plt.loglog(MP10imt['per'], exp(MP10imt['sa']), '-' , lw=1.5, color=cs[4])
+        plt.loglog(AB06imt['per'], exp(AB06imt['sa']), '-' , lw=1.5, color=cs[4])
         plt.loglog(Aea15imt['per'], exp(Aea15imt['sa']),     '-' , lw=1.5, color=cs[5])
         plt.loglog(A19imt['per'], exp(A19imt['sa']),     '-' , lw=1.5, color=cs[6])
     else:
@@ -179,7 +183,7 @@ def makesubplt(i, fig, plt, sta, sps, mag, dep, ztor, dip, rake, rhyp, vs30):
         plt.loglog(Aea15imt['per'], exp(Aea15imt['sa']),     '--', lw=1.5,  color='0.35')
         
     # get recorded process_waves.py psa data
-    T, geomean, pga, rhyp = get_site_geomean(sta[0:-1], folder)
+    T, geomean, pga, rhyp = get_site_geomean(sta, folder)
     plt.loglog(T, geomean, lw=1.5, color='k')
 
     if i >= 7:
@@ -189,11 +193,11 @@ def makesubplt(i, fig, plt, sta, sps, mag, dep, ztor, dip, rake, rhyp, vs30):
         
     plt.xlim([0.02, 10])
     #plt.title(' '.join((sta+'; MW =',str("%0.1f" % mag)+'; Rrup =',str(rrup),'km')), fontsize=9)
-    plt.title(' '.join((sta+'; Rhyp =',str(rrup),'km')), fontsize=9)
+    plt.title(' '.join((sta+'; Rhyp =',str(rhyp),'km')), fontsize=9)
     plt.grid(which='both', color='0.75')
 
     if i == 1:
-        plt.legend(['Yea97', 'AB03','Gea05','Zea06','MP10','Aea15', 'A19', 'Data'],loc=3, fontsize=7.)
+        plt.legend(['Yea97', 'AB03','Gea05','Zea06','AB06','Aea15', 'A19', 'Data'],loc=3, fontsize=7.)
         '''
         leg = plt.gca().get_legend()
         ltext  = leg.get_texts()
@@ -209,7 +213,7 @@ from sys import argv
 import matplotlib.pyplot as plt
 plt.rcParams['pdf.fonttype'] = 42
 
-from calc_oq_gmpes import inslab_gsims
+from calc_oq_gmpes import inslab_gsims, scr_gsims
 from gmt_tools import cpt2colormap, remove_last_cmap_colour
 
 folder = argv[1]
@@ -274,7 +278,7 @@ lolatxt = ''
 for stn in usites:
     for root, dirnames, filenames in walk(folder):
         for filename in filenames:
-            if filename.find(stn[0:-1]) >= 0:
+            if filename.find(stn) >= 0:
                 if filename.find('NE') >= 0:
                     psafile = path.join(root, filename)
                 elif filename.find('HE') >= 0:
@@ -309,7 +313,7 @@ i = 0
 for stn in usites:
     for root, dirnames, filenames in walk(folder):
         for filename in filenames:
-            if filename.find(stn[0:-1]) >= 0:
+            if filename.find(stn) >= 0:
                 if filename.find('NE') >= 0:
                     psafile = path.join(root, filename)
                 elif filename.find('HE') >= 0:
@@ -324,6 +328,7 @@ for stn in usites:
                     psafile = path.join(root, filename)
                 
     # get record details
+    print(stn, psafile)
     sta, sps, rhyp, pga, pgv, mag, dep, stlo, stla = read_psa_details(psafile)
     
     # temp fix
@@ -336,6 +341,7 @@ for stn in usites:
     # make sub plot
     if stn != 'CDNM.HNH':
         i += 1
+        print('rhyp', rhyp)
         makesubplt(i, fig, plt, stn, sps, mag, dep, ztor, dip, rake, rhyp, vs30)
         if ii == 1:
             if i <= 4:

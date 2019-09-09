@@ -8,12 +8,14 @@ from numpy import arange, mean, percentile, array, unique, where, argsort, floor
 from netCDF4 import Dataset as NetCDFFile
 from gmt_tools import cpt2colormap
 from os import path, walk, system
-from obspy.imaging.beachball import Beach
+from shapely.geometry import Polygon, Point
+import pickle
+#from obspy.imaging.beachball import Beach
 #from hmtk.parsers.catalogue.csv_catalogue_parser import CsvCatalogueParser, CsvCatalogueWriter
 from misc_tools import remove_last_cmap_colour, listdir_extension
 
 mpl.style.use('classic')
-plt.rcParams['pdf.fonttype'] = 42
+#plt.rcParams['pdf.fonttype'] = 42
 
 ##########################################################################################
 # parse eq epicentres
@@ -43,61 +45,15 @@ def parse_usgs_events(usgscsv):
 # parse SA files
 ##########################################################################################
 # reads sa data files and returns period (T) and acceleration (SA) vectors
-def read_sa(safile):
-    from numpy import array
-    from scipy.constants import g
-
-    lines = open(safile).readlines()
-    
-    safile = lines[0].strip().split('\t')[-1]
-    chan = lines[0].strip().split('.')[-2]
-    datestr = lines[1].strip().split('\t')[-1]    
-    sta = lines[2].strip().split('\t')[-1]
-    stla = float(lines[3].strip().split('\t')[-1])
-    stlo = float(lines[4].strip().split('\t')[-1])
-    sr = float(lines[5].strip().split('\t')[-1].split()[0])
-    eqla = float(lines[6].strip().split('\t')[-1])
-    eqlo = float(lines[7].strip().split('\t')[-1])
-    dep = float(lines[8].strip().split('\t')[-1].split()[0])
-    mag = float(lines[9].strip().split('\t')[-1])
-    rhyp = float(lines[10].strip().split('\t')[-1].split()[0])
-    azim = float(lines[11].strip().split('\t')[-1].split()[0])
-    pga = float(lines[12].strip().split('\t')[-1].split()[0]) / (1000. * g) # convert mm/s**2 to g
-    pgv = float(lines[13].strip().split('\t')[-1].split()[0]) / 10. # convert mm/s to cm/s
-
-    SA = []
-    T = []
-    
-    for line in lines[24:]:
-        dat = line.strip().split('\t')
-        T.append(float(dat[0]))
-        SA.append(float(dat[1]))
-    
-    T = array(T)
-    SA = array(SA) / g
-
-    rec = {'chan':chan, 'datestr':datestr, 'sta':sta, 'stla':stla, 'stlo':stlo, \
-           'sr':sr, 'eqla':eqla, 'eqlo':eqlo, 'dep':dep, 'mag':mag, 'rhyp':rhyp, \
-           'azim':azim, 'pga':pga, 'pgv':pgv, 'per':T, 'sa':SA, 'safile':safile}
-    
-    return rec
-
-folder = '../psa'
-extension = 'psa'
-safiles = listdir_extension(folder, extension)
-recs = []
-for saf in safiles:
-    rec = read_sa(path.join(folder, saf))
-    
-    recs.append(rec)
-
+print('Loading pkl file...')
+recs = pickle.load(open("stdict.pkl", "rb" ))
 
 ##########################################################################################
 #108/152/-44/-8
-urcrnrlat = -0.5
-llcrnrlat = -26.
-urcrnrlon = 150.
-llcrnrlon = 119
+urcrnrlat = 1.0
+llcrnrlat = -28.
+urcrnrlon = 160.
+llcrnrlon = 110
 lon_0 = mean([llcrnrlon, urcrnrlon])
 lat_1 = percentile([llcrnrlat, urcrnrlat], 25)
 lat_2 = percentile([llcrnrlat, urcrnrlat], 75)
@@ -123,7 +79,7 @@ m.drawmeridians(arange(0.,360.,6.), labels=[0,0,0,1], fontsize=16, dashes=[2, 2]
 ##########################################################################################
 # plot gebco
 ##########################################################################################
-
+"""
 print('Reading netCDF file...')
 nc = NetCDFFile('//Users//trev//Documents//DATA//GMT//GEBCO//Australia_30c.nc')
 
@@ -141,8 +97,8 @@ topodat = m.transform_scalar(data,lons,lats,nx,ny)
 
 print('Getting colormap...')
 # get colormap
-cptfile = '//Users//trev//Documents//DATA//GMT//cpt//mby_topo-bath.cpt'
-#cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//gray.cpt'
+#cptfile = '//Users//trev//Documents//DATA//GMT//cpt//mby_topo-bath.cpt'
+cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//wiki-2.0.cpt'
 cmap, zvals = cpt2colormap(cptfile, 256)
 cmap = remove_last_cmap_colour(cmap)
 #cmap = cm.get_cmap('terrain', 256)
@@ -150,11 +106,11 @@ cmap = remove_last_cmap_colour(cmap)
 # make shading
 print('Making map...')
 ls = LightSource(azdeg = 180, altdeg = 45)
-norm = mpl.colors.Normalize(vmin=-8000/zscale, vmax=5000/zscale)#myb
+#norm = mpl.colors.Normalize(vmin=-8000/zscale, vmax=5000/zscale)#myb
+norm = mpl.colors.Normalize(vmin=-1000/zscale, vmax=1900/zscale)#wiki
 rgb = ls.shade(topodat, cmap=cmap, norm=norm)
 im = m.imshow(rgb)
-
-
+"""
 ##########################################################################################
 # add epicentres
 ##########################################################################################
@@ -176,7 +132,7 @@ for poly in shapes:
 
 # loop thru zones
 i = 0
-for poly, zcode in zip(polygons, zone_code):
+for j, poly in enumerate(polygons):
     
     eqlo = []
     eqla = []
@@ -194,7 +150,7 @@ for poly, zcode in zip(polygons, zone_code):
             x1, y1 = m(rec['eqlo'], rec['eqla'])
             x2, y2 = m(rec['stlo'], rec['stla'])
             
-            plt.plot([x1, x2], [y1, y2], '-', c='0.6', lw=0.5, alpha=0.7)
+            plt.plot([x1, x2], [y1, y2], '-', c=cs[j*2], lw=0.5, alpha=0.7)
             
             eqlo.append(rec['eqlo'])
             eqla.append(rec['eqla'])
@@ -206,12 +162,11 @@ for poly, zcode in zip(polygons, zone_code):
     for i in range(0, len(eqlo)):
     
         x, y = m(eqlo[i], eqla[i])
-        plt.plot(x, y, 'o', mfc=cs[i*2+1], mec='k', markeredgewidth=0.5, markersize=(-15 + emag[i]*4.), alpha=1.)
+        plt.plot(x, y, 'o', mfc=cs[j*2+1], mec='k', markeredgewidth=0.5, markersize=(-15 + emag[i]*4.), alpha=1., zorder=10000+i)
         
         x, y = m(stlo[i], stla[i])
         plt.plot(x, y, '^', markerfacecolor='w', markeredgecolor='k', markeredgewidth=0.5, \
                  markersize=9, alpha=1)
-    i+=1
     
 # make legend
 legmag = [6., 7., 8.]
@@ -411,8 +366,6 @@ slon = [122, 133.5, 135.0, 144.5, 146.5, 143.6, 147.0]
 for i, st in enumerate(state):
     x, y = m(slon[i], slat[i])
     #plt.text(x, y, st, size=11, horizontalalignment='center', verticalalignment='center', weight='normal')
-
-
 
 plt.savefig('ncc_gmm_paths.png', format='png', bbox_inches='tight', dpi=300)
 plt.show()
