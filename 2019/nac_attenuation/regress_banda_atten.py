@@ -83,8 +83,7 @@ mpl.style.use('classic')
 import warnings
 warnings.filterwarnings("ignore")
 maxDist = 1750.
-
-
+"""
 ################################################################################
 # loop through sa files and get data
 ################################################################################
@@ -282,7 +281,7 @@ print('Saving pkl file...')
 pklfile = open("stdict.pkl", "wb" )
 pickle.dump(stdict, pklfile, protocol=-1)
 pklfile.close()
-
+"""
 print('Loading pkl file...')
 stdict = pickle.load(open("stdict.pkl", "rb" ))
 
@@ -290,7 +289,7 @@ stdict = pickle.load(open("stdict.pkl", "rb" ))
 # setup inversions
 ################################################################################
 import scipy.odr.odrpack as odrpack
-xref = 10**2.9 #'''!!!!!!! CHECK THIS !!!!!!'''
+xref = 650 #'''!!!!!!! CHECK THIS !!!!!!'''
 mrng = arange(5.3, 7.9, 0.1)
 mpltrng = 0.05
 
@@ -356,7 +355,7 @@ def bilinear_reg_free(c, x):
     
     return ans1 + ans2
 
-hxfix = log10(750) #4.0 # hinge distance
+hxfix = log10(xref) #4.0 # hinge distance
 def bilinear_reg_fix(c, x):
     from numpy import zeros_like
     #hxfix = log10(800) #4.0 # hinge magnitude
@@ -372,16 +371,7 @@ def bilinear_reg_fix(c, x):
 
     return ans1 + ans2
 
-'''
-pwr = 2.
-def fit_atten(c, x):
-    from numpy import sqrt, log10
-    
-    ans = c[0] - c[1] * (x**pwr + c[2]**pwr)**(1./pwr)
-    
-    return ans
-'''
-
+# normalise data to get atten pattern
 def normalise_data(stdict, T):
     
     print('Regressing T =', str(T))
@@ -469,6 +459,8 @@ def regress_zone(stdict, zgroup):
     bl_init_c0 = []
     bl_init_c1 = []
     bl_init_c2 = []
+    bl_init_c3 = []
+
     for ii, T in enumerate(Tplt):
     
         norm_rhyp, norm_amp_all, norm_dep, norm_stas, norm_mag = normalise_data(stdict, T)
@@ -506,7 +498,7 @@ def regress_zone(stdict, zgroup):
         #data = odrpack.RealData(norm_rhyp[ridx], log10(norm_amp_all[ridx]))
         
         # use binned data
-        ridx = where(10**medx <= 800.)[0]
+        ridx = where(10**medx <= 10**hxfix)[0]
         data = odrpack.RealData(10**medx[ridx], logmedamp[ridx])
         
         ''' GR + Q '''
@@ -522,7 +514,6 @@ def regress_zone(stdict, zgroup):
         c = out.beta
         
         # now plt
-        #attenfit = c[0] - c[1]*rrup - c[2]*log10(rrup)
         attenfit = c[0] - c[1]*log10(rrup)
         plt.loglog(rrup, exp(attenfit), 'k-', lw=2)
         init_c0.append(c[0])
@@ -537,8 +528,6 @@ def regress_zone(stdict, zgroup):
         
         odr.set_job(fit_type=2) #if set fit_type=2, returns the same as least squares
         out = odr.run()
-        print('\nbilinear fix\n')
-        #out.pprint()
         
         af = out.beta[0]
         bf = out.beta[1]
@@ -591,6 +580,24 @@ def regress_zone(stdict, zgroup):
             ans = c[0] - c[1]*x - c2T*log10(x)
             
             return ans
+        
+        # use period dependent c2
+        c1_blT = bl_init_c1[ii]
+        c2_blT = bl_init_c2[ii]
+        def fit_bl_q(c, x):
+            from numpy import zeros_like
+            
+            ans2 = zeros_like(x)
+            ans1 = zeros_like(x)
+            
+            modx_lo = lowside(log10(x), hxfix)
+            modx_hi = highside(log10(x), hxfix)
+            
+            ans1 = modx_lo * (c1_blT * log10(x) + c[0])
+            yhinge = c1_blT * hxfix + c[0]
+            ans2 = modx_hi * (c2_blT * (log10(x)-hxfix) + c[1]*x + yhinge)
+            
+            return ans1 + ans2
     
         ################################################################################
         # fit GR + Q 
@@ -605,9 +612,6 @@ def regress_zone(stdict, zgroup):
         ridx = where(10**medx < maxDist)[0]
         data = odrpack.RealData(10**medx[ridx], logmedamp[ridx])
         
-        #ridx = where(norm_rhyp < 2000.)[0]
-        #data = odrpack.RealData(norm_rhyp[ridx], log10(norm_amp_all[ridx]))
-        
         #data = odrpack.RealData(10**medx, logmedamp)
         afit = odrpack.Model(fit_q)
         odr = odrpack.ODR(data, afit, beta0=[1.0, 1.0])
@@ -615,18 +619,35 @@ def regress_zone(stdict, zgroup):
         odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
         out = odr.run()
         c = out.beta
-        '''
-        if c[1] < 0.:
-            c[1] = 0.
-        '''
+        
         # now plt
         attenfit = c[0] - c[1]*rrup - c2T*log10(rrup)
         plt.loglog(rrup, exp(attenfit), 'r-', lw=2)
         init_c3.append(c[1]) # Q
         
+        # fit BL atten with Q
+        data = odrpack.RealData(10**medx[ridx], logmedamp[ridx])
+        afit = odrpack.Model(fit_bl_q)
+        odr = odrpack.ODR(data, afit, beta0=[1.0, 1.0])
+        
+        odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
+        out = odr.run()
+        c = out.beta
+        
+        attenfit_bl_q = c[0] + c1_blT * log10(rrup)
+        yhinge = c[0] + c1_blT * hxfix
+        idx = log10(rrup) > hxfix
+        attenfit_bl_q[idx] = c2_blT * (log10(rrup[idx])-hxfix) + c[1]*rrup[idx] + yhinge
+        plt.loglog(rrup, exp(attenfit_bl_q), '-', c='m', lw=2)  
+        
+        '''
+        if c[1] < 0.:
+            c[1] = 0.
+        '''
         # keep intercept
     
     plt.suptitle('G(R) and Q')
+    plt.savefig('gr_q.png', fmt='png', bbox_inches='tight')
     plt.show()
             
     ################################################################################
@@ -695,36 +716,35 @@ def regress_zone(stdict, zgroup):
     for tt, T in enumerate(Tplt):
         init_mw = []
         init_c0 = []
+        
+        # for each record, log interpolate across period
+        amp_plt = []
+        for st in stdict:
+            if T == 0.01:
+                amp_plt.append(st['pga'])
+            elif T == -99:
+                amp_plt.append(st['pgv'])
+            else:
+                amp_plt.append(exp(interp(log(T), log(st['per']), log(st['geom']))))
+        
+        amp_plt = array(amp_plt)
+        t_amplitudes.append(amp_plt)
+        
+        # get data
+        rhyp = dictlist2array(stdict, 'rhyp')
+        mags = dictlist2array(stdict, 'mag')
+        deps = dictlist2array(stdict, 'dep')
+        azim = dictlist2array(stdict, 'azim')
+        stas = dictlist2array(stdict, 'sta')
     
         for i, mplt in enumerate(mrng):
                     
-            # for each record, log interpolate across period
-            amp_plt = []
-            for st in stdict:
-                if T == 0.01:
-                    amp_plt.append(st['pga'])
-                elif T == -99:
-                    amp_plt.append(st['pgv'])
-                else:
-                    amp_plt.append(exp(interp(log(T), log(st['per']), log(st['geom']))))
-            
-            amp_plt = array(amp_plt)
-            t_amplitudes.append(amp_plt)
-            
-            # get data
-            rhyp = dictlist2array(stdict, 'rhyp')
-            mags = dictlist2array(stdict, 'mag')
-            deps = dictlist2array(stdict, 'dep')
-            azim = dictlist2array(stdict, 'azim')
-            stas = dictlist2array(stdict, 'sta')
-            
             #midx = where((mags >= (mplt-mpltrng)) & (mags < (mplt+mpltrng)) & (deps >= 30.))[0]
             midx = where((mags >= (mplt-mpltrng)) & (mags < (mplt+mpltrng)))[0]
             
             if len(midx) > 0:
-        
                 # get binned medians
-                bins = arange(2.0, 3.51, 0.1)
+                bins = arange(2.0, log10(maxDist), 0.1)
         
                 logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(rhyp[midx]), log(amp_plt[midx]))
                 
@@ -762,8 +782,8 @@ def regress_zone(stdict, zgroup):
                     ans2 = zeros_like(x)
                     ans1 = zeros_like(x)
                     
-                    modx_lo = lowside(x, hxfix)
-                    modx_hi = highside(x, hxfix)
+                    modx_lo = lowside(log10(x), hxfix)
+                    modx_hi = highside(log10(x), hxfix)
                     
                     ans1 = modx_lo * (c1 * log10(x) + c[0])
                     yhinge = c1 * hxfix + c[0]
@@ -781,7 +801,7 @@ def regress_zone(stdict, zgroup):
                 
                 # add to array
                 init_c0.append(c[0])
-                init_mw.append(mplt)   
+                init_mw.append(mplt)
                 
         # fit straight quadratic
         nn = where(isnan(init_c0)==False)[0]
@@ -921,6 +941,50 @@ def regress_zone(stdict, zgroup):
     plt.show()
     
     ######################################################################################
+    # loop through periods and plot 1st distance residual
+    ######################################################################################
+    fig = plt.figure(30, figsize=(18,10))
+    
+    for i, T in enumerate(Tplt):
+        #attenCor = (- smooth_c2[i]*log10(rhyp) - smooth_c3[i]*(rhyp)) # old
+        atten_cor = bl_init_c1[i] * log10(rhyp)
+  
+        yhinge = bl_init_c1[i] * hxfix
+        idx = log10(rhyp) > hxfix
+        atten_cor[idx] = bl_init_c2[i] * (log10(rhyp[idx])-hxfix) + yhinge
+                    
+        logY = smooth_m0[i] + smooth_m1[i]*(mags-6)**2 + smooth_m2[i]*(mags-6) \
+               + atten_cor
+              
+        resY = log(t_amplitudes[i]) - logY
+    
+        # plot
+        ax = plt.subplot(4,5,i+1)
+        
+        norm = mpl.colors.Normalize(vmin=0, vmax=700)
+        
+        sc = plt.scatter(log10(rhyp), resY, c=deps, marker='o', s=20, \
+                         cmap='viridis_r', norm=norm, alpha=1.0)
+        plt.plot([1,3.4], [0,0], 'r--', lw=1.5)
+        
+        # get binned medians
+        bins = arange(2.0, log10(maxDist), 0.1)
+        nn = where((isnan(resY) == False) & (isnan(log10(rhyp)) == False) & (isfinite(resY) == True))[0]
+        logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(rhyp[nn]), resY[nn])
+        plt.plot(medx, logmedamp, 'rs', ms=6.5)
+        
+        plt.xlim([2,3.4])
+        plt.ylim([-6, 6])
+        plt.ylabel(str(T))
+        
+        if i >= 16:
+            plt.xlabel('log Rhyp (km)')
+    
+    plt.suptitle('First Dist Residuals')
+    plt.savefig('init_dist_res.png', fmt='png', bbox_inches='tight')
+    plt.show()
+    
+    ######################################################################################
     # calculate model residual and plot with depth
     ######################################################################################
     print('Fitting depth dependence...')
@@ -975,15 +1039,18 @@ def regress_zone(stdict, zgroup):
         # fit straight cubic
         d1, d2, d3, d0 = polyfit(array(medx), array(logmedamp), 3) # binned data
         #print(log10(deps[nn]), resY[nn])
-        #d1, d2, d0 = polyfit(log10(deps[nn]), resY[nn], 2) # full data
+        d1, d2, d3, d0 = polyfit(log10(deps[nn]), resY[nn], 3) # full data
         d0_array.append(d0)
         d1_array.append(d1)
         d2_array.append(d2)
         d3_array.append(d3)
         
         # store data for refitting smoothed params
-        t_dept_res.append(logmedamp)
-        t_dept_logdep.append(medx)
+        #t_dept_res.append(logmedamp)
+        #t_dept_logdep.append(medx)
+        
+        t_dept_res.append(resY[nn])
+        t_dept_logdep.append(log10(deps[nn]))
         
         # plot quadratics
         dx = arange(0.5, 2.9, 0.01)
@@ -997,6 +1064,7 @@ def regress_zone(stdict, zgroup):
     d3_array = array(d3_array)
     
     plt.suptitle('Depth Residuals')
+    plt.savefig('depth_residuals.png', fmt='png', bbox_inches='tight')
     plt.show()
     
     # smooth coefs
@@ -1111,6 +1179,7 @@ def regress_zone(stdict, zgroup):
         refit_d3.append(m[0])
     
     smooth_d3 = savitzky_golay(array(refit_d3), 7, 3)
+    smooth_d3 = refit_d3
     
     # plt smoothed params
     plt.subplot(222)
@@ -1158,7 +1227,7 @@ def regress_zone(stdict, zgroup):
         plt.plot([1,3.4], [0,0], 'r--', lw=1.5)
         
         # get binned medians
-        bins = arange(2, 3.51, 0.1)
+        bins = arange(2.0, log10(maxDist), 0.1)
         nn = where((isnan(resY) == False) & (isnan(log10(rhyp)) == False) & (isfinite(resY) == True))[0]
         logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(rhyp[nn]), resY[nn])
         plt.plot(medx, logmedamp, 'rs', ms=6.5)
@@ -1170,7 +1239,8 @@ def regress_zone(stdict, zgroup):
         if i >= 16:
             plt.xlabel('log Rhyp (km)')
     
-        sidx = where((resY > 2.) & (log10(rhyp)>3.2))[0]
+        sidx = where((resY < -3.) & (log10(rhyp)>3.2))[0]
+        sidx = where(resY < -4.)[0]
         print(stas[sidx])
         print(azim[sidx])
     plt.suptitle('Dist Residuals')
@@ -1180,13 +1250,28 @@ def regress_zone(stdict, zgroup):
     # export coeffs
     #################################################################################
     
-    ctxt = '#ln Y = c0 + c1*(M-6)**2 + c2*(M-6) - c3*log10(Rhyp) - c4*(Rhyp) + (d0 + d1*log10(h)**3 + d2*log10(h)**2 + d3*log10(h))\nT, c0, c1, c2, c3, c4, d0, d1, d2, d3\n'
+    #ctxt = '#ln Y = c0 + c1*(M-6)**2 + c2*(M-6) - c3*log10(Rhyp) - c4*(Rhyp) + (d0 + d1*log10(h)**3 + d2*log10(h)**2 + d3*log10(h))\nT, c0, c1, c2, c3, c4, d0, d1, d2, d3\n'
+    ctxt = '#Rhyp <= hx: ln Y = c0 + c1*(M-6)**2 + c2*(M-6) + (c3*log10(Rhyp)) + (d0 + d1*log10(h)**3 + d2*log10(h)**2 + d3*log10(h))\n'
+    ctxt += '#Rhyp <= hx: ln Y = c0 + c1*(M-6)**2 + c2*(M-6) + (c3*hx +  c4*(log10(Rhyp)-hx)) + (d0 + d1*log10(h)**3 + d2*log10(h)**2 + d3*log10(h))\nT, c0, c1, c2, c3, c4, d0, d1, d2, d3, hx\n'
     for i, t in enumerate(Tplt):
+        '''
         ctxt += ','.join((str(t), str('%0.5f' % smooth_m0[i]), str('%0.5f' % smooth_m1[i]), str('%0.5f' % smooth_m2[i]), \
                           str('%0.5f' % smooth_c2[i]), str('%0.5e' % smooth_c3[i]), \
                           str('%0.5f' % smooth_d0[i]), str('%0.5f' % smooth_d1[i]), \
                           str('%0.5f' % smooth_d2[i]), str('%0.5f' % smooth_d3[i]))) + '\n'
+        '''
+        ctxt += ','.join((str(t), str('%0.5f' % smooth_m0[i]), str('%0.5f' % smooth_m1[i]), str('%0.5f' % smooth_m2[i]), \
+                          str('%0.5f' % bl_init_c1[i]), str('%0.5e' % bl_init_c2[i]), \
+                          str('%0.5f' % smooth_d0[i]), str('%0.5f' % smooth_d1[i]), \
+                          str('%0.5f' % smooth_d2[i]), str('%0.5f' % smooth_d3[i]), \
+                          str('%0.5f' % hxfix))) + '\n'
                           
+        '''
+        atten_cor = bl_init_c1[i] * log10(rhyp)
+        yhinge = bl_init_c1[i] * hxfix
+        idx = log10(rhyp) > hxfix
+        atten_cor[idx] = bl_init_c2[i] * (log10(rhyp[idx])-hxfix) + yhinge
+        '''
     f = open('.'.join(('ncc_gmm_coeffs', zgroup, 'csv')), 'w')
     f.write(ctxt)
     f.close()
