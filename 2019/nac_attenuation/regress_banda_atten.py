@@ -289,7 +289,8 @@ stdict = pickle.load(open("stdict.pkl", "rb" ))
 # setup inversions
 ################################################################################
 import scipy.odr.odrpack as odrpack
-xref = 650 #'''!!!!!!! CHECK THIS !!!!!!'''
+xref = 1500 
+print('!!!!!!! CHECK THIS !!!!!! - BS xref=650')
 mrng = arange(5.3, 7.9, 0.1)
 mpltrng = 0.05
 
@@ -443,6 +444,11 @@ def normalise_data(stdict, T):
 # now get geometric atten for all mags
 ################################################################################
 def regress_zone(stdict, zgroup):
+    if zgroup == 'BS':
+        xref = 650
+    else:
+        xref = 800
+    
     Tplt = array([0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0, 4.0, 5.0, 7.5, 10.]) # secs; PGA = 0.01; PGV = -99
     Tplt = array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0, 4.0, 5.0, 7.5, 10.]) #, 10.]) # secs; PGA = 0.01; PGV = -99
     bins = arange(2.0, log10(maxDist), 0.1)
@@ -476,7 +482,7 @@ def regress_zone(stdict, zgroup):
         norm = mpl.colors.Normalize(vmin=0, vmax=500)
         
         #if ii < 20:
-        
+        #print(norm_amp_all)
         sc = plt.scatter(norm_rhyp, norm_amp_all, c=norm_dep, marker='o', s=25, \
                          cmap='Spectral_r', norm=norm, alpha=0.6)
                          
@@ -638,7 +644,7 @@ def regress_zone(stdict, zgroup):
         yhinge = c[0] + c1_blT * hxfix
         idx = log10(rrup) > hxfix
         attenfit_bl_q[idx] = c2_blT * (log10(rrup[idx])-hxfix) + c[1]*rrup[idx] + yhinge
-        plt.loglog(rrup, exp(attenfit_bl_q), '-', c='m', lw=2)  
+        #plt.loglog(rrup, exp(attenfit_bl_q), '-', c='m', lw=2)  
         
         '''
         if c[1] < 0.:
@@ -1251,8 +1257,8 @@ def regress_zone(stdict, zgroup):
     #################################################################################
     
     #ctxt = '#ln Y = c0 + c1*(M-6)**2 + c2*(M-6) - c3*log10(Rhyp) - c4*(Rhyp) + (d0 + d1*log10(h)**3 + d2*log10(h)**2 + d3*log10(h))\nT, c0, c1, c2, c3, c4, d0, d1, d2, d3\n'
-    ctxt = '#Rhyp <= hx: ln Y = c0 + c1*(M-6)**2 + c2*(M-6) + (c3*log10(Rhyp)) + (d0 + d1*log10(h)**3 + d2*log10(h)**2 + d3*log10(h))\n'
-    ctxt += '#Rhyp <= hx: ln Y = c0 + c1*(M-6)**2 + c2*(M-6) + (c3*hx +  c4*(log10(Rhyp)-hx)) + (d0 + d1*log10(h)**3 + d2*log10(h)**2 + d3*log10(h))\nT, c0, c1, c2, c3, c4, d0, d1, d2, d3, hx\n'
+    #ctxt = '#Rhyp <= hx: ln Y = c0 + c1*(M-6)**2 + c2*(M-6) + (c3*log10(Rhyp)) + (d0 + d1*log10(h)**3 + d2*log10(h)**2 + d3*log10(h))\n'
+    ctxt = '#Rhyp <= hx: ln Y = c0 + c1*(M-6)**2 + c2*(M-6) + (c3*hx +  c4*(log10(Rhyp)-hx)) + (d0 + d1*log10(h)**3 + d2*log10(h)**2 + d3*log10(h))\nT, c0, c1, c2, c3, c4, d0, d1, d2, d3, hx\n'
     for i, t in enumerate(Tplt):
         '''
         ctxt += ','.join((str(t), str('%0.5f' % smooth_m0[i]), str('%0.5f' % smooth_m1[i]), str('%0.5f' % smooth_m2[i]), \
@@ -1306,8 +1312,8 @@ zone_group = get_field_data(sf, 'ZONE_GROUP', 'str')
 i = 0
 reg_stdict = []
 
-zgroup1 = 'BS'
-zgroup2 = 'BS'
+zgroup1 = 'NGH'
+zgroup2 = 'NGH'
 
 if zgroup1 == 'BS':
     mmin = 5.25

@@ -16,11 +16,27 @@ def calc_nac_gmm_spectra(mag, rhyp, dep):
     d1 = coeffs[:,7]
     d2 = coeffs[:,8]
     d3 = coeffs[:,9]
+    hx = coeffs[:,10]
     
     logdep = log10(dep)
-    lnsa = c0 + c1*(mag-6)**2 + c2*(mag-6) - c3*log10(rhyp) - c4*rhyp # \
+#    lnsa = c0 + c1*(mag-6)**2 + c2*(mag-6) - c3*log10(rhyp) - c4*rhyp # \
 #               + (d0 + d1*logdep**3 + d2*logdep**2 + d3*logdep)
+    '''
+    Rhyp <= hx: ln Y = c0 + c1*(M-6)**2 + c2*(M-6) + \
+    (c3*hx +  c4*(log10(Rhyp)-hx)) + (d0 + d1*log10(h)**3 + d2*log10(h)**2 + d3*log10(h))
+    '''
+    mag_term = c0 + c1*(mag-6)**2 + c2*(mag-6)
     
+    if log10(rhyp) < hx[0]:
+        atten_term = c3 * log10(rhyp)
+    else:
+        hy = c3 * hx[0]
+        atten_term = c4 * (log10(rhyp)-hx[0]) + hy
+    
+    dep_term = d0 + d1*logdep**3 + d2*logdep**2 + d3*logdep
+    
+    lnsa = mag_term + atten_term + dep_term
+           
     A19imt = {'per':T, 'sa':lnsa}
 
     return A19imt
@@ -168,7 +184,7 @@ def makesubplt(i, fig, plt, sta, sps, mag, dep, ztor, dip, rake, rhyp, vs30):
         '''
         plt.loglog(Yea97imt['per'][:-1], exp(Yea97imt['sa'][:-1]), '-' , lw=1.5, color=cs[0])
         plt.loglog(AB03imt['per'][:-1], exp(AB03imt['sa'][:-1]),     '-' , lw=1.5, color=cs[1])
-        plt.loglog(Gea05imt['per'], exp(Gea05imt['sa']),   '-' , lw=1.5, color=cs[2])
+        plt.loglog(A12imt['per'], exp(A12imt['sa']),   '-' , lw=1.5, color=cs[2])
         plt.loglog(Zea06imt['per'], exp(Zea06imt['sa']), '-' , lw=1.5, color=cs[3])
         plt.loglog(AB06imt['per'], exp(AB06imt['sa']), '-' , lw=1.5, color=cs[4])
         plt.loglog(Aea15imt['per'], exp(Aea15imt['sa']),     '-' , lw=1.5, color=cs[5])
@@ -197,7 +213,7 @@ def makesubplt(i, fig, plt, sta, sps, mag, dep, ztor, dip, rake, rhyp, vs30):
     plt.grid(which='both', color='0.75')
 
     if i == 1:
-        plt.legend(['Yea97', 'AB03','Gea05','Zea06','AB06','Aea15', 'A19', 'Data'],loc=3, fontsize=7.)
+        plt.legend(['Yea97', 'AB03','A12imt','Zea06','AB06','Aea15', 'A19', 'Data'],loc=3, fontsize=7.)
         '''
         leg = plt.gca().get_legend()
         ltext  = leg.get_texts()

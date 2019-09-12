@@ -68,7 +68,7 @@ def get_basemap(llcrnrlon, urcrnrlon, llcrnrlat, urcrnrlat, res, fig, useGEBCO):
         else:
             nc = NetCDFFile('//Users//tallen//Documents//DATA//GMT//GEBCO//Australia_30c.nc')
             cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//mby_topo-bath.cpt'
-            cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//wiki-2.0.cpt'
+            cptfile = '//Users//trev//Documents//DATA//GMT//cpt//wiki-2.0.cpt'
         
         zscale =20. #gray
         zscale =30. #colour

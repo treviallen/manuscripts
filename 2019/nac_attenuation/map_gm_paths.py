@@ -65,13 +65,17 @@ ax = fig.add_subplot(111)
 m = Basemap(projection='lcc',lat_1=lat_1,lat_2=lat_2,lon_0=lon_0,\
             llcrnrlon=llcrnrlon,llcrnrlat=llcrnrlat, \
             urcrnrlon=urcrnrlon,urcrnrlat=urcrnrlat,\
-            rsphere=6371200.,resolution='l',area_thresh=2000.)
+            rsphere=6371200.,resolution='l',area_thresh=1000.)
 
 # draw coastlines, state and country boundaries, edge of map.
 #m.shadedrelief()
+#m.bluemarble()
+#m.etopo()
 m.drawcoastlines()
 m.drawstates()
 m.drawcountries()
+m.fillcontinents(color='w',lake_color='0.9')
+m.drawmapboundary(fill_color='0.9')
 m.drawparallels(arange(-90.,90.,4.), labels=[1,0,0,0],fontsize=16, dashes=[2, 2], color='0.5', linewidth=0.75)
 m.drawmeridians(arange(0.,360.,6.), labels=[0,0,0,1], fontsize=16, dashes=[2, 2], color='0.5', linewidth=0.75)
 #m.drawmapscale(144, -34.8, 146., -38.5, 400, fontsize = 16, barstyle='fancy', zorder=100)
@@ -84,7 +88,7 @@ print('Reading netCDF file...')
 nc = NetCDFFile('//Users//trev//Documents//DATA//GMT//GEBCO//Australia_30c.nc')
 
 #zscale =20. #gray
-zscale =50. #colour
+zscale =30. #colour
 data = nc.variables['elevation'][:] / zscale
 lons = nc.variables['lon'][:]
 lats = nc.variables['lat'][:]
@@ -98,14 +102,14 @@ topodat = m.transform_scalar(data,lons,lats,nx,ny)
 print('Getting colormap...')
 # get colormap
 #cptfile = '//Users//trev//Documents//DATA//GMT//cpt//mby_topo-bath.cpt'
-cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//wiki-2.0.cpt'
+cptfile = '//Users//trev//Documents//DATA//GMT//cpt//wiki-2.0.cpt'
 cmap, zvals = cpt2colormap(cptfile, 256)
 cmap = remove_last_cmap_colour(cmap)
 #cmap = cm.get_cmap('terrain', 256)
 
 # make shading
 print('Making map...')
-ls = LightSource(azdeg = 180, altdeg = 45)
+ls = LightSource(azdeg = 180, altdeg = 5)
 #norm = mpl.colors.Normalize(vmin=-8000/zscale, vmax=5000/zscale)#myb
 norm = mpl.colors.Normalize(vmin=-1000/zscale, vmax=1900/zscale)#wiki
 rgb = ls.shade(topodat, cmap=cmap, norm=norm)
@@ -173,7 +177,7 @@ legmag = [6., 7., 8.]
 legh = []
 for lm in legmag:
     x, y = m(0, 0)
-    h = m.plot(x, y, 'ro', mec='k', markersize=(-15 + lm*4.), alpha=1., lw=0.5)
+    h = m.plot(x, y, 'ko', mec='k', markersize=(-15 + lm*4.), alpha=1., lw=0.5)
     legh.append(h[0])
 
 l = plt.legend(legh, ('MW 6.0', 'MW 7.0', 'MW 8.0'), loc=1, numpoints=1)
