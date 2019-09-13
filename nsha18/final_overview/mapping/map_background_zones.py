@@ -7,7 +7,7 @@ from matplotlib.colors import LightSource
 from numpy import arange, mean, percentile, array, unique, where, argsort, floor, ceil
 from netCDF4 import Dataset as NetCDFFile
 from gmt_tools import cpt2colormap
-from os import path, walk, system
+from os import path, walk, system, getcwd
 #from obspy.imaging.beachball import Beach
 from hmtk.parsers.catalogue.csv_catalogue_parser import CsvCatalogueParser, CsvCatalogueWriter
 from misc_tools import remove_last_cmap_colour
@@ -29,8 +29,10 @@ gs1.update(wspace=-0.06, hspace=0.05) # negative looks bad in "show", but ok in 
 ##########################################################################################
 
 # parse HMTK csv
-hmtk_csv = '/nas/gemd/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/catalogue/data/NSHA18CAT_V0.1_hmtk_declustered.csv'
-hmtk_csv = '/Users/tallen/Documents/Geoscience_Australia/NSHA2018/catalogue/data/NSHA18CAT_V0.1_hmtk_declustered.csv'
+if getcwd().startswith('/nas'):
+    hmtk_csv = '/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/catalogue/data/NSHA18CAT_V0.1_hmtk_declustered.csv'
+else:
+    hmtk_csv = '/Users/tallen/Documents/Geoscience_Australia/NSHA2018/catalogue/data/NSHA18CAT_V0.1_hmtk_declustered.csv'
 parser = CsvCatalogueParser(hmtk_csv)    
 cat = parser.read_file()
 

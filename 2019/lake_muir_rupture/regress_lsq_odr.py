@@ -1,5 +1,15 @@
 # -*- coding: utf-8 -*-
 """
+Script to parse 'SRL_table.csv' and perform ordinary least squares and orthogonal
+distance regression for SCR fault scaling coefficients.
+
+Generates figure as used in:
+    Clark, D., Lawrie, S., Brenn, G., Allen, T. I., Garthwaite, M. C., 
+    and Standen, S. (2019). Surface deformation relating to the 2018 Lake 
+    Muir earthquake sequence, south west Western Australia: insights into the 
+    behaviour of Australian SCR earthquakes, Solid Earth.
+    
+
 Created on Wed May 01 14:09:02 2019
 
 @author: u56903
@@ -125,7 +135,6 @@ plt.fill_between(mag, 10**lower, 10**upper, color='0.85', edgecolor='', zorder=0
 
 # do odr for completeness
 om, oc = odr_lin_reg(mag, log10(dsrl), start)
-#odrsl_lrng = 10**(om * mrng + oc) # keep for later
 
 print('\nDSRL coeffs')
 print('lsq', m, c)
@@ -141,42 +150,12 @@ txt = plt.text(4.55, 90, '(b)', va='top', ha='left', fontsize=18)
 txt.set_path_effects([PathEffects.withStroke(linewidth=5, foreground='w')])
 
 ##############################################################################
-# export & show
-##############################################################################
-
-#plt.savefig('2019_srl_regression.png', fmt='png', dpi=300, bbox_inches='tight')
-#plt.show()
-
-##############################################################################
 # get ratio of DSRL vs VSRL
 ##############################################################################
 
-#fig = plt.figure(2, figsize=(19.5,6))
-#fig = plt.figure(2, figsize=(13,6))
-
 rat_vdsrl = vsrl/dsrl
 idx = rat_vdsrl != 1.
-'''
-ax = plt.subplot(131)
 
-
-
-plt.semilogy(mag[idx], rat_vdsrl[idx], 's', c='seagreen', label='DSRL Data')
-
-plt.grid(which='both')
-plt.xlabel('Moment Magnitude', fontsize=14)
-plt.ylabel('VSRL/DSRL', fontsize=14)
-
-# do odr for completeness
-start = [0.5, -2.]
-om, oc = odr_lin_reg(mag[idx], log10(rat_vdsrl[idx]), start)
-plt_rat = 10**(om * mrng + oc)
-plt.semilogy(mrng, plt_rat, '-', c='k', lw=1.5, label='Present Study (ODR)')
-plt.ylim([0.1, 1])
-
-print('\nRatio coeffs')
-print('odr1', om, oc)
-'''
 ##############################################################################
 
 ax = plt.subplot(223)
@@ -247,7 +226,6 @@ plt.semilogy(mrng, fdrsl_lrng, '-', c='r', lw=1.5, label="DSRL' (LSQ)")
 
 # do odr for completeness
 om, oc = odr_lin_reg(mag, log10(cor_dsrl), start)
-#fdrsl_lrng = 10**(om * mrng + oc)
 
 print('\nCorrected DSRL coeffs')
 print('lsq', m, c)

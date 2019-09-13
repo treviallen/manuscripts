@@ -1,7 +1,6 @@
 def return_dyfi_data(jsonfile):
     import json
 
-
     with open(jsonfile) as f:
         data = json.load(f)
 
@@ -23,9 +22,9 @@ def return_dyfi_data(jsonfile):
 
 from io_catalogues import parse_ga_event_query
 from misc_tools import listdir_extension
-from numpy import array, isnan, nan, unique, mean, percentile, arange, where
+from numpy import array, isnan, nan, unique, mean, percentile, arange, where, hstack
 from os import path, getcwd
-from mapping_tools import make_street_map, get_map_polygons, mask_outside_polygons, annotate_cities
+from mapping_tools import make_street_map, get_map_polygons, mask_outside_polygons, annotate_cities, distance
 from datetime import datetime
 
 ###############################################################################
@@ -75,8 +74,12 @@ print('First Date', first_date)
 
 cent_lonlist = []
 cent_latlist = []
+eqla = []
+eqlo = []
+eqmag = []
 cent_mmi = []
 cent_nresp = []
+event_ids = []
 total_nresp = 0
 ev_count = 0
 
@@ -90,6 +93,10 @@ for i, event in enumerate(events):
            cent_mmi.append(rec['intensity'])
            cent_nresp.append(rec['nresp'])
            centroids.append(array(rec['centroid']))
+           event_ids.append(event['event_id'])
+           eqla.append(event['lat'])
+           eqlo.append(event['lon'])
+           eqmag.append(event['mag'])
            
            # add nresp
            total_nresp += rec['nresp']
@@ -98,11 +105,21 @@ for i, event in enumerate(events):
        if len_recs > 2:
            ev_count += 1
 
-crash = crash
 cent_lonlist = array(cent_lonlist)
 cent_latlist = array(cent_latlist)
 cent_mmi = array(cent_mmi)
 cent_nresp = array(cent_nresp)
+event_ids = array(event_ids)
+eqlo = array(eqlo)
+eqla = array(eqla)
+eqmag = array(eqmag)
+
+# get source-site distance
+mmi_dist = []
+for ela, elo, cla, clo in zip(eqla, eqlo, cent_latlist, cent_lonlist):
+    mmi_dist.append(distance(ela, elo, cla, clo)[0])
+    
+mmi_dist = array(mmi_dist)
 
 '''
 # get unique values
@@ -248,13 +265,28 @@ while lon_grd < maxlon:
        grd_geom.append(geom)
        
        # check if mmi data exists
-       idx = where((cent_lonlist >= lon_grd) & (cent_lonlist < nxt_lon) \
+       min_nresp = 2
+       idx1 = where((cent_lonlist >= lon_grd) & (cent_lonlist < nxt_lon) & (cent_mmi >= 2.) \
                    & (cent_latlist >= lat_grd) & (cent_latlist < nxt_lat) & (cent_nresp >= min_nresp))[0]
-                   
+       
+       idx2 = where((cent_lonlist >= lon_grd) & (cent_lonlist < nxt_lon) & \
+                    (cent_latlist >= lat_grd) & (cent_latlist < nxt_lat) & \
+                    (mmi_dist <= 35) & (cent_mmi < 4.5) & (cent_nresp >= 1))[0]
+       
+       idx3 = where((cent_lonlist >= lon_grd) & (cent_lonlist < nxt_lon) & \
+                    (cent_latlist >= lat_grd) & (cent_latlist < nxt_lat) & \
+                    (mmi_dist <= 35) & (eqmag > 4.) & (cent_nresp >= 1))[0]
+       
+       idx2 = hstack((idx2, idx3))
+       
+       idx = unique(hstack((idx1, idx2)))
+       
        if len(idx) > 0:
            grd_mmi.append(max(cent_mmi[idx]))
-           grd_count.append(len(idx))
-           #!!! need to add datetimes and hstack then get unique!!!
+           # get uniue events
+           ids = event_ids[idx]
+           grd_count.append(len(unique(ids)))
+           
        else:
            grd_mmi.append(nan)
            grd_count.append(nan)
@@ -264,7 +296,7 @@ while lon_grd < maxlon:
     lon_grd = nxt_lon
 
 # make coulour idx for counts
-bounds = array([1, 3, 5, 10, 20, 100])
+bounds = array([1, 3, 5, 10, 15, 100])
 for geom, gcnt in zip(grd_geom, grd_count):
     if not isnan(gcnt):
     
@@ -299,6 +331,45 @@ x, y = m(m.llcrnrlon+0.02*lonrng, m.llcrnrlat+0.98*latrng)
 props = dict(boxstyle='round', facecolor='w', alpha=1)
 plt.text(x, y, plttxt, size=16, ha='left', va='top', bbox=props, zorder=10000)
 
+# add cities
+capfile = 'city_names.csv'
+
+import matplotlib.patheffects as PathEffects
+pe = [PathEffects.withStroke(linewidth=2.5, foreground="w")]
+          
+llat = []
+llon = []
+locs = []
+textoffset = []
+
+# read data
+lines = open(capfile).readlines()
+for line in lines:
+    llon.append(float(line.strip().split(',')[0]))
+    llat.append(float(line.strip().split(',')[1]))
+    locs.append(line.strip().split(',')[2])
+    textoffset.append(float(line.strip().split(',')[3]))
+
+# plot locs on map
+x, y = m(array(llon), array(llat))
+plt.plot(x, y, 's', markerfacecolor='None', markeredgecolor='k', markeredgewidth=0.5, markersize=8, zorder=10000)
+
+# label cities
+for i, loc in enumerate(locs):
+    if textoffset[i] == 0.:
+        x, y = m(llon[i]-0.35, llat[i]+0.12)
+        plt.text(x, y, loc, size=15, ha='right', va='bottom', weight='normal', zorder=10000, path_effects=pe)
+    elif textoffset[i] == 1.:
+        x, y = m(llon[i]+0.35, llat[i]+0.12)
+        #plt.text(x, y, loc, size=15, ha='left', va='bottom', weight='light', path_effects=pe)
+        plt.text(x, y, loc, size=15, ha='left', va='bottom', weight='normal', zorder=10000, path_effects=pe)
+    elif textoffset[i] == 2.:
+        x, y = m(llon[i]+0.3, llat[i]-0.3)
+        plt.text(x, y, loc, size=15, ha='left', va='top', weight='normal', zorder=10000, path_effects=pe)
+    elif textoffset[i] == 3.:
+        x, y = m(llon[i]-0.3, llat[i]-0.2)
+        plt.text(x, y, loc, size=15, ha='right', va='top', weight='normal', zorder=10000, path_effects=pe)
+
 ##########################################################################################
 # add colorbar
 ##########################################################################################
@@ -314,7 +385,7 @@ cb = colorbar.ColorbarBase(axins, cmap=cmap, norm=norm, orientation='horizontal'
 
 # set cb labels
 ticks = arange(0.5,6)
-cnt_rng = ['1', '2-3', '4-5', '6-10', '11-20', '21+']
+cnt_rng = ['1', '2-3', '4-5', '6-10', '11-15', '16+']
 cb.set_ticks(ticks)
 cb.set_ticklabels(cnt_rng)
 

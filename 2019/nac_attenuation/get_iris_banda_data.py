@@ -100,7 +100,7 @@ def get_arclink_event_data(bulk, fname, dataless, event):
         for channel in ['SHZ', 'EHZ', 'BHZ', 'HHZ', 'BNZ', 'HNZ']:
             seedid = '.'.join((b[0], b[1], '00', channel)) #'AU.DPH.00.BNZ'
             
-            try:
+            try:    
                 staloc = dataless.get_coordinates(seedid,b[4])
             except:
                 a=1 # dummy call
