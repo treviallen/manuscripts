@@ -56,8 +56,9 @@ def get_iris_event_data(bulk, folder, timestr, dataless, event):
                 getRecord = True
                                
             # second, check if file exists
+            print path.isfile(fpath), getRecord
             if not path.isfile(fpath) and getRecord == True:
-                 print(fpath)
+                 print(fpath, '???')
                  st = fdsn_client.get_waveforms(network=b[0], station=b[1], location=b[2],
                                                 channel=b[3], starttime=b[4], endtime=b[5],
                                                 attach_response=True)
@@ -104,7 +105,7 @@ def get_arclink_event_data(bulk, fname, dataless, event):
             except:
                 a=1 # dummy call
             # try another seed id fmt
-            seedid = '.'.join((b[0], b[1], '', channel)) #'AU.DPH.00.BNZ'
+            seedid = '.'.join((b[0], b[1], '10', channel)) #'AU.DPH.00.BNZ'
             try:
                 staloc = dataless.get_coordinates(seedid,b[4])
             except:
@@ -195,11 +196,14 @@ from obspy.io.xseed import Parser
 # read dataless seed volumes
 print('Reading dataless seed volumes...')
 if getcwd().startswith('/nas'):
+    '''
     au_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/AU/AU.IRIS.dataless')
     s1_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/S1/S1.IRIS.dataless')
     ge1_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/GE/GE1.IRIS.dataless')
     ge2_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/GE/GE1.IRIS.dataless')
     iu_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/IU/IU.IRIS.dataless')
+    '''
+    ii_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/II/II.IRIS.dataless')
     
 else:
     au_parser = Parser('/Users/trev/Documents/Networks/AU/AU.IRIS.dataless')
@@ -207,6 +211,7 @@ else:
     iu_parser = Parser('/Users/trev/Documents/Networks/IU/IU.IRIS.dataless')
     ge1_parser = Parser('/Users/trev/Documents/Networks/GE/GE1.IRIS.dataless')
     ge2_parser = Parser('/Users/trev/Documents/Networks/GE/GE2.IRIS.dataless')
+    ii_parser = Parser('/Users/trev/Documents/Networks/II/II.IRIS.dataless')
     
 folder = 'mseed_dump'
 
@@ -290,7 +295,7 @@ for ev in evdict:
                     st = get_iris_event_data(bulk, folder, ev['timestr'][:16], s1_parser, ev)
                     
                 ###########################################################################
-                """
+                
                 # get IU network
                 t1 = ev['starttime'] - 60
                 t2 = t1 + 2100 
@@ -299,6 +304,23 @@ for ev in evdict:
                         ("IU", "PMG", "*", "[BH][HN]*", t1, t2)]  
                 
                 st = get_iris_event_data(bulk, folder, ev['timestr'][:16], iu_parser, ev)
+                """
+                ###########################################################################
+                
+                # get IU network
+                t1 = ev['starttime'] - 60
+                t2 = t1 + 2100 
+                bulk = [("II", "WRAB", "*", "[BH][HN]*", t1, t2)]  
+                
+                for b in bulk:
+                    fname = '.'.join((ev['timestr'][:16],'II',b[1],'mseed')).replace(':','.')
+                    fpath = path.join('mseed_dump', fname)
+                    try:
+                        st = get_arclink_event_data(b, fpath, ii_parser, ev)
+                    except:
+                        b = 1
+                st = get_arclink_event_data(b, fpath, ii_parser, ev)
+                #st = get_iris_event_data(bulk, folder, ev['timestr'][:16], ii_parser, ev)
                 
                 ###########################################################################
                 '''

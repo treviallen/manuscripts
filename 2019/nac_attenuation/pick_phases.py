@@ -179,6 +179,7 @@ def plt_trace(tr, plt, ax, reftime):
     # plt theoretical arrivals
     plt.plot([pTravelTime, pTravelTime], ylims, 'r--', label='P Phase')
     plt.plot([sTravelTime, sTravelTime], ylims, 'g--', label='S Phase')
+    plt.plot([sTravelTime2, sTravelTime2], ylims, 'k--', label='S Phase * 2')
     #if rngkm > 12:
     #    plt.plot([rgTravelTime, rgTravelTime], ylims, 'k--', label='Rg Phase')
     plt.plot([lgTravelTime, lgTravelTime], ylims, 'm--', label='Lg Phase')
@@ -289,8 +290,11 @@ for mseedfile in mseedfiles:
                     
             pTravelTime = p[0]
             sTravelTime = s[0]
+            
             # estimate Lg Arrival (from Goulet et al 2014 P25-26)
             lgTravelTime = sTravelTime + 8.71 * 0.026*rngkm
+            
+            sTravelTime2 = 4 * sTravelTime
             
             # estimate Rg
             rgTravelTime = rngkm/3.05
