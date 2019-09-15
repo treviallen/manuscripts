@@ -22,6 +22,7 @@ def get_iris_event_data(bulk, folder, timestr, dataless, event):
     '''
             
     fdsn_client = Client("IRIS")
+    #client = Client("IRIS")
     sta = []
     #st = client.get_waveforms_bulk(bulk)
     for b in bulk:
@@ -56,13 +57,20 @@ def get_iris_event_data(bulk, folder, timestr, dataless, event):
                 getRecord = True
                                
             # second, check if file exists
-            print path.isfile(fpath), getRecord
+            print(path.isfile(fpath), getRecord)
             if not path.isfile(fpath) and getRecord == True:
                  print(fpath, '???')
+                 print(b)
+                 bulk2 = [(b[0], b[1], "*", "[BH]H*", b[4], b[5]),
+                         ("AU", "AFI", "1?", "BHE",  b[4], b[5])]
+                 st = fdsn_client.get_waveforms_bulk(bulk2)
+                 print(b)
+                 
+                 '''
                  st = fdsn_client.get_waveforms(network=b[0], station=b[1], location=b[2],
                                                 channel=b[3], starttime=b[4], endtime=b[5],
                                                 attach_response=True)
-                 
+                 '''
                  print(st[0].stats.location)
                  st = st.merge(method=0, fill_value='interpolate')
                  sta += st 
@@ -138,6 +146,7 @@ def get_arclink_event_data(bulk, fname, dataless, event):
 ################################################################################
 from obspy.core.utcdatetime import UTCDateTime
 import datetime as dt
+from data_fmt_tools import get_iris_data
 
 ################################################################################
 # load usgs event list
@@ -206,18 +215,20 @@ if getcwd().startswith('/nas'):
     ii_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/II/II.IRIS.dataless')
     
 else:
+    '''
     au_parser = Parser('/Users/trev/Documents/Networks/AU/AU.IRIS.dataless')
     s1_parser = Parser('/Users/trev/Documents/Networks/S1/S1.IRIS.dataless')
     iu_parser = Parser('/Users/trev/Documents/Networks/IU/IU.IRIS.dataless')
     ge1_parser = Parser('/Users/trev/Documents/Networks/GE/GE1.IRIS.dataless')
     ge2_parser = Parser('/Users/trev/Documents/Networks/GE/GE2.IRIS.dataless')
+    '''
     ii_parser = Parser('/Users/trev/Documents/Networks/II/II.IRIS.dataless')
     
 folder = 'mseed_dump'
 
 cnt = 0
 
-for ev in evdict:
+for ev in evdict[100:]:
     #print(ev.keys())
     # check if event in polygons
     pt = Point(ev['lon'], ev['lat'])
@@ -307,11 +318,12 @@ for ev in evdict:
                 """
                 ###########################################################################
                 
-                # get IU network
-                t1 = ev['starttime'] - 60
+                # get II network
+                t1 = ev['starttime']
                 t2 = t1 + 2100 
-                bulk = [("II", "WRAB", "*", "[BH][HN]*", t1, t2)]  
-                
+                bulk = [("II", "WRAB", "*", "[BH][HN]*", t1, t2),
+                        ("II", "WRAB", "*", "[BH][HN]*", t1, t2)]  
+                '''
                 for b in bulk:
                     fname = '.'.join((ev['timestr'][:16],'II',b[1],'mseed')).replace(':','.')
                     fpath = path.join('mseed_dump', fname)
@@ -319,7 +331,13 @@ for ev in evdict:
                         st = get_arclink_event_data(b, fpath, ii_parser, ev)
                     except:
                         b = 1
-                st = get_arclink_event_data(b, fpath, ii_parser, ev)
+                '''
+                timetupple = (t1.year,
+                              t1.month,
+                              t1.day,
+                              t1.hour,
+                              t1.minute)
+                st, stname = get_iris_data(timetupple, 'WRAB', 'II')
                 #st = get_iris_event_data(bulk, folder, ev['timestr'][:16], ii_parser, ev)
                 
                 ###########################################################################

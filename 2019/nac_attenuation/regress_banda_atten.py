@@ -289,7 +289,9 @@ stdict = pickle.load(open("stdict.pkl", "rb" ))
 # setup inversions
 ################################################################################
 import scipy.odr.odrpack as odrpack
-xref = 1500 
+xref = 1500 # NGH
+xref = 650 # BS
+#xref = 1000 # OBE
 print('!!!!!!! CHECK THIS !!!!!! - BS xref=650')
 mrng = arange(5.3, 7.9, 0.1)
 mpltrng = 0.05
@@ -1312,8 +1314,8 @@ zone_group = get_field_data(sf, 'ZONE_GROUP', 'str')
 i = 0
 reg_stdict = []
 
-zgroup1 = 'NGH'
-zgroup2 = 'NGH'
+zgroup1 = 'BS'
+zgroup2 = 'BS'
 
 if zgroup1 == 'BS':
     mmin = 5.25
