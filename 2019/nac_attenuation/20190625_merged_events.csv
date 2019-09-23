@@ -102,7 +102,7 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 2014-10-01T03:38:51.760Z,-6.0706,149.5329,42,6,mww,,19,3.217,0.61,us,usb000shl2,2014-12-23T01:41:56.040Z,"16km N of Kandrian, Papua New Guinea",earthquake,4.8,1.7,,,reviewed,us,us
 2014-09-10T02:46:06.430Z,-0.2422,125.104,35,6.2,mww,,28,2.463,0.52,us,usb000say6,2014-12-08T23:30:55.040Z,"132km SE of Modayag, Indonesia",earthquake,5.7,1.8,,,reviewed,us,us
 2014-08-06T11:45:22.680Z,-7.2741,128.0364,10,6.2,mww,,16,3.309,0.89,us,usb000s0r6,2014-11-07T21:47:34.000Z,"Kepulauan Barat Daya, Indonesia",earthquake,,1.6,,,reviewed,us,us
-2014-08-03T00:22:03.680Z,0.8295,146.1688,13,6.9,mww,,12,6.393,0.93,us,usb000rzki,2014-10-29T19:52:56.000Z,"Federated States of Micronesia region",earthquake,,1.6,,,reviewed,us,us
+2014-08-03T00:22:03.680Z,0.8295,146.1688,13,6.9,mww,,12,6.393,0.93,us,usb000rzki,2014-10-29T19:52:56.000Z,Federated States of Micronesia region,earthquake,,1.6,,,reviewed,us,us
 2014-07-29T13:27:40.080Z,-3.422,146.769,9.77,6,mww,,14,5.436,0.86,us,usb000ry9u,2014-10-25T01:49:43.000Z,"164km SSW of Lorengau, Papua New Guinea",earthquake,,2.9,,,reviewed,us,us
 2014-07-04T15:00:27.860Z,-6.2304,152.8075,20,6.5,mww,,15,2.124,1.06,us,usc000rqgz,2014-10-04T19:59:55.000Z,"196km S of Taron, Papua New Guinea",earthquake,,1.8,,,reviewed,us,us
 2014-03-11T22:03:09.810Z,-3.0856,148.5531,7,6.1,mww,,17,1.574,1.22,us,usc000n8ez,2014-05-15T02:24:31.000Z,"184km SE of Lorengau, Papua New Guinea",earthquake,,1.7,,,reviewed,us,us
@@ -121,11 +121,11 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 2013-03-10T22:51:50.800Z,-6.598,148.174,28,6.5,mww,317,14.2,,1.26,us,usb000fij4,2017-10-11T20:27:31.581Z,"32km E of Finschhafen, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2012-12-17T09:16:30.900Z,-0.649,123.807,44.2,6.1,mww,424,24.6,,0.84,us,usp000jx2e,2014-11-07T01:49:37.275Z,"Sulawesi, Indonesia",earthquake,,3.3,,,reviewed,us,us
 2012-12-15T19:30:02.170Z,-4.632,153.016,52,6.1,mww,510,11.8,,0.87,us,usp000jx05,2017-10-11T20:20:54.238Z,"New Ireland region, Papua New Guinea",earthquake,,,,,reviewed,us,us
-2012-12-11T06:18:27.330Z,0.533,126.231,30,6,mww,445,35,,0.74,us,usp000jwu3,2015-06-30T16:59:04.026Z,"Molucca Sea",earthquake,,,,,reviewed,us,us
-2012-12-10T16:53:08.770Z,-6.533,129.825,155,7.1,mww,517,8.7,,0.95,us,usp000jwt8,2017-11-14T14:59:55.339Z,"Banda Sea",earthquake,,,,,reviewed,us,us
+2012-12-11T06:18:27.330Z,0.533,126.231,30,6,mww,445,35,,0.74,us,usp000jwu3,2015-06-30T16:59:04.026Z,Molucca Sea,earthquake,,,,,reviewed,us,us
+2012-12-10T16:53:08.770Z,-6.533,129.825,155,7.1,mww,517,8.7,,0.95,us,usp000jwt8,2017-11-14T14:59:55.339Z,Banda Sea,earthquake,,,,,reviewed,us,us
 2012-11-19T09:44:34.120Z,-5.705,151.602,13,6,mww,430,12.4,,0.88,us,usp000jvtm,2017-10-11T20:19:41.020Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2012-10-12T00:31:28.270Z,-4.892,134.03,13,6.6,mww,291,17.7,,0.98,us,usp000jtvw,2015-06-30T16:59:04.005Z,"near the south coast of Papua, Indonesia",earthquake,,,,,reviewed,us,us
-2012-10-08T11:43:31.420Z,-4.472,129.129,10,6.1,mww,493,14.3,,0.91,us,usp000jtqw,2015-06-30T16:59:04.004Z,"Banda Sea",earthquake,,,,,reviewed,us,us
+2012-10-08T11:43:31.420Z,-4.472,129.129,10,6.1,mww,493,14.3,,0.91,us,usp000jtqw,2015-06-30T16:59:04.004Z,Banda Sea,earthquake,,,,,reviewed,us,us
 2012-09-08T10:51:44.200Z,-3.177,135.109,21,6.1,mww,483,19.2,,0.8,us,usp000jrzt,2015-06-30T16:59:03.996Z,"Papua, Indonesia",earthquake,,,,,reviewed,us,us
 2012-09-03T18:23:05.230Z,-10.708,113.931,14,6.1,mww,389,15.5,,1.06,us,usp000jrkr,2015-06-30T16:59:03.994Z,"south of Java, Indonesia",earthquake,,,,,reviewed,us,us
 2012-08-19T22:41:49.810Z,-4.766,144.57,73,6.2,mww,478,13.3,,0.96,us,usp000jqha,2017-10-11T20:12:13.301Z,"near the north coast of New Guinea, Papua New Guinea",earthquake,,,,,reviewed,us,us
@@ -142,11 +142,11 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 2011-12-14T05:04:58.630Z,-7.551,146.809,135,7.1,mww,485,10.6,,0.78,us,usp000jc5z,2017-11-14T14:33:44.615Z,"eastern New Guinea region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2011-12-13T07:52:11.930Z,0.041,123.03,161,6,mww,536,13.9,,0.95,us,usp000jc4z,2015-05-13T18:54:01.000Z,"Minahasa, Sulawesi, Indonesia",earthquake,,,,,reviewed,us,us
 2011-11-28T12:26:45.450Z,-5.48,153.733,25,6.1,mww,265,15.1,,1.12,us,usp000jbhn,2015-06-30T16:59:03.912Z,"New Ireland region, Papua New Guinea",earthquake,,,,,reviewed,us,us
-2011-11-14T04:05:11.390Z,-0.949,126.91,17,6.3,mww,274,27.9,,1.04,us,usp000jav0,2017-04-26T18:12:48.828Z,"Molucca Sea",earthquake,,,,,reviewed,us,us
+2011-11-14T04:05:11.390Z,-0.949,126.91,17,6.3,mww,274,27.9,,1.04,us,usp000jav0,2017-04-26T18:12:48.828Z,Molucca Sea,earthquake,,,,,reviewed,us,us
 2011-10-18T05:05:06.250Z,-5.785,151.037,26,6.1,mww,360,14.9,,0.95,us,usp000j9ge,2015-06-30T16:59:03.901Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2011-10-14T03:35:14.810Z,-6.57,147.881,37,6.5,mww,423,12.6,,1.13,us,usp000j9as,2017-04-13T22:26:49.017Z,"eastern New Guinea region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2011-10-13T03:16:30.160Z,-9.35,114.587,39,6.1,mww,456,18.4,,1.07,us,usp000j99g,2015-06-30T16:59:03.899Z,"south of Bali, Indonesia",earthquake,,,,,reviewed,us,us
-2011-08-30T06:57:41.610Z,-6.362,126.752,469.8,6.9,mww,468,19.4,,0.9,us,usp000j78h,2015-05-13T18:54:00.000Z,"Banda Sea",earthquake,,2.9,,,reviewed,us,us
+2011-08-30T06:57:41.610Z,-6.362,126.752,469.8,6.9,mww,468,19.4,,0.9,us,usp000j78h,2015-05-13T18:54:00.000Z,Banda Sea,earthquake,,2.9,,,reviewed,us,us
 2011-08-16T11:03:56.430Z,-2.323,128.011,26,6.1,mww,323,20.9,,1.06,us,usp000j6hz,2015-06-30T16:59:03.882Z,"Ceram Sea, Indonesia",earthquake,,,,,reviewed,us,us
 2011-07-31T23:38:56.610Z,-3.518,144.828,10,6.6,mww,229,16.6,,0.96,us,usp000j5t4,2017-04-13T22:26:38.070Z,"near the north coast of New Guinea, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2011-07-25T00:50:47.590Z,-3.182,150.611,10,6.3,mww,256,15.9,,1.19,us,usp000j5eq,2017-04-26T18:12:24.114Z,"New Ireland region, Papua New Guinea",earthquake,,,,,reviewed,us,us
@@ -155,7 +155,7 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 2011-05-15T18:37:10.370Z,-6.104,154.414,40,6.4,mww,356,11.3,,1.21,us,usp000j1nf,2015-06-30T16:59:03.846Z,"Bougainville region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2011-04-24T23:07:51.490Z,-4.586,122.771,8,6.1,mww,204,40.8,,1.48,us,usp000j0hc,2017-04-13T22:26:22.114Z,"Sulawesi, Indonesia",earthquake,,,,,reviewed,us,us
 2011-04-03T20:06:40.390Z,-9.848,107.693,14,6.7,mww,270,20.3,,1.11,us,usp000hz7h,2015-06-30T16:59:03.821Z,"south of Java, Indonesia",earthquake,,,,,reviewed,us,us
-2011-03-10T17:08:36.860Z,-6.873,116.72,510.6,6.5,mww,492,14.8,,1.05,us,usp000hvn3,2015-06-30T16:59:03.793Z,"Bali Sea",earthquake,,3,,,reviewed,us,us
+2011-03-10T17:08:36.860Z,-6.873,116.72,510.6,6.5,mww,492,14.8,,1.05,us,usp000hvn3,2015-06-30T16:59:03.793Z,Bali Sea,earthquake,,3,,,reviewed,us,us
 2011-03-09T21:24:49.760Z,-5.985,149.777,29,6.4,mww,165,14.9,,1.33,us,usp000hvkj,2017-04-13T22:26:00.952Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2011-02-15T13:33:53.180Z,-2.497,121.483,16.2,6.1,mww,255,16,,1.33,us,usp000huje,2017-04-13T22:25:55.624Z,"Sulawesi, Indonesia",earthquake,,5.6,,,reviewed,us,us
 2010-12-15T11:29:30.840Z,-7.268,128.786,134.9,6,mwc,364,15.4,,0.92,us,usp000hqyf,2016-11-10T02:37:25.159Z,"Kepulauan Barat Daya, Indonesia",earthquake,,3.3,,,reviewed,us,gcmt
@@ -169,7 +169,7 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 2010-08-15T15:09:29.240Z,-5.692,148.342,174.7,6.3,mwb,372,15.7,,0.97,us,usp000hj8s,2016-11-09T08:31:39.831Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2010-08-04T22:01:43.620Z,-5.746,150.765,44,7,mww,396,12.7,,1.19,us,usp000hhhx,2018-10-17T20:33:30.457Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2010-08-04T07:15:33.510Z,-5.486,146.822,220,6.5,mwc,403,11.1,,0.97,us,usp000hhfk,2016-11-10T02:31:27.792Z,"eastern New Guinea region, Papua New Guinea",earthquake,,,,,reviewed,us,gcmt
-2010-08-03T12:08:25.950Z,1.239,126.213,41,6.3,mwc,259,42.9,,1.07,us,usp000hhe9,2016-11-10T02:31:24.399Z,"Molucca Sea",earthquake,,,,,reviewed,us,us
+2010-08-03T12:08:25.950Z,1.239,126.213,41,6.3,mwc,259,42.9,,1.07,us,usp000hhe9,2016-11-10T02:31:24.399Z,Molucca Sea,earthquake,,,,,reviewed,us,us
 2010-07-20T19:18:20.370Z,-5.902,150.712,24,6.3,mwc,323,18.7,,1.23,us,usp000hg73,2017-04-13T22:25:23.002Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,gcmt
 2010-07-18T13:34:59.360Z,-5.931,150.59,35,7.3,mwc,397,18.2,,1.16,us,usp000hfku,2018-10-17T20:33:22.049Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,gcmt
 2010-07-18T13:04:09.410Z,-5.966,150.428,28,6.9,mwc,456,15.7,,0.96,us,usp000hfka,2017-04-13T22:25:22.030Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,gcmt
@@ -180,19 +180,19 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 2010-04-24T07:41:00.410Z,-1.912,128.122,27,6,mwc,244,47.4,,1.01,us,usp000hbug,2016-11-09T08:22:52.370Z,"Kepulauan Obi, Indonesia",earthquake,,,,,reviewed,us,us
 2010-04-17T23:15:22.020Z,-6.669,147.291,53,6.2,mwc,435,16.6,,0.87,us,usp000hbjw,2017-04-13T22:25:04.389Z,"eastern New Guinea region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2010-04-07T14:33:01.930Z,-3.76,141.943,23,6,mwc,231,33,,1.01,us,usp000havw,2017-04-13T22:24:58.852Z,"New Guinea, Papua New Guinea",earthquake,,,,,reviewed,us,gcmt
-2010-04-05T10:05:44.630Z,-0.183,125.009,25,6.2,mww,287,37.8,,0.98,us,usp000hahs,2016-11-10T02:26:41.545Z,"Molucca Sea",earthquake,,,,,reviewed,us,us
+2010-04-05T10:05:44.630Z,-0.183,125.009,25,6.2,mww,287,37.8,,0.98,us,usp000hahs,2016-11-10T02:26:41.545Z,Molucca Sea,earthquake,,,,,reviewed,us,us
 2010-03-20T14:00:49.980Z,-3.361,152.245,414.6,6.6,mwc,519,11.8,,0.91,us,usp000h9ra,2016-11-10T02:26:05.413Z,"New Ireland region, Papua New Guinea",earthquake,,,,,reviewed,us,gcmt
 2010-03-14T00:57:44.700Z,-1.692,128.135,53,6.4,mwb,407,38.3,,1.12,us,usp000h9br,2017-04-26T18:10:36.710Z,"Kepulauan Obi, Indonesia",earthquake,,,,,reviewed,us,us
 2010-02-15T21:51:47.790Z,-7.217,128.723,126,6.2,mwc,415,28.9,,0.87,us,usp000h7bg,2016-11-09T08:16:22.486Z,"Kepulauan Barat Daya, Indonesia",earthquake,,,,,reviewed,us,us
 2010-02-01T22:28:16.920Z,-6.112,154.463,32,6.2,mwc,261,13.4,,1.02,us,usp000h6v7,2016-11-10T02:23:37.555Z,"Bougainville region, Papua New Guinea",earthquake,,,,,reviewed,us,us
-2009-12-26T08:57:27.720Z,-5.53,131.205,85,6.1,mwc,341,25.2,,0.83,us,usp000h5cu,2016-11-10T02:21:57.799Z,"Banda Sea",earthquake,,,,,reviewed,us,us
+2009-12-26T08:57:27.720Z,-5.53,131.205,85,6.1,mwc,341,25.2,,0.83,us,usp000h5cu,2016-11-10T02:21:57.799Z,Banda Sea,earthquake,,,,,reviewed,us,us
 2009-12-14T08:54:01.820Z,-5.958,154.444,39,6,mwc,215,18.5,,1.12,us,usp000h51c,2016-11-10T02:21:37.792Z,"Bougainville region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2009-11-28T06:04:22.200Z,-10.403,118.885,15,6,mwc,306,30.1,,1.04,us,usp000h4gy,2016-11-10T02:20:57.174Z,"south of Sumbawa, Indonesia",earthquake,,,,,reviewed,us,us
 2009-11-08T19:41:43.360Z,-8.207,118.631,18,6.6,mwc,305,20.4,,1.03,us,usp000h3vc,2017-04-26T18:09:43.155Z,"Sumbawa region, Indonesia",earthquake,,,,,reviewed,us,gcmt
-2009-10-24T14:40:43.720Z,-6.133,130.385,130,6.9,mwc,397,11,,0.81,us,usp000h3c5,2016-11-10T02:19:31.068Z,"Banda Sea",earthquake,,,,,reviewed,us,us
+2009-10-24T14:40:43.720Z,-6.133,130.385,130,6.9,mwc,397,11,,0.81,us,usp000h3c5,2016-11-10T02:19:31.068Z,Banda Sea,earthquake,,,,,reviewed,us,us
 2009-10-15T12:11:16.410Z,-3.058,139.539,105.7,6,mwc,172,19.8,,0.79,us,usp000h30d,2016-11-10T02:19:02.869Z,"Papua, Indonesia",earthquake,,6.3,,,reviewed,us,us
 2009-09-07T16:12:22.560Z,-10.198,110.628,23,6.2,mwc,349,21.6,,0.81,us,usp000h1af,2016-11-10T02:16:59.398Z,"south of Java, Indonesia",earthquake,,,,,reviewed,us,us
-2009-08-28T01:51:20.400Z,-7.146,123.427,642.4,6.9,mwc,350,19.5,,0.84,us,usp000h0y7,2016-11-10T02:16:38.054Z,"Banda Sea",earthquake,,,,,reviewed,us,us
+2009-08-28T01:51:20.400Z,-7.146,123.427,642.4,6.9,mwc,350,19.5,,0.84,us,usp000h0y7,2016-11-10T02:16:38.054Z,Banda Sea,earthquake,,,,,reviewed,us,us
 2009-08-02T08:54:33.360Z,-0.447,132.908,20,6.1,mwc,223,13.8,,0.88,us,usp000gzwu,2016-11-10T02:15:37.688Z,"near the north coast of Papua, Indonesia",earthquake,,,,,reviewed,us,us
 2009-07-15T20:10:42.660Z,-3.375,150.506,13.4,6.1,mwc,156,21.9,,1.05,us,usp000gz9k,2016-11-10T02:14:42.880Z,"New Ireland region, Papua New Guinea",earthquake,,16.2,,,reviewed,us,us
 2009-06-23T14:19:22.350Z,-5.157,153.782,64,6.7,mwc,269,13.8,,1.17,us,usp000gyhq,2017-04-26T18:09:19.261Z,"New Ireland region, Papua New Guinea",earthquake,,,,,reviewed,us,us
@@ -204,20 +204,20 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 2009-01-06T22:48:27.250Z,-0.659,133.434,16,6,mwc,159,27.7,,0.99,us,usp000gs9t,2017-04-26T18:08:54.102Z,"near the north coast of Papua, Indonesia",earthquake,,,,,reviewed,us,us
 2009-01-03T22:33:40.290Z,-0.691,133.305,23,7.4,mwc,314,21.1,,1.03,us,usp000gs3t,2017-11-13T18:02:33.734Z,"near the north coast of Papua, Indonesia",earthquake,,,,,reviewed,us,gcmt
 2009-01-03T19:43:50.650Z,-0.414,132.885,17,7.7,mwc,288,29.8,,1.27,us,usp000gs2d,2018-10-17T20:29:53.987Z,"near the north coast of Papua, Indonesia",earthquake,,,,,reviewed,us,gcmt
-2008-12-06T10:55:26.350Z,-7.393,124.745,398,6.4,mwc,416,35.2,,0.81,us,usp000gq1h,2016-11-10T02:05:01.419Z,"Banda Sea",earthquake,,,,,reviewed,us,us
+2008-12-06T10:55:26.350Z,-7.393,124.745,398,6.4,mwc,416,35.2,,0.81,us,usp000gq1h,2016-11-10T02:05:01.419Z,Banda Sea,earthquake,,,,,reviewed,us,us
 2008-11-16T17:02:32.700Z,1.271,122.091,30,7.4,mww,365,33.7,,1.1,us,usp000gnur,2017-11-13T17:59:59.349Z,"Minahasa, Sulawesi, Indonesia",earthquake,,,,,reviewed,us,us
-2008-11-07T16:04:23.350Z,-6.712,129.074,10,6.2,mwc,251,28.5,,0.96,us,usp000gn66,2016-11-10T02:03:47.460Z,"Banda Sea",earthquake,,,,,reviewed,us,us
-2008-11-01T01:13:09.640Z,-3.399,148.712,10,6,mwc,136,29.4,,1.07,us,usp000gmjn,2016-11-10T02:03:30.262Z,"Bismarck Sea",earthquake,,,,,reviewed,us,gcmt
+2008-11-07T16:04:23.350Z,-6.712,129.074,10,6.2,mwc,251,28.5,,0.96,us,usp000gn66,2016-11-10T02:03:47.460Z,Banda Sea,earthquake,,,,,reviewed,us,us
+2008-11-01T01:13:09.640Z,-3.399,148.712,10,6,mwc,136,29.4,,1.07,us,usp000gmjn,2016-11-10T02:03:30.262Z,Bismarck Sea,earthquake,,,,,reviewed,us,gcmt
 2008-10-28T16:00:03.240Z,-3.494,145.867,18.3,6,mwc,99,43.7,,1.24,us,usp000gm7s,2016-11-10T02:03:17.651Z,"near the north coast of New Guinea, Papua New Guinea",earthquake,,24.9,,,reviewed,us,us
 2008-10-23T10:04:35.040Z,-2.635,145.574,10,6.3,mwc,256,17.3,,1.33,us,usp000gkuz,2016-11-10T02:03:04.096Z,"Admiralty Islands region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2008-08-30T06:54:07.610Z,-6.146,147.258,75,6.4,mwc,440,13.6,,1.15,us,usp000gfzr,2017-04-13T22:22:47.442Z,"eastern New Guinea region, Papua New Guinea",earthquake,,,,,reviewed,us,gcmt
-2008-08-04T20:45:13.970Z,-5.916,130.195,173.9,6.3,mwc,469,17.4,,0.84,us,usp000gdus,2016-11-10T01:59:39.019Z,"Banda Sea",earthquake,,,,,reviewed,us,us
+2008-08-04T20:45:13.970Z,-5.916,130.195,173.9,6.3,mwc,469,17.4,,0.84,us,usp000gdus,2016-11-10T01:59:39.019Z,Banda Sea,earthquake,,,,,reviewed,us,us
 2008-06-06T13:42:48.950Z,-7.495,127.885,122,6,mwc,262,21.9,,0.86,us,usp000g8qr,2016-11-10T01:57:04.058Z,"Kepulauan Barat Daya, Indonesia",earthquake,,,,,reviewed,us,us
 2008-06-03T22:04:27.870Z,-8.1,120.231,14,6,mwc,130,39.9,,0.89,us,usp000g8gp,2017-04-26T18:08:16.483Z,"Flores region, Indonesia",earthquake,,,,,reviewed,us,us
 2008-04-19T10:21:12.500Z,-7.875,125.722,10,6,mwb,162,37.2,,1.04,us,usp000g4af,2017-04-13T22:22:17.603Z,"Kepulauan Barat Daya, Indonesia",earthquake,,,,,reviewed,us,us
 2008-04-19T03:12:25.180Z,-7.815,125.694,13,6.1,mwc,207,37.4,,1.17,us,usp000g49j,2017-04-26T18:08:04.170Z,"Kepulauan Barat Daya, Indonesia",earthquake,,,,,reviewed,us,us
-2008-02-13T19:58:46.130Z,-8.158,128.644,19,6.2,mwc,370,33.4,,0.93,us,usp000fyuj,2016-11-10T01:51:48.112Z,"Timor Sea",earthquake,,,,,reviewed,us,us
-2008-02-09T18:34:01.600Z,-0.236,125.084,38,6,mwc,204,28,,1.15,us,usp000fyhw,2016-11-10T01:51:39.394Z,"Molucca Sea",earthquake,,,,,reviewed,us,gcmt
+2008-02-13T19:58:46.130Z,-8.158,128.644,19,6.2,mwc,370,33.4,,0.93,us,usp000fyuj,2016-11-10T01:51:48.112Z,Timor Sea,earthquake,,,,,reviewed,us,us
+2008-02-09T18:34:01.600Z,-0.236,125.084,38,6,mwc,204,28,,1.15,us,usp000fyhw,2016-11-10T01:51:39.394Z,Molucca Sea,earthquake,,,,,reviewed,us,gcmt
 2008-01-30T07:32:42.800Z,-7.302,127.688,8,6.2,mwc,321,31.6,,1.05,us,usp000fxrt,2016-11-10T01:51:13.136Z,"Kepulauan Barat Daya, Indonesia",earthquake,,,,,reviewed,us,us
 2008-01-01T18:54:59.010Z,-5.878,146.884,34,6.3,mwc,373,16.5,,1.13,us,usp000fvt8,2017-04-26T18:07:38.560Z,"eastern New Guinea region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2007-12-22T07:11:08.100Z,-2.407,139.067,20,6.2,mwc,280,16.5,,1.22,us,usp000fv00,2017-04-26T18:07:36.261Z,"near the north coast of Papua, Indonesia",earthquake,,,,,reviewed,us,gcmt
@@ -228,25 +228,25 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 2007-11-22T08:48:27.530Z,-5.757,147.098,53,6.8,mwc,341,15.9,,1.18,us,usp000ft2k,2017-04-26T18:07:25.167Z,"eastern New Guinea region, Papua New Guinea",earthquake,,,,,reviewed,us,gcmt
 2007-10-09T15:03:41.210Z,-4.808,152.892,39,6,mwb,356,16.6,,0.99,us,usp000fq6r,2016-11-10T01:46:42.437Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2007-09-26T12:36:26.890Z,-4.99,153.5,40,6.8,mwc,348,15.5,,1.1,us,usp000fp59,2017-04-13T22:21:32.479Z,"New Ireland region, Papua New Guinea",earthquake,,,,,reviewed,us,gcmt
-2007-08-17T03:04:03.090Z,-5.261,129.432,10,6.4,mwc,293,36.5,,1.14,us,usp000fjzv,2016-11-10T01:43:49.022Z,"Banda Sea",earthquake,,,,,reviewed,us,gcmt
+2007-08-17T03:04:03.090Z,-5.261,129.432,10,6.4,mwc,293,36.5,,1.14,us,usp000fjzv,2016-11-10T01:43:49.022Z,Banda Sea,earthquake,,,,,reviewed,us,gcmt
 2007-08-08T17:04:57.840Z,-5.926,107.681,291.2,6.1,mb,531,32.1,,1.05,us,usp000fj6j,2017-04-13T22:21:20.750Z,"Java, Indonesia",earthquake,,2.9,,116,reviewed,us,us
 2007-06-28T02:52:10.990Z,-7.979,154.635,18,6.7,mwb,419,15.8,,1.07,us,usp000ff08,2016-11-10T01:41:37.304Z,"Bougainville region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2007-06-26T22:23:03.040Z,-10.492,108.149,10,6,mwc,327,25.1,,0.92,us,usp000fexm,2016-11-10T01:41:36.271Z,"south of Java, Indonesia",earthquake,,,,,reviewed,us,gcmt
 2007-06-18T06:18:45.680Z,-3.55,150.962,9,6.3,mwc,301,25.1,,1.25,us,usp000fe95,2016-11-10T01:41:16.654Z,"New Ireland region, Papua New Guinea",earthquake,,,,,reviewed,us,gcmt
-2007-06-07T00:40:38.130Z,-3.316,146.761,4.7,6.2,mwb,117,48,,1.04,us,usp000fdh6,2016-11-10T01:40:52.923Z,"Bismarck Sea",earthquake,,20.4,,,reviewed,us,us
+2007-06-07T00:40:38.130Z,-3.316,146.761,4.7,6.2,mwb,117,48,,1.04,us,usp000fdh6,2016-11-10T01:40:52.923Z,Bismarck Sea,earthquake,,20.4,,,reviewed,us,us
 2007-05-29T09:36:05.600Z,-1.065,127.343,24,6.1,mwc,334,40.2,,1.12,us,usp000fcze,2017-04-26T18:06:49.363Z,"Kepulauan Obi, Indonesia",earthquake,,,,,reviewed,us,gcmt
 2007-05-29T01:03:27.920Z,-4.587,151.841,132.5,6.1,mwb,364,19.3,,0.88,us,usp000fcyh,2016-11-10T01:40:34.809Z,"New Britain region, Papua New Guinea",earthquake,,4.7,,,reviewed,us,us
 2007-04-21T07:12:48.060Z,-3.548,151.266,407.4,6.1,mwb,441,17.2,,0.82,us,usp000fa89,2016-11-10T01:39:03.921Z,"New Ireland region, Papua New Guinea",earthquake,,,,,reviewed,us,us
-2007-03-17T17:42:26.290Z,1.132,126.216,35,6.2,mwb,328,36.8,,0.96,us,usp000f6w4,2016-11-10T01:37:01.641Z,"Molucca Sea",earthquake,,,,,reviewed,us,us
+2007-03-17T17:42:26.290Z,1.132,126.216,35,6.2,mwb,328,36.8,,0.96,us,usp000f6w4,2016-11-10T01:37:01.641Z,Molucca Sea,earthquake,,,,,reviewed,us,us
 2007-02-20T14:25:26.340Z,-1.032,126.975,11,6,mwc,176,40.4,,1.07,us,usp000f582,2016-11-10T01:35:55.829Z,"Kepulauan Sula, Indonesia",earthquake,,,,,reviewed,us,gcmt
 2007-02-20T08:04:25.280Z,-1.034,126.976,12,6.7,mwc,253,40.3,,1.07,us,usp000f57a,2017-04-26T18:06:34.257Z,"Kepulauan Sula, Indonesia",earthquake,,,,,reviewed,us,gcmt
-2007-01-21T17:32:55.520Z,1.06,126.345,23,6.2,mwc,225,41,,0.86,us,usp000f368,2016-11-10T01:34:05.271Z,"Molucca Sea",earthquake,,,,,reviewed,us,gcmt
-2007-01-21T11:27:45.060Z,1.065,126.282,22,7.5,mwc,570,21.6,,1.22,us,usp000f34b,2018-10-17T20:28:04.961Z,"Molucca Sea",earthquake,,,,,reviewed,us,gcmt
+2007-01-21T17:32:55.520Z,1.06,126.345,23,6.2,mwc,225,41,,0.86,us,usp000f368,2016-11-10T01:34:05.271Z,Molucca Sea,earthquake,,,,,reviewed,us,gcmt
+2007-01-21T11:27:45.060Z,1.065,126.282,22,7.5,mwc,570,21.6,,1.22,us,usp000f34b,2018-10-17T20:28:04.961Z,Molucca Sea,earthquake,,,,,reviewed,us,gcmt
 2007-01-17T04:28:26.660Z,-3.322,139.834,100.8,6,mwb,128,41,,0.9,us,usp000f2uh,2016-11-10T01:33:45.830Z,"Papua, Indonesia",earthquake,,8.2,,,reviewed,us,us
 2007-01-11T14:31:20.740Z,-3.655,127.283,13,6,mwc,283,41.4,,1.02,us,usp000f26m,2017-04-26T18:06:30.237Z,"Seram, Indonesia",earthquake,,,,,reviewed,us,gcmt
 2006-12-27T20:15:38.640Z,-5.724,154.424,355,6,mwb,394,15.1,,0.79,us,usp000f14z,2016-11-10T01:32:47.902Z,"Bougainville region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2006-12-01T14:01:44.260Z,-8.261,118.753,19,6.3,mwc,205,41.6,,1.17,us,usp000ez9y,2017-04-13T22:20:42.731Z,"Sumbawa region, Indonesia",earthquake,,,,,reviewed,us,gcmt
-2006-11-14T14:21:01.320Z,-6.39,127.998,345,6.1,mwb,286,32.2,,0.87,us,usp000exd5,2016-11-10T01:30:57.291Z,"Banda Sea",earthquake,,,,,reviewed,us,us
+2006-11-14T14:21:01.320Z,-6.39,127.998,345,6.1,mwb,286,32.2,,0.87,us,usp000exd5,2016-11-10T01:30:57.291Z,Banda Sea,earthquake,,,,,reviewed,us,us
 2006-11-13T16:12:28.980Z,-6.38,151.23,11,6.2,mwc,396,16.3,,0.89,us,usp000exac,2016-11-10T01:30:54.022Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,gcmt
 2006-11-12T18:21:26.140Z,-6.225,151.05,12,6.2,mwc,521,15.9,,1.01,us,usp000ex81,2017-04-26T18:06:23.255Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,gcmt
 2006-11-07T17:38:33.800Z,-6.482,151.195,11,6.6,mwc,352,18.6,,1.05,us,usp000ewu6,2017-04-26T18:06:22.034Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,gcmt
@@ -254,7 +254,7 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 2006-10-17T01:25:12.230Z,-5.881,150.982,32,6.7,mwc,533,15.6,,1.02,us,usp000evbu,2017-04-26T18:06:18.346Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,gcmt
 2006-09-21T18:54:50.050Z,-9.05,110.365,25,6,mwc,237,24.2,,1.13,us,usp000ethq,2016-11-10T01:28:29.852Z,"south of Java, Indonesia",earthquake,,,,,reviewed,us,gcmt
 2006-09-16T09:45:23.910Z,-3.08,129.441,17,6.3,mwb,209,56.2,,1.16,us,usp000et62,2017-04-26T18:06:14.064Z,"Seram, Indonesia",earthquake,,,,,reviewed,us,us
-2006-09-09T04:13:12.060Z,-7.219,120.106,572,6.3,mwb,357,29.5,,0.92,us,usp000esrb,2016-11-10T01:28:03.679Z,"Flores Sea",earthquake,,,,,reviewed,us,us
+2006-09-09T04:13:12.060Z,-7.219,120.106,572,6.3,mwb,357,29.5,,0.92,us,usp000esrb,2016-11-10T01:28:03.679Z,Flores Sea,earthquake,,,,,reviewed,us,us
 2006-07-23T08:22:04.160Z,-0.336,123.286,28,6,mwc,308,33.2,,1.16,us,usp000epcn,2017-04-26T18:06:05.453Z,"Sulawesi, Indonesia",earthquake,,,,,reviewed,us,hrv
 2006-07-19T11:48:58.290Z,-5.474,150.684,28.2,6.4,mwc,133,32.1,,1.17,us,usp000ep3b,2017-04-13T22:20:21.288Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 2006-07-17T15:45:59.820Z,-9.42,108.319,21,6.1,mwb,252,34.9,,1.14,us,usp000enuy,2016-11-10T01:25:39.887Z,"south of Java, Indonesia",earthquake,,,,,reviewed,us,us
@@ -262,26 +262,26 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 2006-06-24T21:15:00.920Z,-0.39,123.195,26,6.3,mwb,331,33.1,,1.29,us,usp000em69,2017-04-26T18:06:01.325Z,"Sulawesi, Indonesia",earthquake,,,,,reviewed,us,us
 2006-05-28T03:12:08.760Z,-5.724,151.133,34,6.5,mwc,477,20.3,,0.9,us,usp000ej4t,2017-04-26T18:05:56.182Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 2006-05-26T22:53:58.920Z,-7.961,110.446,12.5,6.3,mwb,213,42.8,,1.32,us,usp000ej1c,2017-04-26T18:05:55.551Z,"Java, Indonesia",earthquake,,,,,reviewed,us,us
-2006-05-22T20:53:57.410Z,-4.715,126.811,2.8,6.1,mwb,109,49.9,,1.33,us,usp000ehr1,2016-11-10T01:22:36.699Z,"Banda Sea",earthquake,,24.9,,,reviewed,us,us
-2006-05-19T14:44:24.900Z,-0.143,124.713,35,6.3,mwc,298,44.8,,0.99,us,usp000ehgc,2016-11-10T01:22:29.970Z,"Molucca Sea",earthquake,,,,,reviewed,us,hrv
+2006-05-22T20:53:57.410Z,-4.715,126.811,2.8,6.1,mwb,109,49.9,,1.33,us,usp000ehr1,2016-11-10T01:22:36.699Z,Banda Sea,earthquake,,24.9,,,reviewed,us,us
+2006-05-19T14:44:24.900Z,-0.143,124.713,35,6.3,mwc,298,44.8,,0.99,us,usp000ehgc,2016-11-10T01:22:29.970Z,Molucca Sea,earthquake,,,,,reviewed,us,hrv
 2006-03-24T12:27:05.380Z,-3.245,143.144,12,6.1,mwb,194,33.2,,0.97,us,usp000ecub,2017-04-26T18:05:30.893Z,"near the north coast of New Guinea, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2006-03-14T06:57:33.860Z,-3.595,127.214,30.1,6.7,mwb,306,21.3,,1.17,us,usp000ec4d,2017-04-26T18:05:27.677Z,"Seram, Indonesia",earthquake,,,,,reviewed,us,us
 2006-02-18T15:59:22.090Z,-5.193,152.053,44.2,6.2,mwb,331,19.2,,0.97,us,usp000eaa9,2016-11-10T01:17:47.834Z,"New Britain region, Papua New Guinea",earthquake,,7.8,,,reviewed,us,us
-2006-01-27T16:58:53.670Z,-5.473,128.131,397,7.6,mwc,560,22.3,,0.88,us,usp000e8ys,2017-11-08T18:38:50.089Z,"Banda Sea",earthquake,,,,,reviewed,us,hrv
-2006-01-15T11:58:29.120Z,-7.826,122.597,264.8,6.1,mwb,339,39.1,,0.99,us,usp000e896,2016-11-10T01:16:46.221Z,"Flores Sea",earthquake,,,,,reviewed,us,us
-2005-12-21T07:09:05.170Z,-0.066,124.672,25,6.3,mwc,380,40.3,,0.99,us,usp000e6ht,2016-11-10T01:16:04.779Z,"Molucca Sea",earthquake,,,,,reviewed,us,hrv
+2006-01-27T16:58:53.670Z,-5.473,128.131,397,7.6,mwc,560,22.3,,0.88,us,usp000e8ys,2017-11-08T18:38:50.089Z,Banda Sea,earthquake,,,,,reviewed,us,hrv
+2006-01-15T11:58:29.120Z,-7.826,122.597,264.8,6.1,mwb,339,39.1,,0.99,us,usp000e896,2016-11-10T01:16:46.221Z,Flores Sea,earthquake,,,,,reviewed,us,us
+2005-12-21T07:09:05.170Z,-0.066,124.672,25,6.3,mwc,380,40.3,,0.99,us,usp000e6ht,2016-11-10T01:16:04.779Z,Molucca Sea,earthquake,,,,,reviewed,us,hrv
 2005-12-11T14:20:45.000Z,-6.584,152.223,17,6.6,mwc,503,17.5,,0.85,us,usp000e5zd,2016-11-10T01:15:38.594Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 2005-12-08T09:01:27.110Z,-5.408,146.953,216.8,6.1,mwb,431,21.1,,0.85,us,usp000e5sc,2016-11-10T01:15:30.996Z,"eastern New Guinea region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2005-11-22T15:11:31.580Z,-5.154,145.284,68,6.2,mwc,172,41,,0.98,us,usp000e4qd,2017-04-26T18:05:07.560Z,"eastern New Guinea region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
-2005-11-05T10:48:21.220Z,-3.149,148.143,25,6.4,mwc,147,31.5,,1.31,us,usp000e3j8,2016-11-10T01:14:04.988Z,"Bismarck Sea",earthquake,,0,,,reviewed,us,hrv
+2005-11-05T10:48:21.220Z,-3.149,148.143,25,6.4,mwc,147,31.5,,1.31,us,usp000e3j8,2016-11-10T01:14:04.988Z,Bismarck Sea,earthquake,,0,,,reviewed,us,hrv
 2005-09-29T18:23:25.980Z,-5.563,151.865,28,6.2,mwc,312,44.5,,1.08,us,usp000e0hb,2017-04-26T18:04:45.011Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 2005-09-29T15:50:24.030Z,-5.437,151.84,25,6.6,mwc,402,17.7,,0.87,us,usp000e0h0,2017-04-26T18:04:44.425Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 2005-09-09T07:26:43.730Z,-4.539,153.474,90,7.6,mwc,502,20,,1.04,us,usp000dz2j,2018-10-17T20:26:47.420Z,"New Ireland region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 2005-06-15T10:13:59.390Z,-4.595,153.191,74.6,6.2,mwb,400,22.4,,0.92,us,usp000dt3u,2017-04-26T18:04:25.728Z,"New Ireland region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2005-06-04T14:50:46.650Z,-6.319,146.846,26,6.1,mwb,411,21.9,,0.98,us,usp000ds6y,2017-04-26T18:04:23.751Z,"eastern New Guinea region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2005-04-11T12:20:05.960Z,-3.484,145.909,11.4,6.6,mwc,211,26,,1.07,us,usp000dn1w,2016-11-10T01:04:49.179Z,"near the north coast of New Guinea, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
-2005-03-26T15:40:34.530Z,-4.894,129.938,10,6.1,mwb,202,29.3,,0.86,us,usp000dk3v,2016-11-10T01:03:23.905Z,"Banda Sea",earthquake,,,,,reviewed,us,us
-2005-03-02T10:42:12.230Z,-6.527,129.933,201.7,7.1,mwb,569,18.1,,1.16,us,usp000dhc1,2017-11-08T18:25:54.663Z,"Banda Sea",earthquake,,,,,reviewed,us,us
+2005-03-26T15:40:34.530Z,-4.894,129.938,10,6.1,mwb,202,29.3,,0.86,us,usp000dk3v,2016-11-10T01:03:23.905Z,Banda Sea,earthquake,,,,,reviewed,us,us
+2005-03-02T10:42:12.230Z,-6.527,129.933,201.7,7.1,mwb,569,18.1,,1.16,us,usp000dhc1,2017-11-08T18:25:54.663Z,Banda Sea,earthquake,,,,,reviewed,us,us
 2005-02-23T11:33:52.900Z,-6.245,150.66,10,6,mwc,311,20.9,,0.87,us,usp000dgt7,2017-04-26T18:03:56.955Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 2005-02-19T00:04:43.590Z,-5.562,122.129,10,6.5,mwb,371,31.8,,0.92,us,usp000dgfv,2017-04-26T18:03:54.528Z,"Sulawesi, Indonesia",earthquake,,,,,reviewed,us,us
 2005-02-07T20:02:17.690Z,-4.525,153.187,36.5,6.1,mwb,381,25.6,,1.03,us,usp000dfp5,2017-04-26T18:03:50.001Z,"New Ireland region, Papua New Guinea",earthquake,,7.8,,,reviewed,us,us
@@ -296,10 +296,10 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 2004-10-06T22:30:56.950Z,-0.67,134.426,10,6.2,mwc,154,33.5,,1.18,us,usp000d5x0,2016-11-10T00:48:00.103Z,"near the north coast of Papua, Indonesia",earthquake,,,,,reviewed,us,hrv
 2004-07-28T03:56:28.600Z,-0.443,133.091,13.4,6.5,mwc,305,39,,1.07,us,usp000d0zn,2017-04-26T18:02:46.763Z,"near the north coast of Papua, Indonesia",earthquake,,,,,reviewed,us,hrv
 2004-06-30T23:37:25.450Z,0.797,124.726,90.8,6.3,mwb,387,49.3,,0.89,us,usp000cza8,2017-04-13T22:17:36.328Z,"Minahasa, Sulawesi, Indonesia",earthquake,,,,,reviewed,us,us
-2004-06-25T02:35:07.790Z,-6.711,130.375,70.5,6.1,mwb,422,37.2,,0.82,us,usp000cyqg,2016-11-10T00:38:36.297Z,"Banda Sea",earthquake,,,,,reviewed,us,us
+2004-06-25T02:35:07.790Z,-6.711,130.375,70.5,6.1,mwb,422,37.2,,0.82,us,usp000cyqg,2016-11-10T00:38:36.297Z,Banda Sea,earthquake,,,,,reviewed,us,us
 2004-05-13T09:58:43.450Z,-3.584,150.73,10,6.4,mwc,226,21.9,,1,us,usp000cuxg,2016-11-10T00:34:25.885Z,"New Ireland region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
-2004-04-23T01:50:30.220Z,-9.362,122.839,65.8,6.7,mwb,386,27.6,,1.13,us,usp000ct64,2016-11-10T00:32:15.603Z,"Savu Sea",earthquake,,,,,reviewed,us,us
-2004-04-22T14:16:07.000Z,-3.355,146.853,35,6,mwb,135,43.1,,1.23,us,usp000ct4r,2016-11-10T00:32:12.566Z,"Bismarck Sea",earthquake,,0,,,reviewed,us,us
+2004-04-23T01:50:30.220Z,-9.362,122.839,65.8,6.7,mwb,386,27.6,,1.13,us,usp000ct64,2016-11-10T00:32:15.603Z,Savu Sea,earthquake,,,,,reviewed,us,us
+2004-04-22T14:16:07.000Z,-3.355,146.853,35,6,mwb,135,43.1,,1.23,us,usp000ct4r,2016-11-10T00:32:12.566Z,Bismarck Sea,earthquake,,0,,,reviewed,us,us
 2004-04-11T07:37:29.850Z,-3.729,140.081,20,6.2,mwc,236,32.6,,0.97,us,usp000cs7z,2017-04-26T18:02:31.826Z,"Papua, Indonesia",earthquake,,,,,reviewed,us,hrv
 2004-02-08T08:58:51.800Z,-3.665,135.339,25.7,6.7,mwc,256,33.3,,1.08,us,usp000ckq7,2017-04-26T18:02:20.782Z,"Papua, Indonesia",earthquake,,9,,,reviewed,us,hrv
 2004-02-07T02:42:35.210Z,-4.003,135.023,10,7.3,mwb,390,23,,1.01,us,usp000ckks,2017-11-08T17:58:31.847Z,"near the south coast of Papua, Indonesia",earthquake,,,,,reviewed,us,us
@@ -310,7 +310,7 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 2003-11-25T20:19:46.290Z,-5.581,150.88,35,6.6,mwb,384,25.1,,0.9,us,usp000cdw2,2017-04-26T18:02:09.797Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2003-10-28T02:33:51.520Z,-5.376,151.509,65,6,mwc,417,29.5,,0.82,us,usp000cbej,2016-11-10T00:50:16.919Z,"New Britain region, Papua New Guinea",earthquake,,2.4,,,reviewed,us,hrv
 2003-10-22T11:45:30.840Z,-6.058,147.727,53.5,6.3,mwb,431,18.3,,0.79,us,usp000cb09,2017-04-26T18:02:03.347Z,"eastern New Guinea region, Papua New Guinea",earthquake,,2.3,,,reviewed,us,us
-2003-10-18T22:27:13.250Z,0.444,126.103,33,6.4,mwc,341,35.1,,1.02,us,usp000caqx,2016-11-10T00:49:19.816Z,"Molucca Sea",earthquake,,,,,reviewed,us,hrv
+2003-10-18T22:27:13.250Z,0.444,126.103,33,6.4,mwc,341,35.1,,1.02,us,usp000caqx,2016-11-10T00:49:19.816Z,Molucca Sea,earthquake,,,,,reviewed,us,hrv
 2003-10-17T10:19:06.820Z,-5.471,154.155,133,6.4,mwb,507,28,,0.98,us,usp000caku,2016-11-10T00:49:14.047Z,"Bougainville region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2003-09-12T06:55:55.800Z,-5.273,151.502,50.4,6,mwb,495,36.2,,0.87,us,usp000c7at,2016-11-10T00:45:41.994Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2003-08-28T06:38:11.630Z,-7.324,126.051,409.2,6,mwc,325,40.5,,0.86,us,usp000c63v,2016-11-09T23:21:05.633Z,"Kepulauan Barat Daya, Indonesia",earthquake,,,,,reviewed,us,hrv
@@ -319,24 +319,24 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 2003-07-21T13:53:58.490Z,-5.481,148.853,189.6,6.4,mwb,465,19.2,,0.9,us,usp000c30q,2016-11-10T00:40:48.755Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2003-07-15T18:46:38.120Z,-3.828,152.174,33,6.5,mwb,156,31.4,,1.12,us,usp000c2k4,2017-04-26T18:01:37.679Z,"New Ireland region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2003-07-04T00:33:50.040Z,-5.473,151.691,10,6.1,mwc,233,30.9,,1.01,us,usp000c1kd,2017-04-26T18:01:34.211Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
-2003-06-28T15:29:42.260Z,-3.325,146.148,10,6.3,mwc,110,46.4,,1.2,us,usp000c15v,2016-11-10T00:38:53.140Z,"Bismarck Sea",earthquake,,,,,reviewed,us,hrv
+2003-06-28T15:29:42.260Z,-3.325,146.148,10,6.3,mwc,110,46.4,,1.2,us,usp000c15v,2016-11-10T00:38:53.140Z,Bismarck Sea,earthquake,,,,,reviewed,us,hrv
 2003-06-07T00:32:45.570Z,-5.095,152.502,33,6.6,mwc,419,27.8,,1.09,us,usp000bz8p,2017-04-26T18:01:28.959Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
-2003-05-11T17:51:35.140Z,-0.988,126.938,30.2,6.1,mwc,201,34.5,,1.05,us,usp000bx1v,2016-11-10T00:34:06.276Z,"Molucca Sea",earthquake,,,,,reviewed,us,hrv
+2003-05-11T17:51:35.140Z,-0.988,126.938,30.2,6.1,mwc,201,34.5,,1.05,us,usp000bx1v,2016-11-10T00:34:06.276Z,Molucca Sea,earthquake,,,,,reviewed,us,hrv
 2003-05-05T15:50:08.470Z,0.215,127.354,123.6,6.4,mwb,244,31.6,,0.87,us,usp000bwnz,2016-11-10T00:33:27.388Z,"Halmahera, Indonesia",earthquake,,,,,reviewed,us,us
 2003-03-31T01:06:53.050Z,-6.183,151.429,46.8,6.2,mwc,298,34.6,,0.77,us,usp000btzf,2016-11-10T00:30:16.914Z,"New Britain region, Papua New Guinea",earthquake,,2.1,,,reviewed,us,hrv
 2003-03-30T18:13:34.090Z,-3.169,127.542,33,6.2,mwb,209,40.5,,1.09,us,usp000btyb,2017-04-26T18:01:17.376Z,"Seram, Indonesia",earthquake,,,,,reviewed,us,us
 2003-03-25T02:53:25.030Z,-8.294,120.743,33,6.5,mwc,247,28.7,,1.34,us,usp000btf5,2017-04-26T18:01:15.596Z,"Flores region, Indonesia",earthquake,,,,,reviewed,us,hrv
 2003-03-14T07:06:13.310Z,-0.406,132.951,33,6.3,mwb,249,38.5,,1.09,us,usp000bsm6,2017-04-26T18:01:13.841Z,"near the north coast of Papua, Indonesia",earthquake,,,,,reviewed,us,us
 2003-03-11T07:27:32.650Z,-4.694,153.238,40.2,6.8,mwc,431,38.4,,0.96,us,usp000bsdd,2017-04-26T18:01:12.097Z,"New Ireland region, Papua New Guinea",earthquake,,2.8,,,reviewed,us,hrv
-2003-03-09T10:36:23.030Z,-6.82,130.985,45.9,6,mwc,288,51.4,,0.88,us,usp000bs9a,2016-11-10T00:28:11.106Z,"Banda Sea",earthquake,,1.8,,,reviewed,us,hrv
+2003-03-09T10:36:23.030Z,-6.82,130.985,45.9,6,mwc,288,51.4,,0.88,us,usp000bs9a,2016-11-10T00:28:11.106Z,Banda Sea,earthquake,,1.8,,,reviewed,us,hrv
 2003-03-01T06:12:47.400Z,-1.699,134.313,28.1,6,mwb,147,40.9,,1.18,us,usp000brqa,2016-11-09T21:59:15.597Z,"near the north coast of Papua, Indonesia",earthquake,,,,,reviewed,us,us
 2003-02-12T22:33:30.830Z,-3.652,144.242,10,6.2,mwc,374,,,0.84,us,usp000bqj9,2017-04-26T18:01:07.406Z,"near the north coast of New Guinea, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 2003-02-10T04:49:31.120Z,-6.011,149.792,33,6.3,mwc,201,,,0.99,us,usp000bqc9,2017-04-26T18:01:06.807Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 2003-01-10T13:11:56.910Z,-5.311,153.701,71.9,6.7,mwb,323,,,1.09,us,usp000bnbn,2016-11-10T00:23:00.069Z,"New Ireland region, Papua New Guinea",earthquake,,,,,reviewed,us,us
-2002-12-20T14:14:42.050Z,-3.076,147.943,33,6.3,mwc,169,,,1.21,us,usp000bm1t,2016-11-10T00:55:30.113Z,"Bismarck Sea",earthquake,,,,,reviewed,us,hrv
+2002-12-20T14:14:42.050Z,-3.076,147.943,33,6.3,mwc,169,,,1.21,us,usp000bm1t,2016-11-10T00:55:30.113Z,Bismarck Sea,earthquake,,,,,reviewed,us,hrv
 2002-12-12T08:30:42.770Z,-4.786,153.275,34,6.7,mwb,453,,,1.01,us,usp000bkjf,2017-04-26T18:00:59.081Z,"New Ireland region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2002-12-11T03:49:40.190Z,-3.81,135.123,10,6.3,mwb,129,,,1.06,us,usp000bkg3,2017-04-26T18:00:57.018Z,"Papua, Indonesia",earthquake,,,,,reviewed,us,us
-2002-10-31T01:35:16.670Z,-3.441,148.638,10,6.1,mwc,121,,,0.9,us,usp000bfpq,2016-11-10T00:50:28.997Z,"Bismarck Sea",earthquake,,,,,reviewed,us,hrv
+2002-10-31T01:35:16.670Z,-3.441,148.638,10,6.1,mwc,121,,,0.9,us,usp000bfpq,2016-11-10T00:50:28.997Z,Bismarck Sea,earthquake,,,,,reviewed,us,hrv
 2002-10-19T00:43:56.430Z,-3.667,140.312,33,6,mwc,133,,,1.08,us,usp000beu6,2017-04-26T18:00:47.453Z,"Papua, Indonesia",earthquake,,,,,reviewed,us,hrv
 2002-10-17T17:52:44.190Z,-3.597,140.226,33,6.3,mwc,204,,,0.94,us,usp000bere,2017-04-26T18:00:46.225Z,"Papua, Indonesia",earthquake,,,,,reviewed,us,hrv
 2002-10-10T21:19:58.510Z,-1.478,134.111,10,6,mwc,198,,,0.9,us,usp000be7f,2017-04-26T18:00:45.005Z,"near the north coast of Papua, Indonesia",earthquake,,,,,reviewed,us,hrv
@@ -344,7 +344,7 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 2002-10-10T12:28:25.800Z,-1.511,133.973,10,6.7,ms,250,,,1.05,us,usp000be5x,2017-04-26T18:00:43.186Z,"Papua, Indonesia",earthquake,,,,108,reviewed,us,us
 2002-10-10T10:50:20.570Z,-1.757,134.297,10,7.6,mwc,375,,,1.15,us,usp000be54,2018-10-17T19:44:52.762Z,"near the north coast of Papua, Indonesia",earthquake,,,,,reviewed,us,hrv
 2002-10-06T15:46:33.010Z,-8.197,118.341,10,6.3,mwc,162,,,1.12,us,usp000bdy2,2017-04-26T18:00:41.350Z,"Sumbawa region, Indonesia",earthquake,,,,,reviewed,us,hrv
-2002-10-03T19:05:10.670Z,-7.526,115.663,315.8,6,mwc,359,,,0.89,us,usp000bdr7,2016-11-10T00:47:42.080Z,"Bali Sea",earthquake,,,,,reviewed,us,hrv
+2002-10-03T19:05:10.670Z,-7.526,115.663,315.8,6,mwc,359,,,0.89,us,usp000bdr7,2016-11-10T00:47:42.080Z,Bali Sea,earthquake,,,,,reviewed,us,hrv
 2002-09-20T15:43:35.460Z,-1.68,134.234,10,6.4,mwc,241,,,1.25,us,usp000bcqu,2017-04-26T18:00:36.542Z,"near the north coast of Papua, Indonesia",earthquake,,,,,reviewed,us,hrv
 2002-09-20T13:33:41.620Z,-1.743,134.013,10,6,mwc,164,,,1.05,us,usp000bcqe,2017-04-26T18:00:35.861Z,"near the north coast of Papua, Indonesia",earthquake,,,,,reviewed,us,hrv
 2002-09-17T11:20:23.390Z,-3.284,142.769,10,6,mwc,279,,,0.86,us,usp000bcg1,2017-04-26T18:00:35.262Z,"near the north coast of New Guinea, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
@@ -354,7 +354,7 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 2002-07-03T23:00:18.470Z,-5.032,147.336,31.2,6.2,mwc,207,,,1.23,us,usp000b7eg,2016-11-10T00:39:23.339Z,"eastern New Guinea region, Papua New Guinea",earthquake,,3,,,reviewed,us,hrv
 2002-06-21T00:05:44.850Z,-4.495,146.768,33,6,mwb,331,,,0.76,us,usp000b6ky,2016-11-09T22:48:30.156Z,"eastern New Guinea region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2002-06-06T23:53:48.470Z,-0.879,148.33,10,6.3,mwb,169,,,1.22,us,usp000b5nz,2016-11-10T00:36:56.733Z,"Admiralty Islands region, Papua New Guinea",earthquake,,,,,reviewed,us,us
-2002-03-19T22:14:14.930Z,-6.486,129.901,148.1,6.1,mwb,257,,,0.74,us,usp000b0ns,2016-11-10T00:29:13.186Z,"Banda Sea",earthquake,,,,,reviewed,us,us
+2002-03-19T22:14:14.930Z,-6.486,129.901,148.1,6.1,mwb,257,,,0.74,us,usp000b0ns,2016-11-10T00:29:13.186Z,Banda Sea,earthquake,,,,,reviewed,us,us
 2002-02-28T01:50:48.940Z,-5.685,151.258,40.2,6.3,mwb,472,,,0.87,us,usp000azb0,2017-04-26T17:59:53.935Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2002-02-19T00:35:45.700Z,-3.731,150.992,10,6.1,mwc,175,,,1.41,us,usp000ayr5,2016-11-10T00:26:32.466Z,"New Ireland region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 2002-02-05T13:27:24.670Z,-5.345,151.248,39,6.6,mwc,444,,,0.88,us,usp000axuy,2017-04-26T17:59:50.982Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
@@ -363,15 +363,15 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 2002-01-13T14:10:56.520Z,-5.651,151.074,43.6,6.4,mwc,441,,,1.06,us,usp000awd5,2017-04-26T17:59:41.476Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 2002-01-10T11:14:56.930Z,-3.212,142.427,11,6.7,mwc,333,,,1.18,us,usp000aw5z,2017-04-26T17:59:40.879Z,"near the north coast of New Guinea, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 2001-12-09T18:15:02.600Z,-0.002,122.87,156.3,6.1,mwc,220,,,0.98,us,usp000aubg,2016-11-10T00:54:26.215Z,"Sulawesi, Indonesia",earthquake,,,,,reviewed,us,hrv
-2001-11-20T21:08:18.430Z,-6.88,128.921,33,6.2,mwc,122,,,1.04,us,usp000at7h,2017-04-26T17:59:30.696Z,"Banda Sea",earthquake,,,,,reviewed,us,hrv
+2001-11-20T21:08:18.430Z,-6.88,128.921,33,6.2,mwc,122,,,1.04,us,usp000at7h,2017-04-26T17:59:30.696Z,Banda Sea,earthquake,,,,,reviewed,us,hrv
 2001-10-31T09:10:20.000Z,-5.912,150.196,33,7,mwc,254,,,0.92,us,usp000arz5,2017-11-07T18:23:44.467Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
-2001-10-19T03:28:44.460Z,-4.102,123.907,33,7.5,mwc,234,,,1.14,us,usp000ar78,2017-11-07T18:23:09.581Z,"Banda Sea",earthquake,,,,,reviewed,us,hrv
-2001-10-13T16:27:00.070Z,0.839,125.98,33,6,mwc,151,,,1.11,us,usp000aqv2,2016-11-10T00:48:46.357Z,"Molucca Sea",earthquake,,,,,reviewed,us,hrv
+2001-10-19T03:28:44.460Z,-4.102,123.907,33,7.5,mwc,234,,,1.14,us,usp000ar78,2017-11-07T18:23:09.581Z,Banda Sea,earthquake,,,,,reviewed,us,hrv
+2001-10-13T16:27:00.070Z,0.839,125.98,33,6,mwc,151,,,1.11,us,usp000aqv2,2016-11-10T00:48:46.357Z,Molucca Sea,earthquake,,,,,reviewed,us,hrv
 2001-10-07T02:21:09.810Z,-3.296,142.934,10,6.2,mwc,249,,,1.05,us,usp000aqbn,2017-04-26T17:59:21.827Z,"near the north coast of New Guinea, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 2001-09-18T02:19:30.790Z,-7.506,127.739,131.8,6,mwc,207,,,0.94,us,usp000apcx,2016-11-10T00:46:12.402Z,"Kepulauan Barat Daya, Indonesia",earthquake,,,,,reviewed,us,hrv
 2001-09-11T14:56:50.920Z,-0.578,133.13,33,6.5,mwc,174,,,0.89,us,usp000ap03,2017-04-26T17:59:17.745Z,"near the north coast of Papua, Indonesia",earthquake,,,,,reviewed,us,hrv
-2001-08-27T01:16:47.450Z,1.091,126.36,33,6.1,mwc,265,,,1.03,us,usp000an43,2016-11-10T00:44:01.958Z,"Molucca Sea",earthquake,,,,,reviewed,us,hrv
-2001-08-23T21:45:03.160Z,-3.373,146.311,10,6.2,mwc,228,,,1.24,us,usp000amxu,2016-11-10T00:43:41.626Z,"Bismarck Sea",earthquake,,,,,reviewed,us,hrv
+2001-08-27T01:16:47.450Z,1.091,126.36,33,6.1,mwc,265,,,1.03,us,usp000an43,2016-11-10T00:44:01.958Z,Molucca Sea,earthquake,,,,,reviewed,us,hrv
+2001-08-23T21:45:03.160Z,-3.373,146.311,10,6.2,mwc,228,,,1.24,us,usp000amxu,2016-11-10T00:43:41.626Z,Bismarck Sea,earthquake,,,,,reviewed,us,hrv
 2001-07-22T18:15:09.010Z,-5.147,132.338,33,6,mwc,199,,,0.9,us,usp000ajzz,2016-11-10T00:40:55.897Z,"Kepulauan Kai, Indonesia",earthquake,,,,,reviewed,us,hrv
 2001-07-08T17:54:18.760Z,-6.663,152.108,10,6.2,mwc,344,,,0.87,us,usp000aj7x,2016-11-10T00:39:49.236Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 2001-07-01T01:46:06.130Z,-4.312,152.956,28,6.1,mwc,307,,,0.82,us,usp000ahse,2017-04-26T17:59:10.237Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
@@ -380,16 +380,16 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 2001-05-28T08:37:05.110Z,-6.609,132.346,33,6,mwc,254,,,0.96,us,usp000afp5,2016-11-10T00:36:14.854Z,"Kepulauan Tanimbar, Indonesia",earthquake,,,,,reviewed,us,hrv
 2001-05-25T05:06:10.680Z,-7.869,110.179,143.1,6.3,mwc,283,,,1.2,us,usp000afgk,2017-04-26T17:58:59.626Z,"Java, Indonesia",earthquake,,,,,reviewed,us,hrv
 2001-04-04T07:44:11.200Z,-5.176,132.369,33,6.4,mwc,176,,,0.99,us,usp000acjh,2017-04-26T17:58:51.395Z,"Kepulauan Kai, Indonesia",earthquake,,,,,reviewed,us,hrv
-2001-03-19T05:52:15.890Z,-4.029,128.02,33,6.5,mwc,206,,,1.07,us,usp000abqh,2017-04-26T17:58:46.691Z,"Banda Sea",earthquake,,,,,reviewed,us,hrv
+2001-03-19T05:52:15.890Z,-4.029,128.02,33,6.5,mwc,206,,,1.07,us,usp000abqh,2017-04-26T17:58:46.691Z,Banda Sea,earthquake,,,,,reviewed,us,hrv
 2001-03-14T18:56:18.880Z,0.451,121.892,109.4,6,mwb,313,,,0.83,us,usp000abdc,2016-11-10T00:28:38.774Z,"Minahasa, Sulawesi, Indonesia",earthquake,,,,,reviewed,us,us
-2001-02-24T07:23:48.730Z,1.271,126.249,35,7.1,mwc,426,,,1.05,us,usp000aa8b,2017-11-07T16:53:15.732Z,"Molucca Sea",earthquake,,,,,reviewed,us,hrv
-2001-02-16T05:59:09.480Z,-7.161,117.488,521,6.1,mwc,371,,,0.93,us,usp000a9qk,2016-11-10T00:26:18.536Z,"Bali Sea",earthquake,,,,,reviewed,us,hrv
+2001-02-24T07:23:48.730Z,1.271,126.249,35,7.1,mwc,426,,,1.05,us,usp000aa8b,2017-11-07T16:53:15.732Z,Molucca Sea,earthquake,,,,,reviewed,us,hrv
+2001-02-16T05:59:09.480Z,-7.161,117.488,521,6.1,mwc,371,,,0.93,us,usp000a9qk,2016-11-10T00:26:18.536Z,Bali Sea,earthquake,,,,,reviewed,us,hrv
 2001-01-29T23:21:25.940Z,-0.677,133.334,33,6.2,mwc,159,,,1.04,us,usp000a8nt,2017-04-26T17:58:30.178Z,"near the north coast of Papua, Indonesia",earthquake,,,,,reviewed,us,hrv
 2000-12-28T04:34:28.450Z,-4.05,152.307,33,6.2,mwc,170,,,0.98,us,usp000a6ty,2017-04-26T17:58:11.655Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 2000-12-23T07:13:24.300Z,-7.873,135.816,61.7,6,mwc,129,,,0.89,us,usp000a6kn,2016-11-10T00:55:48.195Z,"Kepulauan Aru region, Indonesia",earthquake,,,,,reviewed,us,hrv
 2000-12-21T02:41:23.130Z,-5.354,154.133,386.7,6,mwc,247,,,0.81,us,usp000a6fp,2016-11-10T00:55:35.659Z,"Bougainville region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 2000-12-21T01:01:27.770Z,-5.706,151.122,33,6.4,mwb,424,,,0.82,us,usp000a6fj,2017-04-26T17:58:09.338Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,us
-2000-12-20T16:49:43.300Z,-9.231,154.353,33,6.6,mwc,105,,,1.27,us,usp000a6ep,2016-11-10T00:55:29.598Z,"D'Entrecasteaux Islands region",earthquake,,,,,reviewed,us,hrv
+2000-12-20T16:49:43.300Z,-9.231,154.353,33,6.6,mwc,105,,,1.27,us,usp000a6ep,2016-11-10T00:55:29.598Z,D'Entrecasteaux Islands region,earthquake,,,,,reviewed,us,hrv
 2000-12-06T22:57:40.040Z,-4.218,152.725,31,6.5,mwc,401,,,0.98,us,usp000a5mp,2017-04-26T17:58:07.611Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 2000-11-23T18:43:15.660Z,-4.585,153.058,33,6.3,mwc,283,,,1.1,us,usp000a4s2,2017-04-26T17:58:05.298Z,"New Ireland region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 2000-11-21T21:21:05.260Z,-5.43,152.688,33,6.1,mwc,133,,,1.21,us,usp000a4m8,2016-11-09T04:07:23.036Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
@@ -410,16 +410,16 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 2000-10-30T12:01:30.760Z,-9.708,119.075,33,6,mwc,148,,,1.08,us,usp000a2qh,2017-04-26T17:57:53.761Z,"Sumba region, Indonesia",earthquake,,,,,reviewed,us,hrv
 2000-10-29T08:37:08.770Z,-4.766,153.945,50,7,mwc,60,,,0.96,us,usp000a2mw,2017-11-07T16:26:33.181Z,"New Ireland region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 2000-09-10T19:06:15.630Z,-1.112,129.332,33,6.1,mwb,304,,,0.89,us,usp000a010,2016-11-10T00:45:29.194Z,"Papua region, Indonesia",earthquake,,,,,reviewed,us,us
-2000-08-28T19:29:32.330Z,-4.124,127.027,33,6.3,mwb,160,,,1.02,us,usp0009zah,2015-06-30T16:59:02.677Z,"Banda Sea",earthquake,,,,,reviewed,us,us
-2000-08-28T19:29:24.570Z,-4.163,127.311,33,6,mb,271,,,1,us,usp0009zag,2017-04-26T17:57:42.337Z,"Banda Sea",earthquake,,,,63,reviewed,us,us
+2000-08-28T19:29:32.330Z,-4.124,127.027,33,6.3,mwb,160,,,1.02,us,usp0009zah,2015-06-30T16:59:02.677Z,Banda Sea,earthquake,,,,,reviewed,us,us
+2000-08-28T19:29:24.570Z,-4.163,127.311,33,6,mb,271,,,1,us,usp0009zag,2017-04-26T17:57:42.337Z,Banda Sea,earthquake,,,,63,reviewed,us,us
 2000-08-28T15:38:06.390Z,-3.986,127.325,10,6.1,mwc,168,,,1.08,us,usp0009za0,2015-05-13T18:53:42.000Z,"Seram, Indonesia",earthquake,,,,,reviewed,us,hrv
-2000-08-28T15:05:47.910Z,-4.11,127.394,16,6.8,mwc,336,,,1.01,us,usp0009z9y,2017-04-26T17:57:41.156Z,"Banda Sea",earthquake,,,,,reviewed,us,hrv
-2000-08-14T22:11:16.110Z,-9.377,153.854,10,6,mwc,198,,,0.87,us,usp0009yf6,2016-11-10T00:42:48.148Z,"D'Entrecasteaux Islands region",earthquake,,,,,reviewed,us,hrv
+2000-08-28T15:05:47.910Z,-4.11,127.394,16,6.8,mwc,336,,,1.01,us,usp0009z9y,2017-04-26T17:57:41.156Z,Banda Sea,earthquake,,,,,reviewed,us,hrv
+2000-08-14T22:11:16.110Z,-9.377,153.854,10,6,mwc,198,,,0.87,us,usp0009yf6,2016-11-10T00:42:48.148Z,D'Entrecasteaux Islands region,earthquake,,,,,reviewed,us,hrv
 2000-08-12T10:26:15.860Z,-3.072,136.112,33,6,mwb,196,,,0.89,us,usp0009yar,2017-04-26T17:57:37.138Z,"Papua, Indonesia",earthquake,,,,,reviewed,us,us
-2000-08-07T14:33:55.910Z,-7.018,123.357,648.5,6.5,mwc,517,,,0.86,us,usp0009y2g,2016-11-10T00:42:14.732Z,"Banda Sea",earthquake,,,,,reviewed,us,hrv
+2000-08-07T14:33:55.910Z,-7.018,123.357,648.5,6.5,mwc,517,,,0.86,us,usp0009y2g,2016-11-10T00:42:14.732Z,Banda Sea,earthquake,,,,,reviewed,us,hrv
 2000-07-16T03:57:45.560Z,-7.747,150.917,10,6.6,mwc,367,,,0.94,us,usp0009wkp,2017-04-26T17:57:27.884Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 2000-06-09T01:27:15.160Z,-5.071,152.495,33,6.3,mwc,238,,,1.13,us,usp0009u98,2016-11-10T00:37:10.184Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
-2000-05-14T20:08:34.350Z,-4.296,123.164,33,6.3,mwc,,,,1.12,us,usp0009syq,2017-04-26T17:57:06.068Z,"Banda Sea",earthquake,,,,,reviewed,us,hrv
+2000-05-14T20:08:34.350Z,-4.296,123.164,33,6.3,mwc,,,,1.12,us,usp0009syq,2017-04-26T17:57:06.068Z,Banda Sea,earthquake,,,,,reviewed,us,hrv
 2000-05-08T10:28:25.220Z,-4.457,150.004,502,6.1,mwc,,,,0.74,us,usp0009smd,2016-11-10T00:33:46.667Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 2000-05-04T04:21:16.210Z,-1.105,123.573,26,7.6,mwc,,,,1.14,us,usp0009sbh,2018-10-17T19:38:07.682Z,"Sulawesi, Indonesia",earthquake,,,,,reviewed,us,hrv
 2000-03-03T22:22:40.740Z,-6.817,143.807,10,6.6,mwc,,,,1.07,us,usp0009p81,2017-04-26T17:56:57.448Z,"New Guinea, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
@@ -429,7 +429,7 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 1999-12-15T04:41:12.390Z,-5.786,150.974,33,6.3,mwc,,,,0.88,us,usp0009jvr,2017-04-26T17:56:41.915Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 1999-12-09T10:18:17.180Z,-6.028,148.144,58.3,6.4,mwc,,,,1.11,us,usp0009jn9,2017-04-26T17:56:40.170Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 1999-11-19T13:56:46.450Z,-6.351,148.763,33,7,mwc,,,,1.12,us,usp0009huj,2017-04-26T17:56:33.290Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
-1999-11-18T14:27:42.820Z,0.523,126.066,33,6,mwc,,,,1.02,us,usp0009htd,2016-11-10T00:52:33.341Z,"Molucca Sea",earthquake,,,,,reviewed,us,hrv
+1999-11-18T14:27:42.820Z,0.523,126.066,33,6,mwc,,,,1.02,us,usp0009htd,2016-11-10T00:52:33.341Z,Molucca Sea,earthquake,,,,,reviewed,us,hrv
 1999-11-17T11:36:34.970Z,-6.004,148.803,45.3,6.3,mwc,,,,0.89,us,usp0009hs3,2017-04-26T17:56:32.710Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 1999-11-17T03:27:42.080Z,-5.978,148.82,47.5,6.9,mwc,,,,0.9,us,usp0009hra,2017-04-26T17:56:32.146Z,"New Britain region, Papua New Guinea",earthquake,,2.3,,,reviewed,us,hrv
 1999-10-23T02:12:05.040Z,-4.808,153.414,83.3,6.3,mwc,,,,1.12,us,usp0009gf4,2016-11-10T00:49:53.031Z,"New Ireland region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
@@ -452,46 +452,46 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 1999-01-19T03:35:33.840Z,-4.596,153.235,114.1,7,mwc,,,,1.34,us,usp00091ag,2017-04-26T17:55:26.884Z,"New Ireland region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 1999-01-12T08:49:20.750Z,-5.421,151.681,42.6,6,mwc,,,,0.93,us,usp00090zn,2017-04-26T17:55:26.212Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 1998-12-26T15:39:07.800Z,-1.364,123.644,33,6.1,mwb,,,,1.38,us,usp000907e,2017-04-26T17:55:24.274Z,"Sulawesi, Indonesia",earthquake,,,,,reviewed,us,us
-1998-12-16T17:45:05.440Z,1.12,126.175,33,6.2,mwc,,,,1.07,us,usp0008zqc,2016-11-10T00:55:11.419Z,"Molucca Sea",earthquake,,,,,reviewed,us,hrv
-1998-12-06T00:47:13.450Z,1.253,126.198,33,6.6,mwc,,,,1.09,us,usp0008z7q,2016-11-10T00:54:16.601Z,"Molucca Sea",earthquake,,,,,reviewed,us,hrv
-1998-11-29T14:10:31.960Z,-2.071,124.891,33,7.7,mwc,,,,1.23,us,usp0008yx2,2018-10-17T17:10:20.254Z,"Banda Sea",earthquake,,,,,reviewed,us,hrv
+1998-12-16T17:45:05.440Z,1.12,126.175,33,6.2,mwc,,,,1.07,us,usp0008zqc,2016-11-10T00:55:11.419Z,Molucca Sea,earthquake,,,,,reviewed,us,hrv
+1998-12-06T00:47:13.450Z,1.253,126.198,33,6.6,mwc,,,,1.09,us,usp0008z7q,2016-11-10T00:54:16.601Z,Molucca Sea,earthquake,,,,,reviewed,us,hrv
+1998-11-29T14:10:31.960Z,-2.071,124.891,33,7.7,mwc,,,,1.23,us,usp0008yx2,2018-10-17T17:10:20.254Z,Banda Sea,earthquake,,,,,reviewed,us,hrv
 1998-11-18T15:48:40.820Z,-3.315,130.766,33,6,mwc,,,,1.05,us,usp0008ycz,2017-04-26T17:55:19.118Z,"Seram, Indonesia",earthquake,,,,,reviewed,us,hrv
-1998-11-09T05:38:44.220Z,-6.92,128.946,33,7,mwc,,,,1.09,us,usp0008xw8,2017-04-26T17:55:17.140Z,"Banda Sea",earthquake,,,,,reviewed,us,hrv
-1998-11-09T05:30:14.400Z,-6.954,129.022,33,6.7,mwc,,,,1.04,us,usp0008xw6,2017-04-13T22:11:07.678Z,"Banda Sea",earthquake,,,,,reviewed,us,hrv
-1998-11-08T07:25:48.510Z,-9.135,121.421,33,6.4,mwc,,,,1.02,us,usp0008xtz,2017-04-26T17:55:16.489Z,"Savu Sea",earthquake,,,,,reviewed,us,hrv
-1998-10-28T16:25:03.840Z,0.839,125.966,33,6.6,mwb,,,,1.1,us,usp0008x6n,2016-11-10T00:50:20.419Z,"Molucca Sea",earthquake,,,,,reviewed,us,us
+1998-11-09T05:38:44.220Z,-6.92,128.946,33,7,mwc,,,,1.09,us,usp0008xw8,2017-04-26T17:55:17.140Z,Banda Sea,earthquake,,,,,reviewed,us,hrv
+1998-11-09T05:30:14.400Z,-6.954,129.022,33,6.7,mwc,,,,1.04,us,usp0008xw6,2017-04-13T22:11:07.678Z,Banda Sea,earthquake,,,,,reviewed,us,hrv
+1998-11-08T07:25:48.510Z,-9.135,121.421,33,6.4,mwc,,,,1.02,us,usp0008xtz,2017-04-26T17:55:16.489Z,Savu Sea,earthquake,,,,,reviewed,us,hrv
+1998-10-28T16:25:03.840Z,0.839,125.966,33,6.6,mwb,,,,1.1,us,usp0008x6n,2016-11-10T00:50:20.419Z,Molucca Sea,earthquake,,,,,reviewed,us,us
 1998-10-10T16:32:19.490Z,-0.403,119.84,33,6,mwc,,,,1.24,us,usp0008wak,2017-04-26T17:55:13.218Z,"Minahasa, Sulawesi, Indonesia",earthquake,,,,,reviewed,us,hrv
 1998-09-28T13:34:30.490Z,-8.194,112.413,151.6,6.6,mwb,,,,1.39,us,usp0008vnn,2017-04-26T17:55:08.005Z,"Java, Indonesia",earthquake,,,,,reviewed,us,us
 1998-09-21T06:52:41.190Z,0.262,122.467,147.4,6,mwb,,,,1.19,us,usp0008v9v,2016-11-10T00:46:34.323Z,"Minahasa, Sulawesi, Indonesia",earthquake,,,,,reviewed,us,us
 1998-09-15T08:35:51.580Z,-5.624,151.637,83,6.3,mwc,,,,1.14,us,usp0008uyv,2017-04-26T17:55:05.847Z,"New Britain region, Papua New Guinea",earthquake,,3.5,,,reviewed,us,hrv
-1998-08-28T12:40:58.700Z,-0.154,125.018,66.2,6.1,mwc,,,,1.22,us,usp0008u08,2016-11-10T00:44:14.566Z,"Molucca Sea",earthquake,,,,,reviewed,us,hrv
+1998-08-28T12:40:58.700Z,-0.154,125.018,66.2,6.1,mwc,,,,1.22,us,usp0008u08,2016-11-10T00:44:14.566Z,Molucca Sea,earthquake,,,,,reviewed,us,hrv
 1998-07-29T18:00:29.990Z,-2.693,138.901,33,6.7,mwc,,,,0.86,us,usp0008sd0,2017-04-26T17:54:52.748Z,"Papua, Indonesia",earthquake,,,,,reviewed,us,hrv
 1998-07-17T08:49:13.280Z,-2.961,141.926,10,7,mwc,,,,1.28,us,usp0008rpa,2017-04-26T17:54:50.390Z,"near the north coast of New Guinea, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 1998-05-27T15:27:16.160Z,-5.845,149.704,33,6,mwc,,,,0.99,us,usp0008nt5,2017-04-26T17:54:41.025Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 1998-05-21T05:34:25.500Z,0.207,119.584,33,6.7,mwb,,,,0.96,us,usp0008nfm,2017-04-26T17:54:39.270Z,"Minahasa, Sulawesi, Indonesia",earthquake,,,,,reviewed,us,us
 1998-05-13T23:02:05.660Z,-5.147,151.714,61.4,6.6,mwc,,,,0.85,us,usp0008n0d,2017-04-26T17:54:38.697Z,"New Britain region, Papua New Guinea",earthquake,,2.1,,,reviewed,us,hrv
 1998-04-27T18:40:38.530Z,-2.995,136.282,53,6.2,mwb,,,,1.14,us,usp0008m1x,2017-04-26T17:54:35.784Z,"near the north coast of Papua, Indonesia",earthquake,,,,,reviewed,us,us
-1998-02-19T14:14:51.190Z,-4.476,129.082,33,6.5,mwc,,,,0.91,us,usp0008g8h,2016-11-10T00:26:37.254Z,"Banda Sea",earthquake,,,,,reviewed,us,hrv
+1998-02-19T14:14:51.190Z,-4.476,129.082,33,6.5,mwc,,,,0.91,us,usp0008g8h,2016-11-10T00:26:37.254Z,Banda Sea,earthquake,,,,,reviewed,us,hrv
 1997-12-22T02:05:50.080Z,-5.495,147.867,179.3,7.2,mwc,,,,0.96,us,usp0008d0r,2017-04-26T17:54:15.721Z,"eastern New Guinea region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 1997-11-25T12:14:33.630Z,1.241,122.536,24,7,mwc,,,,1.18,us,usp0008baj,2017-04-26T17:54:10.781Z,"Minahasa, Sulawesi, Indonesia",earthquake,,,,,reviewed,us,hrv
-1997-11-03T19:17:58.910Z,-6.736,129.021,215.6,6.1,mwc,,,,1.19,us,usp0008a1d,2016-11-10T00:50:53.536Z,"Banda Sea",earthquake,,4.1,,,reviewed,us,hrv
-1997-09-26T15:48:34.270Z,-5.385,128.994,253.8,6,mwc,,,,0.87,us,usp000882g,2016-11-10T00:47:00.403Z,"Banda Sea",earthquake,,,,,reviewed,us,hrv
+1997-11-03T19:17:58.910Z,-6.736,129.021,215.6,6.1,mwc,,,,1.19,us,usp0008a1d,2016-11-10T00:50:53.536Z,Banda Sea,earthquake,,4.1,,,reviewed,us,hrv
+1997-09-26T15:48:34.270Z,-5.385,128.994,253.8,6,mwc,,,,0.87,us,usp000882g,2016-11-10T00:47:00.403Z,Banda Sea,earthquake,,,,,reviewed,us,hrv
 1997-08-29T08:14:09.970Z,-3.562,144.362,22.8,6.6,mwc,,,,1.09,us,usp00086u4,2017-04-26T17:53:55.457Z,"near the north coast of New Guinea, Papua New Guinea",earthquake,,3.5,,,reviewed,us,hrv
-1997-07-31T21:54:21.500Z,-6.637,130.917,58.6,6,mwc,,,,0.88,us,usp00085n5,2016-11-10T00:41:43.720Z,"Banda Sea",earthquake,,1.6,,,reviewed,us,hrv
-1997-07-11T09:55:12.580Z,-5.697,110.796,574.4,6,mwc,,,,0.99,us,usp00084q6,2016-11-09T22:57:56.362Z,"Java Sea",earthquake,,,,,reviewed,us,hrv
+1997-07-31T21:54:21.500Z,-6.637,130.917,58.6,6,mwc,,,,0.88,us,usp00085n5,2016-11-10T00:41:43.720Z,Banda Sea,earthquake,,1.6,,,reviewed,us,hrv
+1997-07-11T09:55:12.580Z,-5.697,110.796,574.4,6,mwc,,,,0.99,us,usp00084q6,2016-11-09T22:57:56.362Z,Java Sea,earthquake,,,,,reviewed,us,hrv
 1997-06-24T23:04:53.140Z,-1.924,127.899,33,6.4,mwc,,,,1.04,us,usp00083xm,2017-04-26T17:53:40.327Z,"Kepulauan Obi, Indonesia",earthquake,,,,,reviewed,us,hrv
 1997-06-12T12:07:33.600Z,-5.951,147.026,33,6.1,mwc,,,,1.06,us,usp00083ed,2016-11-10T00:37:30.958Z,"eastern New Guinea region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 1997-04-05T12:23:30.530Z,-6.485,147.408,69.1,6.5,mwc,,,,0.93,us,usp0007zzs,2017-04-26T17:53:21.306Z,"eastern New Guinea region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 1997-01-17T11:20:22.060Z,-8.899,123.542,110.7,6.2,mwb,,,,0.96,us,usp0007vz2,2016-11-10T00:23:46.643Z,"Flores region, Indonesia",earthquake,,,,,reviewed,us,us
 1996-12-30T19:41:52.000Z,-3.993,128.105,33,6,mwc,,,,0.89,us,usp0007v6w,2017-04-13T22:09:14.916Z,"Seram, Indonesia",earthquake,,,,,reviewed,us,hrv
 1996-12-26T20:48:23.290Z,-2.236,138.938,33,6.3,mwb,,,,1.03,us,usp0007v14,2017-04-26T17:52:55.452Z,"Papua, Indonesia",earthquake,,,,,reviewed,us,us
-1996-08-22T05:35:42.060Z,-7.124,123.275,595.7,6,mwb,,,,0.8,us,usp0007nwu,2016-11-09T23:18:35.935Z,"Banda Sea",earthquake,,,,,reviewed,us,us
-1996-08-12T17:00:27.900Z,-0.266,125.094,42.3,6,mwc,,,,1.2,us,usp0007nfm,2016-11-09T23:14:04.064Z,"Molucca Sea",earthquake,,5.6,,,reviewed,us,hrv
+1996-08-22T05:35:42.060Z,-7.124,123.275,595.7,6,mwb,,,,0.8,us,usp0007nwu,2016-11-09T23:18:35.935Z,Banda Sea,earthquake,,,,,reviewed,us,us
+1996-08-12T17:00:27.900Z,-0.266,125.094,42.3,6,mwc,,,,1.2,us,usp0007nfm,2016-11-09T23:14:04.064Z,Molucca Sea,earthquake,,5.6,,,reviewed,us,hrv
 1996-08-10T11:20:19.720Z,-4.938,152.131,33,6.2,mwc,,,,1,us,usp0007nbs,2016-11-10T00:42:34.026Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 1996-07-28T10:40:43.650Z,1.006,120.196,33,6,mwc,,,,1.1,us,usp0007mrs,2017-04-26T17:52:08.374Z,"Minahasa, Sulawesi, Indonesia",earthquake,,,,,reviewed,us,hrv
 1996-07-22T14:19:35.770Z,1,120.45,33,7,mwc,,,,1.2,us,usp0007me1,2017-04-26T17:52:07.789Z,"Minahasa, Sulawesi, Indonesia",earthquake,,,,,reviewed,us,hrv
 1996-07-16T10:07:36.650Z,1.016,120.254,33,6.6,mwb,,,,1,us,usp0007m42,2017-04-26T17:52:07.191Z,"Minahasa, Sulawesi, Indonesia",earthquake,,,,,reviewed,us,us
-1996-06-17T11:22:18.540Z,-7.137,122.589,587.3,7.9,mwc,,,,1.2,us,usp0007jw8,2016-11-10T02:39:19.386Z,"Flores Sea",earthquake,,,,,reviewed,us,hrv
+1996-06-17T11:22:18.540Z,-7.137,122.589,587.3,7.9,mwc,,,,1.2,us,usp0007jw8,2016-11-10T02:39:19.386Z,Flores Sea,earthquake,,,,,reviewed,us,hrv
 1996-05-02T02:32:35.250Z,-6.44,154.577,33,6,mwc,,,,0.8,us,usp0007guy,2016-11-10T00:33:10.976Z,"Bougainville region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 1996-03-17T17:58:20.360Z,-6.269,147.904,33,6.1,mwc,,,,1.7,us,usp0007exa,2016-11-10T00:29:04.062Z,"eastern New Guinea region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 1996-03-02T01:50:04.520Z,-5.973,146.565,58.7,6.1,mwc,,,,1,us,usp0007e7p,2017-04-26T17:51:45.270Z,"eastern New Guinea region, Papua New Guinea",earthquake,,2.5,,,reviewed,us,hrv
@@ -506,16 +506,16 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 1996-02-07T07:57:18.110Z,1.019,120.187,13.8,6.1,mwb,,,,1.2,us,usp0007cgh,2017-04-26T17:51:35.500Z,"Minahasa, Sulawesi, Indonesia",earthquake,,,,,reviewed,us,us
 1996-01-17T10:06:46.710Z,-4.399,140.068,109.1,6.1,mw,,,,1.3,us,usp0007b87,2016-11-10T00:23:46.128Z,"Papua, Indonesia",earthquake,,,,,reviewed,us,hrv
 1996-01-01T08:05:10.830Z,0.729,119.931,24,7.9,mw,,,,1.2,us,usp00079zv,2018-10-17T17:08:42.708Z,"Minahasa, Sulawesi, Indonesia",earthquake,,,,,reviewed,us,hrv
-1995-12-25T04:43:24.460Z,-6.903,129.151,141.9,7.1,mw,,,,1,us,usp00079k5,2017-04-26T17:51:27.650Z,"Banda Sea",earthquake,,,,,reviewed,us,hrv
+1995-12-25T04:43:24.460Z,-6.903,129.151,141.9,7.1,mw,,,,1,us,usp00079k5,2017-04-26T17:51:27.650Z,Banda Sea,earthquake,,,,,reviewed,us,hrv
 1995-12-19T23:28:12.180Z,-3.703,140.233,63.4,6.5,mwb,,,,1,us,usp000799b,2017-04-26T17:51:26.378Z,"Papua, Indonesia",earthquake,,,,,reviewed,us,us
-1995-12-05T06:32:06.100Z,-9.027,124.67,33,6.4,mw,,,,1.3,us,usp000789n,2017-04-26T17:51:23.151Z,"Timor region",earthquake,,,,,reviewed,us,hrv
+1995-12-05T06:32:06.100Z,-9.027,124.67,33,6.4,mw,,,,1.3,us,usp000789n,2017-04-26T17:51:23.151Z,Timor region,earthquake,,,,,reviewed,us,hrv
 1995-11-08T16:01:19.160Z,1.29,121.678,19.8,6,mwb,,,,1,us,usp00076gb,2017-04-26T17:51:18.619Z,"Minahasa, Sulawesi, Indonesia",earthquake,,,,,reviewed,us,us
-1995-10-29T19:24:33.600Z,0.858,125.886,68.8,6,mwb,,,,1.1,us,usp00075z2,2016-11-09T23:50:33.319Z,"Molucca Sea",earthquake,,,,,reviewed,us,us
+1995-10-29T19:24:33.600Z,0.858,125.886,68.8,6,mwb,,,,1.1,us,usp00075z2,2016-11-09T23:50:33.319Z,Molucca Sea,earthquake,,,,,reviewed,us,us
 1995-10-15T15:04:08.160Z,-6.514,154.631,14.4,6.1,mw,,,,1,us,usp0007570,2016-11-09T23:43:38.777Z,"Bougainville region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 1995-10-14T20:44:57.470Z,-6.435,154.556,18.6,6.1,mw,,,,1.2,us,usp000755e,2016-11-09T23:43:12.763Z,"Bougainville region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 1995-09-23T02:34:12.780Z,-5.968,146.635,27.1,6,mw,,,,1,us,usp00073uc,2017-04-26T17:51:00.421Z,"eastern New Guinea region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 1995-09-22T05:39:30.530Z,-6.053,146.543,45.2,6.2,mw,,,,1.1,us,usp00073s6,2017-04-26T17:50:59.149Z,"eastern New Guinea region, Papua New Guinea",earthquake,,2.8,,,reviewed,us,hrv
-1995-09-18T06:56:31.290Z,-6.925,128.968,180.6,6,mw,,,,1.2,us,usp00073ht,2016-11-09T23:31:03.157Z,"Banda Sea",earthquake,,,,,reviewed,us,hrv
+1995-09-18T06:56:31.290Z,-6.925,128.968,180.6,6,mw,,,,1.2,us,usp00073ht,2016-11-09T23:31:03.157Z,Banda Sea,earthquake,,,,,reviewed,us,hrv
 1995-08-26T06:57:16.630Z,-5.643,153.541,17.3,6,mw,,,,1.2,us,usp00072f6,2016-11-10T00:44:00.538Z,"New Ireland region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 1995-08-17T10:01:25.990Z,-5.168,153.447,21,6.4,mw,,,,1.2,us,usp00071yq,2016-11-10T00:43:08.044Z,"New Ireland region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 1995-08-17T00:15:50.470Z,-5.934,154.213,14.1,6.4,mw,,,,1.1,us,usp00071xs,2016-11-10T00:43:07.464Z,"Bougainville region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
@@ -525,8 +525,8 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 1995-08-14T04:37:17.500Z,-4.836,151.515,127.9,6.7,mw,,,,1,us,usp00071ty,2017-04-26T17:50:52.117Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 1995-06-25T02:10:39.770Z,-3.321,150.458,32.3,6.2,mw,,,,1,us,usp0006znp,2016-11-10T00:38:41.034Z,"New Ireland region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 1995-06-24T06:58:06.690Z,-3.959,153.93,386,6.8,mw,,,,1,us,usp0006zmh,2016-11-10T00:38:33.431Z,"New Ireland region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
-1995-05-22T04:02:55.090Z,-9.662,151.507,29.8,6.1,mw,,,,1.1,us,usp0006xuh,2016-11-10T00:35:41.537Z,"D'Entrecasteaux Islands region",earthquake,,,,,reviewed,us,hrv
-1995-05-14T11:33:18.870Z,-8.378,125.127,11.2,6.9,mw,,,,1.4,us,usp0006xbu,2017-04-26T17:50:24.489Z,"East Timor region",earthquake,,,,,reviewed,us,hrv
+1995-05-22T04:02:55.090Z,-9.662,151.507,29.8,6.1,mw,,,,1.1,us,usp0006xuh,2016-11-10T00:35:41.537Z,D'Entrecasteaux Islands region,earthquake,,,,,reviewed,us,hrv
+1995-05-14T11:33:18.870Z,-8.378,125.127,11.2,6.9,mw,,,,1.4,us,usp0006xbu,2017-04-26T17:50:24.489Z,East Timor region,earthquake,,,,,reviewed,us,hrv
 1995-04-25T06:15:00.370Z,-5.902,147.417,22.1,6,mwb,,,,1,us,usp0006wan,2017-04-26T17:50:16.416Z,"eastern New Guinea region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 1995-04-18T03:49:37.070Z,-2.061,140.457,20.2,6.1,mw,,,,0.9,us,usp0006vuj,2016-11-09T22:19:57.890Z,"near the north coast of Papua, Indonesia",earthquake,,,,,reviewed,us,hrv
 1995-03-19T23:53:14.920Z,-4.183,135.109,33,6.9,mw,,,,1.4,us,usp0006uef,2017-04-26T17:50:07.181Z,"near the south coast of Papua, Indonesia",earthquake,,,,,reviewed,us,hrv
@@ -540,14 +540,14 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 1995-01-24T22:36:34.190Z,-5.902,154.492,24.5,6.2,mwb,,,,1.1,us,usp0006rum,2017-04-26T17:49:55.052Z,"Bougainville region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 1995-01-15T23:59:26.160Z,-5.246,152.04,62.2,6,mw,,,,0.9,us,usp0006rd9,2016-11-10T00:23:34.100Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 1994-11-20T16:59:05.630Z,-2.001,135.932,16,6.3,mwb,,,,1.1,us,usp0006nyy,2017-04-26T17:49:44.577Z,"near the north coast of Papua, Indonesia",earthquake,,,,,reviewed,us,us
-1994-11-15T20:18:11.310Z,-5.589,110.186,560.6,6.5,mw,,,,0.9,us,usp0006npt,2016-11-10T00:52:08.617Z,"Java Sea",earthquake,,,,,reviewed,us,hrv
+1994-11-15T20:18:11.310Z,-5.589,110.186,560.6,6.5,mw,,,,0.9,us,usp0006npt,2016-11-10T00:52:08.617Z,Java Sea,earthquake,,,,,reviewed,us,hrv
 1994-10-15T00:39:25.490Z,-3.804,152.148,8.8,6.1,mwb,,,,1.1,us,usp0006m4k,2017-04-26T17:49:39.483Z,"New Ireland region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 1994-10-13T05:04:24.980Z,-1.212,127.912,10.7,6.4,mwb,,,,1.3,us,usp0006m1p,2017-04-26T17:49:38.906Z,"Kepulauan Obi, Indonesia",earthquake,,,,,reviewed,us,us
 1994-10-08T21:44:07.210Z,-1.258,127.98,16.6,6.8,mwb,,,,1.2,us,usp0006ktd,2017-04-26T17:49:35.767Z,"Kepulauan Obi, Indonesia",earthquake,,,,,reviewed,us,us
-1994-09-28T17:33:58.210Z,-5.731,110.364,628.2,6,mw,,,,0.9,us,usp0006k58,2016-11-09T23:35:43.893Z,"Java Sea",earthquake,,,,,reviewed,us,hrv
-1994-09-28T16:39:51.670Z,-5.786,110.352,637.5,6.6,mw,,,,1,us,usp0006k55,2016-11-09T23:35:43.397Z,"Java Sea",earthquake,,,,,reviewed,us,hrv
-1994-09-23T07:59:38.920Z,-3.379,148.537,33,6.1,mw,,,,1.2,us,usp0006jw6,2016-11-09T23:33:12.862Z,"Bismarck Sea",earthquake,,,,,reviewed,us,hrv
-1994-08-30T19:42:46.510Z,-6.965,124.111,595.6,6.2,mw,,,,1,us,usp0006hqe,2016-11-09T23:22:11.975Z,"Banda Sea",earthquake,,,,,reviewed,us,hrv
+1994-09-28T17:33:58.210Z,-5.731,110.364,628.2,6,mw,,,,0.9,us,usp0006k58,2016-11-09T23:35:43.893Z,Java Sea,earthquake,,,,,reviewed,us,hrv
+1994-09-28T16:39:51.670Z,-5.786,110.352,637.5,6.6,mw,,,,1,us,usp0006k55,2016-11-09T23:35:43.397Z,Java Sea,earthquake,,,,,reviewed,us,hrv
+1994-09-23T07:59:38.920Z,-3.379,148.537,33,6.1,mw,,,,1.2,us,usp0006jw6,2016-11-09T23:33:12.862Z,Bismarck Sea,earthquake,,,,,reviewed,us,hrv
+1994-08-30T19:42:46.510Z,-6.965,124.111,595.6,6.2,mw,,,,1,us,usp0006hqe,2016-11-09T23:22:11.975Z,Banda Sea,earthquake,,,,,reviewed,us,hrv
 1994-08-04T22:15:37.770Z,-6.338,131.575,33,6.2,mw,,,,0.9,us,usp0006gj0,2016-11-10T00:42:01.138Z,"Kepulauan Tanimbar, Indonesia",earthquake,,,,,reviewed,us,hrv
 1994-07-13T11:45:23.360Z,-7.532,127.77,158.8,6.5,mw,,,,1.1,us,usp0006fkv,2016-11-10T00:40:14.280Z,"Kepulauan Barat Daya, Indonesia",earthquake,,,,,reviewed,us,hrv
 1994-06-15T10:28:50.600Z,-10.168,113.749,28.8,6.1,mw,,,,1.4,us,usp0006eb0,2016-11-09T22:46:10.932Z,"south of Java, Indonesia",earthquake,,,,,reviewed,us,hrv
@@ -564,21 +564,21 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 1994-01-19T01:53:34.900Z,-3.176,135.97,23.2,6.8,mw,,,,1.2,us,usp00066x3,2017-04-26T17:48:35.668Z,"Papua, Indonesia",earthquake,,,,,reviewed,us,hrv
 1994-01-04T19:31:59.880Z,-4.301,135.145,11,6,mwb,,,,1.1,us,usp000660z,2017-04-26T17:48:30.323Z,"near the south coast of Papua, Indonesia",earthquake,,,,,reviewed,us,us
 1993-12-20T13:56:14.870Z,-6.876,131.34,7.7,6.3,mwb,,,,1.2,us,usp00065d4,2017-04-13T22:06:09.850Z,"Kepulauan Tanimbar, Indonesia",earthquake,,,,,reviewed,us,us
-1993-12-09T11:38:27.960Z,0.425,125.891,15.9,6.8,mw,,,,1.2,us,usp00064wp,2016-11-10T00:54:30.378Z,"Molucca Sea",earthquake,,,,,reviewed,us,hrv
-1993-12-09T04:32:19.520Z,0.486,125.995,14.5,6.9,mw,,,,1.2,us,usp00064w3,2016-11-10T00:54:29.809Z,"Molucca Sea",earthquake,,,,,reviewed,us,hrv
+1993-12-09T11:38:27.960Z,0.425,125.891,15.9,6.8,mw,,,,1.2,us,usp00064wp,2016-11-10T00:54:30.378Z,Molucca Sea,earthquake,,,,,reviewed,us,hrv
+1993-12-09T04:32:19.520Z,0.486,125.995,14.5,6.9,mw,,,,1.2,us,usp00064w3,2016-11-10T00:54:29.809Z,Molucca Sea,earthquake,,,,,reviewed,us,hrv
 1993-11-11T10:13:55.320Z,-4.543,153.147,45.8,6,mw,,,,1,us,usp00063hb,2016-11-09T23:56:30.351Z,"New Ireland region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
-1993-11-05T22:37:20.180Z,-3.188,148.339,14.4,6.2,mw,,,,1.2,us,usp0006382,2016-11-10T00:51:04.826Z,"Bismarck Sea",earthquake,,,,,reviewed,us,hrv
+1993-11-05T22:37:20.180Z,-3.188,148.339,14.4,6.2,mw,,,,1.2,us,usp0006382,2016-11-10T00:51:04.826Z,Bismarck Sea,earthquake,,,,,reviewed,us,hrv
 1993-10-25T11:59:48.030Z,-5.858,146.016,26.5,6.1,ms,,,,1.2,us,usp00062nf,2017-04-26T17:48:18.989Z,"eastern New Guinea region, Papua New Guinea",earthquake,,,,3,reviewed,us,us
 1993-10-25T10:27:04.510Z,-5.909,145.99,30.4,6.7,mwb,,,,1.2,us,usp00062n7,2017-04-26T17:48:18.395Z,"eastern New Guinea region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 1993-10-16T03:05:30.300Z,-5.898,146.202,27.1,6.3,mwb,,,,1,us,usp000622n,2017-04-26T17:48:14.609Z,"eastern New Guinea region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 1993-10-13T05:50:42.580Z,-6.013,146.061,33,6,mw,,,,1.2,us,usp00061wh,2017-04-26T17:48:14.048Z,"eastern New Guinea region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 1993-10-13T03:07:30.990Z,-5.932,146.153,33,6.5,mw,,,,1.2,us,usp00061w6,2017-04-26T17:48:13.469Z,"eastern New Guinea region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 1993-10-13T02:06:00.340Z,-5.889,146.02,25.3,6.9,mw,,,,1.3,us,usp00061w1,2017-04-26T17:48:12.857Z,"eastern New Guinea region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
-1993-10-05T05:09:45.760Z,-6.13,128.965,13.1,6.6,mwb,,,,1.2,us,usp00061gr,2016-11-10T00:47:54.894Z,"Banda Sea",earthquake,,,,,reviewed,us,us
-1993-10-02T16:02:00.710Z,-3.444,148.805,36.8,6,mw,,,,1.1,us,usp00061ck,2016-11-09T23:37:36.890Z,"Bismarck Sea",earthquake,,,,,reviewed,us,hrv
+1993-10-05T05:09:45.760Z,-6.13,128.965,13.1,6.6,mwb,,,,1.2,us,usp00061gr,2016-11-10T00:47:54.894Z,Banda Sea,earthquake,,,,,reviewed,us,us
+1993-10-02T16:02:00.710Z,-3.444,148.805,36.8,6,mw,,,,1.1,us,usp00061ck,2016-11-09T23:37:36.890Z,Bismarck Sea,earthquake,,,,,reviewed,us,hrv
 1993-09-29T11:16:03.540Z,0.494,121.528,96.6,6.4,mw,,,,1.2,us,usp000617r,2017-04-26T17:48:09.999Z,"Minahasa, Sulawesi, Indonesia",earthquake,,,,,reviewed,us,hrv
 1993-09-06T03:56:00.100Z,-4.641,153.231,49,6.6,mw,,,,0.9,us,usp0005ztm,2017-04-26T17:48:05.170Z,"New Ireland region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
-1993-09-04T21:39:33.840Z,-9.571,122.528,32.5,6.2,mw,,,,1.3,us,usp0005zrt,2016-11-09T23:24:29.797Z,"Savu Sea",earthquake,,3.1,,,reviewed,us,hrv
+1993-09-04T21:39:33.840Z,-9.571,122.528,32.5,6.2,mw,,,,1.3,us,usp0005zrt,2016-11-09T23:24:29.797Z,Savu Sea,earthquake,,3.1,,,reviewed,us,hrv
 1993-08-20T05:06:53.850Z,-5.997,142.743,14.6,6.2,mwb,,,,1.1,us,usp0005yw6,2017-04-26T17:48:02.092Z,"New Guinea, Papua New Guinea",earthquake,,,,,reviewed,us,us
 1993-07-28T18:07:48.260Z,-5.573,154.132,25.9,6.2,mwb,,,,1.1,us,usp0005xjh,2017-04-13T22:05:38.162Z,"Bougainville region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 1993-06-15T13:06:34.280Z,-4.991,145.459,227.2,6.2,mw,,,,0.9,us,usp0005umf,2016-11-09T22:46:09.887Z,"near the north coast of New Guinea, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
@@ -587,39 +587,39 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 1993-03-01T01:39:27.880Z,-3.744,138.536,88.8,6.2,mwb,,,,1,us,usp0005nte,2016-11-10T00:27:30.263Z,"Papua, Indonesia",earthquake,,,,,reviewed,us,us
 1993-01-20T17:31:15.570Z,-7.205,128.566,33,6.4,mw,,,,1.2,us,usp0005m0k,2017-04-13T22:05:13.975Z,"Kepulauan Barat Daya, Indonesia",earthquake,,,,,reviewed,us,hrv
 1992-12-27T21:49:04.470Z,-6.087,113.05,600.9,6,mw,,,,0.9,us,usp0005jyn,2016-11-10T00:18:19.021Z,"Java, Indonesia",earthquake,,,,,reviewed,us,hrv
-1992-12-20T20:52:47.280Z,-6.582,130.393,77.7,7.3,mw,,,,1.2,us,usp0005jjt,2017-04-26T17:47:23.876Z,"Banda Sea",earthquake,,,,,reviewed,us,hrv
+1992-12-20T20:52:47.280Z,-6.582,130.393,77.7,7.3,mw,,,,1.2,us,usp0005jjt,2017-04-26T17:47:23.876Z,Banda Sea,earthquake,,,,,reviewed,us,hrv
 1992-12-18T03:14:04.240Z,-6.487,147.144,29.3,6.1,mw,,,,1,us,usp0005jfb,2017-04-26T17:47:23.288Z,"eastern New Guinea region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 1992-12-12T06:38:29.490Z,-8.517,121.928,20.8,6.1,mb,,,,1.1,us,usp0005j5f,2017-04-26T17:47:22.093Z,"Flores region, Indonesia",earthquake,,,,67,reviewed,us,us
 1992-12-12T05:29:26.350Z,-8.48,121.896,27.7,7.8,mw,,,,1.4,us,usp0005j5a,2018-10-17T17:06:48.579Z,"Flores region, Indonesia",earthquake,,,,,reviewed,us,hrv
 1992-11-05T19:53:22.970Z,-5.263,152.575,19.8,6.2,mw,,,,1.2,us,usp0005gbw,2016-11-10T00:51:04.213Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 1992-10-31T14:46:27.010Z,-2.298,141.256,28.9,6.1,ms,,,,1,us,usp0005g4f,2015-05-13T18:53:32.000Z,"near the north coast of New Guinea, Papua New Guinea",earthquake,,,,23,reviewed,us,us
 1992-10-31T14:34:22.480Z,-2.321,141.262,5.7,6.5,mwb,,,,1,us,usp0005g4e,2017-04-26T17:47:14.806Z,"near the north coast of New Guinea, Papua New Guinea",earthquake,,,,,reviewed,us,us
-1992-10-23T21:24:36.140Z,-9.469,122.56,33,6.2,mw,,,,1.3,us,usp0005fta,2016-11-09T02:06:25.112Z,"Savu Sea",earthquake,,,,,reviewed,us,hrv
+1992-10-23T21:24:36.140Z,-9.469,122.56,33,6.2,mw,,,,1.3,us,usp0005fta,2016-11-09T02:06:25.112Z,Savu Sea,earthquake,,,,,reviewed,us,hrv
 1992-10-23T13:04:40.710Z,-5.352,152.616,30.7,6.4,mw,,,,1,us,usp0005fsg,2016-11-10T00:49:52.050Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 1992-10-21T12:11:13.880Z,-6.87,144.174,19.3,6.2,mw,,,,1.1,us,usp0005fpc,2017-04-26T17:47:11.855Z,"New Guinea, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
-1992-10-18T13:08:54.740Z,-6.279,130.214,118.9,6.2,mw,,,,1,us,usp0005fh9,2016-11-09T23:45:03.723Z,"Banda Sea",earthquake,,,,,reviewed,us,hrv
+1992-10-18T13:08:54.740Z,-6.279,130.214,118.9,6.2,mw,,,,1,us,usp0005fh9,2016-11-09T23:45:03.723Z,Banda Sea,earthquake,,,,,reviewed,us,hrv
 1992-10-06T10:28:22.920Z,-5.425,151.175,49.5,6.2,mwb,,,,1,us,usp0005f0b,2016-11-09T23:39:46.772Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 1992-09-26T22:15:57.510Z,1.289,129.118,27.7,6.7,mwb,,,,1.2,us,usp0005ejh,2017-04-26T17:47:05.864Z,"Halmahera, Indonesia",earthquake,,,,,reviewed,us,us
 1992-09-02T05:50:01.900Z,-6.046,112.138,624.6,6.7,mw,,,,1,us,usp0005dew,2016-11-09T23:23:23.698Z,"Java, Indonesia",earthquake,,,,,reviewed,us,hrv
 1992-08-16T10:23:28.470Z,-5.368,146.669,215.2,6.3,mw,,,,1.1,us,usp0005chz,2016-11-10T00:43:00.514Z,"eastern New Guinea region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 1992-08-13T20:43:00.290Z,-6.103,148.875,44.5,6.2,mwb,,,,1.2,us,usp0005cdt,2017-04-26T17:46:57.429Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,us
-1992-08-02T12:03:20.350Z,-7.126,121.748,485.9,6.6,mwb,,,,1,us,usp0005bvx,2016-11-10T00:41:50.658Z,"Flores Sea",earthquake,,,,,reviewed,us,us
+1992-08-02T12:03:20.350Z,-7.126,121.748,485.9,6.6,mwb,,,,1,us,usp0005bvx,2016-11-10T00:41:50.658Z,Flores Sea,earthquake,,,,,reviewed,us,us
 1992-08-02T05:50:11.690Z,-0.883,127.582,18.9,6.3,mwb,,,,1.1,us,usp0005bvc,2017-04-26T17:46:55.645Z,"Halmahera, Indonesia",earthquake,,,,,reviewed,us,us
-1992-07-14T07:03:09.570Z,-4.725,125.455,465,6,mw,,,,1.1,us,usp0005atw,2016-11-09T22:59:14.622Z,"Banda Sea",earthquake,,,,,reviewed,us,hrv
+1992-07-14T07:03:09.570Z,-4.725,125.455,465,6,mw,,,,1.1,us,usp0005atw,2016-11-09T22:59:14.622Z,Banda Sea,earthquake,,,,,reviewed,us,hrv
 1992-06-10T02:13:45.460Z,1.084,124.089,30.5,6,mw,,,,1.2,us,usp00058wh,2017-04-26T17:46:48.316Z,"Minahasa, Sulawesi, Indonesia",earthquake,,,,,reviewed,us,hrv
 1992-06-09T00:31:56.310Z,-8.474,111.1,63.9,6.1,mw,,,,1.2,us,usp00058v4,2016-11-09T22:43:04.123Z,"Java, Indonesia",earthquake,,,,,reviewed,us,hrv
 1992-06-06T21:40:40.810Z,1.068,124.04,17.5,6,mw,,,,1.1,us,usp00058sh,2017-04-26T17:46:47.711Z,"Minahasa, Sulawesi, Indonesia",earthquake,,,,,reviewed,us,hrv
 1992-05-22T21:40:37.290Z,-3.506,144.221,33,6.2,mw,,,,1.2,us,usp00057xj,2017-04-26T17:46:43.536Z,"near the north coast of New Guinea, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 1992-05-21T14:09:03.300Z,-6.175,147.236,47.7,6,mw,,,,1.1,us,usp00057tq,2016-11-09T22:34:34.258Z,"eastern New Guinea region, Papua New Guinea",earthquake,,4.8,,,reviewed,us,hrv
 1992-05-15T07:05:05.340Z,-6.075,147.572,58,7.2,mw,,,,1.1,us,usp00057d0,2017-04-26T17:46:38.546Z,"eastern New Guinea region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
-1992-05-04T08:45:01.720Z,-6.762,130.229,86.1,6.1,mwb,,,,1,us,usp00056wf,2016-11-09T01:58:58.352Z,"Banda Sea",earthquake,,,,,reviewed,us,us
+1992-05-04T08:45:01.720Z,-6.762,130.229,86.1,6.1,mwb,,,,1,us,usp00056wf,2016-11-09T01:58:58.352Z,Banda Sea,earthquake,,,,,reviewed,us,us
 1992-04-16T08:00:54.240Z,1.186,122.586,30,6.1,mw,,,,1.1,us,usp00055vz,2016-11-09T22:19:02.128Z,"Minahasa, Sulawesi, Indonesia",earthquake,,,,,reviewed,us,hrv
-1992-04-07T03:37:02.920Z,-4.172,131.005,52.9,6,mw,,,,1.1,us,usp00055f4,2016-11-09T22:15:14.309Z,"Banda Sea",earthquake,,,,,reviewed,us,hrv
+1992-04-07T03:37:02.920Z,-4.172,131.005,52.9,6,mw,,,,1.1,us,usp00055f4,2016-11-09T22:15:14.309Z,Banda Sea,earthquake,,,,,reviewed,us,hrv
 1992-04-03T03:19:51.430Z,-5.696,151.164,27.4,6.5,mwb,,,,0.9,us,usp000558t,2017-04-26T17:46:28.262Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,us
-1992-03-13T17:50:01.230Z,-9.191,152.394,25.2,6.1,ms,,,,1.1,us,usp000547e,2017-04-26T17:46:25.819Z,"D'Entrecasteaux Islands region",earthquake,,,,2,reviewed,us,us
-1992-03-11T19:42:59.210Z,-3.438,146.734,27.8,6.1,mw,,,,1.5,us,usp000544n,2016-11-10T00:28:28.380Z,"Bismarck Sea",earthquake,,,,,reviewed,us,hrv
-1992-03-07T18:37:13.000Z,-3.477,146.316,14.9,6.2,mw,,,,1.4,us,usp00053zt,2016-11-10T00:28:04.805Z,"Bismarck Sea",earthquake,,5.7,,,reviewed,us,hrv
-1992-03-04T03:49:54.800Z,-3.008,147.882,19.4,6.4,mw,,,,1.3,us,usp00053v1,2016-11-10T00:27:45.473Z,"Bismarck Sea",earthquake,,,,,reviewed,us,hrv
+1992-03-13T17:50:01.230Z,-9.191,152.394,25.2,6.1,ms,,,,1.1,us,usp000547e,2017-04-26T17:46:25.819Z,D'Entrecasteaux Islands region,earthquake,,,,2,reviewed,us,us
+1992-03-11T19:42:59.210Z,-3.438,146.734,27.8,6.1,mw,,,,1.5,us,usp000544n,2016-11-10T00:28:28.380Z,Bismarck Sea,earthquake,,,,,reviewed,us,hrv
+1992-03-07T18:37:13.000Z,-3.477,146.316,14.9,6.2,mw,,,,1.4,us,usp00053zt,2016-11-10T00:28:04.805Z,Bismarck Sea,earthquake,,5.7,,,reviewed,us,hrv
+1992-03-04T03:49:54.800Z,-3.008,147.882,19.4,6.4,mw,,,,1.3,us,usp00053v1,2016-11-10T00:27:45.473Z,Bismarck Sea,earthquake,,,,,reviewed,us,hrv
 1992-02-27T20:05:23.840Z,-6.191,147.576,38.5,6.7,mw,,,,1.1,us,usp00053k1,2017-04-26T17:46:20.403Z,"eastern New Guinea region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 1992-02-21T14:42:29.170Z,-6.228,147.613,55,6,mw,,,,1,us,usp00053bd,2016-11-09T21:55:57.857Z,"eastern New Guinea region, Papua New Guinea",earthquake,,6.1,,,reviewed,us,hrv
 1992-01-13T11:58:23.140Z,1.342,127.373,112.9,6.1,mwb,,,,1.1,us,usp00051rj,2016-11-10T00:23:22.951Z,"Halmahera, Indonesia",earthquake,,,,,reviewed,us,us
@@ -628,13 +628,13 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 1991-11-05T06:56:03.010Z,-6.237,146.444,105.3,6.2,mw,,,,1,us,usp0004yu7,2016-11-09T23:53:43.534Z,"eastern New Guinea region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 1991-11-04T06:24:02.600Z,-6.072,148.198,49.9,6.2,mwb,,,,1,us,usp0004ysy,2017-04-13T22:04:02.244Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 1991-11-01T02:51:12.770Z,1.235,122.105,37.1,6,mw,,,,1.2,us,usp0004yp9,2016-11-09T23:51:58.144Z,"Minahasa, Sulawesi, Indonesia",earthquake,,,,,reviewed,us,hrv
-1991-10-15T16:18:01.730Z,-6.494,130.043,136.8,6.2,mw,,,,1.1,us,usp0004xvd,2016-11-09T23:43:35.937Z,"Banda Sea",earthquake,,,,,reviewed,us,hrv
+1991-10-15T16:18:01.730Z,-6.494,130.043,136.8,6.2,mw,,,,1.1,us,usp0004xvd,2016-11-09T23:43:35.937Z,Banda Sea,earthquake,,,,,reviewed,us,hrv
 1991-09-28T20:26:56.150Z,-5.814,150.959,28,6.6,mwb,,,,1.1,us,usp0004x60,2017-04-26T17:46:03.283Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 1991-08-08T02:09:44.710Z,0.972,122.631,12.4,6.7,mwb,,,,1.5,us,usp0004v3k,2017-04-26T17:45:57.306Z,"Minahasa, Sulawesi, Indonesia",earthquake,,3.6,,,reviewed,us,us
 1991-07-05T04:30:52.550Z,-9.585,114.673,53.7,6.1,mw,,,,1.1,us,usp0004ttb,2016-11-09T22:55:09.189Z,"south of Bali, Indonesia",earthquake,,9.7,,,reviewed,us,hrv
 1991-07-04T11:43:10.490Z,-8.099,124.681,28.8,6.9,mwb,,,,1.1,us,usp0004tse,2017-04-26T17:45:50.909Z,"Kepulauan Alor, Indonesia",earthquake,,1.5,,,reviewed,us,us
 1991-06-20T05:18:52.510Z,1.196,122.787,31.4,7.5,mw,,,,1.2,us,usp0004t6g,2018-10-17T17:06:26.292Z,"Minahasa, Sulawesi, Indonesia",earthquake,,,,,reviewed,us,hrv
-1991-06-07T11:51:25.970Z,-7.204,122.533,536.4,6.9,mw,,,,1.1,us,usp0004smx,2016-11-10T00:37:05.645Z,"Flores Sea",earthquake,,3.4,,,reviewed,us,hrv
+1991-06-07T11:51:25.970Z,-7.204,122.533,536.4,6.9,mw,,,,1.1,us,usp0004smx,2016-11-10T00:37:05.645Z,Flores Sea,earthquake,,3.4,,,reviewed,us,hrv
 1991-05-21T11:00:19.080Z,-7.517,126.539,18.4,6.6,mw,,,,1.1,us,usp0004rxb,2017-04-26T17:45:40.976Z,"Kepulauan Barat Daya, Indonesia",earthquake,,3.4,,,reviewed,us,hrv
 1991-05-19T00:58:01.730Z,1.156,122.957,33,7,mw,,,,1.2,us,usp0004ru5,2017-04-26T17:45:40.306Z,"Minahasa, Sulawesi, Indonesia",earthquake,,,,,reviewed,us,nc
 1991-05-17T02:31:25.700Z,-4.39,142.715,59,6.4,mw,,,,1.2,us,usp0004rr7,2017-04-26T17:45:39.640Z,"New Guinea, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
@@ -646,17 +646,17 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 1990-12-30T19:14:18.930Z,-5.097,150.967,178.6,7.5,mw,,,,1.2,us,usp0004k00,2018-10-17T17:06:10.213Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 1990-12-13T12:26:40.750Z,1.116,124.034,33,6.2,mw,,,,1.2,us,usp0004j2m,2017-04-26T17:44:57.669Z,"Minahasa, Sulawesi, Indonesia",earthquake,,,,,reviewed,us,nc
 1990-12-10T09:34:33.030Z,-5.94,142.282,32.4,6,mw,,,,0.9,us,usp0004hxx,2017-04-26T17:44:55.098Z,"New Guinea, Papua New Guinea",earthquake,,2.6,,,reviewed,us,hrv
-1990-12-05T16:08:51.460Z,-5.264,131.37,75.1,6.1,mw,,,,1.1,us,usp0004hsc,2016-11-10T00:07:53.993Z,"Banda Sea",earthquake,,,,,reviewed,us,hrv
+1990-12-05T16:08:51.460Z,-5.264,131.37,75.1,6.1,mw,,,,1.1,us,usp0004hsc,2016-11-10T00:07:53.993Z,Banda Sea,earthquake,,,,,reviewed,us,hrv
 1990-11-22T20:49:06.740Z,-5.575,150.993,28.7,6.3,mw,,,,1,us,usp0004h8f,2017-04-26T17:44:51.894Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,nc
-1990-09-23T20:33:49.730Z,-6.726,130.373,33,6.5,ms,,,,1.1,us,usp0004ezz,2014-11-07T00:47:07.959Z,"Banda Sea",earthquake,,,,1,reviewed,us,us
+1990-09-23T20:33:49.730Z,-6.726,130.373,33,6.5,ms,,,,1.1,us,usp0004ezz,2014-11-07T00:47:07.959Z,Banda Sea,earthquake,,,,1,reviewed,us,us
 1990-09-09T05:35:45.910Z,-5.178,151.729,73.8,6,mw,,,,0.8,us,usp0004egb,2016-11-09T23:26:41.687Z,"New Britain region, Papua New Guinea",earthquake,,3.2,,,reviewed,us,hrv
-1990-09-02T13:05:07.300Z,-3.197,148.225,22.8,6,mw,,,,1.4,us,usp0004e7g,2016-11-09T23:23:23.101Z,"Bismarck Sea",earthquake,,9.4,,,reviewed,us,hrv
-1990-08-25T15:47:53.890Z,0.525,126.084,11.3,6.4,mw,,,,1.1,us,usp0004dw9,2016-11-10T00:43:57.865Z,"Molucca Sea",earthquake,,,,,reviewed,us,hrv
-1990-08-10T15:44:31.360Z,0.333,126.175,53.2,6.2,mw,,,,1.1,us,usp0004d74,2016-11-09T23:12:34.938Z,"Molucca Sea",earthquake,,2.7,,,reviewed,us,hrv
+1990-09-02T13:05:07.300Z,-3.197,148.225,22.8,6,mw,,,,1.4,us,usp0004e7g,2016-11-09T23:23:23.101Z,Bismarck Sea,earthquake,,9.4,,,reviewed,us,hrv
+1990-08-25T15:47:53.890Z,0.525,126.084,11.3,6.4,mw,,,,1.1,us,usp0004dw9,2016-11-10T00:43:57.865Z,Molucca Sea,earthquake,,,,,reviewed,us,hrv
+1990-08-10T15:44:31.360Z,0.333,126.175,53.2,6.2,mw,,,,1.1,us,usp0004d74,2016-11-09T23:12:34.938Z,Molucca Sea,earthquake,,2.7,,,reviewed,us,hrv
 1990-06-23T05:01:44.510Z,-0.611,146.473,23.9,6.2,mw,,,,1,us,usp0004avt,2016-11-10T00:38:26.006Z,"Admiralty Islands region, Papua New Guinea",earthquake,,,,,reviewed,us,nc
 1990-06-15T08:12:26.250Z,-5.041,152.082,60.1,6,mw,,,,0.9,us,usp0004aht,2016-11-09T22:46:04.342Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 1990-06-07T09:25:19.190Z,-3.563,144.432,29.3,6.5,mw,,,,1.2,us,usp0004a7d,2017-04-26T17:44:17.972Z,"near the north coast of New Guinea, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
-1990-05-24T20:09:23.240Z,-7.363,120.363,588.9,7.1,mw,,,,0.9,us,usp00049qg,2016-11-10T00:35:53.437Z,"Flores Sea",earthquake,,,,,reviewed,us,hrv
+1990-05-24T20:09:23.240Z,-7.363,120.363,588.9,7.1,mw,,,,0.9,us,usp00049qg,2016-11-10T00:35:53.437Z,Flores Sea,earthquake,,,,,reviewed,us,hrv
 1990-05-15T18:31:39.680Z,1.158,123.869,29.7,6,mw,,,,1.1,us,usp00049b9,2016-11-09T22:31:43.873Z,"Minahasa, Sulawesi, Indonesia",earthquake,,,,,reviewed,us,hrv
 1990-05-02T22:50:29.560Z,-5.604,150.164,81.6,6.4,mw,,,,1,us,usp00048s8,2017-04-26T17:44:04.403Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,hrv
 1990-04-26T15:40:34.400Z,1.059,122.825,24.4,6,mw,,,,1,us,usp00048h3,2016-11-09T22:23:26.927Z,"Minahasa, Sulawesi, Indonesia",earthquake,,,,,reviewed,us,hrv
@@ -724,7 +724,7 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 2018-11-02T13:18:45.400Z,-6.3793,153.4359,10,5.4,mww,,22,2.515,0.84,us,us2000i5vy,2019-01-21T14:29:44.040Z,"216km SSE of Taron, Papua New Guinea",earthquake,3.2,1.7,0.058,29,reviewed,us,us
 2018-10-28T00:37:31.670Z,-5.7006,151.0779,44.85,5.4,mww,,17,1.849,0.75,us,us1000hi44,2019-01-10T17:18:40.040Z,"104km E of Kimbe, Papua New Guinea",earthquake,5.6,3.9,0.063,24,reviewed,us,us
 2018-10-27T05:17:26.650Z,-6.2484,152.38,10,5.3,mww,,90,2.055,0.67,us,us1000hhw5,2019-01-10T17:18:39.040Z,"209km SSW of Taron, Papua New Guinea",earthquake,8.3,1.9,0.054,33,reviewed,us,us
-2018-10-20T09:47:52.920Z,-6.5155,128.2714,358.83,5.6,mww,,18,3.338,0.6,us,us1000hexe,2018-12-21T22:27:07.040Z,"Banda Sea",earthquake,7.6,3.8,0.047,44,reviewed,us,us
+2018-10-20T09:47:52.920Z,-6.5155,128.2714,358.83,5.6,mww,,18,3.338,0.6,us,us1000hexe,2018-12-21T22:27:07.040Z,Banda Sea,earthquake,7.6,3.8,0.047,44,reviewed,us,us
 2018-10-19T05:55:12.820Z,-2.8208,139.1169,58,5.5,mww,,33,6.86,0.76,us,us1000he9l,2018-12-21T22:27:05.040Z,"164km W of Abepura, Indonesia",earthquake,3.2,1.9,0.068,21,reviewed,us,us
 2018-10-15T19:35:56.660Z,-6.0484,151.2101,10,5.5,mww,,31,2.075,1.15,us,us1000hcg6,2018-12-21T22:27:01.040Z,"130km ESE of Kimbe, Papua New Guinea",earthquake,7.4,1.8,0.046,45,reviewed,us,us
 2018-10-12T02:52:02.600Z,-6.2888,151.0308,10,5.6,mww,,35,2.369,1.45,us,us1000hax9,2018-12-21T21:15:50.040Z,"127km SE of Kimbe, Papua New Guinea",earthquake,7.8,1.7,0.05,38,reviewed,us,us
@@ -1051,7 +1051,7 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 2014-08-21T02:11:31.040Z,-5.2854,150.6889,8,5.9,mww,,18,1.828,0.52,us,usb000s4s2,2014-11-22T02:06:24.000Z,"67km ENE of Kimbe, Papua New Guinea",earthquake,5.9,1.7,,,reviewed,us,us
 2014-08-17T02:38:26.640Z,-7.0659,125.4574,490.4,5.3,mb,,22,2.92,0.68,us,usb000s3hi,2014-11-15T04:07:12.000Z,"165km N of Dili, East Timor",earthquake,,3.4,0.046,175,reviewed,us,us
 2014-08-13T05:54:37.820Z,-3.4459,145.4342,30.29,5.6,mww,,33,4.813,0.64,us,usb000s2b1,2014-11-15T04:07:07.000Z,"166km ENE of Angoram, Papua New Guinea",earthquake,,4,,,reviewed,us,us
-2014-08-03T00:26:41.860Z,0.9871,146.2597,14.87,5.7,mb,,22,6.553,0.76,us,usb000rzkl,2014-10-29T19:52:57.000Z,"Federated States of Micronesia region",earthquake,,3.3,0.04,226,reviewed,us,us
+2014-08-03T00:26:41.860Z,0.9871,146.2597,14.87,5.7,mb,,22,6.553,0.76,us,usb000rzkl,2014-10-29T19:52:57.000Z,Federated States of Micronesia region,earthquake,,3.3,0.04,226,reviewed,us,us
 2014-07-28T23:00:48.140Z,-6.9216,143.873,10,5.6,mww,,11,4.083,0.82,us,usb000ry5u,2017-10-11T20:53:58.825Z,"71km S of Ialibu, Papua New Guinea",earthquake,,1.6,,,reviewed,us,us
 2014-07-24T17:10:19.940Z,-5.5457,145.422,68.63,5.4,mb,,24,4.203,0.87,us,usb000rwxu,2014-10-25T01:49:34.000Z,"54km SW of Madang, Papua New Guinea",earthquake,,4.4,0.042,202,reviewed,us,us
 2014-07-17T13:55:53.750Z,-3.68,140.0667,41.78,5.3,mb,,29,1.321,1,us,usb000rtr7,2014-10-17T21:12:07.000Z,"129km SSW of Abepura, Indonesia",earthquake,,5.3,0.064,84,reviewed,us,us
@@ -1089,11 +1089,11 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 2014-02-03T04:25:59.940Z,-4.8976,153.7404,109,5.6,mww,,19,1.721,1.02,us,usc000mfvh,2014-04-08T01:43:25.000Z,"91km ESE of Taron, Papua New Guinea",earthquake,,4.6,,,reviewed,us,us
 2014-01-24T14:31:24.670Z,-6.63,130.5877,60.27,5.3,mb,,21,1.517,1.01,us,usb000m7by,2014-03-27T18:15:38.000Z,"166km NNW of Saumlaki, Indonesia",earthquake,,4.5,0.066,80,reviewed,us,us
 2014-01-23T00:52:15.320Z,-7.1045,120.3147,579,5.5,mwb,,30,4.714,0.94,us,usb000m6hr,2014-03-27T18:15:37.000Z,"130km N of Lanos, Indonesia",earthquake,,1.9,0.063,24,reviewed,us,us
-2014-01-05T21:29:33.430Z,-6.9936,128.4273,39,5.3,mb,,16,3.012,0.86,us,usc000lxaa,2014-03-07T00:25:59.000Z,"Banda Sea",earthquake,,4.6,0.056,108,reviewed,us,us
+2014-01-05T21:29:33.430Z,-6.9936,128.4273,39,5.3,mb,,16,3.012,0.86,us,usc000lxaa,2014-03-07T00:25:59.000Z,Banda Sea,earthquake,,4.6,0.056,108,reviewed,us,us
 2013-12-29T15:37:38.060Z,1.2996,126.2455,42.94,5.7,mww,,25,1.237,0.86,us,usc000ltqk,2014-02-28T09:26:40.562Z,"119km E of Bitung, Indonesia",earthquake,,2,,,reviewed,us,us
 2013-12-29T12:49:16.720Z,-5.605,153.9863,24,5.5,mww,,23,7.03,0.98,us,usc000ltnq,2014-02-28T09:34:25.779Z,"164km SE of Taron, Papua New Guinea",earthquake,,1.7,,,reviewed,us,us
 2013-12-20T18:46:38.430Z,0.4345,125.3514,52.86,5.3,mwb,,27,2.042,0.9,us,usc000lp1b,2014-02-27T21:37:24.000Z,"107km SSE of Tondano, Indonesia",earthquake,,4.4,0.103,,reviewed,us,us
-2013-12-19T21:34:12.610Z,-6.9084,128.3228,10.63,5.7,mwb,,15,3.138,0.85,us,usc000lnj6,2014-02-27T21:52:53.940Z,"Banda Sea",earthquake,,2.8,0.093,,reviewed,us,us
+2013-12-19T21:34:12.610Z,-6.9084,128.3228,10.63,5.7,mwb,,15,3.138,0.85,us,usc000lnj6,2014-02-27T21:52:53.940Z,Banda Sea,earthquake,,2.8,0.093,,reviewed,us,us
 2013-11-26T14:30:28.420Z,-5.8261,150.7634,61.17,5.5,mwb,,22,5.039,1.1,us,usb000l6rl,2014-02-12T01:14:23.147Z,"75km ESE of Kimbe, Papua New Guinea",earthquake,,4.3,0.054,,reviewed,us,us
 2013-11-18T21:31:09.490Z,-10.0604,123.7611,29.11,5.4,mb,,27,0.174,1.48,us,usb000l1n0,2014-01-31T21:22:29.000Z,"22km ENE of Kupang, Indonesia",earthquake,,3.5,0.06,,reviewed,us,us
 2013-11-03T02:42:54.150Z,-5.8583,148.8538,88.74,5.8,mww,,14,3.902,0.88,us,usb000krul,2015-01-30T12:21:11.411Z,"86km WNW of Kandrian, Papua New Guinea",earthquake,,3.9,,,reviewed,us,us
@@ -1143,28 +1143,28 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 2013-01-13T17:53:43.910Z,-7.201,144.072,10,5.4,mb,138,41,,1.05,us,usp000jycn,2014-11-07T01:49:49.739Z,"near the south coast of New Guinea, Papua New Guinea",earthquake,,,,90,reviewed,us,us
 2013-01-12T17:33:39.110Z,-3.042,129.795,19.8,5.4,mb,256,25.5,,1.03,us,usp000jyaw,2014-11-07T01:49:49.287Z,"Seram, Indonesia",earthquake,,9.7,,168,reviewed,us,us
 2013-01-03T00:02:16.760Z,-1.564,127.386,26.3,5.6,mwb,139,36.5,,1.35,us,usp000jxrn,2014-11-07T01:49:44.998Z,"Kepulauan Obi, Indonesia",earthquake,,12.8,,,reviewed,us,us
-2012-12-29T07:59:41.100Z,-3.563,148.899,4,5.7,mww,126,35.5,,1.33,us,usp000jxja,2014-11-07T01:49:40.700Z,"Bismarck Sea",earthquake,,,,,reviewed,us,us
+2012-12-29T07:59:41.100Z,-3.563,148.899,4,5.7,mww,126,35.5,,1.33,us,usp000jxja,2014-11-07T01:49:40.700Z,Bismarck Sea,earthquake,,,,,reviewed,us,us
 2012-12-28T17:32:18.070Z,-0.145,122.918,112.1,5.5,mww,373,17,,0.97,us,usp000jxhm,2014-11-07T01:49:40.546Z,"Sulawesi, Indonesia",earthquake,,,,,reviewed,us,us
-2012-12-25T07:34:41.220Z,1.109,125.464,52.5,5.4,mb,262,25.4,,0.75,us,usp000jxcr,2014-11-07T01:49:39.551Z,"Molucca Sea",earthquake,,3.4,,128,reviewed,us,us
-2012-12-20T21:47:29.760Z,0.562,126.217,27.5,5.4,mwc,255,29.6,,1.01,us,usp000jx70,2014-11-07T01:49:38.124Z,"Molucca Sea",earthquake,,8,,,reviewed,us,gcmt
+2012-12-25T07:34:41.220Z,1.109,125.464,52.5,5.4,mb,262,25.4,,0.75,us,usp000jxcr,2014-11-07T01:49:39.551Z,Molucca Sea,earthquake,,3.4,,128,reviewed,us,us
+2012-12-20T21:47:29.760Z,0.562,126.217,27.5,5.4,mwc,255,29.6,,1.01,us,usp000jx70,2014-11-07T01:49:38.124Z,Molucca Sea,earthquake,,8,,,reviewed,us,gcmt
 2012-12-08T16:35:16.820Z,-7.211,143.973,10,5.6,mww,165,23.1,,1.15,us,usp000jwpn,2017-10-11T20:20:43.742Z,"near the south coast of New Guinea, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2012-12-07T19:50:23.430Z,-7.661,146.954,139.8,5.7,mwc,327,21,,0.82,us,usp000jwmw,2015-03-24T02:19:49.517Z,"eastern New Guinea region, Papua New Guinea",earthquake,,3.8,,,reviewed,us,gcmt
 2012-11-29T11:10:21.670Z,-3.423,145.562,10,5.9,mww,170,16.5,,0.8,us,usp000jw7s,2014-11-07T01:49:27.573Z,"near the north coast of New Guinea, Papua New Guinea",earthquake,,,,,reviewed,us,us
-2012-11-28T08:56:16.220Z,-5.398,131.134,50.3,5.6,mww,340,22.5,,0.77,us,usp000jw6g,2014-11-07T01:49:27.251Z,"Banda Sea",earthquake,,3.5,,,reviewed,us,us
+2012-11-28T08:56:16.220Z,-5.398,131.134,50.3,5.6,mww,340,22.5,,0.77,us,usp000jw6g,2014-11-07T01:49:27.251Z,Banda Sea,earthquake,,3.5,,,reviewed,us,us
 2012-11-27T02:59:06.520Z,-2.952,129.219,11.2,5.7,mww,283,24.3,,1.16,us,usp000jw4d,2017-10-11T20:20:07.871Z,"Seram, Indonesia",earthquake,,5,,,reviewed,us,us
 2012-11-21T16:46:40.130Z,-11.359,117.931,25,5.4,mww,458,29.4,,0.84,us,usp000jvxb,2015-06-30T16:59:04.023Z,"south of Sumbawa, Indonesia",earthquake,,,,,reviewed,us,us
 2012-11-19T10:55:09.030Z,-5.785,151.655,14.8,5.3,mb,108,46.5,,0.92,us,usp000jvtx,2014-11-07T01:49:24.384Z,"New Britain region, Papua New Guinea",earthquake,,4.3,,46,reviewed,us,us
-2012-11-15T08:21:48.450Z,-3.109,148.27,10,5.9,mww,198,21.9,,0.7,us,usp000jvmj,2014-11-07T01:49:23.010Z,"Bismarck Sea",earthquake,,,,,reviewed,us,us
+2012-11-15T08:21:48.450Z,-3.109,148.27,10,5.9,mww,198,21.9,,0.7,us,usp000jvmj,2014-11-07T01:49:23.010Z,Bismarck Sea,earthquake,,,,,reviewed,us,us
 2012-11-14T23:41:56.430Z,-5.86,151.341,35,5.6,mww,123,50.6,,1.46,us,usp000jvkw,2014-11-07T01:49:22.856Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2012-11-11T21:33:07.720Z,-5.45,151.688,49.7,5.3,mb,183,29.4,,1.02,us,usp000jvde,2014-11-07T01:49:20.808Z,"New Britain region, Papua New Guinea",earthquake,,6.7,,104,reviewed,us,us
-2012-11-09T15:07:51.050Z,-7.947,117.614,35,5.3,mb,86,30.2,,1.11,us,usp000jv97,2014-11-07T01:49:19.844Z,"Bali Sea",earthquake,,,,33,reviewed,us,us
+2012-11-09T15:07:51.050Z,-7.947,117.614,35,5.3,mb,86,30.2,,1.11,us,usp000jv97,2014-11-07T01:49:19.844Z,Bali Sea,earthquake,,,,33,reviewed,us,us
 2012-11-07T23:42:19.460Z,-8.652,148.034,118.4,5.6,mwc,143,17.5,,0.98,us,usp000jv6a,2015-03-24T02:17:52.008Z,"eastern New Guinea region, Papua New Guinea",earthquake,,5.1,,,reviewed,us,gcmt
-2012-11-06T14:20:36.120Z,-3.836,148.846,10,5.3,mwb,48,76.1,,1.3,us,usp000jv3w,2014-11-07T01:49:18.788Z,"Bismarck Sea",earthquake,,,,,reviewed,us,us
+2012-11-06T14:20:36.120Z,-3.836,148.846,10,5.3,mwb,48,76.1,,1.3,us,usp000jv3w,2014-11-07T01:49:18.788Z,Bismarck Sea,earthquake,,,,,reviewed,us,us
 2012-11-06T01:42:26.330Z,1.357,122.167,35,5.6,mww,163,28.2,,0.91,us,usp000jv36,2014-11-07T01:49:18.570Z,"Minahasa, Sulawesi, Indonesia",earthquake,,,,,reviewed,us,us
 2012-11-06T01:36:21.630Z,1.374,122.2,25,5.7,mww,308,12.2,,1.09,us,usp000jv34,2014-11-07T01:49:18.535Z,"Minahasa, Sulawesi, Indonesia",earthquake,,7.6,,,reviewed,us,us
-2012-11-02T01:22:14.040Z,-7.788,121.64,275.3,5.3,mb,349,37.2,,0.9,us,usp000juww,2014-11-07T01:49:16.642Z,"Flores Sea",earthquake,,,,108,reviewed,us,us
+2012-11-02T01:22:14.040Z,-7.788,121.64,275.3,5.3,mb,349,37.2,,0.9,us,usp000juww,2014-11-07T01:49:16.642Z,Flores Sea,earthquake,,,,108,reviewed,us,us
 2012-11-01T23:37:18.240Z,1.229,122.105,35,5.4,mwb,162,14.7,,0.97,us,usp000juws,2014-11-07T01:49:16.576Z,"Minahasa, Sulawesi, Indonesia",earthquake,,,,,reviewed,us,us
-2012-10-29T15:29:50.390Z,-0.142,125.185,35,5.7,mww,246,43,,1.02,us,usp000juqw,2014-11-07T01:49:11.465Z,"Molucca Sea",earthquake,,,,,reviewed,us,us
+2012-10-29T15:29:50.390Z,-0.142,125.185,35,5.7,mww,246,43,,1.02,us,usp000juqw,2014-11-07T01:49:11.465Z,Molucca Sea,earthquake,,,,,reviewed,us,us
 2012-10-29T06:28:33.130Z,-8.185,123.465,10,5.5,mwc,103,40,,0.83,us,usp000juq5,2014-11-07T01:49:11.280Z,"Flores region, Indonesia",earthquake,,,,,reviewed,us,gcmt
 2012-10-27T20:13:03.300Z,-6.141,151.532,39.2,5.4,mb,222,18.3,,0.97,us,usp000juh3,2014-11-07T01:49:09.151Z,"New Britain region, Papua New Guinea",earthquake,,6.8,,158,reviewed,us,us
 2012-10-13T23:07:54.650Z,-2.538,142.326,22.9,5.3,mb,198,17.8,,0.82,us,usp000jtye,2014-11-07T01:49:05.127Z,"near the north coast of New Guinea, Papua New Guinea",earthquake,,8.6,,106,reviewed,us,us
@@ -1183,9 +1183,9 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 2012-08-09T11:04:24.900Z,-8.718,116.363,107.2,5.3,mb,409,29,,0.9,us,usp000jq38,2015-03-24T01:31:58.479Z,"Lombok region, Indonesia",earthquake,,3.4,,81,reviewed,us,us
 2012-08-02T07:37:45.180Z,-6.944,131.121,65,5.5,mwb,170,28.9,,1.1,us,usp000jps6,2015-03-24T02:28:14.116Z,"Kepulauan Tanimbar, Indonesia",earthquake,,,,,reviewed,us,us
 2012-08-01T20:43:40.680Z,-4.39,144.639,49.2,5.4,mwc,208,23.3,,0.81,us,usp000jpr9,2014-11-07T01:48:28.089Z,"near the north coast of New Guinea, Papua New Guinea",earthquake,,4.5,,,reviewed,us,gcmt
-2012-07-22T07:02:13.620Z,-4.872,149.532,20.3,5.6,mww,98,24.2,,1.14,us,usp000jpa9,2017-10-11T20:10:10.871Z,"Bismarck Sea",earthquake,,14,,,reviewed,us,us
+2012-07-22T07:02:13.620Z,-4.872,149.532,20.3,5.6,mww,98,24.2,,1.14,us,usp000jpa9,2017-10-11T20:10:10.871Z,Bismarck Sea,earthquake,,14,,,reviewed,us,us
 2012-07-22T05:39:13.390Z,-4.169,153.375,34.9,5.4,mb,230,70.9,,0.94,us,usp000jpa5,2014-11-07T01:48:22.564Z,"New Ireland region, Papua New Guinea",earthquake,,14.9,,188,reviewed,us,us
-2012-07-21T12:46:30.930Z,-5.387,129.266,240.9,5.3,mb,159,20.9,,0.8,us,usp000jp94,2014-11-07T01:48:22.101Z,"Banda Sea",earthquake,,3.4,,51,reviewed,us,us
+2012-07-21T12:46:30.930Z,-5.387,129.266,240.9,5.3,mb,159,20.9,,0.8,us,usp000jp94,2014-11-07T01:48:22.101Z,Banda Sea,earthquake,,3.4,,51,reviewed,us,us
 2012-07-20T18:14:53.260Z,-8.006,123.682,41.9,5.4,mb,183,23.5,,1.01,us,usp000jp7w,2014-11-07T01:48:21.714Z,"Flores region, Indonesia",earthquake,,4.3,,97,reviewed,us,us
 2012-07-16T16:33:10.080Z,-1.296,137.053,13.1,5.6,mww,248,16.7,,0.89,us,usp000jp2p,2014-11-07T01:48:20.420Z,"near the north coast of Papua, Indonesia",earthquake,,4,,,reviewed,us,us
 2012-07-12T15:40:12.630Z,-2.885,129.321,10.4,5.5,mwc,243,31.7,,1.02,us,usp000jnxq,2014-11-07T01:48:19.194Z,"Seram, Indonesia",earthquake,,2.5,,,reviewed,us,gcmt
@@ -1193,17 +1193,17 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 2012-07-07T03:35:28.580Z,-4.651,153.296,35,5.7,mww,347,14.4,,0.91,us,usp000jnpr,2015-03-24T01:31:05.824Z,"New Ireland region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2012-06-20T21:55:53.810Z,0.102,123.426,142.3,5.4,mb,391,17.2,,0.95,us,usp000jn0p,2014-11-07T01:48:07.371Z,"Minahasa, Sulawesi, Indonesia",earthquake,,3.8,,125,reviewed,us,us
 2012-06-20T00:41:44.430Z,-0.727,133.281,14,5.3,mwb,178,22.5,,0.94,us,usp000jmzx,2014-11-07T01:48:07.207Z,"near the north coast of Papua, Indonesia",earthquake,,,,,reviewed,us,us
-2012-06-15T08:43:32.720Z,-3.381,146.309,35.7,5.4,mwc,145,35.4,,0.98,us,usp000jmsy,2014-11-07T01:48:05.491Z,"Bismarck Sea",earthquake,,6.5,,,reviewed,us,gcmt
-2012-06-14T20:17:24.520Z,1.293,126.828,61.4,5.5,mww,375,27.5,,0.83,us,usp000jms3,2014-11-07T01:48:05.078Z,"Molucca Sea",earthquake,,3.4,,,reviewed,us,us
+2012-06-15T08:43:32.720Z,-3.381,146.309,35.7,5.4,mwc,145,35.4,,0.98,us,usp000jmsy,2014-11-07T01:48:05.491Z,Bismarck Sea,earthquake,,6.5,,,reviewed,us,gcmt
+2012-06-14T20:17:24.520Z,1.293,126.828,61.4,5.5,mww,375,27.5,,0.83,us,usp000jms3,2014-11-07T01:48:05.078Z,Molucca Sea,earthquake,,3.4,,,reviewed,us,us
 2012-06-01T06:56:20.240Z,-0.72,133.269,25,5.8,mww,281,13.8,,0.99,us,usp000jm6s,2015-06-30T16:59:03.969Z,"near the north coast of Papua, Indonesia",earthquake,,,,,reviewed,us,us
 2012-05-31T23:01:03.360Z,-0.902,133.181,53.2,5.6,mwc,135,18.8,,1.07,us,usp000jm6c,2014-11-07T01:47:55.582Z,"near the north coast of Papua, Indonesia",earthquake,,6.1,,,reviewed,us,gcmt
 2012-05-16T00:59:32.380Z,-5.504,149.711,136.6,5.7,mww,336,17.7,,0.94,us,usp000jkft,2015-06-30T16:59:03.965Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2012-05-13T04:46:05.930Z,-0.115,122.996,92.1,5.3,mb,232,41.5,,1.08,us,usp000jkcc,2014-11-07T01:47:47.157Z,"Sulawesi, Indonesia",earthquake,,4.3,,76,reviewed,us,us
 2012-05-03T16:14:16.630Z,-5.466,152.085,31.1,5.3,mb,265,27.4,,0.95,us,usp000jjys,2014-11-07T01:47:43.976Z,"New Britain region, Papua New Guinea",earthquake,,10.5,,191,reviewed,us,us
-2012-04-30T18:11:44.420Z,-5.689,128.511,356.1,5.5,mwb,223,24.8,,1.03,us,usp000jjtu,2014-11-07T01:47:39.058Z,"Banda Sea",earthquake,,,,,reviewed,us,us
+2012-04-30T18:11:44.420Z,-5.689,128.511,356.1,5.5,mwb,223,24.8,,1.03,us,usp000jjtu,2014-11-07T01:47:39.058Z,Banda Sea,earthquake,,,,,reviewed,us,us
 2012-04-28T19:21:03.110Z,-5.328,152.11,35,5.6,mww,309,22.4,,0.98,us,usp000jjr0,2014-11-07T01:47:37.944Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,us
-2012-04-23T21:21:44.860Z,0.374,125.293,48,5.7,mww,413,31.2,,1.23,us,usp000jjg0,2015-06-30T16:59:03.960Z,"Molucca Sea",earthquake,,,,,reviewed,us,us
-2012-04-19T17:23:39.330Z,1.199,126.434,38.5,5.3,mb,222,29.5,,0.94,us,usp000jj8b,2014-11-07T01:47:34.364Z,"Molucca Sea",earthquake,,4.8,,118,reviewed,us,us
+2012-04-23T21:21:44.860Z,0.374,125.293,48,5.7,mww,413,31.2,,1.23,us,usp000jjg0,2015-06-30T16:59:03.960Z,Molucca Sea,earthquake,,,,,reviewed,us,us
+2012-04-19T17:23:39.330Z,1.199,126.434,38.5,5.3,mb,222,29.5,,0.94,us,usp000jj8b,2014-11-07T01:47:34.364Z,Molucca Sea,earthquake,,4.8,,118,reviewed,us,us
 2012-04-18T19:52:38.960Z,-0.501,131.909,29.2,5.3,mb,135,39.6,,1.02,us,usp000jj6z,2014-11-07T01:47:34.102Z,"near the north coast of Papua, Indonesia",earthquake,,12.4,,54,reviewed,us,us
 2012-04-16T18:01:14.940Z,-2.58,121.939,10,5.3,mwb,105,32.8,,1.33,us,usp000jj31,2014-11-07T01:47:32.901Z,"Sulawesi, Indonesia",earthquake,,,,,reviewed,us,us
 2012-04-16T02:17:50.340Z,-2.64,121.855,13,5.8,mww,238,21.8,,1.27,us,usp000jj1m,2017-10-11T20:05:19.897Z,"Sulawesi, Indonesia",earthquake,,,,,reviewed,us,us
@@ -1212,19 +1212,19 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 2012-04-03T23:42:19.370Z,-5.654,133.876,10,5.4,mwc,205,17.5,,0.84,us,usp000jh7b,2014-11-07T01:47:25.824Z,"Kepulauan Kai, Indonesia",earthquake,,,,,reviewed,us,gcmt
 2012-04-03T10:42:34.270Z,-4.397,153.442,104,5.3,mwc,100,39.6,,1.08,us,usp000jh6e,2014-11-07T01:47:25.595Z,"New Ireland region, Papua New Guinea",earthquake,,6.4,,,reviewed,us,gcmt
 2012-04-01T21:44:04.130Z,-4.516,153.427,117.9,5.7,mwb,282,14.5,,1.02,us,usp000jh3y,2014-11-07T01:47:24.156Z,"New Ireland region, Papua New Guinea",earthquake,,7.1,,,reviewed,us,us
-2012-03-19T13:49:05.250Z,0.353,125.075,77.4,5.4,mb,28,62.4,,0.88,us,usp000jgfu,2014-11-07T01:47:16.661Z,"Molucca Sea",earthquake,,6.7,,3,reviewed,us,us
+2012-03-19T13:49:05.250Z,0.353,125.075,77.4,5.4,mb,28,62.4,,0.88,us,usp000jgfu,2014-11-07T01:47:16.661Z,Molucca Sea,earthquake,,6.7,,3,reviewed,us,us
 2012-03-19T13:42:34.670Z,-4.36,143.888,113.4,5.3,mwb,316,15.8,,0.85,us,usp000jgft,2015-03-24T02:20:58.531Z,"New Guinea, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2012-03-07T12:00:46.010Z,-2.814,138.888,53.8,5.6,mww,173,19,,0.94,us,usp000jfwh,2014-11-07T01:47:12.298Z,"Papua, Indonesia",earthquake,,6,,,reviewed,us,us
 2012-03-02T05:09:59.400Z,-8.048,146.265,46.7,5.4,mb,199,18.2,,0.96,us,usp000jfp4,2015-03-24T02:25:47.913Z,"eastern New Guinea region, Papua New Guinea",earthquake,,5.1,,103,reviewed,us,us
 2012-02-22T10:45:22.870Z,-5.173,133.565,19,5.4,mwb,202,23.5,,0.9,us,usp000jf7j,2014-11-07T01:47:03.328Z,"Kepulauan Kai, Indonesia",earthquake,,,,,reviewed,us,us
-2012-02-11T07:06:48.450Z,-0.978,126.853,19,5.5,mwb,235,28.1,,0.84,us,usp000jetn,2014-11-07T01:47:00.314Z,"Molucca Sea",earthquake,,,,,reviewed,us,us
+2012-02-11T07:06:48.450Z,-0.978,126.853,19,5.5,mwb,235,28.1,,0.84,us,usp000jetn,2014-11-07T01:47:00.314Z,Molucca Sea,earthquake,,,,,reviewed,us,us
 2012-02-10T05:34:05.030Z,-0.324,132.691,15,5.7,mww,295,11.9,,0.84,us,usp000jes4,2014-11-07T01:46:59.987Z,"near the north coast of Papua, Indonesia",earthquake,,,,,reviewed,us,us
 2012-02-02T09:32:16.880Z,-6.586,149.718,38.6,5.6,mwc,144,17.7,,0.96,us,usp000jea6,2014-11-07T01:46:56.009Z,"New Britain region, Papua New Guinea",earthquake,,6.3,,,reviewed,us,gcmt
 2012-02-02T06:46:30.290Z,-6.563,149.774,51.3,5.6,mwc,93,31.8,,0.84,us,usp000je9w,2014-11-07T01:46:55.896Z,"New Britain region, Papua New Guinea",earthquake,,6.2,,,reviewed,us,gcmt
 2012-01-28T19:37:31.420Z,-4.081,140.788,82,5.3,mb,152,20.1,,0.87,us,usp000je3p,2014-11-07T01:46:51.485Z,"Papua, Indonesia",earthquake,,,,86,reviewed,us,us
 2012-01-20T20:32:53.440Z,-8.406,119.701,126.3,5.7,mww,410,14.6,,0.95,us,usp000jds3,2015-03-24T01:24:56.535Z,"Flores region, Indonesia",earthquake,,3.9,,,reviewed,us,us
-2012-01-18T12:50:20.530Z,-0.877,126.829,19.1,5.8,mww,241,38.9,,1,us,usp000jdn4,2014-11-07T01:46:47.955Z,"Molucca Sea",earthquake,,8.7,,,reviewed,us,us
-2012-01-16T10:26:47.020Z,-0.228,125.475,61.8,5.3,mb,127,49.3,,1.05,us,usp000jdk0,2014-11-07T01:46:47.577Z,"Molucca Sea",earthquake,,5.2,,69,reviewed,us,us
+2012-01-18T12:50:20.530Z,-0.877,126.829,19.1,5.8,mww,241,38.9,,1,us,usp000jdn4,2014-11-07T01:46:47.955Z,Molucca Sea,earthquake,,8.7,,,reviewed,us,us
+2012-01-16T10:26:47.020Z,-0.228,125.475,61.8,5.3,mb,127,49.3,,1.05,us,usp000jdk0,2014-11-07T01:46:47.577Z,Molucca Sea,earthquake,,5.2,,69,reviewed,us,us
 2012-01-07T17:24:51.120Z,-5.081,145.214,62.4,5.4,mwb,221,47,,0.98,us,usp000jd68,2014-11-07T01:46:44.613Z,"eastern New Guinea region, Papua New Guinea",earthquake,,5.6,,,reviewed,us,us
 2011-12-19T01:23:23.840Z,-1.265,119.638,10,5.7,mww,182,17.9,,1.06,us,usp000jccs,2017-04-26T18:12:52.868Z,"Sulawesi, Indonesia",earthquake,,,,,reviewed,us,us
 2011-12-07T13:38:28.070Z,-1.439,126.514,28.5,5.8,mww,319,29.4,,0.88,us,usp000jbxe,2015-05-13T18:54:01.000Z,"Kepulauan Sula, Indonesia",earthquake,,6.3,,,reviewed,us,us
@@ -1233,15 +1233,15 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 2011-12-02T05:19:26.890Z,0.121,120.499,75,5.5,mwb,408,16.5,,0.99,us,usp000jbqd,2015-05-13T18:54:01.000Z,"Minahasa, Sulawesi, Indonesia",earthquake,,,,,reviewed,us,us
 2011-12-01T22:53:36.500Z,-0.626,121.974,10,5.5,mwc,157,25.3,,1.18,us,usp000jbpz,2015-03-24T02:34:02.025Z,"Sulawesi, Indonesia",earthquake,,,,,reviewed,us,gcmt
 2011-11-28T14:27:57.370Z,-5.555,153.664,55,5.3,mwc,116,20.4,,1.07,us,usp000jbj4,2014-11-07T01:46:25.528Z,"New Ireland region, Papua New Guinea",earthquake,,6.7,,,reviewed,us,gcmt
-2011-11-28T09:13:11.340Z,-7.019,116.983,616.5,5.8,mww,521,14.7,,0.78,us,usp000jbh2,2015-05-13T18:54:01.000Z,"Bali Sea",earthquake,,2.3,,,reviewed,us,us
+2011-11-28T09:13:11.340Z,-7.019,116.983,616.5,5.8,mww,521,14.7,,0.78,us,usp000jbh2,2015-05-13T18:54:01.000Z,Bali Sea,earthquake,,2.3,,,reviewed,us,us
 2011-11-21T03:48:39.820Z,-3.446,150.322,35,5.3,mwc,87,56.3,,1.38,us,usp000jb6n,2014-11-07T01:46:23.469Z,"New Ireland region, Papua New Guinea",earthquake,,,,,reviewed,us,gcmt
 2011-11-20T16:31:38.710Z,-2.952,142.138,10,5.7,mwb,107,21.7,,1.14,us,usp000jb5z,2015-03-20T19:04:14.104Z,"near the north coast of New Guinea, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2011-11-18T08:56:10.260Z,-6.335,149.305,57,5.4,mwc,69,29.5,,1.15,us,usp000jb1u,2014-11-07T01:46:22.475Z,"New Britain region, Papua New Guinea",earthquake,,9.2,,,reviewed,us,gcmt
 2011-11-15T23:42:29.290Z,-5.28,140.311,12,5.7,mww,207,22.6,,0.99,us,usp000jax4,2017-04-13T22:26:58.849Z,"Papua, Indonesia",earthquake,,,,,reviewed,us,us
 2011-11-15T10:43:51.850Z,-0.095,121.914,276.2,5.7,mww,436,12.6,,0.9,us,usp000jawp,2015-05-13T18:54:01.000Z,"Sulawesi, Indonesia",earthquake,,3,,,reviewed,us,us
 2011-11-15T07:56:02.230Z,-7.482,127.849,166,5.5,mww,464,22.1,,0.86,us,usp000jawe,2015-05-13T18:54:01.000Z,"Kepulauan Barat Daya, Indonesia",earthquake,,,,,reviewed,us,us
-2011-11-07T04:44:38.550Z,-3.649,149.622,41.1,5.3,mwc,98,32.8,,1.09,us,usp000jagg,2014-11-07T01:46:18.794Z,"Bismarck Sea",earthquake,,9.2,,,reviewed,us,gcmt
-2011-11-07T01:43:37.370Z,-3.59,149.631,23.9,5.3,mwc,42,53.5,,0.84,us,usp000jag6,2014-11-07T01:46:18.748Z,"Bismarck Sea",earthquake,,19.8,,,reviewed,us,gcmt
+2011-11-07T04:44:38.550Z,-3.649,149.622,41.1,5.3,mwc,98,32.8,,1.09,us,usp000jagg,2014-11-07T01:46:18.794Z,Bismarck Sea,earthquake,,9.2,,,reviewed,us,gcmt
+2011-11-07T01:43:37.370Z,-3.59,149.631,23.9,5.3,mwc,42,53.5,,0.84,us,usp000jag6,2014-11-07T01:46:18.748Z,Bismarck Sea,earthquake,,19.8,,,reviewed,us,gcmt
 2011-11-01T01:03:53.480Z,0.048,123.366,143.3,5.3,mwc,380,14.1,,0.99,us,usp000ja69,2014-11-07T01:46:15.164Z,"Minahasa, Sulawesi, Indonesia",earthquake,,3.7,,,reviewed,us,gcmt
 2011-10-30T02:10:39.110Z,-4.343,144.351,51,5.3,mwc,112,31.3,,0.82,us,usp000ja3t,2014-11-07T01:46:12.471Z,"near the north coast of New Guinea, Papua New Guinea",earthquake,,5.9,,,reviewed,us,gcmt
 2011-10-28T23:50:56.040Z,-3.075,129.649,20.1,5.3,mwc,177,29.6,,0.88,us,usp000ja22,2014-11-07T01:46:12.203Z,"Seram, Indonesia",earthquake,,8.2,,,reviewed,us,gcmt
@@ -1252,16 +1252,16 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 2011-09-12T22:44:28.080Z,-3.626,144.178,14,5.9,mww,292,14.6,,0.98,us,usp000j7zc,2017-04-26T18:12:34.085Z,"near the north coast of New Guinea, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2011-08-31T10:46:49.470Z,-5.907,153.278,35.9,5.6,mww,182,14.1,,0.95,us,usp000j7ag,2015-05-13T18:54:00.000Z,"New Ireland region, Papua New Guinea",earthquake,,5.2,,,reviewed,us,us
 2011-08-21T13:04:08.160Z,-5.57,151.024,40,5.8,mww,375,19,,0.92,us,usp000j6tk,2015-05-13T18:54:00.000Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,us
-2011-08-19T07:48:09.680Z,-7.817,123.281,229.2,5.3,mwc,345,31.2,,0.92,us,usp000j6p1,2014-11-07T01:45:38.294Z,"Banda Sea",earthquake,,3.2,,,reviewed,us,gcmt
+2011-08-19T07:48:09.680Z,-7.817,123.281,229.2,5.3,mwc,345,31.2,,0.92,us,usp000j6p1,2014-11-07T01:45:38.294Z,Banda Sea,earthquake,,3.2,,,reviewed,us,gcmt
 2011-08-16T17:33:07.620Z,-5.557,147.144,186.4,5.6,mwb,270,17.9,,0.93,us,usp000j6jb,2015-05-13T18:54:00.000Z,"eastern New Guinea region, Papua New Guinea",earthquake,,,,,reviewed,us,us
-2011-08-12T16:30:36.560Z,-3.217,148.686,10,5.3,mwc,80,61.8,,1.27,us,usp000j6ce,2014-11-07T01:45:35.953Z,"Bismarck Sea",earthquake,,,,,reviewed,us,gcmt
+2011-08-12T16:30:36.560Z,-3.217,148.686,10,5.3,mwc,80,61.8,,1.27,us,usp000j6ce,2014-11-07T01:45:35.953Z,Bismarck Sea,earthquake,,,,,reviewed,us,gcmt
 2011-08-03T22:39:23.010Z,-5.045,148.161,10,5.7,mww,297,19.6,,0.99,us,usp000j5xn,2015-05-13T18:54:00.000Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2011-07-26T17:40:50.020Z,-3.29,150.711,10,5.3,mwc,127,24.8,,1.12,us,usp000j5hp,2014-11-07T01:45:26.913Z,"New Ireland region, Papua New Guinea",earthquake,,,,,reviewed,us,gcmt
 2011-07-16T17:06:39.030Z,-7.089,127.585,249,5.9,mww,395,23.1,,1.01,us,usp000j51b,2015-06-30T16:59:03.870Z,"Kepulauan Barat Daya, Indonesia",earthquake,,,,,reviewed,us,us
-2011-07-12T21:06:13.620Z,-6.055,130.492,131.4,5.6,mww,230,15.5,,1.05,us,usp000j4sj,2015-05-13T18:54:00.000Z,"Banda Sea",earthquake,,4.4,,,reviewed,us,us
+2011-07-12T21:06:13.620Z,-6.055,130.492,131.4,5.6,mww,230,15.5,,1.05,us,usp000j4sj,2015-05-13T18:54:00.000Z,Banda Sea,earthquake,,4.4,,,reviewed,us,us
 2011-07-11T08:53:58.070Z,-4.061,121.694,35,5.5,mwc,87,78,,1.06,us,usp000j4mf,2015-03-20T19:00:59.311Z,"Sulawesi, Indonesia",earthquake,,,,,reviewed,us,gcmt
-2011-07-11T00:27:25.990Z,-3.306,146.472,18.1,5.3,mwc,113,33.4,,1.08,us,usp000j4kb,2014-11-07T01:45:20.193Z,"Bismarck Sea",earthquake,,3.7,,,reviewed,us,gcmt
-2011-07-09T05:51:38.540Z,-4.137,129.396,21,5.5,mwb,309,43.7,,0.82,us,usp000j4e6,2015-05-13T18:54:00.000Z,"Banda Sea",earthquake,,,,,reviewed,us,us
+2011-07-11T00:27:25.990Z,-3.306,146.472,18.1,5.3,mwc,113,33.4,,1.08,us,usp000j4kb,2014-11-07T01:45:20.193Z,Bismarck Sea,earthquake,,3.7,,,reviewed,us,gcmt
+2011-07-09T05:51:38.540Z,-4.137,129.396,21,5.5,mwb,309,43.7,,0.82,us,usp000j4e6,2015-05-13T18:54:00.000Z,Banda Sea,earthquake,,,,,reviewed,us,us
 2011-07-08T05:22:40.820Z,0.131,123.244,159.3,5.3,mww,448,12.2,,0.89,us,usp000j4cg,2014-11-07T01:45:18.464Z,"Minahasa, Sulawesi, Indonesia",earthquake,,4.1,,,reviewed,us,us
 2011-07-01T16:25:48.580Z,-6.626,147.85,35,5.6,mww,129,28.7,,1.35,us,usp000j417,2015-05-13T18:54:00.000Z,"eastern New Guinea region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2011-06-27T16:47:14.290Z,-8.926,122.471,119.7,5.5,mww,408,35.8,,0.97,us,usp000j3ug,2015-05-13T18:54:00.000Z,"Flores region, Indonesia",earthquake,,3.9,,,reviewed,us,us
@@ -1271,19 +1271,19 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 2011-06-26T12:19:16.690Z,-2.412,136.657,18.8,5.6,mb,41,33.8,,0.94,us,usp000j3sq,2017-04-26T18:12:20.093Z,"near the north coast of Papua, Indonesia",earthquake,,20.9,,14,reviewed,us,us
 2011-06-17T03:12:12.270Z,-5.929,151.183,10,5.3,mwc,173,22,,0.96,us,usp000j3a4,2014-11-07T01:45:06.410Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,gcmt
 2011-06-16T00:10:10.630Z,-5.876,151.26,13.2,5.3,mb,33,46.5,,1.24,us,usp000j37r,2014-11-07T01:45:06.089Z,"New Britain region, Papua New Guinea",earthquake,,28.1,,10,reviewed,us,us
-2011-06-08T15:40:15.100Z,-4.571,149.936,511.4,5.5,mwc,320,21.2,,0.75,us,usp000j2vr,2015-05-13T18:54:00.000Z,"Bismarck Sea",earthquake,,,,,reviewed,us,gcmt
+2011-06-08T15:40:15.100Z,-4.571,149.936,511.4,5.5,mwc,320,21.2,,0.75,us,usp000j2vr,2015-05-13T18:54:00.000Z,Bismarck Sea,earthquake,,,,,reviewed,us,gcmt
 2011-06-05T07:02:08.670Z,-3.692,152.084,10,5.4,mwc,136,29.4,,1.08,us,usp000j2r6,2015-03-24T02:36:22.941Z,"New Ireland region, Papua New Guinea",earthquake,,,,,reviewed,us,gcmt
 2011-05-27T18:47:22.930Z,-4.347,143.994,137.6,5.3,mwc,142,26.7,,0.88,us,usp000j2a7,2014-11-07T01:44:55.583Z,"New Guinea, Papua New Guinea",earthquake,,,,,reviewed,us,gcmt
 2011-05-26T08:57:34.330Z,-8.295,121.673,30.5,5.3,mwc,143,45.8,,1.05,us,usp000j27j,2014-11-07T01:44:55.221Z,"Flores region, Indonesia",earthquake,,9,,,reviewed,us,gcmt
 2011-05-20T19:47:15.860Z,-7.091,147.037,18.2,5.3,mb,93,37.6,,1.14,us,usp000j1wk,2014-11-07T01:44:52.952Z,"eastern New Guinea region, Papua New Guinea",earthquake,,17.4,,58,reviewed,us,us
 2011-05-20T19:43:16.170Z,-7.192,146.909,7,5.7,mww,373,15.5,,1.03,us,usp000j1wj,2017-04-13T22:26:25.477Z,"eastern New Guinea region, Papua New Guinea",earthquake,,,,,reviewed,us,us
-2011-05-19T06:33:11.750Z,-6.994,123.398,631.7,5.3,mwc,109,25.6,,0.79,us,usp000j1tu,2014-11-07T01:44:52.354Z,"Banda Sea",earthquake,,3.5,,,reviewed,us,gcmt
+2011-05-19T06:33:11.750Z,-6.994,123.398,631.7,5.3,mwc,109,25.6,,0.79,us,usp000j1tu,2014-11-07T01:44:52.354Z,Banda Sea,earthquake,,3.5,,,reviewed,us,gcmt
 2011-05-18T18:51:26.580Z,-6.628,147.893,52.9,5.5,mwc,113,17.1,,1.02,us,usp000j1t2,2014-11-07T01:44:52.253Z,"eastern New Guinea region, Papua New Guinea",earthquake,,5.7,,,reviewed,us,gcmt
 2011-05-17T00:14:57.650Z,-9.203,112.585,28,5.7,mww,345,24.3,,1.12,us,usp000j1q5,2015-06-30T16:59:03.847Z,"south of Java, Indonesia",earthquake,,,,,reviewed,us,us
 2011-05-15T06:47:05.310Z,-3.113,139.703,102.8,5.3,mww,150,20.3,,0.94,us,usp000j1mp,2014-11-07T01:44:51.262Z,"Papua, Indonesia",earthquake,,6,,,reviewed,us,us
 2011-05-06T06:46:23.470Z,-0.065,122.948,82,5.5,mww,416,24.1,,0.92,us,usp000j13b,2015-05-13T18:54:00.000Z,"Sulawesi, Indonesia",earthquake,,,,,reviewed,us,us
-2011-04-30T05:45:35.040Z,-3.262,148.625,8,5.7,mww,167,19.5,,1,us,usp000j0t2,2015-05-13T18:54:00.000Z,"Bismarck Sea",earthquake,,,,,reviewed,us,us
-2011-04-26T21:43:47.550Z,-8.81,125.659,9.8,5.3,mwc,323,31.3,,1.1,us,usp000j0nc,2015-03-24T01:17:00.960Z,"East Timor region",earthquake,,11.9,,,reviewed,us,gcmt
+2011-04-30T05:45:35.040Z,-3.262,148.625,8,5.7,mww,167,19.5,,1,us,usp000j0t2,2015-05-13T18:54:00.000Z,Bismarck Sea,earthquake,,,,,reviewed,us,us
+2011-04-26T21:43:47.550Z,-8.81,125.659,9.8,5.3,mwc,323,31.3,,1.1,us,usp000j0nc,2015-03-24T01:17:00.960Z,East Timor region,earthquake,,11.9,,,reviewed,us,gcmt
 2011-04-26T06:39:36.520Z,-8.081,108.477,95.4,5.6,mww,215,27,,1.03,us,usp000j0m1,2015-05-13T18:54:00.000Z,"Java, Indonesia",earthquake,,6.7,,,reviewed,us,us
 2011-04-02T06:05:00.730Z,-5.574,153.964,55,5.5,mwb,209,15.6,,0.95,us,usp000hz47,2014-11-07T01:44:27.149Z,"New Ireland region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2011-03-19T16:11:59.850Z,-6.094,149.443,72.2,5.3,mwc,114,46.1,,1.24,us,usp000hxyb,2014-11-07T01:44:14.795Z,"New Britain region, Papua New Guinea",earthquake,,7.3,,,reviewed,us,gcmt
@@ -1293,44 +1293,44 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 2011-02-16T02:15:38.160Z,-6.122,149.395,48.9,5.4,mwb,119,22.9,,1.26,us,usp000huka,2015-05-13T18:53:59.000Z,"New Britain region, Papua New Guinea",earthquake,,7.6,,,reviewed,us,us
 2011-02-13T23:51:02.090Z,-4.294,153.01,48.6,5.3,mb,74,36,,1.23,us,usp000hug2,2014-11-07T01:43:40.065Z,"New Ireland region, Papua New Guinea",earthquake,,8.4,,30,reviewed,us,us
 2011-01-26T08:01:30.920Z,-5.476,147.132,220.6,5.3,mwc,161,25.7,,0.83,us,usp000htny,2014-11-07T01:43:30.033Z,"eastern New Guinea region, Papua New Guinea",earthquake,,4.8,,,reviewed,us,gcmt
-2011-01-15T12:56:26.770Z,-5.65,130.252,198.8,5.7,mwb,224,32.7,,0.91,us,usp000ht5t,2015-05-13T18:53:58.000Z,"Banda Sea",earthquake,,3.9,,,reviewed,us,us
-2011-01-14T16:39:29.280Z,-6.959,129.231,167.8,5.4,mwc,137,38.8,,1.02,us,usp000ht3u,2015-03-24T02:16:35.635Z,"Banda Sea",earthquake,,,,,reviewed,us,gcmt
-2011-01-08T04:10:56.690Z,-0.026,124.913,56.7,5.6,mwc,224,22.2,,1.15,us,usp000hsqz,2015-05-13T18:53:58.000Z,"Molucca Sea",earthquake,,5.2,,,reviewed,us,gcmt
+2011-01-15T12:56:26.770Z,-5.65,130.252,198.8,5.7,mwb,224,32.7,,0.91,us,usp000ht5t,2015-05-13T18:53:58.000Z,Banda Sea,earthquake,,3.9,,,reviewed,us,us
+2011-01-14T16:39:29.280Z,-6.959,129.231,167.8,5.4,mwc,137,38.8,,1.02,us,usp000ht3u,2015-03-24T02:16:35.635Z,Banda Sea,earthquake,,,,,reviewed,us,gcmt
+2011-01-08T04:10:56.690Z,-0.026,124.913,56.7,5.6,mwc,224,22.2,,1.15,us,usp000hsqz,2015-05-13T18:53:58.000Z,Molucca Sea,earthquake,,5.2,,,reviewed,us,gcmt
 2011-01-06T00:23:59.640Z,-4.115,142.241,113.2,5.3,mwc,197,17.1,,1.08,us,usp000hsmr,2014-11-07T01:43:22.358Z,"New Guinea, Papua New Guinea",earthquake,,,,,reviewed,us,gcmt
-2010-12-23T16:28:14.780Z,-7.999,119.951,206.8,5.5,mwc,270,29.9,,1.12,us,usp000hrqk,2016-11-10T02:37:56.584Z,"Flores Sea",earthquake,,,,,reviewed,us,gcmt
+2010-12-23T16:28:14.780Z,-7.999,119.951,206.8,5.5,mwc,270,29.9,,1.12,us,usp000hrqk,2016-11-10T02:37:56.584Z,Flores Sea,earthquake,,,,,reviewed,us,gcmt
 2010-12-21T03:59:38.350Z,-8.7,111.197,54.6,5.6,mwb,310,21.4,,1.01,us,usp000hr88,2016-11-10T02:37:40.864Z,"Java, Indonesia",earthquake,,4.4,,,reviewed,us,us
-2010-12-17T13:22:45.380Z,-6.48,129.996,154.9,5.5,mwc,148,37.1,,1.13,us,usp000hr19,2016-11-10T02:37:30.958Z,"Banda Sea",earthquake,,,,,reviewed,us,gcmt
+2010-12-17T13:22:45.380Z,-6.48,129.996,154.9,5.5,mwc,148,37.1,,1.13,us,usp000hr19,2016-11-10T02:37:30.958Z,Banda Sea,earthquake,,,,,reviewed,us,gcmt
 2010-12-13T13:30:50.180Z,-8.092,119.812,191.2,5.4,mwc,314,34.1,,0.97,us,usp000hqw1,2016-11-10T02:37:20.615Z,"Flores region, Indonesia",earthquake,,3.6,,,reviewed,us,gcmt
-2010-12-12T15:59:19.660Z,-5.971,117.707,31.1,5.4,mwc,114,38.8,,1.16,us,usp000hquy,2016-11-10T02:37:18.065Z,"Java Sea",earthquake,,10.1,,,reviewed,us,gcmt
+2010-12-12T15:59:19.660Z,-5.971,117.707,31.1,5.4,mwc,114,38.8,,1.16,us,usp000hquy,2016-11-10T02:37:18.065Z,Java Sea,earthquake,,10.1,,,reviewed,us,gcmt
 2010-12-12T14:53:10.520Z,-6.366,150.265,25.2,5.4,mwc,170,20,,1.39,us,usp000hquq,2016-11-10T02:37:16.992Z,"New Britain region, Papua New Guinea",earthquake,,15.4,,,reviewed,us,gcmt
-2010-12-08T15:31:05.820Z,-6.686,129.898,171.9,5.5,mwb,226,26.4,,0.95,us,usp000hqpa,2016-11-10T02:37:07.918Z,"Banda Sea",earthquake,,2.4,,,reviewed,us,us
-2010-12-04T12:55:11.370Z,-6.409,130.473,119.4,5.4,mwb,77,37,,0.8,us,usp000hqgf,2016-11-10T02:36:58.220Z,"Banda Sea",earthquake,,,,,reviewed,us,us
+2010-12-08T15:31:05.820Z,-6.686,129.898,171.9,5.5,mwb,226,26.4,,0.95,us,usp000hqpa,2016-11-10T02:37:07.918Z,Banda Sea,earthquake,,2.4,,,reviewed,us,us
+2010-12-04T12:55:11.370Z,-6.409,130.473,119.4,5.4,mwb,77,37,,0.8,us,usp000hqgf,2016-11-10T02:36:58.220Z,Banda Sea,earthquake,,,,,reviewed,us,us
 2010-11-26T17:36:11.790Z,-3.369,131.014,14,5.8,mwb,200,24.1,,1.13,us,usp000hq5d,2016-11-10T02:36:41.565Z,"Ceram Sea, Indonesia",earthquake,,,,,reviewed,us,us
 2010-11-17T15:53:31.650Z,-7.797,129.446,23,5.9,mwc,222,36.8,,1.01,us,usp000hpt2,2017-04-26T18:11:32.329Z,"Kepulauan Babar, Indonesia",earthquake,,,,,reviewed,us,us
-2010-11-16T20:06:38.690Z,-5.897,130.7,119.4,5.4,mwb,201,35.8,,1.07,us,usp000hpry,2016-11-10T02:36:17.973Z,"Banda Sea",earthquake,,4.5,,,reviewed,us,us
+2010-11-16T20:06:38.690Z,-5.897,130.7,119.4,5.4,mwb,201,35.8,,1.07,us,usp000hpry,2016-11-10T02:36:17.973Z,Banda Sea,earthquake,,4.5,,,reviewed,us,us
 2010-11-16T01:39:42.810Z,-1.99,139.017,13,5.9,mwb,276,9.3,,0.93,us,usp000hpqk,2017-04-26T18:11:31.759Z,"near the north coast of Papua, Indonesia",earthquake,,,,,reviewed,us,us
-2010-11-12T02:14:46.220Z,-6.553,130.035,168.7,5.5,mwb,303,15.6,,0.83,us,usp000hpee,2016-11-09T08:38:46.069Z,"Banda Sea",earthquake,,2.6,,,reviewed,us,us
-2010-11-10T03:09:26.840Z,0.457,126.11,53,5.3,mwc,167,26.3,,1.01,us,usp000hpbv,2016-11-10T02:35:54.484Z,"Molucca Sea",earthquake,,4.7,,,reviewed,us,gcmt
+2010-11-12T02:14:46.220Z,-6.553,130.035,168.7,5.5,mwb,303,15.6,,0.83,us,usp000hpee,2016-11-09T08:38:46.069Z,Banda Sea,earthquake,,2.6,,,reviewed,us,us
+2010-11-10T03:09:26.840Z,0.457,126.11,53,5.3,mwc,167,26.3,,1.01,us,usp000hpbv,2016-11-10T02:35:54.484Z,Molucca Sea,earthquake,,4.7,,,reviewed,us,gcmt
 2010-11-09T07:03:30.360Z,-8.634,110.026,63,5.4,mwb,302,22.9,,1.14,us,usp000hpad,2016-11-10T02:35:50.943Z,"Java, Indonesia",earthquake,,,,,reviewed,us,us
 2010-11-08T21:40:10.490Z,-4.176,142.202,115.3,5.4,mwb,213,12.3,,0.96,us,usp000hp9w,2016-11-10T02:35:50.447Z,"New Guinea, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2010-11-02T06:39:55.060Z,-5.355,151.556,35,5.8,mwc,327,17.9,,1.04,us,usp000hnwk,2016-11-10T02:35:35.160Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,gcmt
 2010-11-01T05:16:34.400Z,-6.37,150.22,8.7,5.5,mwb,162,18.7,,1.11,us,usp000hnvd,2016-11-10T02:35:33.639Z,"New Britain region, Papua New Guinea",earthquake,,9.3,,,reviewed,us,us
 2010-10-31T16:38:49.490Z,-6.385,150.161,10,5.8,mwc,225,15.8,,1.33,us,usp000hnum,2017-04-26T18:11:28.270Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,gcmt
 2010-10-28T03:17:24.760Z,-5.51,153.744,33,5.8,mwc,186,20.8,,1.18,us,usp000hnpg,2016-11-10T02:35:28.122Z,"New Ireland region, Papua New Guinea",earthquake,,,,,reviewed,us,gcmt
-2010-10-25T12:05:28.930Z,-0.071,125.059,37,5.8,mwc,288,23.8,,1.09,us,usp000hnhx,2016-11-10T02:35:19.098Z,"Molucca Sea",earthquake,,,,,reviewed,us,gcmt
+2010-10-25T12:05:28.930Z,-0.071,125.059,37,5.8,mwc,288,23.8,,1.09,us,usp000hnhx,2016-11-10T02:35:19.098Z,Molucca Sea,earthquake,,,,,reviewed,us,gcmt
 2010-10-24T23:15:49.610Z,-5.447,154.231,129,5.3,mwc,166,35.1,,0.83,us,usp000hnh7,2016-11-10T02:35:16.593Z,"Bougainville region, Papua New Guinea",earthquake,,3.4,,,reviewed,us,gcmt
 2010-10-21T11:00:32.730Z,-6.125,150.869,42.5,5.5,mwc,164,24.1,,1.3,us,usp000hnc5,2016-11-10T02:35:02.928Z,"New Britain region, Papua New Guinea",earthquake,,9.4,,,reviewed,us,gcmt
 2010-10-16T15:44:30.290Z,-7.366,125.699,7,5.9,mwb,242,32.7,,1.01,us,usp000hn60,2016-11-10T02:34:49.083Z,"Kepulauan Barat Daya, Indonesia",earthquake,,,,,reviewed,us,us
 2010-10-12T10:21:36.170Z,-4.915,133.71,13,5.9,mwc,214,17.5,,0.91,us,usp000hn0t,2016-11-10T02:34:40.205Z,"near the south coast of Papua, Indonesia",earthquake,,,,,reviewed,us,us
 2010-10-05T19:22:04.440Z,-3.416,150.976,35,5.3,mwc,58,83.9,,1.22,us,usp000hmnc,2016-11-10T02:34:19.010Z,"New Ireland region, Papua New Guinea",earthquake,,,,,reviewed,us,gcmt
-2010-10-02T11:29:05.460Z,-6.559,128.751,239.6,5.5,mwb,148,23.8,,0.92,us,usp000hmg5,2016-11-10T02:34:05.489Z,"Banda Sea",earthquake,,4,,,reviewed,us,us
+2010-10-02T11:29:05.460Z,-6.559,128.751,239.6,5.5,mwb,148,23.8,,0.92,us,usp000hmg5,2016-11-10T02:34:05.489Z,Banda Sea,earthquake,,4,,,reviewed,us,us
 2010-10-01T01:24:26.100Z,-10.925,113.794,15.4,5.3,mwc,197,23.2,,0.94,us,usp000hme4,2016-11-10T02:33:58.477Z,"south of Java, Indonesia",earthquake,,9.8,,,reviewed,us,gcmt
 2010-09-30T03:45:01.780Z,-0.307,133.498,13,5.6,mwc,300,13.9,,1.13,us,usp000hmcp,2016-11-10T02:33:53.968Z,"near the north coast of Papua, Indonesia",earthquake,,,,,reviewed,us,gcmt
 2010-09-30T02:11:03.790Z,-4.949,133.846,16.1,5.5,mwc,139,22.1,,0.81,us,usp000hmcj,2016-11-10T02:33:53.138Z,"near the south coast of Papua, Indonesia",earthquake,,10.1,,,reviewed,us,gcmt
 2010-09-26T11:08:44.390Z,-5.573,146.462,95,5.6,mwb,180,21.5,,1,us,usp000hm79,2016-11-10T02:33:37.647Z,"eastern New Guinea region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2010-09-23T12:53:08.540Z,-5.826,151.544,35,5.6,mwc,129,33.2,,0.81,us,usp000hm3j,2016-11-10T02:33:29.873Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,gcmt
 2010-09-11T07:12:31.640Z,-1.068,129.24,14,5.8,mwc,213,20.8,,1.08,us,usp000hkjn,2016-11-10T02:32:56.002Z,"Papua region, Indonesia",earthquake,,,,,reviewed,us,gcmt
-2010-09-09T07:42:36.520Z,-5.999,125.855,518.1,5.3,mb,144,26.4,,0.86,us,usp000hkgb,2014-11-07T01:42:25.835Z,"Banda Sea",earthquake,,3.2,,44,reviewed,us,us
+2010-09-09T07:42:36.520Z,-5.999,125.855,518.1,5.3,mb,144,26.4,,0.86,us,usp000hkgb,2014-11-07T01:42:25.835Z,Banda Sea,earthquake,,3.2,,44,reviewed,us,us
 2010-09-05T17:34:16.640Z,-0.544,127.477,27.1,5.3,mwc,137,43.9,,1.06,us,usp000hka7,2016-11-10T02:32:40.721Z,"Halmahera, Indonesia",earthquake,,9.6,,,reviewed,us,gcmt
 2010-09-05T08:20:12.380Z,-5.993,147.728,57,5.3,mwc,101,26.4,,0.99,us,usp000hk93,2016-11-10T02:32:39.698Z,"eastern New Guinea region, Papua New Guinea",earthquake,,,,,reviewed,us,gcmt
 2010-09-04T03:14:34.520Z,-2.475,138.47,43.5,5.5,mwc,217,17.7,,0.91,us,usp000hk69,2016-11-10T02:32:36.135Z,"Papua, Indonesia",earthquake,,,,,reviewed,us,gcmt
@@ -1345,22 +1345,22 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 2010-07-31T04:28:19.960Z,-6.103,150.404,35,5.4,mwc,144,25.8,,0.82,us,usp000hh70,2016-11-10T02:31:18.307Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,gcmt
 2010-07-27T16:54:12.830Z,-7.318,126.393,377.7,5.5,mwc,86,31.3,,0.86,us,usp000hgx5,2016-11-10T00:22:03.426Z,"Kepulauan Barat Daya, Indonesia",earthquake,,3.7,,,reviewed,us,gcmt
 2010-07-26T17:08:49.850Z,-3.832,141.4,35,5.6,mwc,153,22.5,,1.04,us,usp000hgvb,2016-11-10T02:31:07.722Z,"New Guinea, Papua New Guinea",earthquake,,,,,reviewed,us,gcmt
-2010-07-22T22:26:49.380Z,1.361,126.932,79.5,5.3,mwc,134,32,,1.05,us,usp000hgha,2016-11-10T02:31:01.609Z,"Molucca Sea",earthquake,,4.9,,,reviewed,us,gcmt
+2010-07-22T22:26:49.380Z,1.361,126.932,79.5,5.3,mwc,134,32,,1.05,us,usp000hgha,2016-11-10T02:31:01.609Z,Molucca Sea,earthquake,,4.9,,,reviewed,us,gcmt
 2010-07-20T23:54:33.440Z,-2.769,141.175,38.5,5.3,mwc,134,19,,1,us,usp000hg8f,2016-11-10T02:30:57.050Z,"near the north coast of New Guinea, Papua New Guinea",earthquake,,7.1,,,reviewed,us,gcmt
 2010-07-20T20:31:08.860Z,-6.015,150.696,35,5.6,mwc,233,28,,1.02,us,usp000hg7d,2016-11-10T02:30:56.079Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,gcmt
 2010-07-19T03:01:12.630Z,-6.492,150.197,35,5.4,mwc,74,35.6,,1.07,us,usp000hfsj,2016-11-10T02:30:47.296Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,gcmt
 2010-07-13T23:56:30.500Z,-2.433,138.795,31.1,5.7,mwc,88,41.1,,0.86,us,usp000hf8g,2016-11-10T02:30:38.142Z,"Papua, Indonesia",earthquake,,10.6,,,reviewed,us,gcmt
 2010-07-07T09:13:31.610Z,-6.08,154.508,35,5.3,mwc,91,42.4,,1.11,us,usp000hezs,2016-11-10T02:30:28.099Z,"Bougainville region, Papua New Guinea",earthquake,,,,,reviewed,us,gcmt
 2010-07-07T06:50:40.970Z,-6.169,154.424,35,5.9,mwc,161,20.4,,1.01,us,usp000hezn,2016-11-10T02:30:27.587Z,"Bougainville region, Papua New Guinea",earthquake,,,,,reviewed,us,gcmt
-2010-07-01T16:57:49.260Z,-5.171,129.385,36.3,5.8,mwc,207,26.6,,0.88,us,usp000hesf,2016-11-10T02:30:12.234Z,"Banda Sea",earthquake,,4.3,,,reviewed,us,gcmt
+2010-07-01T16:57:49.260Z,-5.171,129.385,36.3,5.8,mwc,207,26.6,,0.88,us,usp000hesf,2016-11-10T02:30:12.234Z,Banda Sea,earthquake,,4.3,,,reviewed,us,gcmt
 2010-06-26T09:50:43.090Z,-8.07,108.089,68,5.9,mwc,381,19.2,,1.05,us,usp000hejb,2016-11-10T02:29:53.622Z,"Java, Indonesia",earthquake,,,,,reviewed,us,gcmt
 2010-06-20T10:21:35.310Z,-5.885,146.648,80.5,5.4,mwc,192,16.1,,0.92,us,usp000hea7,2016-11-10T02:29:46.601Z,"eastern New Guinea region, Papua New Guinea",earthquake,,6.8,,,reviewed,us,gcmt
 2010-06-19T11:22:46.380Z,-3.319,150.523,35,5.3,mwc,51,89.8,,1.09,us,usp000he9d,2016-11-10T02:29:46.109Z,"New Ireland region, Papua New Guinea",earthquake,,,,,reviewed,us,gcmt
 2010-06-16T00:53:01.050Z,-1.461,119.35,54.7,5.4,mwc,74,38.6,,0.99,us,usp000he33,2016-11-10T02:29:38.089Z,"Sulawesi, Indonesia",earthquake,,5.4,,,reviewed,us,gcmt
-2010-06-16T00:04:52.140Z,-6.46,129.181,223.3,5.3,mwc,123,41.9,,0.96,us,usp000he31,2016-11-10T02:29:37.462Z,"Banda Sea",earthquake,,3.7,,,reviewed,us,gcmt
+2010-06-16T00:04:52.140Z,-6.46,129.181,223.3,5.3,mwc,123,41.9,,0.96,us,usp000he31,2016-11-10T02:29:37.462Z,Banda Sea,earthquake,,3.7,,,reviewed,us,gcmt
 2010-06-02T09:28:53.250Z,-6.159,149.413,34,5.9,mwc,188,14.3,,1.17,us,usp000hdg9,2016-11-10T02:29:01.932Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,gcmt
 2010-05-16T00:33:06.350Z,0.511,124.657,123,5.8,mwb,305,16.4,,1.13,us,usp000hct7,2016-11-10T02:28:14.898Z,"Minahasa, Sulawesi, Indonesia",earthquake,,,,,reviewed,us,us
-2010-05-09T02:02:37.970Z,-8.169,128.936,37.1,5.4,mwc,252,26.4,,0.75,us,usp000hcha,2016-11-10T02:28:05.148Z,"Timor Sea",earthquake,,3.7,,,reviewed,us,gcmt
+2010-05-09T02:02:37.970Z,-8.169,128.936,37.1,5.4,mwc,252,26.4,,0.75,us,usp000hcha,2016-11-10T02:28:05.148Z,Timor Sea,earthquake,,3.7,,,reviewed,us,gcmt
 2010-05-08T05:39:28.080Z,-0.732,122.485,20,5.7,mwc,189,20.5,,1.12,us,usp000hcg2,2016-11-10T02:27:59.865Z,"Sulawesi, Indonesia",earthquake,,,,,reviewed,us,gcmt
 2010-05-08T03:22:09.650Z,-8.085,118.259,12,5.9,mwc,218,32.6,,1.02,us,usp000hcfv,2017-04-26T18:10:54.711Z,"Sumbawa region, Indonesia",earthquake,,,,,reviewed,us,gcmt
 2010-04-23T09:25:59.200Z,-6.701,147.34,67.1,5.4,mwb,93,77.4,,0.9,us,usp000hbtm,2016-11-10T02:27:24.189Z,"eastern New Guinea region, Papua New Guinea",earthquake,,9.3,,,reviewed,us,us
@@ -1369,10 +1369,10 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 2010-04-10T06:16:14.270Z,-4.834,145.687,57.7,5.3,mwc,89,35,,1.03,us,usp000hb3j,2016-11-10T02:26:52.540Z,"near the north coast of New Guinea, Papua New Guinea",earthquake,,9.3,,,reviewed,us,gcmt
 2010-04-09T16:34:25.960Z,-9.6,149.848,37.2,5.4,mwc,126,29.5,,0.84,us,usp000hb29,2016-11-10T02:26:50.572Z,"eastern New Guinea region, Papua New Guinea",earthquake,,6.9,,,reviewed,us,gcmt
 2010-04-02T02:42:07.510Z,-7.633,127.485,176.6,5.4,mwc,206,23.2,,0.81,us,usp000ha7t,2016-11-10T02:26:36.440Z,"Kepulauan Barat Daya, Indonesia",earthquake,,3.3,,,reviewed,us,gcmt
-2010-03-26T10:39:02.630Z,-6.326,130.284,124.2,5.7,mwc,222,15.4,,1.13,us,usp000ha05,2016-11-10T02:26:25.648Z,"Banda Sea",earthquake,,4.1,,,reviewed,us,us
+2010-03-26T10:39:02.630Z,-6.326,130.284,124.2,5.7,mwc,222,15.4,,1.13,us,usp000ha05,2016-11-10T02:26:25.648Z,Banda Sea,earthquake,,4.1,,,reviewed,us,us
 2010-03-25T15:13:20.100Z,-7.289,128.46,165.3,5.4,mwb,314,20,,1.09,us,usp000h9yy,2016-11-10T02:26:23.628Z,"Kepulauan Barat Daya, Indonesia",earthquake,,,,,reviewed,us,us
 2010-02-11T18:43:09.710Z,-9.905,113.845,51,5.8,mwc,359,30.3,,1.18,us,usp000h76j,2016-11-10T02:24:04.490Z,"south of Java, Indonesia",earthquake,,3.3,,,reviewed,us,gcmt
-2010-02-10T20:46:44.840Z,1.037,126.242,42.1,5.4,mwc,173,43,,1.25,us,usp000h75g,2016-11-10T02:24:01.634Z,"Molucca Sea",earthquake,,6.9,,,reviewed,us,gcmt
+2010-02-10T20:46:44.840Z,1.037,126.242,42.1,5.4,mwc,173,43,,1.25,us,usp000h75g,2016-11-10T02:24:01.634Z,Molucca Sea,earthquake,,6.9,,,reviewed,us,gcmt
 2010-01-24T05:38:26.830Z,-8.205,129.029,19,5.5,mwc,169,25.3,,0.93,us,usp000h6j3,2016-11-10T02:23:12.241Z,"Kepulauan Babar, Indonesia",earthquake,,,,,reviewed,us,gcmt
 2010-01-17T09:46:40.380Z,-6.122,152.587,10,5.7,mwc,288,17.4,,0.96,us,usp000h684,2016-11-10T02:22:51.251Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,us
 2010-01-13T17:18:07.990Z,-0.687,133.33,10,5.8,mwc,163,18.8,,1.02,us,usp000h62w,2016-11-10T02:22:43.626Z,"near the north coast of Papua, Indonesia",earthquake,,,,,reviewed,us,gcmt
@@ -1381,3 +1381,4 @@ time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,
 2010-01-06T17:27:55.310Z,-4.405,151.746,199.6,5.6,mwc,262,12.3,,0.85,us,usp000h5t7,2016-11-10T02:22:26.798Z,"New Britain region, Papua New Guinea",earthquake,,,,,reviewed,us,gcmt
 2010-01-03T14:13:53.230Z,-1.858,138.98,9.9,5.3,mwc,101,42,,0.82,us,usp000h5n4,2016-11-10T02:22:17.596Z,"near the north coast of Papua, Indonesia",earthquake,,15.9,,,reviewed,us,gcmt
 2010-01-03T04:11:39.490Z,-5.297,145.859,34,5.8,mwc,193,16,,0.97,us,usp000h5mt,2017-04-26T18:09:56.496Z,"eastern New Guinea region, Papua New Guinea",earthquake,,,,,reviewed,us,us
+2019-09-21T19:53:10.976Z,-6.5102,130.446,48.47,5.9,mww,,30,1.689,1.21,us,us60005lts,2019-09-22T19:55:10.936Z,"186km NNW of Saumlaki, Indonesia",earthquake,5.4,5.4,0.073,18,reviewed,us,us

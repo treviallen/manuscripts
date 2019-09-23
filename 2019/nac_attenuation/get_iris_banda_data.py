@@ -33,7 +33,11 @@ def get_iris_event_data(bulk, folder, timestr, dataless, event):
             staloc = nan
             #first, check it site is in distance and azimuthal range
             for channel in ['SHZ', 'EHZ', 'BHZ', 'HHZ', 'BNZ', 'HNZ']:
-                seedid = '.'.join((b[0], b[1], '00', channel)) # e.g., 'AU.DPH.00.BNZ'
+                if b[0] == 'WRAB':
+                    locCode = '10'
+                else:
+                    locCode = '00'
+                seedid = '.'.join((b[0], b[1], locCode, channel)) # e.g., 'AU.DPH.00.BNZ'
                 try:
                     staloc = dataless.get_coordinates(seedid,b[4])
                 except:
@@ -57,14 +61,11 @@ def get_iris_event_data(bulk, folder, timestr, dataless, event):
                 getRecord = True
                                
             # second, check if file exists
-            print(path.isfile(fpath), getRecord)
+            #print(path.isfile(fpath), getRecord)
             if not path.isfile(fpath) and getRecord == True:
-                 print(fpath, '???')
-                 print(b)
-                 bulk2 = [(b[0], b[1], "*", "[BH]H*", b[4], b[5]),
-                         ("AU", "AFI", "1?", "BHE",  b[4], b[5])]
+                 bulk2 = [(b[0], b[1], b[2], "*", b[4], b[5])] #,
+#                         ("AU", "AFI", "1?", "BHE",  b[4], b[5])]
                  st = fdsn_client.get_waveforms_bulk(bulk2)
-                 print(b)
                  
                  '''
                  st = fdsn_client.get_waveforms(network=b[0], station=b[1], location=b[2],
@@ -73,7 +74,7 @@ def get_iris_event_data(bulk, folder, timestr, dataless, event):
                  '''
                  print(st[0].stats.location)
                  st = st.merge(method=0, fill_value='interpolate')
-                 sta += st 
+                 sta += st
                  
                  print('Writing file:', fpath)
                  st.write(fpath, format="MSEED")
@@ -321,8 +322,7 @@ for ev in evdict[100:]:
                 # get II network
                 t1 = ev['starttime']
                 t2 = t1 + 2100 
-                bulk = [("II", "WRAB", "*", "[BH][HN]*", t1, t2),
-                        ("II", "WRAB", "*", "[BH][HN]*", t1, t2)]  
+                bulk = [("II", "WRAB", "10", "[BH][HN]*", t1, t2)]  
                 '''
                 for b in bulk:
                     fname = '.'.join((ev['timestr'][:16],'II',b[1],'mseed')).replace(':','.')
@@ -337,8 +337,12 @@ for ev in evdict[100:]:
                               t1.day,
                               t1.hour,
                               t1.minute)
-                st, stname = get_iris_data(timetupple, 'WRAB', 'II')
-                #st = get_iris_event_data(bulk, folder, ev['timestr'][:16], ii_parser, ev)
+                
+                # this works!
+                #st, stname = get_iris_data(timetupple, 'WRAB', 'II')
+                
+                # this doesn't!
+                st = get_iris_event_data(bulk, folder, ev['timestr'][:16], ii_parser, ev)
                 
                 ###########################################################################
                 '''
