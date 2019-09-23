@@ -3,6 +3,7 @@ def calc_nac_gmm_spectra(mag, rhyp, dep):
     
     #coeffile = '//Users//trev//Documents//Earthquake_Data//2017_NAC_GMM//ncc_gmm_coeffs.BS.csv'
     coeffile = 'ncc_gmm_coeffs.BS.csv'
+    coeffile = 'ncc_gmm_coeffs.NGH.csv'
     
     coeffs = loadtxt(coeffile, delimiter=',', skiprows=2)  
     

@@ -37,6 +37,7 @@ def parse_usgs_events(usgscsv):
 ################################################################################
 #folder = 'test_picks'
 folder = 'record_picks'
+#folder = 'record_picks_new'
 pickfiles = listdir_extension(folder, 'picks')
 
 ################################################################################
@@ -64,11 +65,6 @@ else:
     ge_parser = Parser('/Users/trev/Documents/Networks/GE/GE1.IRIS.dataless')
     #ge2_parser = Parser('/Users/trev/Documents/Networks/GE/GE2.IRIS.dataless')
 
-'''
-ms_parser = Parser(path.join('..','..','..','Networks','MS', 'MS.dataless'))
-my_parser = Parser(path.join('..','..','..','Networks','MY', 'MY.dataless'))
-tm_parser = Parser(path.join('..','..','..','Networks','TM', 'TM.dataless'))
-'''
                     
 from obspy.clients.arclink.client import Client
 arclink_client = Client(user='trevor.allen@ga.gov.au')
@@ -76,12 +72,13 @@ arclink_client = Client(user='trevor.allen@ga.gov.au')
 from obspy.clients.fdsn.client import Client
 iris_client = Client("IRIS")
 
+'''
 # get mseed datafiles
 extension = 'mseed'
 folder = 'record_picks'
-#folder = 'mseed_jump'
+#folder = 'mseed_dump'
 mseedfiles = listdir_extension(folder, extension)
-
+'''
 sstxt = ''
 
 # loop thru pickfiles
@@ -110,7 +107,7 @@ for p, pf in enumerate(pickfiles):
         channels = [pickDat['ch1'], pickDat['ch2'], pickDat['ch3']]
         
         #newst = Stream()
-        msf = path.join('mseed_dump', path.split(pickDat['mseed_path'])[-1])
+        msf = path.join('mseed_new', path.split(pickDat['mseed_path'])[-1])
                 
         st = read(msf)
         st = st.merge(method=0, fill_value='interpolate')
@@ -203,33 +200,7 @@ for p, pf in enumerate(pickfiles):
                         seedid=tr.get_id()
                         channel = tr.stats.channel
                         start_time = tr.stats.starttime
-                        
-                        #print msf, tr.stats.channel
-                        
-                        if tr.stats.network == 'AU':
-                            paz = au_parser.get_paz(seedid,start_time)
-                            staloc = au_parser.get_coordinates(seedid,start_time)
-                        elif tr.stats.network == 'GE':
-                            paz = ge_parser.get_paz(seedid,start_time)
-                            staloc = ge_parser.get_coordinates(seedid,start_time)
-                        elif tr.stats.network == 'IU':
-                            paz = iu_parser.get_paz(seedid,start_time)
-                            staloc = iu_parser.get_coordinates(seedid,start_time)
-                        else:
-                            paz = s1_parser.get_paz(seedid,start_time)
-                            staloc = s1_parser.get_coordinates(seedid,start_time)
-                        
-                        '''
-                        elif tr.stats.network == 'MY':
-                            paz = my_parser.get_paz(seedid,start_time)
-                            staloc = my_parser.get_coordinates(seedid,start_time)
-                        elif tr.stats.network == 'MS':
-                            paz = ms_parser.get_paz(seedid,start_time)
-                            staloc = ms_parser.get_coordinates(seedid,start_time)
-                        elif tr.stats.network == 'TM':
-                            paz = tm_parser.get_paz(seedid,start_time)
-                            staloc = tm_parser.get_coordinates(seedid,start_time)
-                        '''
+                        #print(seedid)
                         
                         #####################################################################
                         # remove instrument response
@@ -251,42 +222,53 @@ for p, pf in enumerate(pickfiles):
                                         corners=2, zerophase=True)
                         
                         # check if jump site and if so, use stationlist data - IRIS dataless does not work!
-                        tr = tr.simulate(paz_remove=paz)
-                        '''
-                        if tr.stats.station == 'DPH' or tr.stats.station == 'CN1H' \
-                           or tr.stats.station == 'DRS' or tr.stats.station == 'CN2S' \
-                           or tr.stats.station == 'AS31':
+                        #tr = tr.simulate(paz_remove=paz)
+                        print(tr.stats.station)
+                        if tr.stats.station == 'AS31' or tr.stats.station.startswith('PH0'):
                             
                             #recdate = datetime.strptime(ev['timestr'], "%Y-%m-%dT%H:%M:%S.%fZ")
                             recdate = pickDat['origintime']
                             nat_freq, inst_ty, damping, sen, recsen, gain, pazfile, stlo, stla, netid \
                                   = get_response_info(tr.stats.station, recdate, tr.stats.channel)
                             
-                            print pazfile, tr.stats.station
+                            print(pazfile, tr.stats.station)
                             # get fft of trace
-                            print 'calc_fft'
                             freq, wavfft = calc_fft(tr.data, tr.stats.sampling_rate)
-                            
                             # get response for given frequencies
-                            print 'paz_response'
                             real_resp, imag_resp = paz_response(freq, pazfile, sen, recsen, \
                                                                 gain, inst_ty)
-                            
                             # deconvolve response
-                            print 'deconvolve_instrument'
                             corfftr, corffti = deconvolve_instrument(real_resp, imag_resp, wavfft)
                             
                             # make new instrument corrected velocity trace
-                            print 'get_cor_velocity'
                             pgv, ivel = get_cor_velocity(corfftr, corffti, freq, inst_ty)
                             
                             tr.data = ivel.real
                             
+                            staloc = {'latitude':stla, 'longitude':stlo}
+                            
                         # just use IRIS dataless volume - much easier, but less transparent!
                         else:
+                            if tr.stats.network == 'AU':
+                                paz = au_parser.get_paz(seedid,start_time)
+                                staloc = au_parser.get_coordinates(seedid,start_time)
+                            elif tr.stats.network == 'GE':
+                                paz = ge_parser.get_paz(seedid,start_time)
+                                staloc = ge_parser.get_coordinates(seedid,start_time)
+                            elif tr.stats.network == 'IU':
+                                paz = iu_parser.get_paz(seedid,start_time)
+                                staloc = iu_parser.get_coordinates(seedid,start_time)
+                            elif tr.stats.network == 'II':
+                                paz = ii_parser.get_paz(seedid,start_time)
+                                staloc = ii_parser.get_coordinates(seedid,start_time)
+                            elif tr.stats.network == 'S1':
+                                paz = s1_parser.get_paz(seedid,start_time)
+                                staloc = s1_parser.get_coordinates(seedid,start_time)
+                            print(tr.stats.station+'2')
+                            
                             tr = tr.simulate(paz_remove=paz)
                             
-                        '''    
+                            
                         '''
                         # else if using FDSN data
                         else:
@@ -321,5 +303,5 @@ for p, pf in enumerate(pickfiles):
                                                pickDat['eqla'], pickDat['eqlo'], pickDat['eqdp'], pickDat['mag'], rhyp, azim, lofreq, hifreq)
                         
         except:
-            print 'Failed:', pickDat['mseed_path']
+            print('Failed: ' + pickDat['mseed_path'])
     

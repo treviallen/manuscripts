@@ -290,7 +290,7 @@ stdict = pickle.load(open("stdict.pkl", "rb" ))
 ################################################################################
 import scipy.odr.odrpack as odrpack
 xref = 1500 # NGH
-xref = 650 # BS
+#xref = 650 # BS
 #xref = 1000 # OBE
 print('!!!!!!! CHECK THIS !!!!!! - BS xref=650')
 mrng = arange(5.3, 7.9, 0.1)
@@ -306,7 +306,7 @@ def fit_atten(c, x):
 def fit_gr(c, x):
     from numpy import sqrt, log10
     
-    ans = c[0] - c[1]*log10(x)
+    ans = c[0] + c[1]*log10(x)
     
     return ans
 
@@ -446,10 +446,10 @@ def normalise_data(stdict, T):
 # now get geometric atten for all mags
 ################################################################################
 def regress_zone(stdict, zgroup):
-    if zgroup == 'BS':
-        xref = 650
-    else:
-        xref = 800
+    #if zgroup == 'BS':
+    #    xref = 650
+    #else:
+    #    xref = 800
     
     Tplt = array([0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0, 4.0, 5.0, 7.5, 10.]) # secs; PGA = 0.01; PGV = -99
     Tplt = array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0, 4.0, 5.0, 7.5, 10.]) #, 10.]) # secs; PGA = 0.01; PGV = -99
@@ -506,6 +506,7 @@ def regress_zone(stdict, zgroup):
         #data = odrpack.RealData(norm_rhyp[ridx], log10(norm_amp_all[ridx]))
         
         # use binned data
+        hxfix = log10(xref)
         ridx = where(10**medx <= 10**hxfix)[0]
         data = odrpack.RealData(10**medx[ridx], logmedamp[ridx])
         
@@ -522,7 +523,7 @@ def regress_zone(stdict, zgroup):
         c = out.beta
         
         # now plt
-        attenfit = c[0] - c[1]*log10(rrup)
+        attenfit = c[0] + c[1]*log10(rrup)
         plt.loglog(rrup, exp(attenfit), 'k-', lw=2)
         init_c0.append(c[0])
         init_c2.append(c[1])
@@ -551,14 +552,20 @@ def regress_zone(stdict, zgroup):
         bl_init_c0.append(bf)
         bl_init_c2.append(cf)
     
-    bl_init_c0 = array(bl_init_c0)
-    bl_init_c1 = array(bl_init_c1)
-    bl_init_c2 = array(bl_init_c2)
+    if zgroup == 'NGH':
+        bl_init_c0 = array(init_c0)
+        bl_init_c1 = array(init_c2) # c2 from above
+        bl_init_c2 = array(init_c2)*0.
+        hxfix = 4
+    else:
+        bl_init_c0 = array(bl_init_c0)
+        bl_init_c1 = array(bl_init_c1)
+        bl_init_c2 = array(bl_init_c2)
     ################################################################################
     # smooth GR and calc Q
     ################################################################################    
     
-    smooth_c2 = savitzky_golay(init_c2, 7, 3)
+    smooth_c2 = savitzky_golay(init_c2, 7, 3) # slope
     
     for ii, T in enumerate(Tplt):
         ax = plt.subplot(4,5,ii+1)
@@ -630,7 +637,7 @@ def regress_zone(stdict, zgroup):
         
         # now plt
         attenfit = c[0] - c[1]*rrup - c2T*log10(rrup)
-        plt.loglog(rrup, exp(attenfit), 'r-', lw=2)
+        #plt.loglog(rrup, exp(attenfit), 'r-', lw=2)
         init_c3.append(c[1]) # Q
         
         # fit BL atten with Q
@@ -1044,14 +1051,24 @@ def regress_zone(stdict, zgroup):
         logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(deps[nn]), resY[nn])
         plt.plot(medx, logmedamp, 'rs', ms=6.5)
         
-        # fit straight cubic
-        d1, d2, d3, d0 = polyfit(array(medx), array(logmedamp), 3) # binned data
-        #print(log10(deps[nn]), resY[nn])
-        d1, d2, d3, d0 = polyfit(log10(deps[nn]), resY[nn], 3) # full data
-        d0_array.append(d0)
-        d1_array.append(d1)
-        d2_array.append(d2)
-        d3_array.append(d3)
+        if zgroup == 'NGH':# fit linear
+            d3, d0 = polyfit(log10(deps[nn]), resY[nn], 1) # full data
+            d0_array.append(d0)
+            d1_array.append(0.0)
+            d2_array.append(0.0)
+            d3_array.append(d3)
+            d1 = 0.
+            d2 = 0.
+            
+        else:
+            # fit straight cubic
+            d1, d2, d3, d0 = polyfit(array(medx), array(logmedamp), 3) # binned data
+            #print(log10(deps[nn]), resY[nn])
+            d1, d2, d3, d0 = polyfit(log10(deps[nn]), resY[nn], 3) # full data
+            d0_array.append(d0)
+            d1_array.append(d1)
+            d2_array.append(d2)
+            d3_array.append(d3)
         
         # store data for refitting smoothed params
         #t_dept_res.append(logmedamp)
@@ -1105,90 +1122,98 @@ def regress_zone(stdict, zgroup):
     ######################################################################################
     # refit M1 with smoothed M
     ######################################################################################
-    # 
-    refit_d1 = []
-    refit_d2 = []
-    refit_d3 = []
-    # m0_array[i] + d1_array[i]*(mrng-6)**2 + d2_array[i]*(mrng-6)
-    #for c0_dat, sd1 in zip(mag_c0_fit, smooth_m0): # t_dept_c0, t_dept_mw
-    for t_res, dep_dat, sd0 in zip(t_dept_res, t_dept_logdep, smooth_d0):
-         
-        # check nan values
-        nn = where(isnan(t_res)==False)[0]  
-        
-        def fit_fixed_polynomial1(c, x):
-            return sd0 + c[0]*dep_dat[nn]**3 + c[1]*dep_dat[nn]**2 + c[2]*dep_dat[nn]
-        
-        data = odrpack.RealData(dep_dat[nn], t_res[nn])
     
-        depfit = odrpack.Model(fit_fixed_polynomial1)
-        odr = odrpack.ODR(data, depfit, beta0=[0.1, 1., 1.])
+    if zgroup == 'BS':
+        refit_d1 = []
+        refit_d2 = []
+        refit_d3 = []
+        # m0_array[i] + d1_array[i]*(mrng-6)**2 + d2_array[i]*(mrng-6)
+        #for c0_dat, sd1 in zip(mag_c0_fit, smooth_m0): # t_dept_c0, t_dept_mw
+        for t_res, dep_dat, sd0 in zip(t_dept_res, t_dept_logdep, smooth_d0):
+             
+            # check nan values
+            nn = where(isnan(t_res)==False)[0]  
+            
+            def fit_fixed_polynomial1(c, x):
+                return sd0 + c[0]*dep_dat[nn]**3 + c[1]*dep_dat[nn]**2 + c[2]*dep_dat[nn]
+            
+            data = odrpack.RealData(dep_dat[nn], t_res[nn])
         
-        odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
-        out = odr.run()
-        m = out.beta
+            depfit = odrpack.Model(fit_fixed_polynomial1)
+            odr = odrpack.ODR(data, depfit, beta0=[0.1, 1., 1.])
+            
+            odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
+            out = odr.run()
+            m = out.beta
+            
+            refit_d1.append(m[0])
+            refit_d2.append(m[1])
+            refit_d3.append(m[2])
         
-        refit_d1.append(m[0])
-        refit_d2.append(m[1])
-        refit_d3.append(m[2])
+        smooth_d1 = savitzky_golay(array(refit_d1), 7, 3)
+        
+        ######################################################################################
+        # refit d2 with smoothed M!
+        refit_d2 = []
+        refit_d3 = []
+        # m0_array[i] + d1_array[i]*(mrng-6)**2 + d2_array[i]*(mrng-6)
+        #for c0_dat, sd1 in zip(mag_c0_fit, smooth_m0): # t_dept_c0, t_dept_mw
+        for t_res, dep_dat, sd0, sd1 in zip(t_dept_res, t_dept_logdep, smooth_d0, smooth_d1):
+             
+            # check nan values
+            nn = where(isnan(t_res)==False)[0]  
+            
+            def fit_fixed_polynomial1(c, x):
+                return sd0 + sd1*dep_dat[nn]**3 + c[0]*dep_dat[nn]**2 + c[1]*dep_dat[nn]
+            
+            data = odrpack.RealData(dep_dat[nn], t_res[nn])
+        
+            depfit = odrpack.Model(fit_fixed_polynomial1)
+            odr = odrpack.ODR(data, depfit, beta0=[1., 1.])
+            
+            odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
+            out = odr.run()
+            m = out.beta
+            
+            refit_d2.append(m[0])
+            refit_d3.append(m[1])
+        
+        smooth_d2 = savitzky_golay(array(refit_d2), 7, 3)
+        
+        ######################################################################################
+        # refit d3 with smoothed M!
+        refit_d3 = []
+        # m0_array[i] + d1_array[i]*(mrng-6)**2 + d2_array[i]*(mrng-6)
+        #for c0_dat, sd1 in zip(mag_c0_fit, smooth_m0): # t_dept_c0, t_dept_mw
+        for t_res, dep_dat, sd0, sd1, sd2 in zip(t_dept_res, t_dept_logdep, smooth_d0, smooth_d1, smooth_d2):
+             
+            # check nan values
+            nn = where(isnan(t_res)==False)[0]  
+            
+            def fit_fixed_polynomial1(c, x):
+                return sd0 + sd1*dep_dat[nn]**3 + sd2*dep_dat[nn]**2 + c[0]*dep_dat[nn]
+            
+            data = odrpack.RealData(dep_dat[nn], t_res[nn])
+        
+            depfit = odrpack.Model(fit_fixed_polynomial1)
+            odr = odrpack.ODR(data, depfit, beta0=[1.])
+            
+            odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
+            out = odr.run()
+            m = out.beta
+            
+            refit_d3.append(m[0])
+        
+        smooth_d3 = savitzky_golay(array(refit_d3), 7, 3)
+        smooth_d3 = refit_d3
     
-    smooth_d1 = savitzky_golay(array(refit_d1), 7, 3)
-    
-    ######################################################################################
-    # refit d2 with smoothed M!
-    refit_d2 = []
-    refit_d3 = []
-    # m0_array[i] + d1_array[i]*(mrng-6)**2 + d2_array[i]*(mrng-6)
-    #for c0_dat, sd1 in zip(mag_c0_fit, smooth_m0): # t_dept_c0, t_dept_mw
-    for t_res, dep_dat, sd0, sd1 in zip(t_dept_res, t_dept_logdep, smooth_d0, smooth_d1):
-         
-        # check nan values
-        nn = where(isnan(t_res)==False)[0]  
+    # if NGH
+    else:
+        smooth_d0 = d0_array
+        smooth_d1 = d0_array * 0.
+        smooth_d2 = d0_array * 0.
+        smooth_d3 = d3_array
         
-        def fit_fixed_polynomial1(c, x):
-            return sd0 + sd1*dep_dat[nn]**3 + c[0]*dep_dat[nn]**2 + c[1]*dep_dat[nn]
-        
-        data = odrpack.RealData(dep_dat[nn], t_res[nn])
-    
-        depfit = odrpack.Model(fit_fixed_polynomial1)
-        odr = odrpack.ODR(data, depfit, beta0=[1., 1.])
-        
-        odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
-        out = odr.run()
-        m = out.beta
-        
-        refit_d2.append(m[0])
-        refit_d3.append(m[1])
-    
-    smooth_d2 = savitzky_golay(array(refit_d2), 7, 3)
-    
-    ######################################################################################
-    # refit d3 with smoothed M!
-    refit_d3 = []
-    # m0_array[i] + d1_array[i]*(mrng-6)**2 + d2_array[i]*(mrng-6)
-    #for c0_dat, sd1 in zip(mag_c0_fit, smooth_m0): # t_dept_c0, t_dept_mw
-    for t_res, dep_dat, sd0, sd1, sd2 in zip(t_dept_res, t_dept_logdep, smooth_d0, smooth_d1, smooth_d2):
-         
-        # check nan values
-        nn = where(isnan(t_res)==False)[0]  
-        
-        def fit_fixed_polynomial1(c, x):
-            return sd0 + sd1*dep_dat[nn]**3 + sd2*dep_dat[nn]**2 + c[0]*dep_dat[nn]
-        
-        data = odrpack.RealData(dep_dat[nn], t_res[nn])
-    
-        depfit = odrpack.Model(fit_fixed_polynomial1)
-        odr = odrpack.ODR(data, depfit, beta0=[1.])
-        
-        odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
-        out = odr.run()
-        m = out.beta
-        
-        refit_d3.append(m[0])
-    
-    smooth_d3 = savitzky_golay(array(refit_d3), 7, 3)
-    smooth_d3 = refit_d3
-    
     # plt smoothed params
     plt.subplot(222)
     plt.semilogx(Tplt, smooth_d1, 'ro')
@@ -1314,8 +1339,8 @@ zone_group = get_field_data(sf, 'ZONE_GROUP', 'str')
 i = 0
 reg_stdict = []
 
-zgroup1 = 'BS'
-zgroup2 = 'BS'
+zgroup1 = 'NGH'
+zgroup2 = 'NGH'
 
 if zgroup1 == 'BS':
     mmin = 5.25
