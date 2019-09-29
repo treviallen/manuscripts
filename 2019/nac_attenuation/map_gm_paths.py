@@ -13,6 +13,7 @@ import pickle
 #from obspy.imaging.beachball import Beach
 #from hmtk.parsers.catalogue.csv_catalogue_parser import CsvCatalogueParser, CsvCatalogueWriter
 from misc_tools import remove_last_cmap_colour, listdir_extension
+from mapping_tools import drawshapepoly
 
 mpl.style.use('classic')
 #plt.rcParams['pdf.fonttype'] = 42
@@ -53,7 +54,7 @@ recs = pickle.load(open("stdict.pkl", "rb" ))
 urcrnrlat = 1.0
 llcrnrlat = -28.
 urcrnrlon = 160.
-llcrnrlon = 110
+llcrnrlon = 107
 lon_0 = mean([llcrnrlon, urcrnrlon])
 lat_1 = percentile([llcrnrlat, urcrnrlat], 25)
 lat_2 = percentile([llcrnrlat, urcrnrlat], 75)
@@ -81,41 +82,6 @@ m.drawmeridians(arange(0.,360.,6.), labels=[0,0,0,1], fontsize=16, dashes=[2, 2]
 #m.drawmapscale(144, -34.8, 146., -38.5, 400, fontsize = 16, barstyle='fancy', zorder=100)
 
 ##########################################################################################
-# plot gebco
-##########################################################################################
-"""
-print('Reading netCDF file...')
-nc = NetCDFFile('//Users//trev//Documents//DATA//GMT//GEBCO//Australia_30c.nc')
-
-#zscale =20. #gray
-zscale =30. #colour
-data = nc.variables['elevation'][:] / zscale
-lons = nc.variables['lon'][:]
-lats = nc.variables['lat'][:]
-
-# transform to metres
-nx = int((m.xmax-m.xmin)/500.)+1
-ny = int((m.ymax-m.ymin)/500.)+1
-
-topodat = m.transform_scalar(data,lons,lats,nx,ny)
-
-print('Getting colormap...')
-# get colormap
-#cptfile = '//Users//trev//Documents//DATA//GMT//cpt//mby_topo-bath.cpt'
-cptfile = '//Users//trev//Documents//DATA//GMT//cpt//wiki-2.0.cpt'
-cmap, zvals = cpt2colormap(cptfile, 256)
-cmap = remove_last_cmap_colour(cmap)
-#cmap = cm.get_cmap('terrain', 256)
-
-# make shading
-print('Making map...')
-ls = LightSource(azdeg = 180, altdeg = 5)
-#norm = mpl.colors.Normalize(vmin=-8000/zscale, vmax=5000/zscale)#myb
-norm = mpl.colors.Normalize(vmin=-1000/zscale, vmax=1900/zscale)#wiki
-rgb = ls.shade(topodat, cmap=cmap, norm=norm)
-im = m.imshow(rgb)
-"""
-##########################################################################################
 # add epicentres
 ##########################################################################################
 # get colormap
@@ -133,6 +99,8 @@ shapes = sf.shapes()
 polygons = []
 for poly in shapes:
     polygons.append(Polygon(poly.points))
+    
+drawshapepoly(m, plt, sf, col='r')
 
 # loop thru zones
 i = 0
@@ -169,7 +137,7 @@ for j, poly in enumerate(polygons):
         plt.plot(x, y, 'o', mfc=cs[j*2+1], mec='k', markeredgewidth=0.5, markersize=(-15 + emag[i]*4.), alpha=1., zorder=10000+i)
         
         x, y = m(stlo[i], stla[i])
-        plt.plot(x, y, '^', markerfacecolor='w', markeredgecolor='k', markeredgewidth=0.5, \
+        plt.plot(x, y, '^', markerfacecolor='darkred', markeredgecolor='k', markeredgewidth=0.5, \
                  markersize=9, alpha=1)
     
 # make legend

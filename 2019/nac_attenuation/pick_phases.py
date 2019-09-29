@@ -253,9 +253,9 @@ for mseedfile in mseedfiles:
     
         evFound = False
         for evnum, ev in enumerate(evdict): 
-    	
+
             if st[0].stats.starttime > UTCDateTime(ev['datetime']-timedelta(seconds=901)) \
-               and st[0].stats.starttime < UTCDateTime(ev['datetime']+timedelta(seconds=60)):
+               and st[0].stats.starttime < UTCDateTime(ev['datetime']+timedelta(seconds=120)):
                 evFound = True
                 eqlo = ev['lon']
                 eqla = ev['lat']

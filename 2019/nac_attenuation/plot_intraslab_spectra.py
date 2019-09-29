@@ -3,7 +3,7 @@ def calc_nac_gmm_spectra(mag, rhyp, dep):
     
     #coeffile = '//Users//trev//Documents//Earthquake_Data//2017_NAC_GMM//ncc_gmm_coeffs.BS.csv'
     coeffile = 'ncc_gmm_coeffs.BS.csv'
-    coeffile = 'ncc_gmm_coeffs.NGH.csv'
+    #coeffile = 'ncc_gmm_coeffs.NGH.csv'
     
     coeffs = loadtxt(coeffile, delimiter=',', skiprows=2)  
     
@@ -160,7 +160,7 @@ def makesubplt(i, fig, plt, sta, sps, mag, dep, ztor, dip, rake, rhyp, vs30):
     
     rrup = rhyp
     rjb = sqrt(rrup**2 - dep**2) # assume point source; i.e. repi = rjb
-    print('rhyp2',rhyp)
+    
     # get ground motion estimates from GMPEs
     Yea97imt, AB03imt, AB03CISimt, Gea05imt, Zea06imt, Zea06CISimt, MP10imt, Aea15imt, Zea16imt \
              = inslab_gsims(mag, dep, ztor, dip, rake, rhyp, rjb, vs30)

@@ -156,8 +156,8 @@ from data_fmt_tools import get_iris_data
 usgscsv = '20190625_merged_events.csv'
 
 def parse_usgs_events(usgscsv):
-    lines = open(usgscsv).readlines()[1:]
-    
+    lines = open(usgscsv).readlines()[-2:]
+    print(lines[0])
     #2017-05-29T14:35:21.510Z
     # build dict
     evdict = []
@@ -206,30 +206,30 @@ from obspy.io.xseed import Parser
 # read dataless seed volumes
 print('Reading dataless seed volumes...')
 if getcwd().startswith('/nas'):
-    '''
+    
     au_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/AU/AU.IRIS.dataless')
     s1_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/S1/S1.IRIS.dataless')
     ge1_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/GE/GE1.IRIS.dataless')
     ge2_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/GE/GE1.IRIS.dataless')
     iu_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/IU/IU.IRIS.dataless')
-    '''
+    
     ii_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/II/II.IRIS.dataless')
     
 else:
-    '''
+    
     au_parser = Parser('/Users/trev/Documents/Networks/AU/AU.IRIS.dataless')
     s1_parser = Parser('/Users/trev/Documents/Networks/S1/S1.IRIS.dataless')
     iu_parser = Parser('/Users/trev/Documents/Networks/IU/IU.IRIS.dataless')
     ge1_parser = Parser('/Users/trev/Documents/Networks/GE/GE1.IRIS.dataless')
     ge2_parser = Parser('/Users/trev/Documents/Networks/GE/GE2.IRIS.dataless')
-    '''
+    
     ii_parser = Parser('/Users/trev/Documents/Networks/II/II.IRIS.dataless')
     
 folder = 'mseed_dump'
 
 cnt = 0
 
-for ev in evdict[100:]:
+for ev in evdict[0:]:
     #print(ev.keys())
     # check if event in polygons
     pt = Point(ev['lon'], ev['lat'])
@@ -246,7 +246,7 @@ for ev in evdict[100:]:
             # only use MW
             if ev['magType'].upper().startswith('MW') and ev['mag'] >= mmin:
                 cnt += 1
-                """
+                
                 # get AU network    
                 t1 = ev['starttime'] + 60
                 t2 = t1 + 2100
@@ -316,9 +316,9 @@ for ev in evdict[100:]:
                         ("IU", "PMG", "*", "[BH][HN]*", t1, t2)]  
                 
                 st = get_iris_event_data(bulk, folder, ev['timestr'][:16], iu_parser, ev)
-                """
-                ###########################################################################
                 
+                ###########################################################################
+                """
                 # get II network
                 t1 = ev['starttime']
                 t2 = t1 + 2100 
@@ -338,12 +338,8 @@ for ev in evdict[100:]:
                               t1.hour,
                               t1.minute)
                 
-                # this works!
-                #st, stname = get_iris_data(timetupple, 'WRAB', 'II')
-                
-                # this doesn't!
                 st = get_iris_event_data(bulk, folder, ev['timestr'][:16], ii_parser, ev)
-                
+                """
                 ###########################################################################
                 '''
                 # get IA network
@@ -385,7 +381,7 @@ for ev in evdict[100:]:
                         b = 1
                         
                 ###########################################################################
-                
+                '''
                 # get GE network
                 t1 = ev['starttime'] - 60
                 t2 = t1 + 1500
@@ -415,7 +411,7 @@ for ev in evdict[100:]:
                             st = get_arclink_event_data(b, fpath, ge2_parser, ev)
                         except:
                             b = 1
-                '''
+                
                 #except:
                 #    print('No GEOFON data...')
                 

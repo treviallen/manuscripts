@@ -37,7 +37,7 @@ def parse_usgs_events(usgscsv):
 ################################################################################
 #folder = 'test_picks'
 folder = 'record_picks'
-#folder = 'record_picks_new'
+folder = 'record_picks_new'
 pickfiles = listdir_extension(folder, 'picks')
 
 ################################################################################

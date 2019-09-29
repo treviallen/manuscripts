@@ -117,10 +117,10 @@ for saf in safiles:
     # if station info exists
     for sd in stdict:
         if sd['ev'] == saf[0:16] and sd['sta'] == fsplit[3]:
-            if fsplit[4].endswith('E'):
+            if fsplit[4].endswith('E') or fsplit[4].endswith('1'):
                 sd['chans'][0] = 1
                 sd['chstr'][0] = fsplit[-2]
-            elif fsplit[4].endswith('N'):
+            elif fsplit[4].endswith('N') or fsplit[4].endswith('2'):
                 sd['chans'][1] = 1
                 sd['chstr'][1] = fsplit[-2]
             elif fsplit[4].endswith('Z'):
@@ -133,10 +133,10 @@ for saf in safiles:
     if newsta == True:
         chans = zeros(3)
         chstr = ['', '', '']
-        if fsplit[4].endswith('E'):
+        if fsplit[4].endswith('E') or fsplit[4].endswith('1'):
             chans[0] = 1
             chstr[0] = fsplit[-2]
-        elif fsplit[4].endswith('N'):
+        elif fsplit[4].endswith('N') or fsplit[4].endswith('2'):
             chans[1] = 1
             chstr[1] = fsplit[-2]
         elif fsplit[4].endswith('Z'):
@@ -145,8 +145,8 @@ for saf in safiles:
         
         sd = {'ev':saf[0:16], 'sta':fsplit[3], 'chans':chans, 'chstr':chstr, 'net':fsplit[2]}
         
-        if not sd['sta'] == 'AS31':
-            stdict.append(sd)
+        #if not sd['sta'] == 'AS31':
+        stdict.append(sd)
             
 ################################################################################
 # now get geometric mean for each stn
@@ -175,6 +175,7 @@ for i, st in enumerate(stdict):
                 stdict[i]['pga'] = rec['pga']
                 stdict[i]['pgv'] = rec['pgv']
                 stdict[i]['network'] = rec['network']
+                stdict[i]['date'] = rec['datestr']
                 
             # get north channel
             if rec['safile'][0:16] == st['ev'] and rec['sta'] == st['sta'] \
@@ -205,6 +206,7 @@ for i, st in enumerate(stdict):
                 stdict[i]['pga'] = rec['pga']
                 stdict[i]['pgv'] = rec['pgv']
                 stdict[i]['network'] = rec['network']
+                stdict[i]['date'] = rec['datestr']
                 
             # get north channel
             if rec['safile'][0:16] == st['ev'] and rec['sta'] == st['sta'] \
@@ -224,7 +226,8 @@ for i, st in enumerate(stdict):
                 stdict[i]['pga'] = rec['pga']
                 stdict[i]['pgv'] = rec['pgv']
                 stdict[i]['network'] = rec['network']
-                
+                stdict[i]['date'] = rec['datestr']
+    '''            
     # else, just use vertical
     elif st['chans'][2] == 1:
         for rec in recs:
@@ -246,11 +249,15 @@ for i, st in enumerate(stdict):
                 stdict[i]['pga'] = rec['pga']
                 stdict[i]['pgv'] = rec['pgv']
                 stdict[i]['network'] = rec['network']
-                
+                stdict[i]['date'] = rec['datestr']
+    '''
+                    
 didx = []
 stdict = array(stdict)
 for j, st in enumerate(stdict):
-    if st['net'] == 'GE' and st['rhyp'] > 400:
+    if st['chstr'][0] == '' and st['chstr'][0] == '':
+        didx.append(j)
+    elif st['net'] == 'GE' and st['rhyp'] > 400:
         didx.append(j)
     elif st['net'] == 'GE' and st['azim'] > 210:
         didx.append(j)
@@ -290,9 +297,9 @@ stdict = pickle.load(open("stdict.pkl", "rb" ))
 ################################################################################
 import scipy.odr.odrpack as odrpack
 xref = 1500 # NGH
-#xref = 650 # BS
+xref = 650 # BS
 #xref = 1000 # OBE
-print('!!!!!!! CHECK THIS !!!!!! - BS xref=650')
+print('!!!!!!! CHECK THIS !!!!!! - BS xref=800')
 mrng = arange(5.3, 7.9, 0.1)
 mpltrng = 0.05
 
@@ -373,7 +380,7 @@ def bilinear_reg_fix(c, x):
     ans2 = modx_hi * (c[2] * (x-hxfix) + yhinge)
 
     return ans1 + ans2
-
+    
 # normalise data to get atten pattern
 def normalise_data(stdict, T):
     
@@ -384,6 +391,7 @@ def normalise_data(stdict, T):
     norm_dep = []
     norm_mag = []
     norm_stas = []
+    norm_date = []
     
     for i, mplt in enumerate(mrng):
                 
@@ -418,6 +426,7 @@ def normalise_data(stdict, T):
         azim = dictlist2array(stdict, 'azim')
         auth = dictlist2array(stdict, 'network')
         stas = dictlist2array(stdict, 'sta')
+        date = dictlist2array(stdict, 'date')
         
         # get events within mag and T bin
         #midx = where((mags >= (mplt-mpltrng)) & (mags < (mplt+mpltrng)) & (deps >= 30.))[0]
@@ -439,8 +448,9 @@ def normalise_data(stdict, T):
                 norm_dep = concatenate((norm_dep, deps[midx]))
                 norm_mag = concatenate((norm_mag, mags[midx]))
                 norm_stas = concatenate((norm_stas, stas[midx]))
+                norm_date = concatenate((norm_date, date[midx]))
                 
-    return norm_rhyp, norm_amp_all, norm_dep, norm_stas, norm_mag
+    return norm_rhyp, norm_amp_all, norm_dep, norm_stas, norm_mag, norm_date
 
 ################################################################################
 # now get geometric atten for all mags
@@ -452,7 +462,7 @@ def regress_zone(stdict, zgroup):
     #    xref = 800
     
     Tplt = array([0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0, 4.0, 5.0, 7.5, 10.]) # secs; PGA = 0.01; PGV = -99
-    Tplt = array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0, 4.0, 5.0, 7.5, 10.]) #, 10.]) # secs; PGA = 0.01; PGV = -99
+    Tplt = array([0.067, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0, 4.0, 5.0, 7.5, 10.]) #, 10.]) # secs; PGA = 0.01; PGV = -99
     bins = arange(2.0, log10(maxDist), 0.1)
     
     # compute inslab gmpes
@@ -471,7 +481,7 @@ def regress_zone(stdict, zgroup):
 
     for ii, T in enumerate(Tplt):
     
-        norm_rhyp, norm_amp_all, norm_dep, norm_stas, norm_mag = normalise_data(stdict, T)
+        norm_rhyp, norm_amp_all, norm_dep, norm_stas, norm_mag, norm_date = normalise_data(stdict, T)
         
         ################################################################################
         # now get atten for normalised data
@@ -551,12 +561,14 @@ def regress_zone(stdict, zgroup):
         bl_init_c1.append(af)
         bl_init_c0.append(bf)
         bl_init_c2.append(cf)
+        
+    # smooth bi-linear
     
     if zgroup == 'NGH':
         bl_init_c0 = array(init_c0)
         bl_init_c1 = array(init_c2) # c2 from above
         bl_init_c2 = array(init_c2)*0.
-        hxfix = 4
+        hxfix = 4 # no hinge
     else:
         bl_init_c0 = array(bl_init_c0)
         bl_init_c1 = array(bl_init_c1)
@@ -564,12 +576,13 @@ def regress_zone(stdict, zgroup):
     ################################################################################
     # smooth GR and calc Q
     ################################################################################    
-    
-    smooth_c2 = savitzky_golay(init_c2, 7, 3) # slope
+    sg_window = 7
+    sg_poly = 2
+    smooth_c2 = savitzky_golay(init_c2, sg_window, sg_poly) # slope
     
     for ii, T in enumerate(Tplt):
         ax = plt.subplot(4,5,ii+1)
-        norm_rhyp, norm_amp_all, norm_dep, norm_stas, norm_mag = normalise_data(stdict, T)
+        norm_rhyp, norm_amp_all, norm_dep, norm_stas, norm_mag, norm_date = normalise_data(stdict, T)
         
         ################################################################################
         # make pretty
@@ -596,6 +609,7 @@ def regress_zone(stdict, zgroup):
             
             return ans
         
+        '''
         # use period dependent c2
         c1_blT = bl_init_c1[ii]
         c2_blT = bl_init_c2[ii]
@@ -613,7 +627,7 @@ def regress_zone(stdict, zgroup):
             ans2 = modx_hi * (c2_blT * (log10(x)-hxfix) + c[1]*x + yhinge)
             
             return ans1 + ans2
-    
+        '''
         ################################################################################
         # fit GR + Q 
         ################################################################################
@@ -639,7 +653,7 @@ def regress_zone(stdict, zgroup):
         attenfit = c[0] - c[1]*rrup - c2T*log10(rrup)
         #plt.loglog(rrup, exp(attenfit), 'r-', lw=2)
         init_c3.append(c[1]) # Q
-        
+        '''
         # fit BL atten with Q
         data = odrpack.RealData(10**medx[ridx], logmedamp[ridx])
         afit = odrpack.Model(fit_bl_q)
@@ -654,7 +668,7 @@ def regress_zone(stdict, zgroup):
         idx = log10(rrup) > hxfix
         attenfit_bl_q[idx] = c2_blT * (log10(rrup[idx])-hxfix) + c[1]*rrup[idx] + yhinge
         #plt.loglog(rrup, exp(attenfit_bl_q), '-', c='m', lw=2)  
-        
+        '''
         '''
         if c[1] < 0.:
             c[1] = 0.
@@ -672,19 +686,20 @@ def regress_zone(stdict, zgroup):
     fig = plt.figure(2, figsize=(12, 9))
     
     plt.subplot(311)
-    plt.semilogx(Tplt, init_c2, 'bo')
-    plt.semilogx(Tplt, smooth_c2, 'ro')
+    #plt.semilogx(Tplt, init_c2, 'bo')
+    #plt.semilogx(Tplt, smooth_c2, 'ro')
     plt.ylabel('c2 (GR)')
     
     # add BL coeffs
     plt.semilogx(Tplt, -1*bl_init_c0, 'go')
     plt.semilogx(Tplt, -1*bl_init_c2, 'mo')
     
+    # plt Q
     plt.subplot(312)
     plt.semilogx(Tplt, init_c3, 'bo')
     
     # smooth Q
-    smooth_c3 = savitzky_golay(init_c3, 7, 3)
+    smooth_c3 = savitzky_golay(init_c3, sg_window, sg_poly)
     plt.semilogx(Tplt, smooth_c3, 'ro')
     
     plt.ylabel('c3 (Q)')
@@ -696,18 +711,7 @@ def regress_zone(stdict, zgroup):
     plt.xlabel("T (sec)")
     '''
     plt.show()
-
-    #slope, intercept, r_value, p_value, std_err = linregress(Tplt, smooth_c2)
-    
-    # fit porabola
-    def inv_porabola(c, x):
-        from numpy import sqrt, log10
         
-        ans = -1*x**2 - c[0]
-        
-        return ans
-        
-                
     ################################################################################
     # loop through T and M to get mag scaling
     ################################################################################
@@ -751,6 +755,7 @@ def regress_zone(stdict, zgroup):
         deps = dictlist2array(stdict, 'dep')
         azim = dictlist2array(stdict, 'azim')
         stas = dictlist2array(stdict, 'sta')
+        date = dictlist2array(stdict, 'date')
     
         for i, mplt in enumerate(mrng):
                     
@@ -843,9 +848,14 @@ def regress_zone(stdict, zgroup):
     # plot M1
     plt.subplot(221)
     plt.semilogx(Tplt, array(m0_array), 'bo')
-    smooth_m0 = savitzky_golay(array(m0_array), 7, 3)
+    smooth_m0 = savitzky_golay(array(m0_array), sg_window, sg_poly)
     plt.semilogx(Tplt, smooth_m0, 'ro')
     plt.title('m0')
+    
+    # smoothing of M1 is terrible, so use orig vals!
+    smooth_m0 = m0_array
+    #smooth_m1 = m1_array
+    #smooth_m2 = m2_array
     
     ######################################################################################
     # refit M1 with smoothed M!
@@ -854,14 +864,6 @@ def regress_zone(stdict, zgroup):
     # m0_array[i] + m1_array[i]*(mrng-6)**2 + m2_array[i]*(mrng-6)
     #for c0_dat, sm1 in zip(mag_c0_fit, smooth_m0): # t_dept_c0, t_dept_mw
     for c0_dat, mw_dat, sm0 in zip(t_dept_c0, t_dept_mw, smooth_m0):
-        '''
-        # fit mag scaling for period
-        def fit_m2_vertex(c, x):
-            
-            xx = x - 8.
-            
-            return sm1 * xx**2 + c[0]
-        '''  
         # check nan values
         nn = where(isnan(c0_dat)==False)[0]  
         
@@ -871,7 +873,7 @@ def regress_zone(stdict, zgroup):
         data = odrpack.RealData(mw_dat[nn], c0_dat[nn])
     
         magfit = odrpack.Model(fit_fixed_polynomial1)
-        odr = odrpack.ODR(data, magfit, beta0=[0.1, 1.])
+        odr = odrpack.ODR(data, magfit, beta0=[-0.1, 1.])
         
         odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
         out = odr.run()
@@ -880,19 +882,15 @@ def regress_zone(stdict, zgroup):
         refit_m1.append(m[0])
         refit_m2.append(m[1])
     
-    smooth_m1 = savitzky_golay(array(refit_m1), 7, 3)
+    smooth_m1 = savitzky_golay(array(refit_m1), sg_window, sg_poly)
     
     # plot M2            
     plt.subplot(222)
     plt.semilogx(Tplt, array(m1_array), 'bo', label='orig')
+    plt.semilogx(Tplt, array(refit_m1), 'go', label='refit')
     plt.semilogx(Tplt, smooth_m1, 'ro', label='smooth')
     plt.title('m1')
     plt.legend(loc=0)
-    
-    # for some reason smoothing is terrible, so use orig vals!
-    smooth_m0 = m0_array
-    smooth_m1 = m1_array
-    smooth_m2 = m2_array
     
     ######################################################################################
     # refit M2 with smoothed M!
@@ -917,7 +915,7 @@ def regress_zone(stdict, zgroup):
         
         refit_m2.append(m[0])
     
-    smooth_m2 = savitzky_golay(array(refit_m2), 7, 3)
+    smooth_m2 = savitzky_golay(array(refit_m2), sg_window, sg_poly)
     
     # plot M2
     plt.subplot(224)
@@ -943,9 +941,6 @@ def regress_zone(stdict, zgroup):
         mfit = smooth_m0[i] + smooth_m1[i]*(mrng-6)**2 + smooth_m2[i]*(mrng-6)
         plt.plot(mrng, mfit, 'g-', lw=2.)
         #plt.ylim([4.5, 7])
-        
-        #print(m2_array)
-        #print(smooth_m2)
         
         if i >= 16:
             plt.xlabel('MW')
@@ -1093,7 +1088,7 @@ def regress_zone(stdict, zgroup):
     plt.show()
     
     # smooth coefs
-    smooth_d0 = savitzky_golay(d0_array, 7, 3)
+    smooth_d0 = savitzky_golay(d0_array, sg_window, sg_poly)
     
     # plot depth coeffs
     fig = plt.figure(13, figsize=(18,10))
@@ -1123,7 +1118,7 @@ def regress_zone(stdict, zgroup):
     # refit M1 with smoothed M
     ######################################################################################
     
-    if zgroup == 'BS':
+    if zgroup == 'BS' or zgroup == 'OBE':
         refit_d1 = []
         refit_d2 = []
         refit_d3 = []
@@ -1150,7 +1145,7 @@ def regress_zone(stdict, zgroup):
             refit_d2.append(m[1])
             refit_d3.append(m[2])
         
-        smooth_d1 = savitzky_golay(array(refit_d1), 7, 3)
+        smooth_d1 = savitzky_golay(array(refit_d1), sg_window, sg_poly)
         
         ######################################################################################
         # refit d2 with smoothed M!
@@ -1178,7 +1173,7 @@ def regress_zone(stdict, zgroup):
             refit_d2.append(m[0])
             refit_d3.append(m[1])
         
-        smooth_d2 = savitzky_golay(array(refit_d2), 7, 3)
+        smooth_d2 = savitzky_golay(array(refit_d2), sg_window, sg_poly)
         
         ######################################################################################
         # refit d3 with smoothed M!
@@ -1204,7 +1199,7 @@ def regress_zone(stdict, zgroup):
             
             refit_d3.append(m[0])
         
-        smooth_d3 = savitzky_golay(array(refit_d3), 7, 3)
+        smooth_d3 = savitzky_golay(array(refit_d3), sg_window, sg_poly)
         smooth_d3 = refit_d3
     
     # if NGH
@@ -1272,10 +1267,11 @@ def regress_zone(stdict, zgroup):
         if i >= 16:
             plt.xlabel('log Rhyp (km)')
     
-        sidx = where((resY < -3.) & (log10(rhyp)>3.2))[0]
-        sidx = where(resY < -4.)[0]
+        sidx = where((resY > 2.) & (log10(rhyp)>3.))[0]
+        #sidx = where(resY .)[0]
         print(stas[sidx])
-        print(azim[sidx])
+        #print(azim[sidx])
+        print(date[sidx])
     plt.suptitle('Dist Residuals')
     plt.savefig('final_res.png', fmt='png', bbox_inches='tight')
     plt.show()
@@ -1338,9 +1334,17 @@ zone_group = get_field_data(sf, 'ZONE_GROUP', 'str')
 # loop thru zones
 i = 0
 reg_stdict = []
-
+'''
 zgroup1 = 'NGH'
 zgroup2 = 'NGH'
+'''
+'''
+zgroup1 = 'OBE'
+zgroup2 = 'OBW'
+'''
+
+zgroup1 = 'BS'
+zgroup2 = 'BS'
 
 if zgroup1 == 'BS':
     mmin = 5.25
