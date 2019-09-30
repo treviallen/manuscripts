@@ -66,6 +66,12 @@ def get_site_geomean(stn, folder):
                 tfile = efile.split('HE.psa')
                 nfile = ''.join((tfile[0],'HN.psa',tfile[1]))
                 
+            # check velocity sensors
+            elif filename.find(stn) >= 0 and filename.find('H1.psa') >= 0:
+                efile = path.join(root, filename)
+                tfile = efile.split('H1.psa')
+                nfile = ''.join((tfile[0],'H2.psa',tfile[1]))
+                
             # get Z file
             elif filename.find(stn) >= 0 and filename.find('NZ.psa') >= 0:
                 zfile = path.join(root, filename)
@@ -283,6 +289,8 @@ for stn in usites:
                     psafile = path.join(root, filename)
                 elif filename.find('HE') >= 0:
                     psafile = path.join(root, filename)
+                elif filename.find('H1') >= 0:
+                    psafile = path.join(root, filename)
                 elif filename.find('NZ') >= 0:
                     psafile = path.join(root, filename)
                 elif filename.find('HZ') >= 0:
@@ -318,6 +326,8 @@ for stn in usites:
                     psafile = path.join(root, filename)
                 elif filename.find('HE') >= 0:
                     psafile = path.join(root, filename)
+                elif filename.find('H1') >= 0:
+                    psafile = path.join(root, filename)
                 elif filename.find('NZ') >= 0:
                     psafile = path.join(root, filename)
                 elif filename.find('HZ') >= 0:
@@ -344,8 +354,8 @@ for stn in usites:
         print('rhyp', rhyp)
         makesubplt(i, fig, plt, stn, sps, mag, dep, ztor, dip, rake, rhyp, vs30)
         if ii == 1:
-            if i <= 4:
-                plt.ylim([1e-5, 1])
+            if rhyp <= 600:
+                plt.ylim([1e-5, .1])
             else:
                 plt.ylim([1e-6, 0.01])
                 

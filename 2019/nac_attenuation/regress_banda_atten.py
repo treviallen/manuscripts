@@ -77,12 +77,14 @@ from numpy import where, zeros, exp, log, interp, array, logspace, log10, sqrt, 
 from misc_tools import listdir_extension, dictlist2array, get_binned_stats, savitzky_golay
 #from calc_oq_gmpes import inslab_gsims
 from os import path
+from sys import argv
 from scipy.stats import linregress
 import pickle
 mpl.style.use('classic')
 import warnings
 warnings.filterwarnings("ignore")
 maxDist = 1750.
+
 """
 ################################################################################
 # loop through sa files and get data
@@ -296,10 +298,23 @@ stdict = pickle.load(open("stdict.pkl", "rb" ))
 # setup inversions
 ################################################################################
 import scipy.odr.odrpack as odrpack
-xref = 1500 # NGH
-xref = 650 # BS
-#xref = 1000 # OBE
-print('!!!!!!! CHECK THIS !!!!!! - BS xref=800')
+
+# get zone
+region = argv[1]
+
+if region == 'BS':
+    xref = 650.
+    xref_hinge = 650.
+    minDist = 100
+elif region == 'NGH':
+    xref = 1000 # NGH
+    xref_hinge = 800.
+    minDist = 10
+elif region == 'OBE':
+    xref = 1000 # OBE
+    xref_hinge = 1000 # OBE
+    minDist = 100
+
 mrng = arange(5.3, 7.9, 0.1)
 mpltrng = 0.05
 
@@ -365,7 +380,7 @@ def bilinear_reg_free(c, x):
     
     return ans1 + ans2
 
-hxfix = log10(xref) #4.0 # hinge distance
+hxfix = log10(xref_hinge) #4.0 # hinge distance
 def bilinear_reg_fix(c, x):
     from numpy import zeros_like
     #hxfix = log10(800) #4.0 # hinge magnitude
@@ -435,7 +450,7 @@ def normalise_data(stdict, T):
         if len(midx) > 0:
     
             # get binned medians
-            bins = arange(2.0, log10(maxDist), 0.1)
+            bins = arange(log10(minDist), log10(maxDist), 0.1)
             logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(rhyp[midx]), log(amp_plt[midx]))
 
             # normalise at XREF km
@@ -456,17 +471,13 @@ def normalise_data(stdict, T):
 # now get geometric atten for all mags
 ################################################################################
 def regress_zone(stdict, zgroup):
-    #if zgroup == 'BS':
-    #    xref = 650
-    #else:
-    #    xref = 800
     
     Tplt = array([0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0, 4.0, 5.0, 7.5, 10.]) # secs; PGA = 0.01; PGV = -99
     Tplt = array([0.067, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0, 4.0, 5.0, 7.5, 10.]) #, 10.]) # secs; PGA = 0.01; PGV = -99
-    bins = arange(2.0, log10(maxDist), 0.1)
+    bins = arange(log10(minDist), log10(maxDist), 0.1)
     
     # compute inslab gmpes
-    rrup = logspace(2, log10(maxDist))
+    rrup = logspace(log10(minDist), log10(maxDist))
 
     #fig = plt.figure(1, figsize=(22,18))
     ii = 0    
@@ -478,6 +489,9 @@ def regress_zone(stdict, zgroup):
     bl_init_c1 = []
     bl_init_c2 = []
     bl_init_c3 = []
+    blf_init_c0 = []
+    blf_init_c1 = []
+    blf_init_c2 = []
 
     for ii, T in enumerate(Tplt):
     
@@ -516,8 +530,8 @@ def regress_zone(stdict, zgroup):
         #data = odrpack.RealData(norm_rhyp[ridx], log10(norm_amp_all[ridx]))
         
         # use binned data
-        hxfix = log10(xref)
-        ridx = where(10**medx <= 10**hxfix)[0]
+        hxfix = log10(xref_hinge)
+        ridx = where(10**medx >= 10**hxfix)[0]
         data = odrpack.RealData(10**medx[ridx], logmedamp[ridx])
         
         ''' GR + Q '''
@@ -534,7 +548,7 @@ def regress_zone(stdict, zgroup):
         
         # now plt
         attenfit = c[0] + c[1]*log10(rrup)
-        plt.loglog(rrup, exp(attenfit), 'k-', lw=2)
+        #plt.loglog(rrup, exp(attenfit), 'k-', lw=2)
         init_c0.append(c[0])
         init_c2.append(c[1])
         
@@ -562,17 +576,64 @@ def regress_zone(stdict, zgroup):
         bl_init_c0.append(bf)
         bl_init_c2.append(cf)
         
+        ################################################################################
+        # fit bi-linear fixed hinge & slope
+        ################################################################################
+        # fix far-field slope
+        ff_gr = init_c2[-1]
+        hxfix = log10(xref_hinge)
+        def bilinear_reg_fix_hinge_slope(c, x):
+            from numpy import zeros_like
+            
+            ans2 = zeros_like(x)
+            ans1 = zeros_like(x)
+        
+            modx_lo = lowside(x, hxfix)
+            modx_hi = highside(x, hxfix)
+        
+            ans1 = modx_lo * (c[0] * x + c[1])
+            yhinge = c[0] * hxfix + c[1]
+            ans2 = modx_hi * (ff_gr * (x-hxfix) + yhinge)
+        
+            return ans1 + ans2
+            
+        bilin_fix_hinge_slope = odrpack.Model(bilinear_reg_fix_hinge_slope)
+        odr = odrpack.ODR(data, bilin_fix_hinge_slope, beta0=[-5, 1.])
+        
+        odr.set_job(fit_type=2) #if set fit_type=2, returns the same as least squares
+        out = odr.run()
+        
+        af = out.beta[0]
+        bf = out.beta[1]
+        
+        blf_init_c1.append(af)
+        blf_init_c0.append(bf)
+        blf_init_c2.append(ff_gr)
+        
+        attenfit_blf = bf + af * log10(rrup)
+        yhinge = bf + af * hxfix
+        idx = log10(rrup) > hxfix
+        attenfit_blf[idx] = ff_gr * (log10(rrup[idx])-hxfix) + yhinge
+        plt.loglog(rrup, exp(attenfit_blf), 'k-', lw=2)  
+        
     # smooth bi-linear
     
+    '''
     if zgroup == 'NGH':
         bl_init_c0 = array(init_c0)
         bl_init_c1 = array(init_c2) # c2 from above
         bl_init_c2 = array(init_c2)*0.
         hxfix = 4 # no hinge
+    '''
+    if zgroup == 'BS' or zgroup == 'NGH' or zgroup == 'OBE':
+        bl_init_c0 = array(blf_init_c0)
+        bl_init_c1 = array(blf_init_c1)
+        bl_init_c2 = array(blf_init_c2)
     else:
         bl_init_c0 = array(bl_init_c0)
         bl_init_c1 = array(bl_init_c1)
         bl_init_c2 = array(bl_init_c2)
+        
     ################################################################################
     # smooth GR and calc Q
     ################################################################################    
@@ -590,7 +651,7 @@ def regress_zone(stdict, zgroup):
         
         ax.set_xscale("log")
         ax.set_yscale("log")
-        plt.xlim([100, maxDist])
+        plt.xlim([50, maxDist])
         plt.ylim([1E-3, 1E3])
         plt.grid(which='both')
         #plt.title('Normalised Amplitudes')
@@ -1046,7 +1107,7 @@ def regress_zone(stdict, zgroup):
         logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(deps[nn]), resY[nn])
         plt.plot(medx, logmedamp, 'rs', ms=6.5)
         
-        if zgroup == 'NGH':# fit linear
+        if zgroup == 'NGH' or zgroup == 'OBE': # fit linear
             d3, d0 = polyfit(log10(deps[nn]), resY[nn], 1) # full data
             d0_array.append(d0)
             d1_array.append(0.0)
@@ -1118,7 +1179,7 @@ def regress_zone(stdict, zgroup):
     # refit M1 with smoothed M
     ######################################################################################
     
-    if zgroup == 'BS' or zgroup == 'OBE':
+    if zgroup == 'BS':
         refit_d1 = []
         refit_d2 = []
         refit_d3 = []
@@ -1202,7 +1263,7 @@ def regress_zone(stdict, zgroup):
         smooth_d3 = savitzky_golay(array(refit_d3), sg_window, sg_poly)
         smooth_d3 = refit_d3
     
-    # if NGH
+    # if NGH or OBE - just use linear fit
     else:
         smooth_d0 = d0_array
         smooth_d1 = d0_array * 0.
@@ -1334,17 +1395,19 @@ zone_group = get_field_data(sf, 'ZONE_GROUP', 'str')
 # loop thru zones
 i = 0
 reg_stdict = []
-'''
-zgroup1 = 'NGH'
-zgroup2 = 'NGH'
-'''
-'''
-zgroup1 = 'OBE'
-zgroup2 = 'OBW'
-'''
 
-zgroup1 = 'BS'
-zgroup2 = 'BS'
+if region == 'NGH':
+
+    zgroup1 = 'NGH'
+    zgroup2 = 'NGH'
+
+elif region == 'OBE':
+    zgroup1 = 'OBE'
+    zgroup2 = 'OBW'
+
+elif region == 'BS':
+    zgroup1 = 'BS'
+    zgroup2 = 'BS'
 
 if zgroup1 == 'BS':
     mmin = 5.25
