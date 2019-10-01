@@ -1074,7 +1074,8 @@ def regress_zone(stdict, zgroup):
     
     for i, T in enumerate(Tplt):
         #attenCor = (- smooth_c2[i]*log10(rhyp) - smooth_c3[i]*(rhyp)) # old
-        atten_cor = bl_init_c1[i] * log10(rhyp)  
+        atten_cor = bl_init_c1[i] * log10(rhyp)
+  
         yhinge = bl_init_c1[i] * hxfix
         idx = log10(rhyp) > hxfix
         atten_cor[idx] = bl_init_c2[i] * (log10(rhyp[idx])-hxfix) + yhinge

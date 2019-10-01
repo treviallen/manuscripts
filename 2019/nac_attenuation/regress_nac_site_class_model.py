@@ -57,10 +57,13 @@ OBE = Oceanic Basin-Extended Margin East
 '''
 # load shape
 import shapefile
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+mpl.style.use('classic')
 from shapely.geometry import Point, Polygon
 from mapping_tools import get_field_data
 from calc_oq_gmpes import get_station_vs30
-from numpy import exp, log, interp
+from numpy import array, exp, log, interp, vstack
 import pickle
 
 print('Loading pkl file...')
@@ -78,7 +81,7 @@ zone_group = get_field_data(sf, 'ZONE_GROUP', 'str')
 
 # loop thru zones
 i = 0
-reg_stdict = []
+vs30 = []
 
 print('Starting inversion...')
 for poly, zcode, zgroup in zip(polygons, zone_code, zone_group):
@@ -102,6 +105,55 @@ for poly, zcode, zgroup in zip(polygons, zone_code, zone_group):
             stdict[i]['lnSA'] = A19imt['sa']
             stdict[i]['vs30'] = get_station_vs30(sd['sta'])[0]
             
+            if i == 0:
+                res_stack = array([stdict[i]['lnRes']])
+            else:
+                res_stack = vstack((res_stack, [stdict[i]['lnRes']]))
+            
+            # build vs30 array
+            vs30.append(stdict[i]['vs30'])
+            
+###############################################################################
+# build residual data
+###############################################################################
+# set periods
+Tplt = sd['per']
+fig = plt.figure(1, figsize=(18,10))
 
-loop thru T
-plt res vs vs30            
+for i, T in enumerate(Tplt):
+    ax = plt.subplot(4,5,i+1)
+    
+    # get res data
+    Yres = res_stack[:,i]
+    
+    plt.semilogx(vs30, Yres, '+', c='0.7', ms=5)
+    plt.ylabel = str(T)
+    
+    if i > 15:
+       plt.xlabel('Vs30') 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
