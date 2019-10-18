@@ -1,10 +1,10 @@
 import matplotlib.pyplot as plt
-from numpy import arange, array, interp, mean
+from numpy import arange, array, interp, mean, vstack
 from os import path, getcwd, sep
 from sys import argv
 import matplotlib as mpl
 from gmt_tools import cpt2colormap 
-from misc_tools import remove_last_cmap_colour, get_log_xy_locs
+from misc_tools import remove_last_cmap_colour, get_log_xy_locs, mpl2_colourlist
 import matplotlib.gridspec as gridspec
 import matplotlib.patheffects as PathEffects
 
@@ -17,7 +17,7 @@ plt.rc('ytick',labelsize=13)
 paramfile = argv[1] # param file with locs folder where fractile files sit 
 
 '''
-run cmp_multi_epistemic_cdf.py fractiles_NSHA12_regional_background.param
+run ee_multi_epistemic_cdf.py fractiles_NSHA12_regional_background.param
 '''
 
 ##############################################################################
@@ -40,15 +40,17 @@ fractiles = arange(0., 1.01, 0.01)
 
 # get colours
 if getcwd().startswith('/nas'):
-    cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/gay-flag-1978.cpt'
-    #cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/sst.cpt'
+    cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/gay-flag-1978-edit.cpt'
+    #cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/qual-dark-06.cpt'
 else:
     cptfile = '/Users/trev/Documents/DATA/GMT/cpt/gay-flag-1978.cpt'
 ncolours = len(modnames)+1
-#ncolours = 8
 cmap, zvals = cpt2colormap(cptfile, ncolours)
 cmap = remove_last_cmap_colour(cmap)
 cs = (cmap(arange(ncolours-1)))
+cs = mpl2_colourlist()
+#cs2 = vstack((cs[1:4],cs[5:]))
+#cs = cs2
 ls = ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-']
 lw = 1.75
 
@@ -158,7 +160,7 @@ fracDict, keys = parse_plot_fractiles(fracpaths[0])
 # let's make the plots
 ###################################################################################
 
-altPlaces = False
+altPlaces = True
 
 if altPlaces == False:
     places = ['Perth', 'Darwin', 'Adelaide', 'Melbourne', 'Hobart', 'Canberra', 'Sydney', 'Brisbane']
@@ -190,8 +192,10 @@ for k, key in enumerate(keys[:1]):
             for frac in fracDict:
                 if place == frac['place']:
                     print(frac['place'], mean(frac['quant_'+key]))
-                    if j == 4:
-                        col = 'gold'
+                    if j == 5:
+                        col = cs[-1]
+                    elif j == 4:
+                        col = cs[-2]
                     else:
                         col = cs[j]
                     # plot fig
@@ -240,10 +244,10 @@ for k, key in enumerate(keys[:1]):
         
         if altPlaces == False:
             if i == 7:
-                plt.legend(loc=4, fontsize=14)
+                plt.legend(loc=4, fontsize=15)
         else:
             if i == 0:
-                plt.legend(loc=2, fontsize=13)
+                plt.legend(loc=2, fontsize=15)
             
      # set fig file
     if altPlaces == True:
