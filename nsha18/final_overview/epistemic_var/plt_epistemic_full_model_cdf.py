@@ -201,12 +201,10 @@ for k, key in enumerate(keys[:3]):
                 ax.set_xticks(ticks)
                 ax.set_xticklabels([str(x) for x in ticks])
                             
-    #plt.suptitle(fracFolder.split(sep)[1] + ' ' + key, fontsize=20)
-    
     # set fig file
     if altPlaces == True:
         figFile = '_'.join(('full_model',key,'alt_CDF.png'))
     else:
         figFile = '_'.join(('full_model',key,'CDF.png'))
-    plt.savefig(figFile, fmt='png', bbox_inches='tight')
+    plt.savefig(figFile, fmt='png', bbox_inches='tight', dpi=800)
 plt.show()

@@ -86,7 +86,7 @@ for i, mm in enumerate(minmag):
    plt.xlabel('Time (years)', fontsize=15)
    plt.grid()
    
-plt.savefig('cummulative_mag_time_east_bw.png', fmt='png', bbox_inches='tight', dpi=300)
+plt.savefig('cummulative_mag_time_east_bw.png', fmt='png', bbox_inches='tight', dpi=800)
 plt.show()
 
 

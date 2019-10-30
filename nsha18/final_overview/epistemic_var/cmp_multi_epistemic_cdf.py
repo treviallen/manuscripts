@@ -207,7 +207,7 @@ for k, key in enumerate(keys[:1]):
     
         # set fig file
         figFile = '_'.join((path.join('cdf','multi'+outfile),key,'CDF.png'))
-        plt.savefig(figFile, fmt='png', bbox_inches='tight')
+        plt.savefig(figFile, fmt='png', bbox_inches='tight', dpi=800)
         
     
     

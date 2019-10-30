@@ -151,22 +151,18 @@ for k, key in enumerate(keys[:2]):
                 plt.semilogx(frac1['quant_'+key], fractiles, '-', c='g', lw=1.5, label=modnames[0])
                 plt.semilogx(frac2['quant_'+key], fractiles, '-', c='b', lw=1.5, label=modnames[1])
                 
-                
                 # make pretty
                 plt.title(place, fontsize=15)
                 #plt.text(0.095, 0.02, place, fontsize=18, va='bottom', ha='right')
                 plt.text(0.095, 0.98, letters[i], fontsize=18, va='top', ha='right')
                 if i == 0 or i == 2 or i == 4 or i == 6:
                     plt.ylabel('Fractile', fontsize=16)
-                    
                 
                 if i >= 6:
                     plt.xlabel(key.replace('(','').replace(')','').split('-')[0] + ' (g)', fontsize=16)
                     
-                
                 plt.grid(which='both')
                 plt.xlim([0.003, 0.1])
-                
                 
                 # plt mean
                 plt.semilogx([frac1['mean_'+key],frac1['mean_'+key]], [0,1], '-', c='orange', lw=1.5,   label=modnames[0]+' Mean')
@@ -183,17 +179,12 @@ for k, key in enumerate(keys[:2]):
                 # plt 95th
                 plt.semilogx([frac['quant_'+key][95],frac['quant_'+key][95]], [0,1], '--', c='r', lw=1.5, label='95th Percentile')
                 '''
-                
-                
-    #plt.suptitle(fracFolder.split(sep)[1] + ' ' + key, fontsize=20)
 
     # set fig file
     if altPlaces == True:
         figFile = '_'.join((path.join('cdf','regional_'+outfile),key,'CDF.png'))
     else:
         figFile = '_'.join((path.join('cdf','capital_'+outfile),key,'CDF.png'))
-    plt.savefig(figFile, fmt='png', bbox_inches='tight')
-    
-    
+    plt.savefig(figFile, fmt='png', bbox_inches='tight', dpi=800)
     
 plt.show()

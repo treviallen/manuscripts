@@ -56,7 +56,7 @@ lw = 1.75
 
 if ncolours < 4:
     cs = ['0.6', 'k']
-    ls = ['-', '--']
+    ls = ['-', '--', ':']
 
 ##############################################################################
 # call parsing & plotting function
@@ -198,6 +198,7 @@ for k, key in enumerate(keys[:1]):
                         col = cs[-2]
                     else:
                         col = cs[j]
+                    
                     # plot fig
                     if modname.endswith('(B)'):
                         plt.semilogx(frac['quant_'+key], fractiles, ls=ls[j], c=col, lw=lw, label=modname)

@@ -11,7 +11,8 @@ Usage:
 @author: tallen
 """
 from sys import argv
-from matplotlib.mlab import griddata
+#from matplotlib.mlab import griddata
+from scipy.interpolate import griddata
 from matplotlib import colors, colorbar #, cm
 from os import path, mkdir, getcwd
 import matplotlib.pyplot as plt

@@ -526,10 +526,7 @@ def regress_zone(stdict, zgroup):
         ################################################################################
         # now fit normalised data
         ################################################################################
-        #ridx = where(norm_rhyp <= 1000.)[0]
-        #data = odrpack.RealData(norm_rhyp[ridx], log10(norm_amp_all[ridx]))
-        
-        # use binned data
+        # use binned data > hinge for far field
         hxfix = log10(xref_hinge)
         ridx = where(10**medx >= 10**hxfix)[0]
         data = odrpack.RealData(10**medx[ridx], logmedamp[ridx])
@@ -550,7 +547,7 @@ def regress_zone(stdict, zgroup):
         attenfit = c[0] + c[1]*log10(rrup)
         #plt.loglog(rrup, exp(attenfit), 'k-', lw=2)
         init_c0.append(c[0])
-        init_c2.append(c[1])
+        init_c2.append(c[1]) # this is now far-field slope!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         
         ################################################################################
         # fit bi-linear fixed hinge
@@ -576,10 +573,22 @@ def regress_zone(stdict, zgroup):
         bl_init_c0.append(bf)
         bl_init_c2.append(cf)
         
+        '''
+        # smooth bi-linear fixed coef
+        sg_window = 7
+        sg_poly = 2
+        smooth_c2 = savitzky_golay(init_c2, sg_window, sg_poly) # slope
+        
+        for ii, T in enumerate(Tplt):
+        ax = plt.subplot(4,5,ii+1)
+        norm_rhyp, norm_amp_all, norm_dep, norm_stas, norm_mag, norm_date = normalise_data(stdict, T)
+        logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(norm_rhyp), log(norm_amp_all))
+        '''
         ################################################################################
         # fit bi-linear fixed hinge & slope
         ################################################################################
         # fix far-field slope
+        #ff_gr = smooth_c2[ii] # attempted smoothing
         ff_gr = init_c2[-1]
         hxfix = log10(xref_hinge)
         def bilinear_reg_fix_hinge_slope(c, x):
@@ -617,7 +626,9 @@ def regress_zone(stdict, zgroup):
         plt.loglog(rrup, exp(attenfit_blf), 'k-', lw=2)  
         
     # smooth bi-linear
-    
+    sg_window = 7
+    sg_poly = 2
+    smooth_c2 = savitzky_golay(init_c2, sg_window, sg_poly) # slope
     '''
     if zgroup == 'NGH':
         bl_init_c0 = array(init_c0)
@@ -637,9 +648,7 @@ def regress_zone(stdict, zgroup):
     ################################################################################
     # smooth GR and calc Q
     ################################################################################    
-    sg_window = 7
-    sg_poly = 2
-    smooth_c2 = savitzky_golay(init_c2, sg_window, sg_poly) # slope
+    
     
     for ii, T in enumerate(Tplt):
         ax = plt.subplot(4,5,ii+1)
@@ -741,18 +750,18 @@ def regress_zone(stdict, zgroup):
     plt.show()
             
     ################################################################################
-    # fit period dependent Q
+    # plot G(R) coeffs
     ################################################################################
     
     fig = plt.figure(2, figsize=(12, 9))
     
     plt.subplot(311)
     #plt.semilogx(Tplt, init_c2, 'bo')
-    #plt.semilogx(Tplt, smooth_c2, 'ro')
+    plt.semilogx(Tplt, -1*smooth_c2, 'ro')
     plt.ylabel('c2 (GR)')
     
     # add BL coeffs
-    plt.semilogx(Tplt, -1*bl_init_c0, 'go')
+    #plt.semilogx(Tplt, -1*bl_init_c0, 'go')
     plt.semilogx(Tplt, -1*bl_init_c2, 'mo')
     
     # plt Q

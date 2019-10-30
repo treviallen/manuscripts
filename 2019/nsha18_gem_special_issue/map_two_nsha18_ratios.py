@@ -11,14 +11,15 @@ Usage:
 @author: tallen
 """
 from sys import argv
-from matplotlib.mlab import griddata
+#from matplotlib.mlab import griddata
+from scipy.interpolate import griddata
 from matplotlib import colors, colorbar #, cm
 from os import path, mkdir, getcwd
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 from mpl_toolkits.basemap import Basemap
 from numpy import arange, array, log10, mean, mgrid, ogrid, percentile, ma, isnan, logspace, nan, linspace, ceil
-from tools.mapping_tools import get_map_polygons, mask_outside_polygons, cpt2colormap # drawshapepoly, labelpolygon, 
+from mapping_tools import get_map_polygons, mask_outside_polygons, cpt2colormap # drawshapepoly, labelpolygon, 
 from misc_tools import remove_last_cmap_colour
 import matplotlib.gridspec as gridspec
 #from gmt_tools import cpt2colormap
@@ -492,7 +493,7 @@ if path.isdir('map_ratio') == False:
 # now save png file
 print('Saving', 'map_ratio_'+modelName.replace(' ','_')+'.'+key+'.png')
 plt.savefig('map_ratio_'+modelName.replace(' ','_')+'.'+key+'.png', \
-            dpi=300, format='png', bbox_inches='tight')
+            dpi=800, format='png', bbox_inches='tight')
 
 # save pdf file
 '''

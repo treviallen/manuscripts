@@ -11,7 +11,8 @@ Usage:
 @author: tallen
 """
 from sys import argv
-from matplotlib.mlab import griddata
+#from matplotlib.mlab import griddata
+from scipy.interpolate import griddata
 from matplotlib import colors, colorbar #, cm
 from os import path, mkdir, getcwd
 #import matplotlib.pyplot as plt
@@ -19,7 +20,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
 from numpy import arange, array, log10, mean, mgrid, ogrid, percentile, ma, isnan, nan, where, delete, floor, ceil
-from tools.mapping_tools import get_map_polygons, mask_outside_polygons, cpt2colormap # drawshapepoly, labelpolygon, 
+from mapping_tools import get_map_polygons, mask_outside_polygons, cpt2colormap # drawshapepoly, labelpolygon, 
 import shapefile
 from scipy.constants import g
 import matplotlib.gridspec as gridspec
@@ -102,7 +103,7 @@ for ii, hazfile in enumerate(hazfiles):
     # make grid dictionary
     grddict = []
     gshap = False
-    print '\nReading', modnames[ii]
+    print('\nReading', modnames[ii])
     for line in lines[2:]:
         dat = line.strip().split(',')
         
@@ -152,7 +153,7 @@ for ii, hazfile in enumerate(hazfiles):
         #probability = str(100*float(key.split('-')[-1]))+'%'
         if probability == '9%':
             probability = '9.5%'
-        print 'Probability', probability
+        print('Probability', probability)
         
         bbox = '108/152/-44/-8' # map boundary - lon1/lon2/lat1/lat2
         bbox = '107.0/153.0/-43.0/-8.0'
@@ -239,7 +240,7 @@ for ii, hazfile in enumerate(hazfiles):
         m.drawmeridians(arange(0.,360.,xlabel), labels=[0,0,0,0], fontsize=10, dashes=[2, 2], color='0.5', linewidth=0.5)
         
         # first make regular cartesian grid
-        print 'Resampling data...'
+        print('Resampling data...')
         N = 500j
         extent = (minlon-mbuff, maxlon+mbuff, minlat-mbuff, maxlat+mbuff)
         xs,ys = mgrid[extent[0]:extent[1]:N, extent[2]:extent[3]:N]
@@ -269,7 +270,7 @@ for ii, hazfile in enumerate(hazfiles):
         #ncols = 9
         
         #cmap = cm.rainbow
-        #print period
+        #print(period)
         if period == 'PGA':
         
             if probability == '10%' or probability == '9.5%': # kluge to get on same scale
@@ -346,7 +347,7 @@ for ii, hazfile in enumerate(hazfiles):
                     ncicptfile = '/Users/tallen/Documents/Geoscience_Australia/NSHA2018/postprocessing/maps/'+ cptfile
                     cmap, zvals = cpt2colormap(ncicptfile, ncolours, rev=True)
         
-        print 'Making map...'    
+        print('Making map...')
         cmap.set_bad('w', 1.0)
         
         if probability == '10%' or probability == '9.5%':
@@ -468,7 +469,7 @@ if path.isdir('maps') == False:
 '''    
 # now save png file
 plt.savefig(path.join('multi_hazard_maps_'+outfile.replace(' ','_')+'.'+probFraction+'.png'), \
-            dpi=200, format='png', bbox_inches='tight')
+            dpi=800, format='png', bbox_inches='tight')
 
 # save pdf file
 '''

@@ -14,8 +14,8 @@ reload(sys) # for unicode chars
 sys.setdefaultencoding("latin-1")
 warnings.filterwarnings("ignore")
 
-#plt_places = ['Adelaide', 'Canberra', 'Melbourne', 'Perth']
-plt_places = ['York', 'Meckering', 'Adelaide', 'Morwell']
+plt_places = ['Adelaide', 'Canberra', 'Melbourne', 'Perth']
+#plt_places = ['York', 'Meckering', 'Adelaide', 'Morwell']
 if getcwd().startswith('/nas'):
     cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/Paired_08.cpt'
 else:
@@ -191,9 +191,9 @@ plt.xlabel(' '.join(('Mean', period, 'Hazard (g)')), fontsize=16)
 
 # save
 if period == 'PGA' or period == 'PGV':
-    plt.savefig(path.join(outputdir, '_'.join(('fault_nofault', period, jobsstr,str(i)+'.png'))), format='png',bbox_inches='tight')
+    plt.savefig(path.join(outputdir, '_'.join(('fault_nofault', period, jobsstr,str(i)+'.png'))), format='png',bbox_inches='tight', dpi=800)
 else:
-    plt.savefig(path.join(outputdir, '_'.join(('fault_nofault','SA('+period+')',jobsstr,str(i)+'.png'))), format='png',bbox_inches='tight')
+    plt.savefig(path.join(outputdir, '_'.join(('fault_nofault','SA('+period+')',jobsstr,str(i)+'.png'))), format='png',bbox_inches='tight', dpi=800)
 
   
 plt.show()

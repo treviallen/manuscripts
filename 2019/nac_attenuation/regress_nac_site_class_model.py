@@ -63,7 +63,8 @@ mpl.style.use('classic')
 from shapely.geometry import Point, Polygon
 from mapping_tools import get_field_data
 from calc_oq_gmpes import get_station_vs30
-from numpy import array, exp, log, interp, vstack
+from misc_tools import get_binned_stats
+from numpy import array, arange, exp, log, interp, vstack, nan, isnan, log10
 import pickle
 
 print('Loading pkl file...')
@@ -82,8 +83,9 @@ zone_group = get_field_data(sf, 'ZONE_GROUP', 'str')
 # loop thru zones
 i = 0
 vs30 = []
+res_stack = []
 
-print('Starting inversion...')
+print('Getting residuals...')
 for poly, zcode, zgroup in zip(polygons, zone_code, zone_group):
     for i, sd in enumerate(stdict):
         pt = Point(sd['eqlo'], sd['eqla'])
@@ -96,7 +98,7 @@ for poly, zcode, zgroup in zip(polygons, zone_code, zone_group):
         if zgroup == 'OBW':
             zgroup = 'OBE'
 
-        if pt.within(poly) and sd['mag'] >= mmin:
+        if pt.within(poly) and sd['mag'] >= mmin and sd['rhyp'] > 500 and sd['rhyp'] < 1500:
             A19imt = calc_nac_gmm_spectra(sd['mag'], sd['rhyp'], sd['dep'], zgroup)
             
             lnAmp = interp(log(A19imt['per']), log(sd['per']), log(sd['geom']))
@@ -105,7 +107,7 @@ for poly, zcode, zgroup in zip(polygons, zone_code, zone_group):
             stdict[i]['lnSA'] = A19imt['sa']
             stdict[i]['vs30'] = get_station_vs30(sd['sta'])[0]
             
-            if i == 0:
+            if len(res_stack) == 0:
                 res_stack = array([stdict[i]['lnRes']])
             else:
                 res_stack = vstack((res_stack, [stdict[i]['lnRes']]))
@@ -116,8 +118,10 @@ for poly, zcode, zgroup in zip(polygons, zone_code, zone_group):
 ###############################################################################
 # build residual data
 ###############################################################################
+print('Plotting...')
+
 # set periods
-Tplt = sd['per']
+Tplt = A19imt['per']
 fig = plt.figure(1, figsize=(18,10))
 
 for i, T in enumerate(Tplt):
@@ -125,12 +129,25 @@ for i, T in enumerate(Tplt):
     
     # get res data
     Yres = res_stack[:,i]
+    	
+    plt.semilogx([100, 1000],[0,0], 'k--', lw=0.5)
     
     plt.semilogx(vs30, Yres, '+', c='0.7', ms=5)
-    plt.ylabel = str(T)
+    plt.ylabel(str(T))
     
-    if i > 15:
-       plt.xlabel('Vs30') 
+    if i >= 15:
+       plt.xlabel('Vs30')
+       
+    plt.ylim([-5, 5])
+    plt.xlim([200, 1000])
+    
+    # bin stats
+    bins = arange(2, 3, 0.1)
+    logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(vs30), Yres)
+    
+    plt.semilogx(10**binstrp, logmedamp, 'rs', ms=6)
+       
+plt.show()
     
     
     
