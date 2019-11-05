@@ -382,5 +382,5 @@ titlestr = 'Macroseismic Intensity'
 cb.set_label(titlestr, fontsize=16)
 
 
-plt.savefig('map_nat_agg_mmi.png', fmt='png', bbox_inches='tight')
+plt.savefig('map_nat_agg_mmi.png', fmt='png', dpi=600, bbox_inches='tight')
 plt.show()

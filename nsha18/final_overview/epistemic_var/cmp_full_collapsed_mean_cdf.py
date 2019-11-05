@@ -195,7 +195,7 @@ for k, key in enumerate(keys[:2]):
                 plt.xlim([0.004, 0.06])
                 
                 # plt mean
-                plt.semilogx([frac1['mean_'+key],frac1['mean_'+key]], [0,1], '-', c='gold', lw=1.5,   label=modnames[0]+' Mean')
+                plt.semilogx([frac1['mean_'+key],frac1['mean_'+key]], [0,1], '-', c='gold', lw=1.5, label=modnames[0]+' Mean')
                 plt.semilogx([frac2['mean_'+key],frac2['mean_'+key]], [0,1], '-', c=cs[4], lw=1.5, label=modnames[1]+' Mean')
                 plt.semilogx([frac3['mean_'+key],frac3['mean_'+key]], [0,1], '--', c=cs[5], lw=1.5, label=modnames[2]+' Mean')
                 
@@ -224,14 +224,10 @@ for k, key in enumerate(keys[:2]):
                 # plt 95th
                 plt.semilogx([frac['quant_'+key][95],frac['quant_'+key][95]], [0,1], '--', c='r', lw=1.5, label='95th Percentile')
                 '''
-                
-                
     #plt.suptitle(fracFolder.split(sep)[1] + ' ' + key, fontsize=20)
 
     # set fig file
     figFile = '_'.join((path.join('cdf',outfile),key,'CDF.png'))
-    plt.savefig(figFile, fmt='png', bbox_inches='tight')
-    
-    
+    plt.savefig(figFile, fmt='png', dpi=800, bbox_inches='tight')
     
 plt.show()

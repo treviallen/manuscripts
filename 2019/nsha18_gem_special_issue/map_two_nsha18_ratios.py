@@ -11,8 +11,8 @@ Usage:
 @author: tallen
 """
 from sys import argv
-#from matplotlib.mlab import griddata
-from scipy.interpolate import griddata
+from matplotlib.mlab import griddata
+#from scipy.interpolate import griddata
 from matplotlib import colors, colorbar #, cm
 from os import path, mkdir, getcwd
 import matplotlib.pyplot as plt
@@ -34,7 +34,6 @@ mpl.rcParams['pdf.fonttype'] = 42
 gs1 = gridspec.GridSpec(1, 2)
 hspace = 0.15
 gs1.update(wspace=0.03, hspace=hspace) # negative looks bad in "show", but ok in pngs
-
 
 drawshape = False # decides whether to overlay seismic sources
 
