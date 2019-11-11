@@ -72,5 +72,5 @@ ylims = ax.get_ylim()
 ypos = get_log_xy_locs(ylims, 0.98)
 plt.text(9, ypos, '(b)', fontsize=20, ha='left', va='top')
 
-plt.savefig('oq-interp_test.png', fmt='png', bbox_inches='tight')
+plt.savefig('oq-interp_test.png', fmt='png', bbox_inches='tight', dpi=800)
 plt.show()

@@ -1,4 +1,4 @@
-from matplotlib.mlab import griddata
+from scipy.interpolate import griddata
 from matplotlib import colors, colorbar
 import matplotlib.pyplot as plt
 import matplotlib as mpl
@@ -411,5 +411,5 @@ cb.set_ticklabels(labels)
 cb.set_label('Year of Earthquake', rotation=270, labelpad=20, fontsize=15)
 '''
 
-plt.savefig('secan_source_map.png', format='png', bbox_inches='tight', dpi=300)
+plt.savefig('secan_source_map.png', format='png', bbox_inches='tight', dpi=800)
 plt.show()

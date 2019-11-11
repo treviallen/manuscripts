@@ -254,7 +254,7 @@ ytxt = ylim[1] * 0.96
 plt.text(xtxt, ytxt, pltlett[0], fontsize=30, va='bottom', ha='right')
 
 
-plt.savefig('oq_frisk_cartoon.png', fmt='png', bbox_inches='tight')
+plt.savefig('oq_frisk_cartoon.png', fmt='png', bbox_inches='tight', dpi=800)
 plt.show()
 
 
