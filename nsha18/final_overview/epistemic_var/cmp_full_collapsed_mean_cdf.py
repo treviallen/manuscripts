@@ -8,6 +8,7 @@ from os import path, getcwd, sep
 from sys import argv
 import matplotlib as mpl
 import matplotlib.gridspec as gridspec
+from misc_tools import get_mpl2_colourlist
 
 mpl.style.use('classic')
 mpl.rcParams['pdf.fonttype'] = 42
@@ -17,6 +18,7 @@ plt.rc('ytick',labelsize=13)
 paramfile = argv[1] # param file with locs folder where fractile files sit
 '''
 run cmp_full_collapsed_mean_cdf.py fractiles_NSHA12_col_mul_mean.param
+run cmp_full_collapsed_mean_cdf.py fractiles_NSHA12_col_mul_mean.mac.param
 '''
 ##############################################################################
 # parse param file
@@ -100,7 +102,7 @@ def parse_plot_fractiles(fracfolder):
     # first parse city file
     cwd = getcwd()
     if cwd.startswith('/Users'): #mac
-        citycsv = '/Users/tallen/Documents/Geoscience_Australia/NSHA2018/shared/nsha_cities.csv'
+        citycsv = '/Users/trev/Documents/Geoscience_Australia/NSHA2018/shared/nsha_cities.csv'
         lines = open(citycsv).readlines()
     else:
         citycsv = '/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/shared/nsha_cities.csv'
@@ -138,15 +140,17 @@ from misc_tools import remove_last_cmap_colour
 from gmt_tools import cpt2colormap 
 
 # mac
-cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//Paired_08.cpt'
+cptfile = '//Users//trev//Documents//DATA//GMT//cpt//Paired_08.cpt'
 # rhe-compute
 cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/Paired_08.cpt'
 cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/qual-dark-06.cpt'
-cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/gay-flag-1979.cpt'
+cptfile = '//Users//trev//Documents//DATA//GMT//cpt//gay-flag-1979.cpt'
 ncolours = 7
 cmap, zvals = cpt2colormap(cptfile, ncolours)
 cmap = remove_last_cmap_colour(cmap)
 cs = (cmap(arange(ncolours-1)))
+
+cs = get_mpl2_colourlist()
    
 ###################################################################################
 # let's make the plots
@@ -170,13 +174,13 @@ for k, key in enumerate(keys[:2]):
         # loop thru fracDict
         for frac1, frac2, frac3 in zip(fracDict1, fracDict2, fracDict3):
             if place == frac1['place']:
-                print frac1['place'], frac2['place']
+                print(frac1['place'], frac2['place'])
             
                 # plot fig
                 #ax = plt.subplot(4, 2, i+1)
                 ax = fig.add_subplot(gs1[i])
                 plt.semilogx(frac1['quant_'+key], fractiles, '-', c=cs[0], lw=1.5, label=modnames[0])
-                plt.semilogx(frac2['quant_'+key], fractiles, '-', c=cs[1], lw=1.5, label=modnames[1])
+                plt.semilogx(frac2['quant_'+key], fractiles, '--', c=cs[1], lw=2., label=modnames[1])
                 plt.semilogx(frac3['quant_'+key], fractiles, '-', c=cs[2], lw=1.5, label=modnames[2])                
                 
                 # make pretty
@@ -195,35 +199,26 @@ for k, key in enumerate(keys[:2]):
                 plt.xlim([0.004, 0.06])
                 
                 # plt mean
-                plt.semilogx([frac1['mean_'+key],frac1['mean_'+key]], [0,1], '-', c='gold', lw=1.5, label=modnames[0]+' Mean')
-                plt.semilogx([frac2['mean_'+key],frac2['mean_'+key]], [0,1], '-', c=cs[4], lw=1.5, label=modnames[1]+' Mean')
-                plt.semilogx([frac3['mean_'+key],frac3['mean_'+key]], [0,1], '--', c=cs[5], lw=1.5, label=modnames[2]+' Mean')
+                #plt.semilogx([frac1['mean_'+key],frac1['mean_'+key]], [0,1], '-', c='gold', lw=1.5, label=modnames[0]+' Mean')
+                plt.semilogx([frac1['mean_'+key],frac1['mean_'+key]], [0,1], '-', c=cs[-2], lw=1.5, label=modnames[0]+' Mean')
+                plt.semilogx([frac2['mean_'+key],frac2['mean_'+key]], [0,1], '-', c=cs[3], lw=1.5, label=modnames[1]+' Mean')
+                plt.semilogx([frac3['mean_'+key],frac3['mean_'+key]], [0,1], '--', c=cs[-1], lw=2., label=modnames[2]+' Mean')
                 
                 # get % difference between best and full epistemic
                 pcdiff = 100 * ((frac1['mean_'+key] - frac3['mean_'+key]) / frac1['mean_'+key])
-                print 'Best/Full % differenec:', abs(pcdiff)
+                print('Best/Full % differenec:', abs(pcdiff))
                 
                 # get % difference between collapsed and full epistemic
                 pcdiff = 100 * ((frac2['mean_'+key] - frac3['mean_'+key]) / frac2['mean_'+key])
-                print 'Col/Full % differene: ', abs(pcdiff)
+                print('Col/Full % differene: ', abs(pcdiff))
                 
                 if i == 0:
                     plt.legend(loc=2, fontsize=12)
-                
-                
                 
                 ticks = [0.005, 0.01, 0.02, 0.05]
                 ax.set_xticks(ticks)
                 ax.set_xticklabels([str(x) for x in ticks])
                 
-                '''
-                # plt median
-                plt.semilogx([frac['quant_'+key][50],frac['quant_'+key][50]], [0,1], '--', c='dodgerblue', lw=1.5, label='50th Percentile')
-                # plt 84th
-                plt.semilogx([frac['quant_'+key][84],frac['quant_'+key][84]], [0,1], '--', c='orange', lw=1.5, label='84th Percentile')
-                # plt 95th
-                plt.semilogx([frac['quant_'+key][95],frac['quant_'+key][95]], [0,1], '--', c='r', lw=1.5, label='95th Percentile')
-                '''
     #plt.suptitle(fracFolder.split(sep)[1] + ' ' + key, fontsize=20)
 
     # set fig file
