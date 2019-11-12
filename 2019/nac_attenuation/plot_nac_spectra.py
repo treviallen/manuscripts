@@ -78,7 +78,6 @@ def get_site_geomean(stn, folder):
             elif filename.find(stn) >= 0 and filename.find('HZ.psa') >= 0:
                 zfile = path.join(root, filename)
             
-
     try:
         try:
             # read data 
@@ -174,7 +173,7 @@ def makesubplt(i, fig, plt, sta, sps, mag, dep, ztor, dip, rake, rhyp, vs30):
     Yea97imt, AB03imt, AB03CISimt, Gea05imt, Zea06imt, Zea06CISimt, MP10imt, Aea15imt, Zea16imt \
              = inslab_gsims(mag, dep, ztor, dip, rake, rhyp, rjb, vs30)
              
-    Tea02imt, C03imt, AB06imt, Sea09imt, Sea09YCimt, Pea11imt, A12imt, Bea14imt \
+    Tea02imt, C03imt, AB06imt, Sea09imt, Sea09YCimt, Pea11imt, A12imt, Bea14imt , YA15imt, SP16imt \
              = scr_gsims(mag, dep, ztor, dip, rake, rrup, rjb, vs30)
              
     A19imt_BS = calc_nac_gmm_spectra(mag, rhyp, dep, 'BS') # use rrup
@@ -248,7 +247,6 @@ cptfile = '/Users/trev/Documents/DATA/GMT/cpt/gay-flag-1978.cpt'
 cmap, zvals = cpt2colormap(cptfile, ncols+1)
 cmap = remove_last_cmap_colour(cmap)
 cs = (cmap(arange(ncols)))
-
 
 from fnmatch import filter
 from os import path, walk, system
@@ -354,7 +352,7 @@ for stn in usites:
         print('rhyp', rhyp)
         makesubplt(i, fig, plt, stn, sps, mag, dep, ztor, dip, rake, rhyp, vs30)
         if ii == 1:
-            if rhyp <= 600:
+            if rhyp <= 800:
                 plt.ylim([1e-5, .1])
             else:
                 plt.ylim([1e-6, 0.01])

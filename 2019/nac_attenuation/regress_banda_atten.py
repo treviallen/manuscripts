@@ -295,6 +295,42 @@ print('Loading pkl file...')
 stdict = pickle.load(open("stdict.pkl", "rb" ))
 
 ################################################################################
+# cross-check with S/N data
+################################################################################
+print('Loading pkl file...')
+sndict = pickle.load(open("nac_fft_data.pkl", "rb" ))
+cnt = 0
+for i, sd in enumerate(stdict):
+    hif_limit = 0.1
+    lof_limit = 1000.
+    
+    recFound = False
+    for sn in sndict:
+        if sd['ev'] == sn['ev'] and sd['sta'] == sn['sta']:
+            for chan in sn['channels']:
+                if chan.endswith('E') or chan.endswith('N'):
+                    if sn[chan]['hif_limit'] > hif_limit:
+                       hif_limit = sn[chan]['hif_limit']
+                       
+                    if sn[chan]['lof_limit'] < lof_limit:
+                       lof_limit = sn[chan]['lof_limit']
+            
+            cnt += 1
+            recFound = True
+            
+    # remove noisy psa data
+    idx = where(sd['per'] > 1./lof_limit)[0]
+    stdict[i]['geom'][idx] = nan
+    
+    idx = where(sd['per'] < 1./hif_limit)[0]
+    stdict[i]['geom'][idx] = nan  
+    
+    '''
+    if recFound == False:
+        print(sd['ev'] + ' ' + sd['sta'])
+    '''
+
+################################################################################
 # setup inversions
 ################################################################################
 import scipy.odr.odrpack as odrpack
@@ -648,8 +684,7 @@ def regress_zone(stdict, zgroup):
     ################################################################################
     # smooth GR and calc Q
     ################################################################################    
-    
-    
+
     for ii, T in enumerate(Tplt):
         ax = plt.subplot(4,5,ii+1)
         norm_rhyp, norm_amp_all, norm_dep, norm_stas, norm_mag, norm_date = normalise_data(stdict, T)
@@ -661,7 +696,7 @@ def regress_zone(stdict, zgroup):
         ax.set_xscale("log")
         ax.set_yscale("log")
         plt.xlim([50, maxDist])
-        plt.ylim([1E-3, 1E3])
+        plt.ylim([1E-3, 1E2])
         plt.grid(which='both')
         #plt.title('Normalised Amplitudes')
         
@@ -802,6 +837,26 @@ def regress_zone(stdict, zgroup):
     
     t_amplitudes = []
     
+    # get data
+    rhyp = dictlist2array(stdict, 'rhyp')
+    mags = dictlist2array(stdict, 'mag')
+    deps = dictlist2array(stdict, 'dep')
+    azim = dictlist2array(stdict, 'azim')
+    stas = dictlist2array(stdict, 'sta')
+    date = dictlist2array(stdict, 'date')
+    '''
+    print('\nMW 7.0')
+    wmag = 7.0
+    midx = where((mags >= (wmag-mpltrng)) & (mags < (wmag+mpltrng)))[0]
+    print(stas[midx])
+    print(date[midx])
+    
+    print('\nMW 7.5')
+    wmag = 7.5
+    midx = where((mags >= (wmag-mpltrng)) & (mags < (wmag+mpltrng)))[0]
+    print(stas[midx])
+    print(date[midx])
+    '''
     for tt, T in enumerate(Tplt):
         init_mw = []
         init_c0 = []
@@ -819,22 +874,16 @@ def regress_zone(stdict, zgroup):
         amp_plt = array(amp_plt)
         t_amplitudes.append(amp_plt)
         
-        # get data
-        rhyp = dictlist2array(stdict, 'rhyp')
-        mags = dictlist2array(stdict, 'mag')
-        deps = dictlist2array(stdict, 'dep')
-        azim = dictlist2array(stdict, 'azim')
-        stas = dictlist2array(stdict, 'sta')
-        date = dictlist2array(stdict, 'date')
-    
         for i, mplt in enumerate(mrng):
                     
             #midx = where((mags >= (mplt-mpltrng)) & (mags < (mplt+mpltrng)) & (deps >= 30.))[0]
-            midx = where((mags >= (mplt-mpltrng)) & (mags < (mplt+mpltrng)))[0]
+            midx = where((mags >= (mplt-mpltrng)) & (mags < (mplt+mpltrng)) & (isnan(amp_plt) == False))[0]
+            
+            
             
             if len(midx) > 0:
                 # get binned medians
-                bins = arange(2.0, log10(maxDist), 0.1)
+                bins = arange(log10(minDist), log10(maxDist), 0.1)
         
                 logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(rhyp[midx]), log(amp_plt[midx]))
                 
@@ -892,7 +941,7 @@ def regress_zone(stdict, zgroup):
                 # add to array
                 init_c0.append(c[0])
                 init_mw.append(mplt)
-                
+        
         # fit straight quadratic
         nn = where(isnan(init_c0)==False)[0]
         m1, m2, m0 = polyfit((array(init_mw)[nn]-6), array(init_c0)[nn], 2)
@@ -1018,6 +1067,7 @@ def regress_zone(stdict, zgroup):
         i += 1
     
     plt.suptitle('mag scaling')
+    plt.savefig('.'.join(('mag_scaling', zgroup, 'png')), fmt='png', bbox_inches='tight')
     plt.show()
     
     ######################################################################################
@@ -1332,13 +1382,13 @@ def regress_zone(stdict, zgroup):
         plt.plot(medx, logmedamp, 'rs', ms=6.5)
         
         plt.xlim([2,3.4])
-        plt.ylim([-6, 6])
+        plt.ylim([-4, 4])
         plt.ylabel(str(T))
         
         if i >= 16:
             plt.xlabel('log Rhyp (km)')
     
-        sidx = where((resY > 2.) & (log10(rhyp)>3.))[0]
+        sidx = where((resY < -2.) & (log10(rhyp)>2.5))[0]
         #sidx = where(resY .)[0]
         print(stas[sidx])
         #print(azim[sidx])
