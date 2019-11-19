@@ -55,6 +55,7 @@ def get_site_geomean(stn, folder):
 
     for root, dirnames, filenames in walk(folder):
         for filename in filenames:
+            
             # check strong-motion
             if filename.find(stn) >= 0 and filename.find('NE.psa') >= 0:
                 efile = path.join(root, filename)
@@ -72,18 +73,19 @@ def get_site_geomean(stn, folder):
                 tfile = efile.split('H1.psa')
                 nfile = ''.join((tfile[0],'H2.psa',tfile[1]))
                 
+            '''
             # get Z file
             elif filename.find(stn) >= 0 and filename.find('NZ.psa') >= 0:
                 zfile = path.join(root, filename)
             elif filename.find(stn) >= 0 and filename.find('HZ.psa') >= 0:
                 zfile = path.join(root, filename)
-            
+            '''
     try:
         try:
             # read data 
             T, SAe = read_psa(efile)
             T, SAn = read_psa(nfile)
-            print(efile, nfile)
+            #print(efile, nfile)
             
             # read psa deatails
             esta, esps, erhyp, epga, epgv, mag, dep, stlo, stla = read_psa_details(efile)
@@ -263,6 +265,7 @@ for root, dirnames, filenames in walk(folder):
 
 # if two H components, rename channel
 #usites = unique(sites)
+'''
 usites = []
 for site1 in sites:
     cnt = 0
@@ -274,8 +277,8 @@ for site1 in sites:
         usites.append(site1[0:-1]+'H')
     else:
         usites.append(site1)
-        
-usites = unique(usites)
+'''        
+usites = unique(sites)
 
 udists = []
 lolatxt = ''
