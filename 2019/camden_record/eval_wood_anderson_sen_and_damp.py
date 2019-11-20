@@ -167,49 +167,71 @@ else:
     else:
         '\nFile format not recognised!'
 
-continue_loop = True
-while continue_loop == True:
-    # write options to screen for selection
+# do common read functions
+sta, inst_ty, sps, recdate, nat_freq, damping, sen, recsen, gain, chan, \
+        chan_no, chan_dat, stlo, stla, pazfile, alldata, netid = \
+        common_read(allsta, comps, allrecdate, allsec, allsps, alldata, allnsamp, sacseed)
 
-    # do common read functions
-    sta, inst_ty, sps, recdate, nat_freq, damping, sen, recsen, gain, chan, \
-            chan_no, chan_dat, stlo, stla, pazfile, alldata, netid = \
-            common_read(allsta, comps, allrecdate, allsec, allsps, alldata, allnsamp, sacseed)
+# do common fft functions
+chan_dat = chan_dat[0]
+freq, lofreq, hifreq, wavfft, dt = common_fft(chan_dat, inst_ty, sps, seltask)
 
-    # do common fft functions
-    chan_dat = chan_dat[0]
-    freq, lofreq, hifreq, wavfft, dt = common_fft(chan_dat, inst_ty, sps, seltask)
+# do common instrument deconvolution functions
+corfftr, corffti, real_resp, imag_resp = common_resp(freq, nat_freq, damping, sen, \
+                                         recsen, gain, wavfft, inst_ty)
+
+# get filename
+filename, evdate = write_data.get_filename(sta, recdate, chan, inst_ty, dt, sps)
+
+# get source-to-site distance
+rhyp, azim, eqla, eqlo, eqdep, eqmag, evdate = spatial_tools.get_eq_distance(stlo, stla, evdate)
     
-    # do common instrument deconvolution functions
-    corfftr, corffti, real_resp, imag_resp = common_resp(freq, nat_freq, damping, sen, \
-                                             recsen, gain, wavfft, inst_ty)
-    
-    # get filename
-    filename, evdate = write_data.get_filename(sta, recdate, chan, inst_ty, dt, sps)
+# loop through magnification and damping
+waMagnification = [2080, 2800]
+damping = [0.7, 0.8]
 
-    # get source-to-site distance
-    rhyp, azim, eqla, eqlo, eqdep, eqmag, evdate = spatial_tools.get_eq_distance(stlo, stla, evdate)
+wafile = 'eval_wood-anderson_params.csv'
+for wam in waMagnification:
+    for damp in damping:
+        # convolve with Wood-Anderson instrument and get displacement wave
+        wadisp = response.convolve_WoodAnderson(freq, corfftr, corffti, inst_ty, ampfact=wam, damping=damp)
         
-    # convolve with Wood-Anderson instrument and get displacement wave
-    wadisp = response.convolve_WoodAnderson(freq, corfftr, corffti, inst_ty)
+        # plot W-A displacement time history and get windo for ML
+        watrim = plotting.plot_WoodAnderson(wadisp, sps, filename, chan_no)
+        
+        # calculate magnitudes
+        logA = np.log10(max(abs(watrim)))
+        mlDict = calculate_magnitudes.main(filename, logA, rhyp, eqdep)
+        
+        # write to file
+        lines = open(wafile).read()
     
-    # plot W-A displacement time history and get windo for ML
-    watrim = plotting.plot_WoodAnderson(wadisp, sps, filename, chan_no)
-    
-    # calculate magnitudes
-    logA = np.log10(max(abs(watrim)))
-    mlDict = calculate_magnitudes.main(filename, logA, rhyp, eqdep)
-    
-    # write output to file
-    write_data.write_WA_disp(sta, evdate, sps, wadisp, \
-             filename, stla, stlo, eqla, eqlo, eqdep, eqmag, rhyp, azim, lofreq, hifreq)
-    
-    # ask user if users would like to perform another task using current wavfile
-    try:
-        var = raw_input('\nPerform another task using wavefile: ' + wavfile + ' ([y]/n)? > ')
-    except:
-        var = input('\nPerform another task using wavefile: ' + wavfile + ' ([y]/n)? > ')
-    if var == 'n':
-        continue_loop = False
-    else:
-        continue_loop = True
+        # append new line                      
+        newline = ','.join((sta, str(wam), str(damp), str('%0.1f' % mlDict['rhyp']), \
+                            str('%0.1f' % mlDict['repi']), str('%0.4f' % mlDict['MLM92'])))
+        
+        f = open(wafile, 'w')
+        f.write(lines + '\n' + newline)
+        f.close()
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
