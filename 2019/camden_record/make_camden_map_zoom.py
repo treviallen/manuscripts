@@ -64,8 +64,8 @@ lon = dictlist2array(evdict, 'lon')
 doLocal = False
 # local
 if doLocal == False:
-    urcrnrlat = -33.85
-    llcrnrlat = -34.36
+    urcrnrlat = -33.85+0.14
+    llcrnrlat = -34.36+0.14
     urcrnrlon = 151.
     llcrnrlon = 150.4
 
@@ -81,7 +81,9 @@ ax = fig.add_subplot(111)
 m = Basemap(projection='lcc',lat_1=lat_1,lat_2=lat_2,lon_0=lon_0,\
             llcrnrlon=llcrnrlon,llcrnrlat=llcrnrlat, \
             urcrnrlon=urcrnrlon,urcrnrlat=urcrnrlat,\
-            rsphere=6371200.,resolution='h',area_thresh=10.)
+            rsphere=6371200.,resolution='i',area_thresh=10.)
+m.arcgisimage(service='ESRI_Imagery_World_2D')
+
 
 # draw coastlines, state and country boundaries, edge of map.
 #m.shadedrelief()
@@ -148,9 +150,8 @@ clon = mean([llcrnrlon, urcrnrlon])
 clat = mean([llcrnrlat, urcrnrlat])
             
 degrng = urcrnrlon-llcrnrlon
-plt, m, ax = make_street_map(clat, clon, service='ESRI_Imagery_World_2D', ll_buffer = degrng/2., \
-             xpixels = 1500, plt_inset = True, inset_state = 'nsw', inset_loc = 4, \
-             plt_marker = False)
+plt, m, ax = make_street_map(clat, clon, service='ESRI_Imagery_World_2D', ll_buffer = 0.4, \
+             xpixels = 1500, plt_inset = False, plt_marker = False)
 
 '''
     Map Services:
@@ -266,7 +267,7 @@ plt.text(x, y, 'Elliott', size=14, ha='right', weight='normal', path_effects=pat
 shpfile = '../NT/shapefiles/PetroleumTitles28August2019.shp'
 shpfile = 'PetroleumTitles28August2019.shp'
 sf = shapefile.Reader(shpfile)
-drawshapepoly(m, plt, sf, col='r',lw=0.75, fillshape = True)
+drawshapepoly(m, plt, sf, col='r',lw=0.75, alpha=0.5, fillshape = True)
 
 jsonfile='NSW_CSG_Boreholes.geojson'
 csg_data = return_csg_data(jsonfile)
@@ -284,7 +285,7 @@ plt.plot(x,y,'o',c='orange',ms=7,label='Not Producing Gas')
 
 idx1 = where(status == 'Producing Gas')
 x,y = m(csg_lon[idx1], csg_lat[idx1])
-plt.plot(x,y,'o',c='limegreen',ms=7,label='Producing Gas')
+plt.plot(x,y,'o',c='limegreen',ms=7,label='Producing Gas', zorder=10000)
 
 ##########################################################################################
 # plt stations
@@ -297,9 +298,27 @@ staDict = parse_iris_stationlist(stationlist)
 # plot stations
 sta_lon = dictlist2array(staDict, 'lon')
 sta_lat = dictlist2array(staDict, 'lat')
+sta_code = dictlist2array(staDict, 'sta')
 
 x,y = m(sta_lon, sta_lat)
-plt.plot(x, y, 'y^', ms=12, zorder=12000, label='Camden Seismic Network')
+plt.plot(x, y, '^', c='yellow', ms=12, zorder=12000, label='Camden Seismic Network')
+
+# label stas
+urcrnrlat
+llcrnrlat
+urcrnrlon
+llcrnrlon
+
+import matplotlib.patheffects as PathEffects
+path_effects=[PathEffects.withStroke(linewidth=3, foreground="w")]
+
+for sta, slon, slat in zip(sta_code, sta_lon, sta_lat):
+    if slon >= llcrnrlon and slon <= urcrnrlon \
+        and slat >= llcrnrlat and slat <= urcrnrlat:
+            print(sta)
+            x,y = m(slon-0.005, slat+0.004)
+            plt.text(x, y, sta, size=15, c='royalblue', va='bottom', ha='right', weight='normal', \
+                     path_effects=path_effects, zorder=11000)
 
 plt.legend(loc=2, numpoints=1, fontsize=12)
 
@@ -326,7 +345,7 @@ for polygon in m.lakepolygons:
 from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes
 
 if doLocal == False:
-    axins = zoomed_inset_axes(ax, 0.0033, loc=3)
+    axins = zoomed_inset_axes(ax, 0.0045, loc=3)
 
 m2 = Basemap(projection='merc',\
             llcrnrlon=111,llcrnrlat=-45, \
