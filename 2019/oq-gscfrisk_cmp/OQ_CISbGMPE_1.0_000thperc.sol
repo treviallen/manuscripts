@@ -1,0 +1,23 @@
+  This file is /home0/halchuk/deaggregator/output/2016OQtest/OQ_CISbGMPE_000thperc.sol
+  Data processed by Program deag_unix (ver 2015/06/09) on 2016/02/16 at 18:44 by halchuk
+  Maximum contributing source distance of  400.0 km applied only to areas
+  Using model /home0/halchuk/deaggregator/models/2016OQtest/OQ_CISbGMPEtest.model with attenuation table(s) and period 1.000 sec
+  Using default magnitude step
+  A new "slicing" of   50 is being used for area sources for this model
+  Percentile=  0%le
+  All hazard values are in units of g
+
+    Probabilities= 0.0200000 0.0137500 0.0100000 0.0044500 0.0021000 0.0010000 0.0005000 0.0004040 0.0002000 0.0001000
+
+
+
+-125.880  49.120    0.0000    0.0000    0.0000    0.0000    0.0000    0.4492    0.7293    0.8103    1.0891    1.3862  Tofino
+-123.370  48.430    0.0000    0.0000    0.0000    0.0000    0.0000    0.2630    0.4286    0.4718    0.6397    0.8091  Victoria
+-123.120  49.250    0.0000    0.0000    0.0000    0.0000    0.0000    0.1327    0.2136    0.2404    0.3214    0.4077  Vancouver
+-123.930  49.170    0.0000    0.0000    0.0000    0.0000    0.0000    0.2027    0.3295    0.3658    0.4923    0.6299  Nanaimo
+-123.150  49.700    0.0000    0.0000    0.0000    0.0000    0.0000    0.1003    0.1613    0.1808    0.2434    0.3084  Squamish
+-122.960  50.120    0.0000    0.0000    0.0000    0.0000    0.0000    0.0714    0.1151    0.1287    0.1739    0.2194  Whistler
+-120.320  50.670    0.0000    0.0000    0.0000    0.0000    0.0000    0.0238    0.0380    0.0429    0.0573    0.0730  Kamloops
+
+
+ Computation time=  3.633 sec
