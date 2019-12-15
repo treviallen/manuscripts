@@ -15,7 +15,14 @@ importlib.reload(sys) # for unicode chars
 import codecs
 warnings.filterwarnings("ignore")
 
-
+'''
+Run from:
+    /Users/trev/Documents/NRCan/2015_National_Hazard/2015_gsc_nshm/pycodes/post_processing
+    
+Commands:
+    run cmp_oq_frisk_haz_curves.py secan_collapsed_rates 617 0.2 
+    run cmp_oq_frisk_haz_curves.py swcan_collapsed_rates 718 0.2
+'''
 ###############################################################################
 # settings
 ###############################################################################

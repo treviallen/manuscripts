@@ -211,12 +211,13 @@ for i, pga in enumerate(pltpga):
     h2 = plt.semilogx([0.1, 1.],[9999., 9999.], 'k--', lw=2.5)
     
     if i == 0:
-        plt.legend(loc=2, fontsize=16)
         plt.title('Linear Amplification Only', fontsize=20)
         letter = '(a)'
-    
+        legend1 = plt.legend(loc=6, bbox_to_anchor=(0, 0.62), fontsize=16) # loc=6 = centre left
+        legend2 = plt.legend((h1[0], h2[0]), ('Seyhan & Stewart (2014)', 'AS1170.4-2007'), loc=2, fontsize=16)
+        plt.gca().add_artist(legend1)
+        
     elif i == 1:
-        plt.legend((h1[0], h2[0]), ('Seyhan & Stewart (2014)', 'AS1170.4-2007'), loc=2, fontsize=16)
         plt.title('Non-Linear Amplification', fontsize=20)
         letter = '(b)'
     
