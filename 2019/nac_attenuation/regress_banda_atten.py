@@ -1091,7 +1091,7 @@ def regress_zone(stdict, zgroup):
     d3_array = array(d3_array)
     
     plt.suptitle('Depth Residuals')
-    plt.savefig('depth_residuals.png', fmt='png', bbox_inches='tight')
+    plt.savefig('.'.join(('depth_residuals',zgroup,'png')), fmt='png', bbox_inches='tight')
     plt.show()
     
     # smooth coefs
