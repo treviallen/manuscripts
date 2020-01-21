@@ -119,7 +119,7 @@ for lon, lat, curve in zip(curlon, curlat, curves):
             except:
                 h1 = plt.semilogy(curve, friskprobs, '-', c='darkorange', lw=2.0)
             h2 = plt.semilogy(fh[3:-1], friskprobs, '--', c='blue', lw=2.5)
-            plt.title(places[p])#.encode('utf8'))
+            plt.title(places[p].replace(' (city hall)', ''))#.encode('utf8'))
             plt.grid(which='both')
             plt.semilogy([0, 2.5], [yhaz, yhaz], 'k--')
             
@@ -143,14 +143,14 @@ for lon, lat, curve in zip(curlon, curlat, curves):
             if ii == 6:
               plt.savefig(path.join('..','..','jobs','hazard',job, '_'.join((job,'oq_frisk_hazcurves',period,job_num,str(i)+'.png'))), format='png',bbox_inches='tight', dpi=800)
 
-              plt.savefig(path.join('..','..','jobs','hazard',job, '_'.join((job,'oq_frisk_hazcurves',period,job_num,str(i)+'.pdf'))), format='pdf',bbox_inches='tight', dpi=800)
+              #plt.savefig(path.join('..','..','jobs','hazard',job, '_'.join((job,'oq_frisk_hazcurves',period,job_num,str(i)+'.pdf'))), format='pdf',bbox_inches='tight', dpi=800)
               i += 1
               ii = 0
               fig = plt.figure(i, figsize=(14, 10))
 
 if ii != 0:
     plt.savefig(path.join('..','..','jobs','hazard',job, '_'.join((job,'oq_frisk_hazcurves',period,job_num,str(i)+'.png'))), format='png',bbox_inches='tight', dpi=800)
-    plt.savefig(path.join('..','..','jobs','hazard',job, '_'.join((job,'oq_frisk_hazcurves',period,job_num,str(i)+'.pdf'))), format='pdf',bbox_inches='tight', dpi=800)
+    #plt.savefig(path.join('..','..','jobs','hazard',job, '_'.join((job,'oq_frisk_hazcurves',period,job_num,str(i)+'.pdf'))), format='pdf',bbox_inches='tight', dpi=800)
 
 plt.show()
 
