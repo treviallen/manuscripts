@@ -29,6 +29,9 @@ warnings.filterwarnings("ignore")
 #from gmt_tools import cpt2colormap
 #from shapely.geometry import Point, Polygon
 
+'''
+run map_hazard_localities.py /nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/source_models/complete_model/final/results_maps_PGA/hazard_map-mean_1.csv 10 False
+'''
 ##############################################################################
 # set some default values here
 ##############################################################################
@@ -495,7 +498,9 @@ for i, key in enumerate([keys[mapidx]]): # just plot 1 for now!
     locs = []
     textoffset = []
     
+    print('!!!! Changed regional sites for WCEE paper !!!!')
     regfile = 'reg_loc_names.csv'
+    regfile = 'reg_loc_names_wcee.csv'
     
     # read data
     lines = open(regfile).readlines()

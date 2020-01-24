@@ -1,10 +1,10 @@
-Earthquake,Year,Magnitude (Mw),Moment (Mo),detectable surface rupture length (km),visible surface rupture length (km),vert displacement (max: m),Reference,,,,,,,
-Meckering,1968,6.58,8.32E+18,37,37,2.5,Gordon & Lewis (1980),,,,,,,
-Calingiri,1970,5.46,1.72E+17,3.3,3.3,0.4,Gordon & Lewis (1980),,,,,,,
-Cadoux,1979,6.13,1.73E+18,14,14,1.4,Lewis et al. (1981),,,,,,,
-Marryat Creek,1986,5.74,4.57E+17,13,13,0.9,Machette et al. (1993),,,,,,,
-Tennant Creek*,1988,6.76,1.55E+19,36,36,1.8,"Crone et al. (1992, Crone et al. 1997)",,,,,,,
-Katanning,2007,4.73,1.37E+16,1.26,0.2,0.1,Dawson et al. (2008),,,,,,,
-Ernabella,2012,5.37,1.25E+17,1.5,1.5,0.5,Clark et al. (2014b),,,,,,,
-Petermann Ranges,2016,6.1,1.132E+18,20,15,1,King et al. (2018); moment from USGS,,,,,,,
-Lake Muir,2018,5.3,1.211E+17,7,3.2,0.4,this article; moment from USGS,,,,,,,
+Earthquake,Year,Magnitude (Mw),Moment (Mo),detectable surface rupture length (km),visible surface rupture length (km),vert displacement (max: m),Min,Max,Reference,InSAR
+Meckering,1968,6.58,8.32E+18,37,37,2.5,36,38,Gordon & Lewis (1980),0
+Calingiri,1970,5.46,1.72E+17,3.3,3.3,0.4,3.3,3.3,Gordon & Lewis (1980),0
+Cadoux,1979,6.13,1.73E+18,14,14,1.4,14,16,Lewis et al. (1981),0
+Marryat Creek,1986,5.74,4.57E+17,13,13,0.9,13,13,Machette et al. (1993),0
+Tennant Creek*,1988,6.76,1.55E+19,36,36,1.8,32,40,"Crone et al. (1992, Crone et al. 1997)",0
+Katanning,2007,4.73,1.37E+16,1.26,0.2,0.1,0.2,1.26,Dawson et al. (2008),1
+Ernabella,2012,5.37,1.25E+17,1.5,1.5,0.5,1.5,1.6,Clark et al. (2014b),0
+Petermann Ranges,2016,6.1,1.13E+18,20,15,1,15,21,King et al. (2018); moment from USGS,1
+Lake Muir,2018,5.3,1.21E+17,7,3.2,0.4,3.2,7,this article; moment from USGS,1
