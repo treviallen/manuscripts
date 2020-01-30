@@ -129,6 +129,7 @@ plt.xlim([4.5, 7])
 
 plt.gca().add_artist(leg1)
 plt.savefig('2020_scr_scaling_relations.png', fmt='png', dpi=300, bbox_inches='tight')
+plt.savefig('2020_scr_scaling_relations.svg', fmt='svg', dpi=300, bbox_inches='tight')
 plt.show()
 
 
