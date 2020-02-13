@@ -64,7 +64,7 @@ from shapely.geometry import Point, Polygon
 from mapping_tools import get_field_data
 from calc_oq_gmpes import get_station_vs30
 from misc_tools import get_binned_stats
-from numpy import array, arange, exp, log, interp, vstack, nan, isnan, log10
+from numpy import array, arange, exp, log, interp, vstack, nan, isnan, log10, polyfit
 import pickle
 
 print('Loading pkl file...')
@@ -124,6 +124,11 @@ print('Plotting...')
 Tplt = A19imt['per']
 fig = plt.figure(1, figsize=(18,10))
 
+d0_array = []
+d1_array = []
+d2_array = []
+d3_array = []
+
 for i, T in enumerate(Tplt):
     ax = plt.subplot(4,5,i+1)
     
@@ -138,14 +143,30 @@ for i, T in enumerate(Tplt):
     if i >= 15:
        plt.xlabel('Vs30')
        
-    plt.ylim([-5, 5])
+    plt.ylim([-4, 4])
     plt.xlim([200, 1000])
+    xticks = [200, 500, 1000]
+    ax.set_xticks(xticks)
+    ax.set_xticklabels(list([str(x) for x in xticks]))
     
     # bin stats
-    bins = arange(2, 3, 0.1)
+    bins = arange(2.1, 3, 0.075)
     logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(vs30), Yres)
     
-    plt.semilogx(10**binstrp, logmedamp, 'rs', ms=6)
+    # fit cubic
+    d1, d2, d3, d0 = polyfit(array(medx), array(logmedamp), 3) # binned data
+    d0_array.append(d0)
+    d1_array.append(d1)
+    d2_array.append(d2)
+    d3_array.append(d3)
+    
+    plt.semilogx(10**medx, logmedamp, 'rs', ms=6)
+    
+    # plot cubic
+    dx = arange(0.1, 3, 0.01)
+    dy = d0 + d1*dx**3 + d2*dx**2 + d3*dx
+    #print(dx, dy)
+    plt.plot(10**dx, dy, 'g-', lw=1.5)
        
 plt.show()
     

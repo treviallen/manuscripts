@@ -24,6 +24,7 @@ def parse_usgs_events(usgscsv):
         
     return evdict
 
+
 # reads sa data files and returns period (T) and acceleration (SA) vectors
 def read_sa(safile):
     from numpy import array
@@ -33,7 +34,7 @@ def read_sa(safile):
     
     safile = lines[0].strip().split('\t')[-1]
     chan = lines[0].strip().split('.')[-2]
-    datestr = lines[1].strip().split('\t')[-1]    
+    datestr = lines[1].strip().split('\t')[-1].replace(' ','T')    
     sta = lines[2].strip().split('\t')[-1]
     stla = float(lines[3].strip().split('\t')[-1])
     stlo = float(lines[4].strip().split('\t')[-1])
@@ -73,7 +74,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 from matplotlib import colors, colorbar
 from numpy import where, zeros, exp, log, interp, array, logspace, log10, sqrt, arange, \
-                  concatenate, around, mean, polyfit, delete, isnan, nan, isfinite
+                  concatenate, around, mean, polyfit, delete, isnan, nan, isfinite, unique
 from misc_tools import listdir_extension, dictlist2array, get_binned_stats, savitzky_golay
 #from calc_oq_gmpes import inslab_gsims
 from os import path
@@ -93,7 +94,7 @@ region = argv[1]
 ################################################################################
 #usgscsv = '20190625_merged_events.csv'
 #evdict = parse_usgs_events(usgscsv)
-
+"""
 folder = 'psa'
 extension = 'psa'
 safiles = listdir_extension(folder, extension)
@@ -120,7 +121,7 @@ for saf in safiles:
     fsplit = saf.split('.')
     # if station info exists
     for sd in stdict:
-        if sd['ev'] == saf[0:16] and sd['sta'] == fsplit[3]:
+        if sd['filedate'] == saf[0:16] and sd['sta'] == fsplit[3]:
             if fsplit[4].endswith('E') or fsplit[4].endswith('1'):
                 sd['chans'][0] = 1
                 sd['chstr'][0] = fsplit[-2]
@@ -147,7 +148,10 @@ for saf in safiles:
             chans[2] = 1
             chstr[2] = fsplit[-2]
         
-        sd = {'ev':saf[0:16], 'sta':fsplit[3], 'chans':chans, 'chstr':chstr, 'net':fsplit[2]}
+        rec = read_sa(path.join(folder, saf))
+        datestr = rec['datestr']
+        sd = {'ev':datestr, 'sta':fsplit[3], 'chans':chans, 'chstr':chstr, 'net':fsplit[2], \
+        	    'filedate':saf[0:16], 'azim':0.0, 'rhyp':9999}
         
         #if not sd['sta'] == 'AS31':
         stdict.append(sd)
@@ -157,11 +161,12 @@ for saf in safiles:
 ################################################################################
 
 for i, st in enumerate(stdict):
+    geom = nan
     # get geometric mean of horizontals
-    if st['chans'][0] == 1 and st['chans'][1] == 1:
+    if st['chans'][0] == int(1) and st['chans'][1] == int(1):
         for rec in recs:
             # get east channel
-            if rec['safile'][0:16] == st['ev'] and rec['sta'] == st['sta'] \
+            if rec['datestr'] == st['ev'] and rec['sta'] == st['sta'] \
                 and rec['chan'] == st['chstr'][0]:
                 
                 edat = rec['sa']
@@ -182,12 +187,13 @@ for i, st in enumerate(stdict):
                 stdict[i]['date'] = rec['datestr']
                 
             # get north channel
-            if rec['safile'][0:16] == st['ev'] and rec['sta'] == st['sta'] \
+            if rec['datestr'] == st['ev'] and rec['sta'] == st['sta'] \
                 and rec['chan'] == st['chstr'][1]:
                 
                 ndat = rec['sa']
-                
-        stdict[i]['geom'] = exp((log(edat) + log(ndat)) / 2.)
+        
+        geom = exp((log(edat) + log(ndat)) / 2.)        
+        stdict[i]['geom'] = geom
     
     # else, get on or other horizontal
     elif st['chans'][0] == 1 or st['chans'][1] == 1:
@@ -231,6 +237,11 @@ for i, st in enumerate(stdict):
                 stdict[i]['pgv'] = rec['pgv']
                 stdict[i]['network'] = rec['network']
                 stdict[i]['date'] = rec['datestr']
+    
+    else:
+        stdict[i]['azim'] = 0.0 # skip odd recs
+        #print(st['sta'])
+    
     '''            
     # else, just use vertical
     elif st['chans'][2] == 1:
@@ -255,7 +266,7 @@ for i, st in enumerate(stdict):
                 stdict[i]['network'] = rec['network']
                 stdict[i]['date'] = rec['datestr']
     '''
-                    
+                   
 didx = []
 stdict = array(stdict)
 for j, st in enumerate(stdict):
@@ -273,15 +284,17 @@ for j, st in enumerate(stdict):
         didx.append(j)
     elif st['sta'] == 'PMG' and st['azim'] < 150:
         didx.append(j)
-    elif st['azim'] > 240:
+    elif st['azim'] > 240 and st['net'] != 'AEES':
         didx.append(j)
     elif st['azim'] > 225 and region != 'NGH':
         didx.append(j)
-    elif st['azim'] < 135:
+    elif st['azim'] < 135 and st['net'] != 'AEES':
         didx.append(j)
     elif st['rhyp'] > maxDist:
         didx.append(j)
 
+del recs
+print(len(stdict))
 stdict = delete(stdict, array(didx))
 print(len(stdict))
 print(len(didx))
@@ -292,9 +305,9 @@ print(len(didx))
 
 print('Saving pkl file...')
 pklfile = open("stdict.pkl", "wb" )
-pickle.dump(stdict, pklfile, protocol=-1)
+pickle.dump(stdict, pklfile) #, protocol=-1)
 pklfile.close()
-
+"""
 print('Loading pkl file...')
 stdict = pickle.load(open("stdict.pkl", "rb" ))
 
@@ -302,6 +315,7 @@ stdict = pickle.load(open("stdict.pkl", "rb" ))
 # cross-check with S/N data
 ################################################################################
 print('Loading pkl file...')
+cnt = 0
 sndict = pickle.load(open("nac_fft_data.pkl", "rb" ))
 cnt = 0
 for i, sd in enumerate(stdict):
@@ -310,7 +324,15 @@ for i, sd in enumerate(stdict):
     
     recFound = False
     for sn in sndict:
-        if sd['ev'] == sn['ev'] and sd['sta'] == sn['sta']:
+        '''
+        if sd['sta'].startswith('DRS') and sn['sta'].startswith('DRS') and sd['ev'].startswith('1995-12-25'):
+            print(sd['sta'], sd['ev'], sn['ev'])
+        
+        '''
+        if sd['ev'] == sn['ev'].replace('.',':') and sd['sta'] == sn['sta']:
+            #print(sd['ev'], sd['sta'], 'blah')
+            #print(sd['geom'])
+            
             for chan in sn['channels']:
                 if chan.endswith('E') or chan.endswith('N'):
                     if sn[chan]['hif_limit'] > hif_limit:
@@ -332,7 +354,6 @@ for i, sd in enumerate(stdict):
                     if sd['sta'] == 'COEN':
                         lof_limit = 0.5
                     '''    
-            cnt += 1
             recFound = True
             
     # remove noisy psa data
@@ -342,11 +363,12 @@ for i, sd in enumerate(stdict):
     idx = where(sd['per'] < (1./hif_limit))[0]
     stdict[i]['geom'][idx] = nan
     
-    '''
+    
     if recFound == False:
-        print(sd['ev'] + ' ' + sd['sta'])
-    '''
-
+        print('Not found: '+sd['ev'] + ' ' + sd['sta'])
+        cnt += 1
+   
+del sndict 
 ################################################################################
 # setup inversions
 ################################################################################
@@ -1055,6 +1077,7 @@ def regress_zone(stdict, zgroup):
         
         if zgroup == 'NGH' or zgroup == 'OBE': # fit linear
             d3, d0 = polyfit(log10(deps[nn]), resY[nn], 1) # full data
+            #d3, d0 = polyfit(array(medx), array(logmedamp), 1) # binned data
             d0_array.append(d0)
             d1_array.append(0.0)
             d2_array.append(0.0)
@@ -1208,8 +1231,13 @@ def regress_zone(stdict, zgroup):
         
         smooth_d3 = savitzky_golay(array(refit_d3), sg_window, sg_poly)
         smooth_d3 = refit_d3
-    
-    # if NGH or OBE - just use linear fit
+    # don't use depth cor for NGH
+    elif zgroup == 'NGH':
+        smooth_d0 = d0_array # * 0.
+        smooth_d1 = d0_array * 0.
+        smooth_d2 = d0_array * 0.
+        smooth_d3 = d3_array # * 0.
+    # if OBE - just use linear fit
     else:
         smooth_d0 = d0_array
         #smooth_d0 = savitzky_golay(array(refit_d0), sg_window, sg_poly) # must smooth these vals!
@@ -1279,10 +1307,66 @@ def regress_zone(stdict, zgroup):
         sidx = where((resY < -3) & (log10(rhyp)<2.6))[0]
         #sidx = where(resY .)[0]
         print(stas[sidx])
+        print(unique(array(stas)))
         #print(azim[sidx])
         print(date[sidx])
     plt.suptitle('Dist Residuals')
-    plt.savefig('final_res.png', fmt='png', bbox_inches='tight')
+    plt.savefig('final_res.'+region+'.png', fmt='png', bbox_inches='tight')
+    plt.show()
+    
+    ######################################################################################
+    # calculate model residual and plot with mag
+    ######################################################################################
+    print('Plotting mag residuals...')
+    #log Y = c0 + c1*(M-6)**2 + c2*(M-6) - c3*log Rhyp - c4*Rhyp
+    fig = plt.figure(15, figsize=(18,10))
+    mod_res = []
+    bins = arange(5.4, 8.1, 0.2)
+    
+    for i, T in enumerate(Tplt):
+        #atten_cor = (- smooth_c2[i]*log10(rhyp) - smooth_c3[i]*(rhyp)) # old
+        atten_cor = smooth_c1[i] * log10(rhyp)
+        yhinge = smooth_c1[i] * hxfix
+        idx = log10(rhyp) > hxfix
+        atten_cor[idx] = smooth_c2[i] * (log10(rhyp[idx])-hxfix) + yhinge
+        
+        dep_cor = smooth_d0[i] + smooth_d1[i]*log10(deps)**3 + smooth_d2[i]*log10(deps)**2 + smooth_d3[i]*log10(deps)
+        
+        logY = smooth_m0[i] + smooth_m1[i]*(mags-6)**2 + smooth_m2[i]*(mags-6) \
+               + atten_cor + dep_cor
+              
+        resY = log(t_amplitudes[i]) - logY
+         
+        # plot
+        ax = plt.subplot(4,5,i+1)
+        
+        norm = mpl.colors.Normalize(vmin=0, vmax=700)
+        
+        sc = plt.scatter(mags, resY, c=deps, marker='o', s=20, \
+                         cmap='viridis_r', norm=norm, alpha=1.0)
+        
+        plt.plot([5,8], [0,0], 'r--', lw=1.5)
+        
+        # get binned medians
+        #bins = arange(log10(minDist), log10(maxDist), 0.1)
+        nn = where((isnan(resY) == False) & (isnan(mags) == False) & (isfinite(resY) == True))[0]
+        logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, mags[nn], resY[nn])
+        plt.plot(medx, logmedamp, 'rs', ms=6.5)
+        
+        plt.xlim([5.,8])
+        plt.ylim([-4, 4])
+        plt.ylabel(str(T))
+        
+        if i >= 16:
+            plt.xlabel('MW')
+    
+        sidx = where((resY < -3) & (log10(rhyp)<2.6))[0]
+        #sidx = where(resY .)[0]
+        print(medx)
+        #print(azim[sidx])
+        print(nperbin)
+    plt.suptitle('Mag Residuals')
+    plt.savefig('mag_res.'+region+'.png', fmt='png', bbox_inches='tight')
     plt.show()
     #################################################################################
     # export coeffs
@@ -1373,13 +1457,3 @@ for poly, zcode, zgroup in zip(polygons, zone_code, zone_group):
             
 # do regression for each polygon
 resY, deps, norm_stas = regress_zone(reg_stdict, zgroup1)
-
-
-
-
-
-
-
-
-
-

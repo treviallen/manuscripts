@@ -175,7 +175,7 @@ def makesubplt(i, fig, plt, sta, sps, mag, dep, ztor, dip, rake, rhyp, vs30):
     Yea97imt, AB03imt, AB03CISimt, Gea05imt, Zea06imt, Zea06CISimt, MP10imt, Aea15imt, Zea16imt \
              = inslab_gsims(mag, dep, ztor, dip, rake, rhyp, rjb, vs30)
              
-    Tea02imt, C03imt, AB06imt, Sea09imt, Sea09YCimt, Pea11imt, A12imt, Bea14imt , YA15imt, SP16imt \
+    Tea02imt, C03imt, AB06imt, Sea09imt, Sea09YCimt, Pea11imt, A12imt, Bea14imt ,SP16imt \
              = scr_gsims(mag, dep, ztor, dip, rake, rrup, rjb, vs30)
              
     A19imt_BS = calc_nac_gmm_spectra(mag, rhyp, dep, 'BS') # use rrup
