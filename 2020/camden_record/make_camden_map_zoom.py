@@ -48,19 +48,6 @@ plt.rcParams['pdf.fonttype'] = 42
 mpl.style.use('classic')
 
 ##########################################################################################
-# parse epicentres
-##########################################################################################
-
-'''
-# parse HMTK csv
-evdict = parse_ga_event_query('nt_earthquakes_export.csv')
-year = dictlist2array(evdict, 'year')
-month = dictlist2array(evdict, 'month')
-mag = dictlist2array(evdict, 'mag')
-lat = dictlist2array(evdict, 'lat')
-lon = dictlist2array(evdict, 'lon')
-'''
-##########################################################################################
 doLocal = False
 # local
 if doLocal == False:
@@ -69,78 +56,6 @@ if doLocal == False:
     urcrnrlon = 151.1
     llcrnrlon = 150.4
 
-"""
-lon_0 = mean([llcrnrlon, urcrnrlon])
-lat_1 = percentile([llcrnrlat, urcrnrlat], 25)
-lat_2 = percentile([llcrnrlat, urcrnrlat], 75)
-
-fig = plt.figure(figsize=(18,10))
-plt.tick_params(labelsize=16)
-ax = fig.add_subplot(111)
-
-m = Basemap(projection='lcc',lat_1=lat_1,lat_2=lat_2,lon_0=lon_0,\
-            llcrnrlon=llcrnrlon,llcrnrlat=llcrnrlat, \
-            urcrnrlon=urcrnrlon,urcrnrlat=urcrnrlat,\
-            rsphere=6371200.,resolution='i',area_thresh=10.)
-m.arcgisimage(service='ESRI_Imagery_World_2D')
-
-
-# draw coastlines, state and country boundaries, edge of map.
-#m.shadedrelief()
-m.drawcoastlines(color='0.4')
-m.drawstates()
-m.drawcountries()
-if doLocal == False:
-    m.drawparallels(arange(-90.,90.,.2), labels=[1,0,0,0],fontsize=16, dashes=[2, 2], color='0.5', linewidth=0.75)
-    m.drawmeridians(arange(0.,360.,.2), labels=[0,0,0,1], fontsize=16, dashes=[2, 2], color='0.5', linewidth=0.75)
-else:
-    m.drawparallels(arange(-90.,90.,1.), labels=[1,0,0,0],fontsize=16, dashes=[2, 2], color='0.5', linewidth=0.75)
-    m.drawmeridians(arange(0.,360.,2.), labels=[0,0,0,1], fontsize=16, dashes=[2, 2], color='0.5', linewidth=0.75)
-#m.drawmapscale(144, -34.8, 146., -38.5, 400, fontsize = 16, barstyle='fancy', zorder=100)
-
-
-##########################################################################################
-# plot gebco
-##########################################################################################
-
-print 'Reading netCDF file...'
-try:
-    nc = NetCDFFile('//Users//tallen//Documents//DATA//GMT//GEBCO//Australia_30c.nc')
-except:
-    nc = NetCDFFile('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/GEBCO/au_gebco.nc')
-
-zscale =20. #gray
-zscale =20. #colour
-data = nc.variables['elevation'][:] / zscale
-lons = nc.variables['lon'][:]
-lats = nc.variables['lat'][:]
-
-# transform to metres
-nx = int((m.xmax-m.xmin)/500.)+1
-ny = int((m.ymax-m.ymin)/500.)+1
-
-topodat = m.transform_scalar(data,lons,lats,nx,ny)
-
-print 'Getting colormap...'
-# get colormap
-try:
-    cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//wiki-2.0.cpt'
-    cmap, zvals = cpt2colormap(cptfile, 30)
-except:
-    cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/wiki-2.0.cpt'
-    cmap, zvals = cpt2colormap(cptfile, 30)
-    
-cmap = remove_last_cmap_colour(cmap)
-        
-# make shading
-print 'Making map...'
-ls = LightSource(azdeg = 180, altdeg = 5)
-norm = mpl.colors.Normalize(vmin=-8000/zscale, vmax=5000/zscale)#myb
-norm = mpl.colors.Normalize(vmin=-1000/zscale, vmax=1900/zscale)#wiki
-
-rgb = ls.shade(topodat, cmap=cmap, norm=norm)
-im = m.imshow(rgb)
-"""
 ##########################################################################################
 # set up street map
 ##########################################################################################
@@ -172,68 +87,7 @@ plt, m, ax = make_street_map(clat, clon, service='ESRI_Imagery_World_2D', ll_buf
 ESRI_Imagery_World_2D - good sat image
 NatGeo_World_Map - nice road map - hard to read
 '''
-##########################################################################################
-# add epicentres
-##########################################################################################
-"""
-ncols = 12
 
-# get year range
-#minyear = 10*floor(year[-1]/10.)
-#maxyear = 10*ceil(year[0]/10.)
-minyear = 1960
-maxyear = 2020
-yearrng = float(round(maxyear - minyear))
-#cmap = plt.cm.get_cmap('Spectral', ncols)
-
-try:
-    cptfile = '/Users/tallen/Documents/DATA/GMT/cpt/temperature.cpt'
-    cmap, zvals = cpt2colormap(cptfile, ncols+1, rev=False)
-except:
-    cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/temperature.cpt'
-    cmap, zvals = cpt2colormap(cptfile, ncols+1, rev=False)
-    
-cmap = remove_last_cmap_colour(cmap)
-
-cs = (cmap(arange(ncols)))
-#cs = vstack((cs[0:1], cs[2:], [1., 1., 1., 1.]))
-
-# get zorder for plotting
-'''
-sortidx = argsort(argsort(cat.data['magnitude']))
-for i in range(0, len(cat.data['magnitude'])): #[0:100])):
-    if cat.data['magnitude'][i] >= 2.5:
-        #get colour idx
-        year = cat.data['year'][i]
-        colidx = int(round((ncols-1) * (year-minyear) / yearrng))
-        x, y = m(cat.data['longitude'][i], cat.data['latitude'][i])
-        zo = sortidx[i] + 20
-        plt.plot(x, y, 'o', markerfacecolor=cs[colidx], markeredgecolor='k', markeredgewidth=0.5, \
-                 markersize=-4 + cat.data['magnitude'][i]*3.2, zorder=zo, alpha=0.8)
-'''
-sortidx = argsort(argsort(mag))
-for i in range(0, len(mag)): #[0:100])):
-    if mag[i] >= 1.0:
-        #get colour idx
-        evyear = year[i] + month[i]/12.
-        colidx = int(floor((ncols) * (evyear-minyear) / yearrng))
-        x, y = m(lon[i], lat[i])
-        zo = sortidx[i] + 20
-        plt.plot(x, y, 'o', mfc=list(cs[colidx][0:3]), markeredgecolor='k', markeredgewidth=0.5, \
-                 markersize=-4 + mag[i]*3.2, zorder=zo, alpha=0.8)
-    
-# make legend
-legmag = [3., 5., 7.]
-legh = []
-for lm in legmag:
-    x, y = m(0, 0)
-    h = m.plot(x, y, 'ko', mfc='k', markersize=(-4 + lm*3.2), alpha=1., zorder=len(mag)+1, lw=2)
-    legh.append(h[0])
-
-mlstr = '$\mathregular{M_L}$'
-l = plt.legend(legh, (mlstr+' 3.0', mlstr+' 5.0', mlstr+' 7.0'), loc=2, numpoints=1)
-l.set_zorder(len(mag)+5)
-"""
 ##########################################################################################
 # add cities
 ##########################################################################################
@@ -317,7 +171,6 @@ plt.plot(x, y, '^', c='w', ms=12, zorder=1000, label='Urban Monitoring Network')
 x,y = m(cmdlon, cmdlat)
 plt.plot(x, y, '^', c='yellow', ms=12, zorder=1000, label='Camden Seismic Network')
 
-
 # label stas
 urcrnrlat
 llcrnrlat
@@ -393,23 +246,6 @@ for i, st in enumerate(state):
 ##########################################################################################
 # add colourbar
 ##########################################################################################
-"""
-ticks = arange(0, ncols/2.+1)
-years = float(minyear) + ticks*10
-labels = [str('%0.0f' % x) for x in years]
 
-# normalise
-norm = mpl.colors.Normalize(vmin=minyear, vmax=2020)
-
-if doLocal == False:
-    cax = fig.add_axes([0.7,0.3,0.02,0.4]) # setup colorbar axes.
-else:
-    cax = fig.add_axes([0.72,0.3,0.02,0.4]) # setup colorbar axes.
-    
-cb = colorbar.ColorbarBase(cax, cmap=cmap, orientation='vertical', alpha=0.8, norm=norm) # 
-cb.set_ticks(years)
-cb.set_ticklabels(labels)
-cb.set_label('Year of Earthquake', rotation=270, labelpad=20, fontsize=15)
-"""
 plt.savefig('camden_csg_boreholes.png', format='png', bbox_inches='tight', dpi=150)
 plt.show()
