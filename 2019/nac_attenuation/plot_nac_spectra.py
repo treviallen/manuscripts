@@ -1,4 +1,4 @@
-def calc_nac_gmm_spectra(mag, rhyp, dep, region):
+def calc_nac_gmm_spectra(mag, rhyp, dep, vs30, region):
     from numpy import loadtxt, log10, log
     
     if region == 'BS':
@@ -39,7 +39,17 @@ def calc_nac_gmm_spectra(mag, rhyp, dep, region):
     
     dep_term = d0 + d1*logdep**3 + d2*logdep**2 + d3*logdep
     
-    lnsa = mag_term + atten_term + dep_term
+    # get site coefs
+    sitefile = 'nac_site_amp_coeffs.csv'
+    coeffs = loadtxt(sitefile, delimiter=',', skiprows=1)  
+    
+    T  = coeffs[:,0]
+    s0 = coeffs[:,1]
+    s1 = coeffs[:,2]
+    	
+    site_term = s0 + s1 / (log10(vs30) - log10(150))
+    
+    lnsa = mag_term + atten_term + dep_term + site_term
            
     A19imt = {'per':T, 'sa':lnsa}
 
@@ -178,16 +188,16 @@ def makesubplt(i, fig, plt, sta, sps, mag, dep, ztor, dip, rake, rhyp, vs30):
     Tea02imt, C03imt, AB06imt, Sea09imt, Sea09YCimt, Pea11imt, A12imt, Bea14imt ,SP16imt \
              = scr_gsims(mag, dep, ztor, dip, rake, rrup, rjb, vs30)
              
-    A19imt_BS = calc_nac_gmm_spectra(mag, rhyp, dep, 'BS') # use rrup
-    A19imt_NGH = calc_nac_gmm_spectra(mag, rhyp, dep, 'NGH') # use rrup
-    A19imt_OBE = calc_nac_gmm_spectra(mag, rhyp, dep, 'OBE') # use rrup
+    A19imt_BS = calc_nac_gmm_spectra(mag, rhyp, dep, vs30, 'BS') # use rrup
+    A19imt_NGH = calc_nac_gmm_spectra(mag, rhyp, dep, vs30, 'NGH') # use rrup
+    A19imt_OBE = calc_nac_gmm_spectra(mag, rhyp, dep, vs30, 'OBE') # use rrup
     
     ax = plt.subplot(3, 3, i)
     if colTrue == 'True':
         plt.loglog(Yea97imt['per'][:-1], exp(Yea97imt['sa'][:-1]), '-' , lw=1.5, color=cs[0])
         plt.loglog(AB06imt['per'], exp(AB06imt['sa']), '-' , lw=1.5, color=cs[1])
         plt.loglog(A12imt['per'], exp(A12imt['sa']),'-' , lw=1.5, color=cs[2])
-        plt.loglog(Aea15imt['per'], exp(Aea15imt['sa']),'-' , lw=1.5, color=cs[3])
+        #plt.loglog(Aea15imt['per'], exp(Aea15imt['sa']),'-' , lw=1.5, color=cs[3])
         plt.loglog(A19imt_BS['per'], exp(A19imt_BS['sa']),'-' , lw=1.5, color=cs[4])
         plt.loglog(A19imt_NGH['per'], exp(A19imt_NGH['sa']),'-' , lw=1.5, color=cs[5])
         plt.loglog(A19imt_OBE['per'], exp(A19imt_OBE['sa']),'-' , lw=1.5, color=cs[6])
@@ -203,11 +213,12 @@ def makesubplt(i, fig, plt, sta, sps, mag, dep, ztor, dip, rake, rhyp, vs30):
         
     plt.xlim([0.02, 10])
     #plt.title(' '.join((sta+'; MW =',str("%0.1f" % mag)+'; Rrup =',str(rrup),'km')), fontsize=9)
-    plt.title(' '.join((sta+'; Rhyp =',str(rhyp),'km')), fontsize=9)
+    plt.title(' '.join((sta+'; Rhyp =',str(rhyp),'km; VS30 =', str(int(round(vs30))))), fontsize=8)
     plt.grid(which='both', color='0.75')
 
     if i == 1:
-        plt.legend(['Yea97', 'AB06','A12imt','Aea16', 'A19 (BS)', 'A19 (NGH)', 'A19 (OB)','Data'],loc=3, fontsize=7.)
+        #plt.legend(['Yea97', 'AB06','A12imt','Aea16', 'A19 (BS)', 'A19 (NGH)', 'A19 (OB)','Data'],loc=3, fontsize=7.)
+        plt.legend(['Yea97', 'AB06','A12','A19 (BS)', 'A19 (NGH)', 'A19 (OB)', 'Data'],loc=3, fontsize=7.)
 
 '''
 start main
@@ -220,7 +231,7 @@ plt.rcParams['pdf.fonttype'] = 42
 import matplotlib as mpl
 mpl.style.use('classic')
 
-from calc_oq_gmpes import inslab_gsims, scr_gsims
+from calc_oq_gmpes import inslab_gsims, scr_gsims, get_station_vs30
 from gmt_tools import cpt2colormap, remove_last_cmap_colour
 
 folder = argv[1]
@@ -238,7 +249,7 @@ rake = 90. # USGS CMT
 dip  = 30.
 
 # set site details
-vs30 = 760
+#vs30 = 760
 
 ii = 1
 fig = plt.figure(ii, figsize=(10, 10))
@@ -346,22 +357,22 @@ for stn in usites:
     #mag = 4.57 # 2012-07-20
     #mag = 5.12 # 2012-06-19
     #mag = 4.9 # 2012-06-19 from Hadi
-    print('mag', mag)
+    #print('mag', mag)
     
     # now plot
-    # make sub plot
     if stn != 'CDNM.HNH':
         i += 1
         print('rhyp', rhyp)
+        vs30 = get_station_vs30(stn)[0]
         makesubplt(i, fig, plt, stn, sps, mag, dep, ztor, dip, rake, rhyp, vs30)
         if ii == 1:
             if rhyp <= 800:
                 plt.ylim([1e-5, .1])
             else:
-                plt.ylim([1e-6, 0.01])
+                plt.ylim([2e-5, 0.01])
                 
         elif  rhyp > 1000.:
-            plt.ylim([1e-6, 0.01])
+            plt.ylim([2e-5, 0.01])
         
         if i == 9:
             i = 0

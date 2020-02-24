@@ -64,9 +64,9 @@ lon = dictlist2array(evdict, 'lon')
 doLocal = False
 # local
 if doLocal == False:
-    urcrnrlat = -33.85+0.14
+    urcrnrlat = -33.85+0.25
     llcrnrlat = -34.36+0.14
-    urcrnrlon = 151.
+    urcrnrlon = 151.1
     llcrnrlon = 150.4
 
 """
@@ -150,7 +150,8 @@ clon = mean([llcrnrlon, urcrnrlon])
 clat = mean([llcrnrlat, urcrnrlat])
             
 degrng = urcrnrlon-llcrnrlon
-plt, m, ax = make_street_map(clat, clon, service='ESRI_Imagery_World_2D', ll_buffer = 0.4, \
+ll_buffer = 0.2
+plt, m, ax = make_street_map(clat, clon, service='ESRI_Imagery_World_2D', ll_buffer = 0.5, \
              xpixels = 1500, plt_inset = False, plt_marker = False)
 
 '''
@@ -236,7 +237,7 @@ l.set_zorder(len(mag)+5)
 ##########################################################################################
 # add cities
 ##########################################################################################
-numCities = 8
+numCities = 9
 annotate_cities(numCities, plt, m, marker='s')
 
 """
@@ -300,8 +301,22 @@ sta_lon = dictlist2array(staDict, 'lon')
 sta_lat = dictlist2array(staDict, 'lat')
 sta_code = dictlist2array(staDict, 'sta')
 
+cmdnet = ('MABG', 'YARR', 'CATI', 'OKDL', 'WTPK')
+cmdlat = []
+cmdlon = []
+for stla, stlo, sta in zip(sta_lat, sta_lon, sta_code):
+    for cn in cmdnet:
+        if sta == cn:
+            print(cn)
+            cmdlat.append(stla)
+            cmdlon.append(stlo)
+
 x,y = m(sta_lon, sta_lat)
-plt.plot(x, y, '^', c='yellow', ms=12, zorder=12000, label='Camden Seismic Network')
+plt.plot(x, y, '^', c='w', ms=12, zorder=1000, label='Urban Monitoring Network')
+
+x,y = m(cmdlon, cmdlat)
+plt.plot(x, y, '^', c='yellow', ms=12, zorder=1000, label='Camden Seismic Network')
+
 
 # label stas
 urcrnrlat
@@ -313,14 +328,14 @@ import matplotlib.patheffects as PathEffects
 path_effects=[PathEffects.withStroke(linewidth=3, foreground="w")]
 
 for sta, slon, slat in zip(sta_code, sta_lon, sta_lat):
-    if slon >= llcrnrlon and slon <= urcrnrlon \
-        and slat >= llcrnrlat and slat <= urcrnrlat:
+    if slon >= llcrnrlon-ll_buffer and slon <= urcrnrlon+ll_buffer \
+        and slat >= llcrnrlat-ll_buffer and slat <= urcrnrlat+ll_buffer:
             print(sta)
             x,y = m(slon-0.005, slat+0.004)
             plt.text(x, y, sta, size=15, c='royalblue', va='bottom', ha='right', weight='normal', \
                      path_effects=path_effects, zorder=11000)
 
-plt.legend(loc=2, numpoints=1, fontsize=12)
+plt.legend(loc=2, numpoints=1, fontsize=11)
 
 ##########################################################################################
 # get land & lake polygons for masking
@@ -345,7 +360,7 @@ for polygon in m.lakepolygons:
 from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes
 
 if doLocal == False:
-    axins = zoomed_inset_axes(ax, 0.0045, loc=3)
+    axins = zoomed_inset_axes(ax, 0.0048, loc=3)
 
 m2 = Basemap(projection='merc',\
             llcrnrlon=111,llcrnrlat=-45, \

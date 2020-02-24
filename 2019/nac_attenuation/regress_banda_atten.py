@@ -94,7 +94,7 @@ region = argv[1]
 ################################################################################
 #usgscsv = '20190625_merged_events.csv'
 #evdict = parse_usgs_events(usgscsv)
-"""
+
 folder = 'psa'
 extension = 'psa'
 safiles = listdir_extension(folder, extension)
@@ -307,7 +307,7 @@ print('Saving pkl file...')
 pklfile = open("stdict.pkl", "wb" )
 pickle.dump(stdict, pklfile) #, protocol=-1)
 pklfile.close()
-"""
+
 print('Loading pkl file...')
 stdict = pickle.load(open("stdict.pkl", "rb" ))
 
@@ -501,6 +501,9 @@ def normalise_data(stdict, T):
         
             if addData == True:
                 amp_plt.append(exp(interp(log(T), log(st['per']), log(st['geom']))))
+                idx = where((st['geom'] > 1E5) | (st['geom'] < 1E-10))[0]
+                if len(idx) > 0:
+                    print(' '.join(('BAD DATA', st['sta'], st['ev'])))
             else:
                 amp_plt.append(nan)
         
@@ -530,6 +533,10 @@ def normalise_data(stdict, T):
             
             if len(bidx) == 1:
                 norm_amp = amp_plt[midx] / exp(logmedamp[bidx])
+                idx = where((norm_amp < 1E-6) | (norm_amp > 1E6))[0]
+                if len(idx) > 0:
+                    for ix in idx:
+                        print(' '.join(('BAD DATA', stas[ix], date[ix])))
                 norm_amp_all = concatenate((norm_amp_all, norm_amp))
                 norm_rhyp = concatenate((norm_rhyp, rhyp[midx]))
                 norm_dep = concatenate((norm_dep, deps[midx]))
@@ -574,8 +581,8 @@ def regress_zone(stdict, zgroup):
         ################################################################################
          
         ax = plt.subplot(4,5,ii+1)
-        
-        logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(norm_rhyp), log(norm_amp_all))
+        idx = where(norm_amp_all < 1000)[0]
+        logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(norm_rhyp[idx]), log(norm_amp_all[idx]))
         
         norm = mpl.colors.Normalize(vmin=0, vmax=500)
         
@@ -630,7 +637,8 @@ def regress_zone(stdict, zgroup):
         
         # prep data again
         norm_rhyp, norm_amp_all, norm_dep, norm_stas, norm_mag, norm_date = normalise_data(stdict, T)
-        logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(norm_rhyp), log(norm_amp_all))
+        idx = where(norm_amp_all > 1E-6)[0]
+        logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(norm_rhyp[idx]), log(norm_amp_all[idx]))
         data = odrpack.RealData(medx, logmedamp)
         
         # fix far-field slope
@@ -660,6 +668,10 @@ def regress_zone(stdict, zgroup):
         
         af = out.beta[0]
         bf = out.beta[1]
+        
+        if af > 0:
+            af = 0
+            bf = 1. 
         
         blf_init_c1.append(af)
         blf_init_c0.append(bf)
@@ -876,10 +888,10 @@ def regress_zone(stdict, zgroup):
     plt.legend(loc=0)
     
     # smoothing of M1 is terrible, so use orig vals!
-    #smooth_m0 = m0_array
-    #smooth_m1 = m1_array
-    #smooth_m2 = m2_array
-    
+    smooth_m0 = m0_array
+    smooth_m1 = m1_array
+    smooth_m2 = m2_array
+    """
     ######################################################################################
     # refit M1 with smoothed M!
     refit_m1 = []
@@ -905,11 +917,11 @@ def regress_zone(stdict, zgroup):
         refit_m2.append(m[1])
     
     smooth_m1 = savitzky_golay(array(refit_m1), sg_window, sg_poly)
-    
+    """
     # plot M2            
     plt.subplot(222)
     plt.semilogx(Tplt, array(m1_array), 'bo', label='orig')
-    plt.semilogx(Tplt, array(refit_m1), 'go', label='refit')
+    #plt.semilogx(Tplt, array(refit_m1), 'go', label='refit')
     plt.semilogx(Tplt, smooth_m1, 'ro', label='smooth')
     plt.title('m1')
     plt.legend(loc=0)
@@ -917,7 +929,7 @@ def regress_zone(stdict, zgroup):
     ######################################################################################
     # refit M2 with smoothed M!
     refit_m2 = []
-    
+    """
     for c0_dat, mw_dat, sm0, sm1 in zip(t_dept_c0, t_dept_mw, smooth_m0, smooth_m1):
         # check nan values
         nn = where(isnan(c0_dat)==False)[0]  
@@ -937,12 +949,13 @@ def regress_zone(stdict, zgroup):
         
         refit_m2.append(m[0])
     
-    smooth_m2 = savitzky_golay(array(refit_m2), sg_window, sg_poly)
-    
+    #smooth_m2 = savitzky_golay(array(refit_m2), sg_window, sg_poly)
+    smooth_m2 = refit_m2
+    """
     # plot M2
     plt.subplot(224)
     plt.semilogx(Tplt, array(m2_array), 'bo', label='orig')
-    plt.semilogx(Tplt, refit_m2, 'go', label='refit')
+    #plt.semilogx(Tplt, refit_m2, 'go', label='refit')
     plt.semilogx(Tplt, smooth_m2, 'ro', label='smoothed')
     plt.title('m2')
     plt.legend(loc=0)
@@ -1087,18 +1100,19 @@ def regress_zone(stdict, zgroup):
             
         else:
             # fit straight cubic
-            d1, d2, d3, d0 = polyfit(array(medx), array(logmedamp), 3) # binned data
-            #print(log10(deps[nn]), resY[nn])
+            #d1, d2, d3, d0 = polyfit(array(medx), array(logmedamp), 3) # binned data
             d1, d2, d3, d0 = polyfit(log10(deps[nn]), resY[nn], 3) # full data
             d0_array.append(d0)
             d1_array.append(d1)
             d2_array.append(d2)
             d3_array.append(d3)
         
-        # store data for refitting smoothed params
-        #t_dept_res.append(logmedamp)
-        #t_dept_logdep.append(medx)
-        
+        '''
+        # binned data
+        t_dept_res.append(logmedamp)
+        t_dept_logdep.append(medx)
+        '''
+        # full data
         t_dept_res.append(resY[nn])
         t_dept_logdep.append(log10(deps[nn]))
         
@@ -1145,7 +1159,7 @@ def regress_zone(stdict, zgroup):
     plt.title('d3')
     
     ######################################################################################
-    # refit M1 with smoothed M
+    # refit D1 with smoothed DO
     ######################################################################################
     
     if zgroup == 'BS':
@@ -1163,6 +1177,7 @@ def regress_zone(stdict, zgroup):
                 return sd0 + c[0]*dep_dat[nn]**3 + c[1]*dep_dat[nn]**2 + c[2]*dep_dat[nn]
             
             data = odrpack.RealData(dep_dat[nn], t_res[nn])
+            #data = odrpack.RealData(dep_dat, t_res)
         
             depfit = odrpack.Model(fit_fixed_polynomial1)
             odr = odrpack.ODR(data, depfit, beta0=[0.1, 1., 1.])
@@ -1178,7 +1193,7 @@ def regress_zone(stdict, zgroup):
         smooth_d1 = savitzky_golay(array(refit_d1), sg_window, sg_poly)
         
         ######################################################################################
-        # refit d2 with smoothed M!
+        # refit d2 with smoothed d1!
         refit_d2 = []
         refit_d3 = []
         # m0_array[i] + d1_array[i]*(mrng-6)**2 + d2_array[i]*(mrng-6)
@@ -1219,6 +1234,37 @@ def regress_zone(stdict, zgroup):
                 return sd0 + sd1*dep_dat[nn]**3 + sd2*dep_dat[nn]**2 + c[0]*dep_dat[nn]
             
             data = odrpack.RealData(dep_dat[nn], t_res[nn])
+            #data = odrpack.RealData(dep_dat, t_res)
+        
+            depfit = odrpack.Model(fit_fixed_polynomial1)
+            odr = odrpack.ODR(data, depfit, beta0=[1.])
+            
+            odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
+            out = odr.run()
+            m = out.beta
+            
+            refit_d3.append(m[0])
+        
+        #smooth_d3 = savitzky_golay(array(refit_d3), sg_window, sg_poly)
+        smooth_d3 = refit_d3
+    
+    else:
+        smooth_d1 = d0_array * 0.
+        smooth_d2 = d0_array * 0.
+        
+        ######################################################################################
+        # refit d3 with smoothed M!
+        refit_d3 = []
+        for t_res, dep_dat, sd0 in zip(t_dept_res, t_dept_logdep, smooth_d0):
+             
+            # check nan values
+            nn = where(isnan(t_res)==False)[0]  
+            
+            def fit_fixed_polynomial1(c, x):
+                return sd0 + c[0]*dep_dat[nn]
+            
+            data = odrpack.RealData(dep_dat[nn], t_res[nn])
+            #data = odrpack.RealData(dep_dat, t_res)
         
             depfit = odrpack.Model(fit_fixed_polynomial1)
             odr = odrpack.ODR(data, depfit, beta0=[1.])
@@ -1230,21 +1276,14 @@ def regress_zone(stdict, zgroup):
             refit_d3.append(m[0])
         
         smooth_d3 = savitzky_golay(array(refit_d3), sg_window, sg_poly)
-        smooth_d3 = refit_d3
-    # don't use depth cor for NGH
-    elif zgroup == 'NGH':
-        smooth_d0 = d0_array # * 0.
-        smooth_d1 = d0_array * 0.
-        smooth_d2 = d0_array * 0.
-        smooth_d3 = d3_array # * 0.
-    # if OBE - just use linear fit
-    else:
-        smooth_d0 = d0_array
-        #smooth_d0 = savitzky_golay(array(refit_d0), sg_window, sg_poly) # must smooth these vals!
-        smooth_d1 = d0_array * 0.
-        smooth_d2 = d0_array * 0.
-        smooth_d3 = d3_array
-        
+    
+    # over ride smoothing
+    smooth_d0 = d0_array
+    smooth_d1 = d1_array
+    smooth_d2 = d2_array
+    smooth_d3 = d3_array
+    
+    
     # plt smoothed params
     plt.subplot(222)
     plt.semilogx(Tplt, smooth_d1, 'ro')
@@ -1253,6 +1292,7 @@ def regress_zone(stdict, zgroup):
     plt.semilogx(Tplt, smooth_d2, 'ro')
     
     plt.subplot(224)
+    plt.semilogx(Tplt, refit_d3, 'go')
     plt.semilogx(Tplt, smooth_d3, 'ro')
     
     plt.suptitle('Depth Coefs')
@@ -1304,7 +1344,7 @@ def regress_zone(stdict, zgroup):
         if i >= 16:
             plt.xlabel('log Rhyp (km)')
     
-        sidx = where((resY < -3) & (log10(rhyp)<2.6))[0]
+        sidx = where((resY < -10) & (log10(rhyp)<2.6))[0]
         #sidx = where(resY .)[0]
         print(stas[sidx])
         print(unique(array(stas)))

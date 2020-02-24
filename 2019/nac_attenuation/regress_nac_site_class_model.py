@@ -65,6 +65,9 @@ from mapping_tools import get_field_data
 from calc_oq_gmpes import get_station_vs30
 from misc_tools import get_binned_stats
 from numpy import array, arange, exp, log, interp, vstack, nan, isnan, log10, polyfit
+from misc_tools import savitzky_golay
+import scipy.odr.odrpack as odrpack
+from scipy.stats import linregress
 import pickle
 
 print('Loading pkl file...')
@@ -97,23 +100,24 @@ for poly, zcode, zgroup in zip(polygons, zone_code, zone_group):
             
         if zgroup == 'OBW':
             zgroup = 'OBE'
-
-        if pt.within(poly) and sd['mag'] >= mmin and sd['rhyp'] > 500 and sd['rhyp'] < 1500:
-            A19imt = calc_nac_gmm_spectra(sd['mag'], sd['rhyp'], sd['dep'], zgroup)
-            
-            lnAmp = interp(log(A19imt['per']), log(sd['per']), log(sd['geom']))
-            
-            stdict[i]['lnRes'] = lnAmp - A19imt['sa']
-            stdict[i]['lnSA'] = A19imt['sa']
-            stdict[i]['vs30'] = get_station_vs30(sd['sta'])[0]
-            
-            if len(res_stack) == 0:
-                res_stack = array([stdict[i]['lnRes']])
-            else:
-                res_stack = vstack((res_stack, [stdict[i]['lnRes']]))
-            
-            # build vs30 array
-            vs30.append(stdict[i]['vs30'])
+        
+        if zgroup == 'BS' or zgroup == 'NGH':
+            if pt.within(poly) and sd['mag'] >= mmin and sd['rhyp'] > 500 and sd['rhyp'] < 1600:
+                A19imt = calc_nac_gmm_spectra(sd['mag'], sd['rhyp'], sd['dep'], zgroup)
+                
+                lnAmp = interp(log(A19imt['per']), log(sd['per']), log(sd['geom']))
+                
+                stdict[i]['lnRes'] = lnAmp - A19imt['sa']
+                stdict[i]['lnSA'] = A19imt['sa']
+                stdict[i]['vs30'] = get_station_vs30(sd['sta'])[0]
+                
+                if len(res_stack) == 0:
+                    res_stack = array([stdict[i]['lnRes']])
+                else:
+                    res_stack = vstack((res_stack, [stdict[i]['lnRes']]))
+                
+                # build vs30 array
+                vs30.append(stdict[i]['vs30'])
             
 ###############################################################################
 # build residual data
@@ -128,6 +132,9 @@ d0_array = []
 d1_array = []
 d2_array = []
 d3_array = []
+coefs1 = []
+t_medx = []
+t_logmedamp = []
 
 for i, T in enumerate(Tplt):
     ax = plt.subplot(4,5,i+1)
@@ -153,6 +160,9 @@ for i, T in enumerate(Tplt):
     bins = arange(2.1, 3, 0.075)
     logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(vs30), Yres)
     
+    t_medx.append(medx)
+    t_logmedamp.append(logmedamp)
+    
     # fit cubic
     d1, d2, d3, d0 = polyfit(array(medx), array(logmedamp), 3) # binned data
     d0_array.append(d0)
@@ -162,18 +172,107 @@ for i, T in enumerate(Tplt):
     
     plt.semilogx(10**medx, logmedamp, 'rs', ms=6)
     
-    # plot cubic
-    dx = arange(0.1, 3, 0.01)
-    dy = d0 + d1*dx**3 + d2*dx**2 + d3*dx
+    ###############################################################################
+    # fit data
+    ###############################################################################
+    def fit_site_amp(c, x):
+        return c[0] + c[1] / (x - log10(150))
+    
+    data = odrpack.RealData(medx, logmedamp)
+    #data = odrpack.RealData(log10(vs30), Yres)
+    
+    sitefit = odrpack.Model(fit_site_amp)
+    odr = odrpack.ODR(data, sitefit, beta0=[0.1, 0.])
+    
+    odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
+    out = odr.run()
+    c = out.beta
+    print(c)
+    coefs1.append(c)
+    
+    # plot fit
+    dx = arange(2., 3, 0.01)
+    dy = c[0] + c[1] / (dx - log10(150))
+    #dy = d0 + d1*dx**3 + d2*dx**2 + d3*dx
     #print(dx, dy)
     plt.plot(10**dx, dy, 'g-', lw=1.5)
-       
+
+
+###############################################################################
+# regress coeffs
+###############################################################################
+
+linreg = linregress(log10(Tplt), log10(array(coefs1)[:,1]))
+
+# refit corner
+refit_c = []
+coefs2 = []
+for i, T in enumerate(Tplt):
+    c1fix = 10**(linreg[1] + linreg[0]*log10(T))
+        
+    def fit_site_amp(c, x):
+        #print(yoff)
+        return  c[0] + c1fix / (x - log10(150))
+        
+    data = odrpack.RealData(t_medx[i], t_logmedamp[i])
+    
+    sitefit = odrpack.Model(fit_site_amp)
+    odr = odrpack.ODR(data, sitefit, beta0=[0.1])
+    
+    odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
+    out = odr.run()
+    c = out.beta
+    print(c)
+    coefs2.append(c)
+    
+    # plot fitted fit
+    ax = plt.subplot(4,5,i+1)
+    # plot fit
+    dy = c[0] + c1fix / (dx - log10(150))
+    plt.plot(10**dx, dy, 'r-', lw=1.5)
+    
+
+plt.savefig('nac_attenuation_site_amp.png', fmt='png', bbox_inches='tight')       
 plt.show()
+
+###############################################################################
+# plot coefs
+###############################################################################
+
+fig = plt.figure(2, figsize=(12, 7))
+ax = plt.subplot(1,2,1)
+
+plt.semilogx(Tplt, array(coefs1)[:,0], 'ro')
+plt.semilogx(Tplt, array(coefs2)[:,0], 'bo')
+	
+sg_window = 7
+sg_poly = 2
+smooth_c0 = savitzky_golay(array(coefs2)[:,0], sg_window, sg_poly) # slope
+plt.semilogx(Tplt, smooth_c0, 'go')
+
+	
+ax = plt.subplot(1,2,2)
+
+plt.loglog(Tplt, array(coefs1)[:,1], 'ro')
+	
+c1fix = 10**(linreg[1] + linreg[0]*log10(Tplt))
+plt.loglog(Tplt, c1fix, 'k-')
+	
+plt.show()
+
     
-    
-    
-    
-    
+###############################################################################
+# write coefs
+###############################################################################
+
+txt = 'NAC Site Class Model: c0 + c1 / (log10(VS30) - log10(150))\n'
+
+for i, t in enumerate(Tplt):
+    txt += ','.join((str(t), str('%0.5f' % smooth_c0[i]), str('%0.5f' % c1fix[i]))) + '\n'
+
+f = open('nac_site_amp_coeffs.csv', 'w')
+f.write(txt)
+f.close()    
     
     
     

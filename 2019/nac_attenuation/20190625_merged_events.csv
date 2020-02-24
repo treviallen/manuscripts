@@ -1,4 +1,7 @@
 time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,type,horizontalError,depthError,magError,magNst,status,locationSource,magSource
+2020-02-20T20:24:27.833Z,-6.734,129.6334,156.98,5.4,mww,,24,2.065,0.99,us,us70007tt3,2020-02-21T20:26:59.280Z,"229km NW of Saumlaki, Indonesia",earthquake,6.9,5,0.073,18,reviewed,us,us
+2019-09-21T19:53:13.441Z,-6.4584,130.4262,65,5.9,mww,,10,1.744,0.92,us,us60005lts,2019-12-10T17:27:01.040Z,"192km NNW of Saumlaki, Indonesia",earthquake,5.7,1.8,0.059,28,reviewed,us,us
+2019-08-10T12:01:33.461Z,-5.5803,129.5582,21.22,5.4,mww,,34,2.946,0.54,us,us600053dr,2019-10-29T20:33:54.040Z,"244km SSE of Saparua, Indonesia",earthquake,5.2,4,0.061,26,reviewed,us,us
 2019-06-24T02:53:40.179Z,-6.389,129.2204,208.25,7.3,mww,,34,2.599,1.11,us,us600044zz,2019-06-25T03:02:14.233Z,"288km NW of Saumlaki, Indonesia",earthquake,7.8,7.4,0.061,26,reviewed,us,us
 2019-06-24T01:05:29.499Z,-2.7913,138.5473,28,6.1,mww,,20,6.291,1.07,us,us600044z4,2019-06-25T01:08:20.077Z,"227km W of Abepura, Indonesia",earthquake,7.8,1.8,0.048,41,reviewed,us,us
 2019-06-19T17:24:49.216Z,-2.2522,138.4044,12.13,6.3,mww,,58,6.184,0.96,us,us6000434e,2019-06-20T17:29:23.699Z,"245km W of Abepura, Indonesia",earthquake,7,3.4,0.061,26,reviewed,us,us

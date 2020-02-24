@@ -226,8 +226,8 @@ outtxt = ''
 """records = 'preferred_records_edit.csv'
 mseedfiles = open(records).readlines(dat[9])[0:]"""
 
-#mseedfiles = listdir_extension('mseed_dump', 'mseed')
-mseedfiles = listdir_extension('ausarray_mseed', 'mseed')
+mseedfiles = listdir_extension('mseed_dump', 'mseed')
+#mseedfiles = listdir_extension('ausarray_mseed', 'mseed')
 
 m = 1
 for mseedfile in mseedfiles:
@@ -243,8 +243,8 @@ for mseedfile in mseedfiles:
     if not path.isfile(pick_path):
         
         # read mseed
-        #st = read(path.join('mseed_dump', mseedfile))
-        st = read(path.join('ausarray_mseed', mseedfile))
+        st = read(path.join('mseed_dump', mseedfile))
+        #st = read(path.join('ausarray_mseed', mseedfile))
         
         # remove junk channels
         st = remove_low_sample_data(st)
