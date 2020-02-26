@@ -6,7 +6,8 @@
 from obspy import read, Trace, Stream, UTCDateTime
 from obspy.taup import TauPyModel, taup_time
 from mapping_tools import distance, km2deg
-from response import get_response_info
+from response import get_response_info, paz_response, deconvolve_instrument
+from spectral_analysis import calc_fft, prep_psa_simple, calc_response_spectra, get_cor_velocity
 from misc_tools import listdir_extension
 from data_fmt_tools import return_sta_data
 from datetime import datetime, timedelta
@@ -66,7 +67,7 @@ eqdt = ev['datetime']
 ###############################################################################
 # parse records
 ###############################################################################
-"""
+
 mseedfiles = listdir_extension('mseed', 'mseed')
 #mseedfiles = listdir_extension('ausarray_mseed', 'mseed')
 
@@ -82,7 +83,7 @@ for mseedfile in mseedfiles:
     st = remove_low_sample_data(st)
     
     # merge
-    st = st.merge()
+    st = st.merge(method=0, fill_value='interpolate')
     
     # loop through traces and get Z component
     for tr in st:
@@ -91,6 +92,24 @@ for mseedfile in mseedfiles:
             tr = tr.resample(1.0)
             tr = tr.detrend(type='constant')
             tr = tr.taper(0.05, type='hann', max_length=None, side='both')
+            
+            nat_freq, inst_ty, damping, sen, recsen, gain, pazfile, stlo, stla, netid \
+                  = get_response_info(tr.stats.station, eqdt.datetime, tr.stats.channel)
+            
+            #print(pazfile, tr.stats.station)
+            # get fft of trace
+            freq, wavfft = calc_fft(tr.data, tr.stats.sampling_rate)
+            # get response for given frequencies
+            real_resp, imag_resp = paz_response(freq, pazfile, sen, recsen, \
+                                                gain, inst_ty)
+            # deconvolve response
+            corfftr, corffti = deconvolve_instrument(real_resp, imag_resp, wavfft)
+            
+            # make new instrument corrected velocity trace
+            pgv, ivel = get_cor_velocity(corfftr, corffti, freq, inst_ty)
+            
+            tr.data = ivel.real
+            
             tr = tr.filter('lowpass', freq=lopass , corners=2, zerophase=True)
             # correct response
             
@@ -118,7 +137,7 @@ print('Saving pkl file...')
 pklfile = open("sta_dict.pkl", "wb" )
 pickle.dump(sta_dict, pklfile) #, protocol=-1)
 pklfile.close()
-"""
+
 print('Loading pkl file...')
 sta_dict = pickle.load(open("sta_dict.pkl", "rb" ))
 
