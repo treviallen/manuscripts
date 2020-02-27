@@ -85,6 +85,7 @@ sstxt = ''
 #for p, pf in enumerate(pickfiles[0:2900][::-1]):
     #for p, pf in enumerate(pickfiles[3000:]):
 for p, pf in enumerate(pickfiles):
+    print pf
     # parse pick file
     line = open(path.join(folder, pf)).read()
     
@@ -157,153 +158,162 @@ for p, pf in enumerate(pickfiles):
         #####################################################################
         # now start grunt work
         #####################################################################
-        try:
-            # now trim
-            st_trim = st.copy()    
-            st_trim = st.trim(starttime, endtime)
-        
-            for tr in st_trim:
-                doChan = False
+        #try:
+        # now trim
+        st_trim = st.copy()    
+        st_trim = st.trim(starttime, endtime)
+    
+        for tr in st_trim:
+            doChan = False
+            
+            
+            psa_path = path.join('psa', path.split(msf[:-6])[-1] + '.' + tr.stats.channel + '.psa')
                 
-                
-                psa_path = path.join('psa', path.split(msf[:-6])[-1] + '.' + tr.stats.channel + '.psa')
-                    
-                # first check that we want to do this channel
-                for channel in channels:
-                    if tr.stats.channel == channel:
-                        doChan = True
-                        print(psa_path)
-                        if channel.endswith('Z'):
-                            doChan = False
-                    
-                    # chack if psa file exists and set to false
-                    if path.isfile(psa_path):
+            # first check that we want to do this channel
+            for channel in channels:
+                if tr.stats.channel == channel:
+                    doChan = True
+                    print(psa_path)
+                    if channel.endswith('Z'):
                         doChan = False
-                        print('PSA file exists '+str(p))
+                
+                # chack if psa file exists and set to false
+                if path.isfile(psa_path):
+                    doChan = False
+                    print('PSA file exists '+str(p))
+                
+                if doChan == True:
+                    #if tr.stats.channel.startswith('BN') == False: # ignore accelerometers for now
+                    '''
+                    # if using GEOFON data, need to request response
+                    if tr.stats.network == 'GE':
+                        paz = arclink_client.get_paz(tr.stats.network, tr.stats.station, '', \
+                                                     tr.stats.channel, ev['starttime'])
+                                                     
+                        meta = arclink_client.get_metadata(tr.stats.network, tr.stats.station, '', \
+                                                           tr.stats.channel, ev['starttime'])
+                        staloc = meta['coordinates']
                     
-                    if doChan == True:
-                        #if tr.stats.channel.startswith('BN') == False: # ignore accelerometers for now
-                        '''
-                        # if using GEOFON data, need to request response
-                        if tr.stats.network == 'GE':
-                            paz = arclink_client.get_paz(tr.stats.network, tr.stats.station, '', \
-                                                         tr.stats.channel, ev['starttime'])
-                                                         
-                            meta = arclink_client.get_metadata(tr.stats.network, tr.stats.station, '', \
-                                                               tr.stats.channel, ev['starttime'])
-                            staloc = meta['coordinates']
+                    else:
+                    '''
+                    #####################################################################
+                    # get instrument response
+                    #####################################################################
+                    
+                    seedid=tr.get_id()
+                    channel = tr.stats.channel
+                    start_time = tr.stats.starttime
+                    #print(seedid)
+                    
+                    #####################################################################
+                    # remove instrument response
+                    #####################################################################
+                    
+                    tr = tr.detrend(type='demean')
+                    tr = tr.taper(0.05, type='hann', max_length=30., side='both')
+                    
+                    # EN? dodgy stn channel from parsing JUMP data
+                    if tr.stats.channel.startswith('BH') or tr.stats.channel.startswith('HH') \
+                       or tr.stats.channel.startswith('EN'):
+                        lofreq = 0.075
+                    else:
+                        lofreq = 0.2
+                    
+                    hifreq = min([12., 0.45*tr.stats.sampling_rate])
+                    
+                    tr = tr.filter('bandpass', freqmin=lofreq, freqmax=hifreq, \
+                                    corners=2, zerophase=True)
+                    
+                    # check if jump site and if so, use stationlist data - IRIS dataless does not work!
+                    #tr = tr.simulate(paz_remove=paz)
+                    print(tr.stats.station)
+                    
+                    # check if HSR AU data
+                    use_stationlist = False
+                    if tr.stats.network == 'AU' and tr.stats.channel.startswith('HH'):
+                        use_stationlist = True
+                    elif tr.stats.network == 'AU' and tr.stats.channel.startswith('EH'):
+                        use_stationlist = True                        
+                    elif tr.stats.station == 'AS31' or tr.stats.station.startswith('PH0'): 
+                        use_stationlist = True
                         
-                        else:
-                        '''
-                        #####################################################################
-                        # get instrument response
-                        #####################################################################
+                    if use_stationlist == True:
+                        #recdate = datetime.strptime(ev['timestr'], "%Y-%m-%dT%H:%M:%S.%fZ")
+                        recdate = pickDat['origintime']
+                        nat_freq, inst_ty, damping, sen, recsen, gain, pazfile, stlo, stla, netid \
+                              = get_response_info(tr.stats.station, recdate.datetime, tr.stats.channel)
                         
-                        seedid=tr.get_id()
-                        channel = tr.stats.channel
-                        start_time = tr.stats.starttime
-                        #print(seedid)
-                        
-                        #####################################################################
-                        # remove instrument response
-                        #####################################################################
-                        
-                        tr = tr.detrend(type='demean')
-                        tr = tr.taper(0.05, type='hann', max_length=30., side='both')
-                        
-                        # EN? dodgy stn channel from parsing JUMP data
-                        if tr.stats.channel.startswith('BH') or tr.stats.channel.startswith('HH') \
-                           or tr.stats.channel.startswith('EN'):
-                            lofreq = 0.075
-                        else:
-                            lofreq = 0.2
-                        
-                        hifreq = min([12., 0.45*tr.stats.sampling_rate])
-                        
-                        tr = tr.filter('bandpass', freqmin=lofreq, freqmax=hifreq, \
-                                        corners=2, zerophase=True)
-                        
-                        # check if jump site and if so, use stationlist data - IRIS dataless does not work!
-                        #tr = tr.simulate(paz_remove=paz)
-                        print(tr.stats.station)
-                        if tr.stats.station == 'AS31' or tr.stats.station.startswith('PH0'):
-                            
-                            #recdate = datetime.strptime(ev['timestr'], "%Y-%m-%dT%H:%M:%S.%fZ")
-                            recdate = pickDat['origintime']
-                            nat_freq, inst_ty, damping, sen, recsen, gain, pazfile, stlo, stla, netid \
-                                  = get_response_info(tr.stats.station, recdate, tr.stats.channel)
-                            
-                            print(pazfile, tr.stats.station)
-                            # get fft of trace
-                            freq, wavfft = calc_fft(tr.data, tr.stats.sampling_rate)
-                            # get response for given frequencies
-                            real_resp, imag_resp = paz_response(freq, pazfile, sen, recsen, \
-                                                                gain, inst_ty)
-                            # deconvolve response
-                            corfftr, corffti = deconvolve_instrument(real_resp, imag_resp, wavfft)
-                            
-                            # make new instrument corrected velocity trace
-                            pgv, ivel = get_cor_velocity(corfftr, corffti, freq, inst_ty)
-                            
-                            tr.data = ivel.real
-                            
-                            staloc = {'latitude':stla, 'longitude':stlo}
-                            
-                        # just use IRIS dataless volume - much easier, but less transparent!
-                        else:
-                            if tr.stats.network == 'AU':
-                                paz = au_parser.get_paz(seedid,start_time)
-                                staloc = au_parser.get_coordinates(seedid,start_time)
-                            elif tr.stats.network == 'GE':
-                                paz = ge_parser.get_paz(seedid,start_time)
-                                staloc = ge_parser.get_coordinates(seedid,start_time)
-                            elif tr.stats.network == 'IU':
-                                paz = iu_parser.get_paz(seedid,start_time)
-                                staloc = iu_parser.get_coordinates(seedid,start_time)
-                            elif tr.stats.network == 'II':
-                                paz = ii_parser.get_paz(seedid,start_time)
-                                staloc = ii_parser.get_coordinates(seedid,start_time)
-                            elif tr.stats.network == 'S1':
-                                paz = s1_parser.get_paz(seedid,start_time)
-                                staloc = s1_parser.get_coordinates(seedid,start_time)
-                            print(tr.stats.station+'2')
-                            
-                            tr = tr.simulate(paz_remove=paz)
-                            
-                            
-                        '''
-                        # else if using FDSN data
-                        else:
-                            pre_filt = [0.001, 0.005, 45, 50]
-                            tr.remove_response(pre_filt=pre_filt, taper=True, taper_fraction=0.05, output="VEL", zero_mean=True)
-                        '''
-                        #####################################################################
-                        # get response spectra
-                        #####################################################################
-                        
-                        # prep for response spectra
+                        print(pazfile, tr.stats.station)
+                        # get fft of trace
                         freq, wavfft = calc_fft(tr.data, tr.stats.sampling_rate)
+                        # get response for given frequencies
+                        real_resp, imag_resp = paz_response(freq, pazfile, sen, recsen, \
+                                                            gain, inst_ty)
+                        # deconvolve response
+                        corfftr, corffti = deconvolve_instrument(real_resp, imag_resp, wavfft)
                         
-                        # prep for psa
-                        iacc = prep_psa_simple(wavfft.real, wavfft.imag, freq, 'B')
+                        # make new instrument corrected velocity trace
+                        pgv, ivel = get_cor_velocity(corfftr, corffti, freq, inst_ty)
                         
-                        # calc response spectra
-                        h = 5.0 # %
-                        minT = 0.1
-                        maxT = 10
-                        T, psa, pga = calc_response_spectra(iacc, tr.stats.sampling_rate, h, minT, maxT)
-                        pgv = max(abs(tr.data))
+                        tr.data = ivel.real
                         
-                        repi = distance(pickDat['eqla'], pickDat['eqlo'], staloc['latitude'], staloc['longitude'])[0]
-                        rhyp = sqrt(repi**2 + pickDat['eqdp'])
-                        azim = distance(pickDat['eqla'], pickDat['eqlo'], staloc['latitude'], staloc['longitude'])[1]
+                        staloc = {'latitude':stla, 'longitude':stlo}
                         
-                        psafilename = path.split(msf[:-6])[-1] + '.' + tr.stats.channel
+                    # just use IRIS dataless volume - much easier, but less transparent!
+                    else:
+                        if tr.stats.network == 'AU':
+                            paz = au_parser.get_paz(seedid,start_time)
+                            staloc = au_parser.get_coordinates(seedid,start_time)
+                        elif tr.stats.network == 'GE':
+                            paz = ge_parser.get_paz(seedid,start_time)
+                            staloc = ge_parser.get_coordinates(seedid,start_time)
+                        elif tr.stats.network == 'IU':
+                            paz = iu_parser.get_paz(seedid,start_time)
+                            staloc = iu_parser.get_coordinates(seedid,start_time)
+                        elif tr.stats.network == 'II':
+                            paz = ii_parser.get_paz(seedid,start_time)
+                            staloc = ii_parser.get_coordinates(seedid,start_time)
+                        elif tr.stats.network == 'S1':
+                            paz = s1_parser.get_paz(seedid,start_time)
+                            staloc = s1_parser.get_coordinates(seedid,start_time)
+                        print(tr.stats.station+'2')
                         
-                        write_response_spectra(tr.stats.station, pickDat['origintime'], tr.stats.sampling_rate, \
-                                               T, psa, pga, pgv, psafilename, staloc['latitude'], staloc['longitude'], \
-                                               pickDat['eqla'], pickDat['eqlo'], pickDat['eqdp'], pickDat['mag'], rhyp, azim, lofreq, hifreq)
+                        tr = tr.simulate(paz_remove=paz)
                         
-        except:
-            print('Failed: ' + pickDat['mseed_path'])
+                        
+                    '''
+                    # else if using FDSN data
+                    else:
+                        pre_filt = [0.001, 0.005, 45, 50]
+                        tr.remove_response(pre_filt=pre_filt, taper=True, taper_fraction=0.05, output="VEL", zero_mean=True)
+                    '''
+                    #####################################################################
+                    # get response spectra
+                    #####################################################################
+                    
+                    # prep for response spectra
+                    freq, wavfft = calc_fft(tr.data, tr.stats.sampling_rate)
+                    
+                    # prep for psa
+                    iacc = prep_psa_simple(wavfft.real, wavfft.imag, freq, 'B')
+                    
+                    # calc response spectra
+                    h = 5.0 # %
+                    minT = 0.1
+                    maxT = 10
+                    T, psa, pga = calc_response_spectra(iacc, tr.stats.sampling_rate, h, minT, maxT)
+                    pgv = max(abs(tr.data))
+                    
+                    repi = distance(pickDat['eqla'], pickDat['eqlo'], staloc['latitude'], staloc['longitude'])[0]
+                    rhyp = sqrt(repi**2 + pickDat['eqdp'])
+                    azim = distance(pickDat['eqla'], pickDat['eqlo'], staloc['latitude'], staloc['longitude'])[1]
+                    
+                    psafilename = path.split(msf[:-6])[-1] + '.' + tr.stats.channel
+                    
+                    write_response_spectra(tr.stats.station, pickDat['origintime'], tr.stats.sampling_rate, \
+                                           T, psa, pga, pgv, psafilename, staloc['latitude'], staloc['longitude'], \
+                                           pickDat['eqla'], pickDat['eqlo'], pickDat['eqdp'], pickDat['mag'], rhyp, azim, lofreq, hifreq)
+                    
+        #except:
+        #    print('Failed: ' + pickDat['mseed_path'])
     

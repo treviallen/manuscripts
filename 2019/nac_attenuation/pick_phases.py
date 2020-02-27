@@ -217,6 +217,7 @@ def parse_usgs_events(usgscsv):
     return evdict
 
 usgscsv = '20190625_merged_events.csv'
+usgscsv = '2019-20-26_event.csv'
 # parse catalogue
 evdict = parse_usgs_events(usgscsv)
 ###############################################################################
@@ -330,14 +331,14 @@ for mseedfile in mseedfiles:
                 # save processing file
                 
                 outfile = path.join('record_picks',recfile)
-                f = open(outfile, 'w')
+                f = open(outfile, 'wb')
                 f.write(outtxt)
                 f.close()
              
             # write junk file so don't reveiw again
             else:
                 outfile = path.join('record_picks',recfile)
-                f = open(outfile, 'w')
+                f = open(outfile, 'wb')
                 f.write('junk')
                 f.close()
             
