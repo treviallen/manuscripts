@@ -94,7 +94,7 @@ region = argv[1]
 ################################################################################
 #usgscsv = '20190625_merged_events.csv'
 #evdict = parse_usgs_events(usgscsv)
-
+"""
 folder = 'psa'
 extension = 'psa'
 safiles = listdir_extension(folder, extension)
@@ -307,7 +307,7 @@ print('Saving pkl file...')
 pklfile = open("stdict.pkl", "wb" )
 pickle.dump(stdict, pklfile) #, protocol=-1)
 pklfile.close()
-
+"""
 print('Loading pkl file...')
 stdict = pickle.load(open("stdict.pkl", "rb" ))
 
