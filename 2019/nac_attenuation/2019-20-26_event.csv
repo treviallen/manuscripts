@@ -1,0 +1,2 @@
+time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,type,horizontalError,depthError,magError,magNst,status,locationSource,magSource
+2020-02-26T07:33:13.350Z,-7.5625,131.1195,61.16,5.9,mww,,35,0.453,1.44,us,us600084gu,2020-02-27T01:20:56.040Z,"48km NNW of Saumlaki, Indonesia",earthquake,7.3,5.1,0.071,19,reviewed,us,us

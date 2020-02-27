@@ -154,9 +154,10 @@ from data_fmt_tools import get_iris_data
 ################################################################################
 
 usgscsv = '20190625_merged_events.csv'
+usgscsv = '2019-20-26_event.csv'
 
 def parse_usgs_events(usgscsv):
-    lines = open(usgscsv).readlines()[-2:]
+    lines = open(usgscsv).readlines()[1:]
     print(lines[0])
     #2017-05-29T14:35:21.510Z
     # build dict
@@ -209,7 +210,7 @@ if getcwd().startswith('/nas'):
     
     au_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/AU/AU.IRIS.dataless')
     s1_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/S1/S1.IRIS.dataless')
-    ge1_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/GE/GE1.IRIS.dataless')
+    ge_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/GE/GE1.IRIS.dataless')
     ge2_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/GE/GE1.IRIS.dataless')
     iu_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/IU/IU.IRIS.dataless')
     
@@ -318,7 +319,7 @@ for ev in evdict[0:]:
                 st = get_iris_event_data(bulk, folder, ev['timestr'][:16], iu_parser, ev)
                 
                 ###########################################################################
-                """
+                
                 # get II network
                 t1 = ev['starttime']
                 t2 = t1 + 2100 
@@ -339,7 +340,7 @@ for ev in evdict[0:]:
                               t1.minute)
                 
                 st = get_iris_event_data(bulk, folder, ev['timestr'][:16], ii_parser, ev)
-                """
+                
                 ###########################################################################
                 '''
                 # get IA network
@@ -396,10 +397,10 @@ for ev in evdict[0:]:
                         ("GE", "FAKI", "*", "[BH]H*", t1, t2)]  
                 
                 #print fname
-                #st = get_iris_event_data(bulk, folder, ev['timestr'][:16], ge_parser, ev)
+                st = get_iris_event_data(bulk, folder, ev['timestr'][:16], ge_parser, ev)
                 
                 #try:
-                
+                '''
                 for b in bulk:
                     fname = '.'.join((ev['timestr'][:16],'GE',b[1],'mseed')).replace(':','.')
                     fpath = path.join('mseed_dump', fname)
@@ -411,7 +412,7 @@ for ev in evdict[0:]:
                             st = get_arclink_event_data(b, fpath, ge2_parser, ev)
                         except:
                             b = 1
-                
+                '''
                 #except:
                 #    print('No GEOFON data...')
                 
