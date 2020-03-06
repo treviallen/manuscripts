@@ -287,7 +287,12 @@ for ev in evdict[0:]:
                         ("AU", "MEEK", "*", "*", t1, t2),
                         ("AU", "CVQOZ", "*", "*", t1, t2),
                         ("AU", "MUKOZ", "*", "*", t1, t2),
-                        ("AU", "CTA", "*", "*", t1, t2)]
+                        ("AU", "CTA", "*", "*", t1, t2),
+                        ("AU", "EIDS", "*", "*", t1, t2),
+                        ("AU", "RMQ", "*", "*", t1, t2),
+                        ("AU", "QLP", "*", "*", t1, t2),
+                        ("AU", "INKA", "*", "*", t1, t2),
+                        ("AU", "OOD", "*", "*", t1, t2)]
                         
                 st = get_iris_event_data(bulk, folder, ev['timestr'][:16], au_parser, ev)
                 
