@@ -1,0 +1,418 @@
+def calc_nac_gmm_spectra(mag, rhyp, dep, vs30, region):
+    from numpy import loadtxt, log10, log
+    
+    if region == 'BS':
+        coeffile = 'ncc_gmm_coeffs.BS.csv'
+    elif region == 'NGH':
+        coeffile = 'ncc_gmm_coeffs.NGH.csv'
+    elif region == 'OBE':
+        coeffile = 'ncc_gmm_coeffs.OBE.csv'
+    
+    coeffs = loadtxt(coeffile, delimiter=',', skiprows=2)  
+    
+    T  = coeffs[:,0]
+    c0 = coeffs[:,1]
+    c1 = coeffs[:,2]
+    c2 = coeffs[:,3]
+    c3 = coeffs[:,4]
+    c4 = coeffs[:,5]
+    d0 = coeffs[:,6]
+    d1 = coeffs[:,7]
+    d2 = coeffs[:,8]
+    d3 = coeffs[:,9]
+    hx = coeffs[:,10]
+    
+    logdep = log10(dep)
+#    lnsa = c0 + c1*(mag-6)**2 + c2*(mag-6) - c3*log10(rhyp) - c4*rhyp # \
+#               + (d0 + d1*logdep**3 + d2*logdep**2 + d3*logdep)
+    '''
+    Rhyp <= hx: ln Y = c0 + c1*(M-6)**2 + c2*(M-6) + \
+    (c3*hx +  c4*(log10(Rhyp)-hx)) + (d0 + d1*log10(h)**3 + d2*log10(h)**2 + d3*log10(h))
+    '''
+    mag_term = c0 + c1*(mag-6)**2 + c2*(mag-6)
+    
+    if log10(rhyp) < hx[0]:
+        atten_term = c3 * log10(rhyp)
+    else:
+        hy = c3 * hx[0]
+        atten_term = c4 * (log10(rhyp)-hx[0]) + hy
+    
+    dep_term = d0 + d1*logdep**3 + d2*logdep**2 + d3*logdep
+    
+    # get site coefs
+    sitefile = 'nac_site_amp_coeffs.csv'
+    coeffs = loadtxt(sitefile, delimiter=',', skiprows=1)  
+    
+    T  = coeffs[:,0]
+    s0 = coeffs[:,1]
+    s1 = coeffs[:,2]
+    	
+    site_term = s0 + s1 / (log10(vs30) - log10(150))
+    
+    lnsa = mag_term + atten_term + dep_term + site_term
+           
+    A19imt = {'per':T, 'sa':lnsa}
+
+    return A19imt
+
+
+# finds files and gets geometric mean of two horizonal componets
+def get_site_geomean(stn, folder):
+    print(stn)
+    from fnmatch import filter
+    from os import path, walk, system
+    from numpy import sqrt
+    
+    zcomp = False
+
+    for root, dirnames, filenames in walk(folder):
+        for filename in filenames:
+            
+            # check strong-motion
+            if filename.find(stn) >= 0 and filename.find('NE.psa') >= 0:
+                efile = path.join(root, filename)
+                tfile = efile.split('NE.psa')
+                nfile = ''.join((tfile[0],'NN.psa',tfile[1]))
+            # check velocity sensors
+            elif filename.find(stn) >= 0 and filename.find('HE.psa') >= 0:
+                efile = path.join(root, filename)
+                tfile = efile.split('HE.psa')
+                nfile = ''.join((tfile[0],'HN.psa',tfile[1]))
+                
+            # check velocity sensors
+            elif filename.find(stn) >= 0 and filename.find('H1.psa') >= 0:
+                efile = path.join(root, filename)
+                tfile = efile.split('H1.psa')
+                nfile = ''.join((tfile[0],'H2.psa',tfile[1]))
+                
+            
+            # get Z file
+            elif filename.find(stn) >= 0 and filename.find('NZ.psa') >= 0:
+                zfile = path.join(root, filename)
+            elif filename.find(stn) >= 0 and filename.find('HZ.psa') >= 0:
+                zfile = path.join(root, filename)
+            
+    try:
+        try:
+            # read data 
+            T, SAe = read_psa(efile)
+            T, SAn = read_psa(nfile)
+            #print(efile, nfile)
+            
+            # read psa deatails
+            esta, esps, erhyp, epga, epgv, mag, dep, stlo, stla = read_psa_details(efile)
+            nsta, nsps, nrhyp, npga, npgv, mag, dep, stlo, stla = read_psa_details(nfile)
+            
+            pga = max([epga, npga]) / (1000. * 9.81)
+            rhyp = erhyp
+            
+            # get geometric mean and convert to g
+            geomean = exp((log(SAe) + log(SAn)) / 2.) / 9.81 # convert from m/s**2 to g  
+            #geomean = exp(sqrt(log(SAe) * log(SAn))) / 9.81 # convert from m/s**2 to g
+        # just E-comp
+        except:
+            # read data
+            print(efile)
+            T, geomean = read_psa(efile)
+            geomean = geomean / 9.81
+            
+            # read psa deatails
+            sta, sps, rhyp, pga, pgv, mag, dep, stlo, stla = read_psa_details(efile)
+            pga = pga / (1000. * 9.81)
+        
+    except:
+        # read data
+        print(zfile)
+        T, geomean = read_psa(zfile)
+        geomean = geomean / 9.81
+        
+        # read psa deatails
+        sta, sps, rhyp, pga, pgv, mag, dep, stlo, stla = read_psa_details(zfile)
+        pga = pga / (1000. * 9.81)
+        
+        zcomp = True
+        
+    return T, geomean, pga, rhyp, zcomp
+
+# reads psa data files and returns period (T) and acceleration (SA) vectors
+def read_psa(psafile):
+    from numpy import array
+
+    lines = open(psafile).readlines()[24:]  # ignore first 23 lines
+
+    SA = []
+    T = []
+    for line in lines:
+        dat = line.strip().split('\t')
+        T.append(float(dat[0]))
+        SA.append(float(dat[1]))
+
+    return array(T), array(SA)
+    
+# get other details for plotting
+def read_psa_details(psafile):
+    lines = open(psafile).readlines()[0:24]
+
+    for line in lines:
+        dat = line.strip().split('\t')
+        if line.find('STA') >= 0:
+            sta = dat[1]
+        if line.find('SR') >= 0:
+            sps = float(dat[1].split()[0])
+        if line.find('RHYP') >= 0:
+            rhyp = float(dat[1].split()[0])
+        if line.find('PGA') >= 0:
+            pga = float(dat[1].split()[0]) / 9.81
+        if line.find('PGV') >= 0:
+            pgv = float(dat[1].split()[0])
+        if line.find('EQMAG') >= 0:
+            mag = float(dat[1].split()[0])
+        if line.find('EQDEP') >= 0:
+            dep = float(dat[1].split()[0])
+        if line.find('STLO') >= 0:
+            stlo = dat[1].split()[0]
+        if line.find('STLA') >= 0:
+            stla = dat[1].split()[0]
+            
+    return sta, sps, rhyp, pga, pgv, mag, dep, stlo, stla
+
+# calculate GMPEs and make subplots        
+def makesubplt(i, fig, plt, sta, sps, mag, dep, ztor, dip, rake, rhyp, vs30):
+    import matplotlib 
+    matplotlib.rc('xtick', labelsize=8) 
+    matplotlib.rc('ytick', labelsize=8) 
+    
+    rrup = rhyp
+    rjb = sqrt(rrup**2 - dep**2) # assume point source; i.e. repi = rjb
+    
+    # get ground motion estimates from GMPEs
+    
+    Tea02imt, C03imt, AB06imt, Sea09imt, Sea09YCimt, Pea11imt, A12imt, Bea14imt , SP16imt \
+             = scr_gsims(mag, dep, ztor, dip, rake, rrup, rjb, vs30)
+    
+    Tea19 = tang2019_cam_gsim(mag, dep, rrup, vs30)
+    
+    nga_e_imt = nga_east_mean(mag, dep, dip, rake, rrup, vs30)
+    
+    # adjust some GMMs using Seyhan & Stewart 2014
+    A12imt = adjust_gmm_with_SS14(A12imt, 820., vs30)
+    Sea09imt = adjust_gmm_with_SS14(Sea09imt, 865., vs30)
+    
+    ax = plt.subplot(3, 3, i)
+    if colTrue == 'True':
+        plt.loglog(AB06imt['per'], exp(AB06imt['sa']), '-' , lw=1.5, color=cs[0])
+        plt.loglog(Sea09imt['per'], exp(Sea09imt['sa']), '-' , lw=1.5, color=cs[1])
+        plt.loglog(A12imt['per'], exp(A12imt['sa']),'-' , lw=1.5, color=cs[2])
+        plt.loglog(Bea14imt['per'], exp(Bea14imt['sa']),'-' , lw=1.5, color=cs[3])
+        #plt.loglog(YA15imt['per'], exp(YA15imt['sa']),'-' , lw=1.5, color=cs[4])
+        plt.loglog(nga_e_imt['per'], exp(nga_e_imt['sa']),'-' , lw=1.5, color=cs[5])
+        plt.loglog(Tea19['per'], exp(Tea19['sa']),'-' , lw=1.5, color=cs[6])
+        
+        
+    # get recorded process_waves.py psa data
+    T, geomean, pga, rhyp, zcomp = get_site_geomean(sta, folder)
+    plt.loglog(T, geomean, lw=1.5, color='k')
+
+    if i >= 7:
+        plt.xlabel('Period (s)', fontsize=9)
+    if i == 1 or i == 4 or i == 7:
+        plt.ylabel('Spectral Acceleration (g)', fontsize=9)
+        
+    plt.xlim([0.01, 10])
+    #plt.title(' '.join((sta+'; MW =',str("%0.1f" % mag)+'; Rrup =',str(rrup),'km')), fontsize=9)
+    if zcomp == True:
+        sta += '*'
+    plt.title(' '.join((sta+'; Rhyp =',str(rhyp),'km; VS30 =', str(int(round(vs30))))), fontsize=8)
+    plt.grid(which='both', color='0.75')
+
+    if i == 1:
+        #plt.legend(['Yea97', 'AB06','A12imt','Aea16', 'A19 (BS)', 'A19 (NGH)', 'A19 (OB)','Data'],loc=3, fontsize=7.)
+        plt.legend(['AB06','Sea09', 'A12','Bea14', 'NGA-E', 'Tea19', 'Data'],loc=3, fontsize=9.)
+
+'''
+start main
+'''
+# start of plotting routine
+from numpy import array, arange, sqrt, exp, log, unique, argsort, isnan
+from sys import argv
+import matplotlib.pyplot as plt
+plt.rcParams['pdf.fonttype'] = 42
+import matplotlib as mpl
+mpl.style.use('classic')
+
+from calc_oq_gmpes import inslab_gsims, scr_gsims, tang2019_cam_gsim, \
+                          nga_east_mean, get_station_vs30, adjust_gmm_with_SS14
+                          
+from gmt_tools import cpt2colormap, remove_last_cmap_colour
+from misc_tools import get_mpl2_colourlist
+
+folder = argv[1]
+prefix = argv[2]
+colTrue = 'True'
+#colTrue = argv[3]
+
+# set event details
+if prefix.startswith('201206'):
+    mag  = 5.0
+    dep = 11.
+elif prefix.startswith('201207'):
+    mag  = 4.5
+    dep = 11.
+
+ztor = 8. # guess
+rake = 90. # USGS CMT
+dip  = 30.
+
+# set site details
+#vs30 = 760
+
+ii = 1
+fig = plt.figure(ii, figsize=(10, 10))
+#cmap = plt.cm.get_cmap('Spectral', 7)
+
+ncols = 8
+cptfile = '/Users/trev/Documents/DATA/GMT/cpt/gay-flag-1978.cpt'
+#cptfile = 'U:\\DATA\\GMT\\cpt\\gay-flag-1978.cpt'
+cmap, zvals = cpt2colormap(cptfile, ncols+1)
+cmap = remove_last_cmap_colour(cmap)
+cs = (cmap(arange(ncols)))
+
+#cs = get_mpl2_colourlist()
+
+from fnmatch import filter
+from os import path, walk, system
+
+# build sites
+sites = []
+for root, dirnames, filenames in walk(folder):
+    for filename in filenames:
+        if filename.find('psa') >= 0:
+            tmpsite = filename.split('.')[1]
+            tmpcomp = filename.split('.')[2]
+            #sites.append('.'.join((tmpsite,tmpcomp)))
+            sites.append(tmpsite)
+
+# if two H components, rename channel
+#usites = unique(sites)
+'''
+usites = []
+for site1 in sites:
+    cnt = 0
+    for site2 in sites:
+        if site1[0:-1] == site2[0:-1]:
+            cnt += 1
+            
+    if cnt == 2:
+        usites.append(site1[0:-1]+'H')
+    else:
+        usites.append(site1)
+'''        
+usites = unique(sites)
+
+udists = []
+lolatxt = ''
+for stn in usites:
+    for root, dirnames, filenames in walk(folder):
+        for filename in filenames:
+            if filename.find(stn) >= 0:
+                if filename.find('NE') >= 0:
+                    psafile = path.join(root, filename)
+                elif filename.find('HE') >= 0:
+                    psafile = path.join(root, filename)
+                elif filename.find('H1') >= 0:
+                    psafile = path.join(root, filename)
+                elif filename.find('NZ') >= 0:
+                    psafile = path.join(root, filename)
+                elif filename.find('HZ') >= 0:
+                    psafile = path.join(root, filename)
+                elif filename.find('NH') >= 0:
+                    psafile = path.join(root, filename)
+                elif filename.find('HHH') >= 0:
+                    psafile = path.join(root, filename)
+                
+    # get record details
+    sta, sps, rhyp, pga, pgv, mag, dep, stlo, stla = read_psa_details(psafile)
+    udists.append(rhyp)
+    lolatxt += '\t'.join((stlo, stla, sta))+'\n'
+
+f = open('staloc.txt', 'w')
+f.write(lolatxt)
+f.close()
+    
+    
+# now sort by distance
+udists = array(udists)
+idx=argsort(array(udists))
+udists = udists[idx]
+usites = usites[idx]
+
+# loop thru sites ordered by distance
+i = 0
+for stn in usites:
+    for root, dirnames, filenames in walk(folder):
+        for filename in filenames:
+            if filename.find(stn) >= 0:
+                if filename.find('NE') >= 0:
+                    psafile = path.join(root, filename)
+                elif filename.find('HE') >= 0:
+                    psafile = path.join(root, filename)
+                elif filename.find('H1') >= 0:
+                    psafile = path.join(root, filename)
+                elif filename.find('NZ') >= 0:
+                    psafile = path.join(root, filename)
+                elif filename.find('HZ') >= 0:
+                    psafile = path.join(root, filename)
+                elif filename.find('NH') >= 0:
+                    psafile = path.join(root, filename)
+                elif filename.find('HHH') >= 0:
+                    psafile = path.join(root, filename)
+                
+    # get record details
+    print(stn, psafile)
+    sta, sps, rhyp, pga, pgv, mag, dep, stlo, stla = read_psa_details(psafile)
+    
+    # temp fix
+    # set event details
+    if prefix.startswith('201206'):
+        mag  = 5.0
+        #dep = 11.
+    elif prefix.startswith('201207'):
+        mag  = 4.6
+        #dep = 11.
+
+    
+    # now plot
+    if stn != 'CDNMX.HNH':
+        i += 1
+        print('rhyp', rhyp)
+        vs30 = get_station_vs30(stn)[0]
+        if isnan(vs30):
+            vs30 = 760.
+        makesubplt(i, fig, plt, stn, sps, mag, dep, ztor, dip, rake, rhyp, vs30)
+        if ii == 1:
+            if prefix.startswith('201206'):
+                if rhyp <= 100:
+                    plt.ylim([1e-4, .2])
+                else:
+                    plt.ylim([1e-5, 0.02])
+                    
+            elif prefix.startswith('201207'):
+                if rhyp <= 15:
+                    plt.ylim([1e-4, .2])
+                elif rhyp <= 50:
+                    plt.ylim([1e-4, .1])
+                else:
+                    plt.ylim([1e-5, 0.02])
+                
+        elif  rhyp > 1000.:
+            plt.ylim([2e-5, 0.01])
+        
+        if i == 9:
+            i = 0
+            plt.savefig(prefix+'_'+str(ii)+'_spectra.png', format='png', dpi=150, bbox_inches='tight')
+            ii += 1
+            fig = plt.figure(ii, figsize=(10, 10))
+
+plt.savefig(prefix+'_'+str(ii)+'_spectra.png', format='png', dpi=150, bbox_inches='tight')
+plt.show()
+
