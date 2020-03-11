@@ -11,14 +11,15 @@ from spectral_analysis import calc_fft, prep_psa_simple, calc_response_spectra, 
 from misc_tools import listdir_extension
 from data_fmt_tools import return_sta_data
 from datetime import datetime, timedelta
-from os import path, getcwd, remove
+from os import path, getcwd, remove, system
 from numpy import asarray, arange, array, log10, mean, percentile, where, isnan, interp
 import pickle
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 from mpl_toolkits.basemap import Basemap
 mpl.style.use('classic')
-
+import warnings
+warnings.filterwarnings("ignore")
 
 from data_fmt_tools import get_stn_dataless_seed, get_station_distance, \
                            remove_low_sample_data
@@ -31,8 +32,7 @@ from data_fmt_tools import get_stn_dataless_seed, get_station_distance, \
 tstep = 5 # sec
 maptimes = arange(-60, 12*60+1, tstep)
 freqmin = 0.01 # Hz
-freqmax = 0.02
-
+freqmax = 0.015
 
 ##########################################################################################
 # parse eq epicentres
@@ -68,8 +68,33 @@ eqdp = ev['dep']
 eqdt = ev['datetime']
 
 ###############################################################################
+# parse dataless seed
+###############################################################################
+
+from obspy.io.xseed import Parser
+
+print('Reading dataless seed volumes...')
+
+if getcwd().startswith('/nas'):
+    au_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/AU/AU.IRIS.dataless')
+    s1_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/S1/S1.IRIS.dataless')
+    ge_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/GE/GE1.IRIS.dataless')
+    #ge_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/GE/GE2.IRIS.dataless')
+    iu_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/IU/IU.IRIS.dataless')
+    ii_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/II/II.IRIS.dataless')
+    
+else:
+    au_parser = Parser('/Users/trev/Documents/Networks/AU/AU.IRIS.dataless')
+    s1_parser = Parser('/Users/trev/Documents/Networks/S1/S1.IRIS.dataless')
+    iu_parser = Parser('/Users/trev/Documents/Networks/IU/IU.IRIS.dataless')
+    ge_parser1 = Parser('/Users/trev/Documents/Networks/GE/GE1.IRIS.dataless')
+    ge_parser2 = Parser('/Users/trev/Documents/Networks/GE/GE2.IRIS.dataless')
+    ii_parser = Parser('/Users/trev/Documents/Networks/II/II.IRIS.dataless')
+
+###############################################################################
 # get travel times
 ###############################################################################
+
 print('Getting travel times...')
 # set arrivals
 model = TauPyModel(model="iasp91")
@@ -100,12 +125,15 @@ stimes = array(stimes)
 ###############################################################################
 # parse mseed
 ###############################################################################
-"""
+
 mseedfiles = listdir_extension('mseed', 'mseed')
 #mseedfiles = listdir_extension('ausarray_mseed', 'mseed')
 
 # loop through mseed files
+trmax = []
+trmin = []
 sta_dict = []
+sta_list = []
 for mseedfile in mseedfiles:
     print(mseedfile)
     # read mseed
@@ -120,34 +148,95 @@ for mseedfile in mseedfiles:
     
     # loop through traces and get Z component
     for tr in st:
-        if tr.stats.channel.endswith('Z'):
+        doChan = False
+        chokeTrue = False
+        sta = tr.stats.station
+        sta
+            
+        if tr.stats.channel.endswith('Z') and not tr.stats.channel.startswith('S'):
+            doChan = True
+        if sta == 'BW2S' or sta == 'BW1H' or sta == 'TV1H' or sta == 'TV2S' or sta == 'CN1H' or sta == 'CN2S':
+            if tr.stats.channel[1] == 'N':
+                doChan = True
+                chokeTrue = True
+                
+            else:
+                doChan = False
+                
+        if doChan == True:
             # filter
-            tr_new = tr.resample(1.0)
-            tr_new = tr_new.detrend(type='constant')
+            
+            tr_new = tr.detrend(type='constant')
             tr_new = tr_new.taper(0.05, type='hann', max_length=None, side='both')
             
-            nat_freq, inst_ty, damping, sen, recsen, gain, pazfile, stlo, stla, netid \
-                  = get_response_info(tr.stats.station, eqdt, tr.stats.channel)
-            # eqdt.datetime
+            print(tr.get_id(), tr.stats.network)
+                
+            # try using dataless seed
+            try:
+                # kill JUMP sites
+                if chokeTrue == True:
+                    choke = choke
+                
+                seedid=tr.get_id()
+                if tr.stats.network == 'AU':
+                    seedid = seedid.replace('..', '.00.')
+                    
+                channel = tr.stats.channel
+                start_time = tr.stats.starttime
+                if tr.stats.network == 'AU':
+                    paz = au_parser.get_paz(seedid,start_time)
+                    staloc = au_parser.get_coordinates(seedid,start_time)
+                elif tr.stats.network == 'GE':
+                    if seedid.startswith('GE.FAKI') or seedid.startswith('GE.JAGI'):
+                        paz = ge_parser2.get_paz(seedid,start_time)
+                        staloc = ge_parser2.get_coordinates(seedid,start_time)
+                    else:
+                        paz = ge_parser1.get_paz(seedid,start_time)
+                        staloc = ge_parser1.get_coordinates(seedid,start_time)
+                elif tr.stats.network == 'IU':
+                    paz = iu_parser.get_paz(seedid,start_time)
+                    staloc = iu_parser.get_coordinates(seedid,start_time)
+                elif tr.stats.network == 'II':
+                    paz = ii_parser.get_paz(seedid,start_time)
+                    staloc = ii_parser.get_coordinates(seedid,start_time)
+                elif tr.stats.network == 'S1':
+                    paz = s1_parser.get_paz(seedid,start_time)
+                    staloc = s1_parser.get_coordinates(seedid,start_time)
+                
+                tr_new = tr.simulate(paz_remove=paz)
+                print('dataless worked')
+                            
+            # if failed, use stationlist
+            except:
+                nat_freq, inst_ty, damping, sen, recsen, gain, pazfile, stlo, stla, netid \
+                      = get_response_info(tr.stats.station, eqdt.datetime, tr.stats.channel)
+                #print(nat_freq, inst_ty, damping, sen, recsen, gain, pazfile, stlo, stla, netid)
+                
+                # eqdt.datetime
+                
+                #print(pazfile, tr.stats.station)
+                # get fft of trace
+                freq, wavfft = calc_fft(tr_new.data, tr.stats.sampling_rate)  
+                
+                # get response for given frequencies
+                real_resp, imag_resp = paz_response(freq, pazfile, sen, recsen, \
+                                                    gain, inst_ty)
+                #print(pazfile, sen, recsen, gain, inst_ty)
+                
+                # deconvolve response
+                corfftr, corffti = deconvolve_instrument(real_resp, imag_resp, wavfft)
+                
+                # make new instrument corrected velocity trace
+                pgv, ivel = get_cor_velocity(corfftr, corffti, freq, inst_ty)
+                
+                tr_new.data = ivel.real
+                print(tr.get_id(), tr_new.max())
+                print('using stationlist instead')
             
-            #print(pazfile, tr.stats.station)
-            # get fft of trace
-            freq, wavfft = calc_fft(tr_new.data, tr.stats.sampling_rate)
-            
-            # get response for given frequencies
-            real_resp, imag_resp = paz_response(freq, pazfile, sen, recsen, \
-                                                gain, inst_ty)
-            # deconvolve response
-            corfftr, corffti = deconvolve_instrument(real_resp, imag_resp, wavfft)
-            
-            # make new instrument corrected velocity trace
-            pgv, ivel = get_cor_velocity(corfftr, corffti, freq, inst_ty)
-            
-            tr_new.data = ivel.real
-            #print(tr.data)
-            
+            tr_new = tr_new.resample(1.0)
             tr_new = tr_new.filter('bandpass', freqmin=freqmin, freqmax=freqmax, corners=4, zerophase=True)
-            # correct response
+            trmax.append(tr_new.max())
+            sta_list.append(tr_new.stats.station)
             
             times = tr_new.times('utcdatetime')
             sampled_vel = []
@@ -173,7 +262,16 @@ print('Saving pkl file...')
 pklfile = open("sta_dict.pkl", "wb" )
 pickle.dump(sta_dict, pklfile) #, protocol=-1)
 pklfile.close()
-"""
+
+print(trmax)
+
+stxt = ''
+for i in range(0, len(sta_list)):
+    stxt += ','.join((sta_list[i], str(trmax[i]))) + '\n'
+f = open('trmax.csv', 'w')
+f.write(stxt)
+f.close()
+
 print('Loading pkl file...')
 sta_dict = pickle.load(open("sta_dict.pkl", "rb" ))
 
@@ -191,12 +289,11 @@ lat_2 = percentile([llcrnrlat, urcrnrlat], 75)
 
 #plt.tick_params(labelsize=16)
 
-
 # make a map for each time step
 props = dict(boxstyle='round', facecolor='w', alpha=1)
 azimuths = arange(0, 360, 1)
 #norm = mpl.colors.Normalize(vmin=-6, vmax=6)
-norm = mpl.colors.Normalize(vmin=-1E-6, vmax=1E-6)
+norm = mpl.colors.Normalize(vmin=-1E-4, vmax=1E-4)
 for i, mt in enumerate(maptimes):
     
     fig = plt.figure(1, figsize=(18,10))
@@ -206,7 +303,7 @@ for i, mt in enumerate(maptimes):
     m = Basemap(projection='lcc',lat_1=lat_1,lat_2=lat_2,lon_0=lon_0,\
             llcrnrlon=llcrnrlon,llcrnrlat=llcrnrlat, \
             urcrnrlon=urcrnrlon,urcrnrlat=urcrnrlat,\
-            rsphere=6371200.,resolution='c',area_thresh=1000.)
+            rsphere=6371200.,resolution='l',area_thresh=1000.)
 
     # draw coastlines, state and country boundaries, edge of map.
     #m.shadedrelief()
@@ -270,24 +367,24 @@ for i, mt in enumerate(maptimes):
        x, y = m(px, py)
        m.plot(x, y, '-', c='darkorange', lw=1.5, label='S-Phase')
     
-        # add legend
-        plt.legend(loc=2, fontsize=14, numpoints=1)
+       # add legend
+       plt.legend(loc=2, fontsize=14, numpoints=1)
         
     # add label
     sample_time = UTCDateTime(ev['datetime']) + mt
-    xpos, ypos = m(152.5, -27)
-    plt.text(xpos, ypos, sample_time.isoformat()[0:-7], ha='right', va='bottom', fontsize=16, bbox=props)
+    xpos, ypos = m(125.5, -27)
+    plt.text(xpos, ypos, sample_time.isoformat()[0:-7], ha='left', va='bottom', fontsize=16, bbox=props)
     
     
     print('mapped_velocity_'+str(i+1)+'.png')
     if i < 9:
-        plt.savefig('png/mapped_velocity_00'+str(i+1)+'.png', fmt='png', bbox_inches='tight')
+        plt.savefig('png/mapped_velocity_00'+str(i+1)+'.png', fmt='png', dpi=300, bbox_inches='tight')
     elif i < 99:
-        plt.savefig('png/mapped_velocity_0'+str(i+1)+'.png', fmt='png', bbox_inches='tight')
+        plt.savefig('png/mapped_velocity_0'+str(i+1)+'.png', fmt='png', dpi=300, bbox_inches='tight')
     else:
-        plt.savefig('png/mapped_velocity_'+str(i+1)+'.png', fmt='png', bbox_inches='tight')
+        plt.savefig('png/mapped_velocity_'+str(i+1)+'.png', fmt='png', dpi=300, bbox_inches='tight')
     plt.clf()
-
+"""
 ###############################################################################
 # make animation
 ###############################################################################
@@ -320,3 +417,5 @@ my_anim.save("animation.mp4")
 ## Showtime!
 plt.show()
     
+"""
+system('mencoder "mf://png/*.png" -mf fps=10 -o ../png_waves.avi -ovc lavc -lavcopts vcodec=msmpeg4v2:vbitrate=400')
