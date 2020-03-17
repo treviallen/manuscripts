@@ -374,10 +374,10 @@ for stn in usites:
     # temp fix
     # set event details
     if prefix.startswith('201206'):
-        mag  = 5.0
+        mag  = 5.1
         #dep = 11.
     elif prefix.startswith('201207'):
-        mag  = 4.6
+        mag  = 4.4
         #dep = 11.
 
     
