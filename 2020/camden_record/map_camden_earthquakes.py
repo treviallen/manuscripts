@@ -35,10 +35,10 @@ mpl.style.use('classic')
 doLocal = False
 # local
 if doLocal == False:
-    urcrnrlat = -31.6
-    llcrnrlat = -36.2
-    urcrnrlon = 154
-    llcrnrlon = 148.5
+    urcrnrlat = -31.9
+    llcrnrlat = -36.0
+    urcrnrlon = 153.2
+    llcrnrlon = 148.3
 
 ##########################################################################################
 # set up street map
@@ -86,20 +86,24 @@ shpfile = '../NT/shapefiles/PetroleumTitles28August2019.shp'
 shpfile = 'PetroleumTitles28August2019.shp'
 sf = shapefile.Reader(shpfile)
 drawshapepoly(m, plt, sf, col='r',lw=0.75, alpha=0.5, fillshape = True)
-
+'''
 gadat = parse_ga_event_query('earthquakes_export_2012-16_250.edit.csv')
 
 la = dictlist2array(gadat, 'lat')
 lo = dictlist2array(gadat, 'lon')
 mag = dictlist2array(gadat, 'mag_ml')
 x,y = m(lo, la)
-plt.scatter(x,y,s=mag*5, c='dodgerblue', label='2012-2015', zorder=10000)
+scatter = plt.scatter(x,y,s=-75+mag*80, c='darkorange', zorder=10000, alpha=0.7)
 
-legend1 = ax.legend(loc="upper left", title="Year Range")
-ax.add_artist(legend1)
-handles, labels = scatter.legend_elements(prop="sizes", alpha=0.6)
-legend2 = ax.legend(handles, labels, loc="upper right", title="Sizes")
-'''
+gadat = parse_ga_event_query('earthquakes_export_2016-20_250.edit.csv')
+
+la = dictlist2array(gadat, 'lat')
+lo = dictlist2array(gadat, 'lon')
+mag = dictlist2array(gadat, 'mag_ml')
+x,y = m(lo, la)
+scatter = plt.scatter(x,y,s=-75+mag*80, c='dodgerblue', zorder=10000, alpha=0.7)
+
+
 ##########################################################################################
 # plt stations
 ##########################################################################################
@@ -124,10 +128,10 @@ for stla, stlo, sta in zip(sta_lat, sta_lon, sta_code):
             cmdlon.append(stlo)
 
 x,y = m(sta_lon, sta_lat)
-plt.plot(x, y, '^', c='w', ms=12, zorder=1000, label='ANSN')
+plt.plot(x, y, '^', c='w', ms=12, zorder=1000)
 
 x,y = m(cmdlon, cmdlat)
-plt.plot(x, y, '^', c='yellow', ms=12, zorder=1000, label='Camden Seismic Network')
+plt.plot(x, y, '^', c='yellow', ms=12, zorder=1000)
 
 # label stas
 urcrnrlat
@@ -146,7 +150,19 @@ for sta, slon, slat in zip(sta_code, sta_lon, sta_lat):
             plt.text(x, y, sta, size=15, c='royalblue', va='bottom', ha='right', weight='normal', \
                      path_effects=path_effects, zorder=11000)
 '''
-plt.legend(loc=2, numpoints=1, fontsize=11)
+
+##########################################################################################
+# add legends
+##########################################################################################
+
+legend1 = ax.legend(['ANSN', 'Camden Seismic Network', '2012-2015', '2016-2019'], \
+                    loc=3, numpoints=1, fontsize=11, labelspacing=1.)
+ax.add_artist(legend1)
+
+for m in [2.0, 3.0, 4.0]:
+    plt.scatter([], [], c='k', alpha=0.3, s=-75+m*80,
+                label=str(m))
+plt.legend(scatterpoints=1, labelspacing=1.0, fontsize=11, title='Magnitude')
 
 ##########################################################################################
 # get land & lake polygons for masking
@@ -187,8 +203,13 @@ m2.drawstates()
 # fill main area
 xv = mean([llcrnrlon, urcrnrlon])
 yv = mean([llcrnrlat, urcrnrlat])
+
+xv = [llcrnrlon, urcrnrlon, urcrnrlon, llcrnrlon, llcrnrlon]
+yv = [llcrnrlat, llcrnrlat, urcrnrlat, urcrnrlat, llcrnrlat]
 x, y = m2(xv, yv)
-plt.plot(x, y, 'rs',ms=6)
+#plt.plot(x, y, 'rs',ms=6)
+plt.fill(x, y, facecolor='none', edgecolor='r', linewidth=2)
+
 
 ##########################################################################################
 # label states
