@@ -56,6 +56,7 @@ plt.semilogy(magrng, crate, 'o', c='darkorange', label='2012-2015; N ='+str(len(
 print(len(mag))
 print(len(mag[mag>=3.]))
 print(len(mag[mag>=2.]))
+print(len(mag[mag<2.]))
 print(min(mag))
 ##############################################################################
 # get 2012-2015
@@ -75,9 +76,11 @@ for m in magrng:
     
 plt.semilogy(magrng, crate, 'o', c='dodgerblue', label='2016-2019; N ='+str(len(mag)))
 
-print('\n',len(mag))
+print('\n')
+print(len(mag))
 print(len(mag[mag>=3.]))
 print(len(mag[mag>=2.]))
+print(len(mag[mag<2.]))
 print(min(mag))
 ##############################################################################
 # make pretty
