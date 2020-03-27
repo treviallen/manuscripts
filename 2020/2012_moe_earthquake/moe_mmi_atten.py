@@ -1,7 +1,8 @@
 #moe_mmi_atten.py
 from mmi_tools import allen_etal_2012_rrup_ipe, allen_etal_2012_rhypo_ipe, \
                       atkinson_wald_ceus_ipe, atkinson_wald_cal_ipe, pgm2mmi_worden12, \
-                      parse_usgs_dyfi_geocoded, parse_usgs_dyfi_zip
+                      parse_usgs_dyfi_geocoded, parse_usgs_dyfi_zip, \
+                      atkinson_worden_wald14_cal_ipe, atkinson_worden_wald14_ceus_ipe
 from calc_oq_gmpes import scr_gsims, crustal_gsims
 from mapping_tools import distance
 from shakemap_tools import write_mmi_obs_raw
@@ -113,6 +114,9 @@ Aea12rup, Aea12sig = allen_etal_2012_rrup_ipe(mag, rrup, eqdep)
 
 # do Allen et al 2012 Rhypo
 Aea12hypo, Aea12sig = allen_etal_2012_rhypo_ipe(mag, rrup, eqdep)
+
+# do AWW 14 Cal
+AWW14cal = atkinson_worden_wald14_cal_ipe(mag, rrup, eqdep)
 
 # do Bea14 - W12 PGA
 logB14pga = [] # tried pgv, but looked really bad!
