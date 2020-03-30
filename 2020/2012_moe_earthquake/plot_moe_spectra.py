@@ -182,11 +182,10 @@ def makesubplt(i, fig, plt, sta, sps, mag, dep, ztor, dip, rake, rhyp, vs30):
     matplotlib.rc('xtick', labelsize=8) 
     matplotlib.rc('ytick', labelsize=8) 
     
-    rrup = rhyp
+    rrup = rhyp # subtract for misc distance to rup
     rjb = sqrt(rrup**2 - dep**2) # assume point source; i.e. repi = rjb
     
     # get ground motion estimates from GMPEs
-    
     Tea02imt, C03imt, AB06imt, Sea09imt, Sea09YCimt, Pea11imt, A12imt, Bea14imt , SP16imt \
              = scr_gsims(mag, dep, ztor, dip, rake, rrup, rjb, vs30)
     
@@ -242,7 +241,8 @@ mpl.style.use('classic')
 
 from calc_oq_gmpes import inslab_gsims, scr_gsims, tang2019_cam_gsim, \
                           nga_east_mean, get_station_vs30, adjust_gmm_with_SS14
-                          
+from data_fmt_tools import return_sta_data
+from mapping_tools import distance
 from gmt_tools import cpt2colormap, remove_last_cmap_colour
 from misc_tools import get_mpl2_colourlist
 
@@ -254,10 +254,15 @@ colTrue = 'True'
 # set event details
 if prefix.startswith('201206'):
     mag  = 5.0
-    dep = 11.
+    eqdep = 18.0
+    eqlat = -38.259
+    eqlon = 146.290
+
 elif prefix.startswith('201207'):
     mag  = 4.5
-    dep = 11.
+    eqdep = 12.41
+    eqlat = -38.231
+    eqlon = 146.215
 
 ztor = 8. # guess
 rake = 90. # USGS CMT
@@ -374,7 +379,7 @@ for stn in usites:
     # temp fix
     # set event details
     if prefix.startswith('201206'):
-        mag  = 5.1
+        mag  = 5.0
         #dep = 11.
     elif prefix.startswith('201207'):
         mag  = 4.4
@@ -385,10 +390,17 @@ for stn in usites:
     if stn != 'CDNMX.HNH':
         i += 1
         print('rhyp', rhyp)
-        vs30 = get_station_vs30(stn)[0]
+        vs30, isproxy, usgsvs, asscmvs, kvs, stla, stlo = get_station_vs30(stn)
+        #sta_dat = return_sta_data(stn)
+        
+        # now calculate distance on the fly
+        repi = distance(eqlat, eqlon, stla, stlo)[0]
+        rhyp = sqrt(repi**2 + eqdep**2)
+        
         if isnan(vs30):
             vs30 = 760.
-        makesubplt(i, fig, plt, stn, sps, mag, dep, ztor, dip, rake, rhyp, vs30)
+            
+        makesubplt(i, fig, plt, stn, sps, mag, eqdep, ztor, dip, rake, rhyp, vs30)
         if ii == 1:
             if prefix.startswith('201206'):
                 if rhyp <= 100:

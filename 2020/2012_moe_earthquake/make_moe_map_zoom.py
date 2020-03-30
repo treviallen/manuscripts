@@ -1,17 +1,19 @@
-from matplotlib.mlab import griddata
+from scipy.interpolate import griddata
 from matplotlib import colors, colorbar
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 from mpl_toolkits.basemap import Basemap
 from matplotlib.colors import LightSource
+from misc_tools import remove_last_cmap_colour
 from numpy import arange, mean, percentile, array, unique, where
 from netCDF4 import Dataset as NetCDFFile
 from gmt_tools import cpt2colormap
-from os import path, walk, system
+from os import path, walk, system, getcwd
 #from obspy.imaging.beachball import Beach
 
 plt.rcParams['pdf.fonttype'] = 42
-
+import matplotlib as mpl
+mpl.style.use('classic')
 
 ##########################################################################################
 # set up map
@@ -35,16 +37,16 @@ ax.tick_params(axis='x', labelsize=16)
 ax.tick_params(axis='y', labelsize=16)
 
 #lat_1=lat_1,lat_2=lat_2,lon_0=lon_0,\
-m = Basemap(projection='merc', \
+m = Basemap(projection='lcc',lat_1=lat_1,lat_2=lat_2,lon_0=lon_0,\
             llcrnrlon=llcrnrlon,llcrnrlat=llcrnrlat, \
             urcrnrlon=urcrnrlon,urcrnrlat=urcrnrlat,\
-            rsphere=6371200.,resolution='f',area_thresh=100)
+            rsphere=6371200.,resolution='i',area_thresh=150)
 
 # draw coastlines, state and country boundaries, edge of map.
-m.drawcoastlines()
+#m.drawcoastlines()
 m.drawstates()
 m.drawcountries()
-m.drawmapboundary(fill_color='lightblue')
+#m.drawmapboundary(fill_color='lightblue')
 #m.drawmapboundary(fill_color='0.8')
 m.drawparallels(arange(-90.,90.,.2), labels=[1,0,0,0],fontsize=16, dashes=[2, 2], color='0.45', linewidth=0.75)
 m.drawmeridians(arange(0.,360.,.2), labels=[0,0,0,1], fontsize=16, dashes=[2, 2], color='0.45', linewidth=0.75)
@@ -54,35 +56,49 @@ m.drawmapscale(146.5, -38.5, 146.5, -38.5, 40, fontsize = 17, barstyle='fancy', 
 # plot gebco
 ##########################################################################################
 
-print 'Reading netCDF file...'
-netcdffile = '//Users//tallen//Documents//DATA//SRTM03//srtm_66_20//srtm_66_20.grd'
+print('Reading netCDF file...')
+if getcwd().startswith('/nas'):
+    netcdffile = 'srtm_66_20.grd'
+else:
+    netcdffile = '//Users//trev//Documents//DATA//SRTM03//srtm_66_20//srtm_66_20.grd'
 nc = NetCDFFile(netcdffile)
 
-zscale =2. #gray
-zscale =10. #colour
+zscale =30. #colour
 data = nc.variables['z'][:] / zscale
 lons = nc.variables['x'][:]
 lats = nc.variables['y'][:]
+'''
+print('Reading netCDF file...')
+nc = NetCDFFile('//Users//trev//Documents//DATA//GMT//GEBCO//se_aus_gebco2014.nc')
 
-# transform to metres
+zscale =20. #gray
+zscale =30. #colour
+data = nc.variables['z'][:] / zscale
+lons = nc.variables['lon'][:]
+lats = nc.variables['lat'][:]
+'''
+# transform to metres      
 nx = int((m.xmax-m.xmin)/30.)+1
 ny = int((m.ymax-m.ymin)/30.)+1
 
 topodat = m.transform_scalar(data,lons,lats,nx,ny)
 
-print 'Getting colormap...'
+print('Getting colormap...')
 # get colormap
-cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//mby_topo-bath_mod.cpt'
-#cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//gray.cpt'
-cmap, zvals = cpt2colormap(cptfile, 256)
-#cmap = cm.get_cmap('terrain', 256)
-
+if getcwd().startswith('/nas'):
+    cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/wiki-2.0.cpt'
+else:
+    cptfile = '//Users//trev//Documents//DATA//GMT//cpt//wiki-2.0.cpt'
+cmap, zvals = cpt2colormap(cptfile, 30)
+cmap = remove_last_cmap_colour(cmap)
+        
 # make shading
-print 'Making map...'
-ls = LightSource(azdeg = 180, altdeg = 45)
-norm = mpl.colors.Normalize(vmin=-8000/zscale, vmax=5000/zscale)#myb
+print('Making map...')
+ls = LightSource(azdeg = 180, altdeg = 5)
+#norm = mpl.colors.Normalize(vmin=-8000/zscale, vmax=5000/zscale)
+norm = mpl.colors.Normalize(vmin=-1000/zscale, vmax=1900/zscale) #wiki
 rgb = ls.shade(topodat, cmap=cmap, norm=norm)
-im = m.imshow(rgb)
+im = m.imshow(rgb, alpha=1.)
 
 ##########################################################################################
 # add cities
@@ -121,7 +137,7 @@ for i, loc in enumerate(ploc):
 # add stations for 4.4
 ##########################################################################################
 
-folder = 'Moe_4.4/psa'
+folder = 'psa/20120720/'
 stns = []
 for root, dirnames, filenames in walk(folder):
     for filename in filenames:
@@ -134,7 +150,10 @@ stlat = []
 stlon = []
 stnet = []
 
-lines = open('/Users/tallen/Documents/Code/process_waves/stationlist.dat').readlines()
+if getcwd().startswith('/nas'):
+    lines = open('/nas/users/u56903/unix/Code/my_codes/stationlist.dat').readlines()
+else:
+    lines = open('/Users/trev/Documents/Code/my_codes/stationlist.dat').readlines()
 for stn in stns:
     for line in lines:
         if line.startswith(stn+'\t'):
@@ -148,7 +167,7 @@ for stn in stns:
 stlat = array(stlat)
 stlon = array(stlon)
 #unet = unique(array(stnet))
-#print stns, stnet
+#print(stns, stnet
 
 
 # loop thru networks and plot
@@ -177,13 +196,13 @@ for i, stn in enumerate(stns):
             x, y = m(stlon[i]+0.015, stlat[i]-0.017)
             plt.text(x, y, stn, size=14, ha='left', weight='normal', style='normal')
         
-print stns
+print(stns)
 
 ##########################################################################################
 # add stations for 5.4
 ##########################################################################################
 
-folder = 'Moe_5.4/psa'
+folder = 'psa/20120619/'
 stns = []
 for root, dirnames, filenames in walk(folder):
     for filename in filenames:
@@ -196,7 +215,10 @@ stlat = []
 stlon = []
 stnet = []
 
-lines = open('/Users/tallen/Documents/Code/process_waves/stationlist.dat').readlines()
+if getcwd().startswith('/nas'):
+    lines = open('/nas/users/u56903/unix/Code/my_codes/stationlist.dat').readlines()
+else:
+    lines = open('/Users/trev/Documents/Code/my_codes/stationlist.dat').readlines()
 for stn in stns:
     for line in lines:
         if line.startswith(stn):
@@ -258,19 +280,18 @@ plt.plot(x, y, '*', markerfacecolor='r', markeredgecolor='w', markeredgewidth=1.
 ##########################################################################################
 
 from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes
-axins = zoomed_inset_axes(ax, 0.0093, loc=2)
+axins = zoomed_inset_axes(ax, 0.0065, loc=2)
 
 m2 = Basemap(projection='merc',\
             llcrnrlon=111,llcrnrlat=-45, \
             urcrnrlon=156,urcrnrlat=-9,\
             rsphere=6371200.,resolution='l',area_thresh=10000)
             
-#m2 = Basemap(llcrnrlon=-20,llcrnrlat=3,urcrnrlon=0,urcrnrlat=18, ax=axins)
 m2.drawmapboundary(fill_color='0.8')
-m2.fillcontinents(color='w', lake_color='0.8', zorder=0)
+m2.fillcontinents(color='w', lake_color='0.8') #, zorder=0)
 m2.drawcoastlines()
 m2.drawcountries()
-m2.drawstates(color='0.4', linewidth=0.75)
+m2.drawstates()
 
 # add torrens island
 plat = -34.806

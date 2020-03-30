@@ -1,4 +1,4 @@
-from matplotlib.mlab import griddata
+from scipy.interpolate import griddata
 from matplotlib import colors, colorbar
 import matplotlib.pyplot as plt
 import matplotlib as mpl
@@ -7,10 +7,13 @@ from matplotlib.colors import LightSource
 from numpy import arange, mean, percentile, array, unique, where
 from netCDF4 import Dataset as NetCDFFile
 from gmt_tools import cpt2colormap
+from misc_tools import remove_last_cmap_colour
 from os import path, walk, system
-from obspy.imaging.beachball import Beach
+from obspy.imaging.beachball import beach, beachball
 
 plt.rcParams['pdf.fonttype'] = 42
+import matplotlib as mpl
+mpl.style.use('classic')
 
 
 ##########################################################################################
@@ -32,7 +35,7 @@ ax = fig.add_subplot(111)
 m = Basemap(projection='lcc',lat_1=lat_1,lat_2=lat_2,lon_0=lon_0,\
             llcrnrlon=llcrnrlon,llcrnrlat=llcrnrlat, \
             urcrnrlon=urcrnrlon,urcrnrlat=urcrnrlat,\
-            rsphere=6371200.,resolution='i',area_thresh=300)
+            rsphere=6371200.,resolution='i',area_thresh=150)
 
 # draw coastlines, state and country boundaries, edge of map.
 m.drawcoastlines()
@@ -46,11 +49,11 @@ m.drawmapscale(144, -34.8, 146., -38.5, 400, fontsize = 16, barstyle='fancy', zo
 # plot gebco
 ##########################################################################################
 
-print 'Reading netCDF file...'
-nc = NetCDFFile('//Users//tallen//Documents//DATA//GMT//GEBCO//se_aus_gebco2014.nc')
+print('Reading netCDF file...')
+nc = NetCDFFile('//Users//trev//Documents//DATA//GMT//GEBCO//se_aus_gebco2014.nc')
 
 zscale =20. #gray
-zscale =50. #colour
+zscale =30. #colour
 data = nc.variables['z'][:] / zscale
 lons = nc.variables['lon'][:]
 lats = nc.variables['lat'][:]
@@ -61,45 +64,48 @@ ny = int((m.ymax-m.ymin)/500.)+1
 
 topodat = m.transform_scalar(data,lons,lats,nx,ny)
 
-print 'Getting colormap...'
+print('Getting colormap...')
 # get colormap
-cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//mby_topo-bath_mod.cpt'
-#cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//gray.cpt'
-cmap, zvals = cpt2colormap(cptfile, 256)
-#cmap = cm.get_cmap('terrain', 256)
+cptfile = '//Users//trev//Documents//DATA//GMT//cpt//wiki-2.0.cpt'
+cmap, zvals = cpt2colormap(cptfile, 30)
+cmap = remove_last_cmap_colour(cmap)
 
 # make shading
-print 'Making map...'
-ls = LightSource(azdeg = 180, altdeg = 45)
-norm = mpl.colors.Normalize(vmin=-8000/zscale, vmax=5000/zscale)#myb
+print('Making map...')
+ls = LightSource(azdeg = 180, altdeg = 5)
+#norm = mpl.colors.Normalize(vmin=-8000/zscale, vmax=5000/zscale)
+norm = mpl.colors.Normalize(vmin=-1000/zscale, vmax=1900/zscale)#wiki
 rgb = ls.shade(topodat, cmap=cmap, norm=norm)
-im = m.imshow(rgb)
+im = m.imshow(rgb, alpha=1.)
 
 ##########################################################################################
 # add cities
 ##########################################################################################
+import matplotlib.patheffects as PathEffects
+path_effects=[PathEffects.withStroke(linewidth=3, foreground="w")]
 
 clat = [-37.814, -42.882, -35.282]
 clon = [144.964, 147.324, 149.129]
 cloc = ['Melbourne', 'Hobart', 'Canberra']
 x, y = m(clon, clat)
-plt.plot(x, y, 'o', markerfacecolor='maroon', markeredgecolor='w', markeredgewidth=2, markersize=14)
+plt.plot(x, y, 'o', markerfacecolor='maroon', markeredgecolor='w', markeredgewidth=2, \
+         markersize=14)
 
 # label cities
 off = 0.25
 for i, loc in enumerate(cloc):
     if i == 1:
         x, y = m(clon[i]+0.12, clat[i]+0.1)
-        plt.text(x, y, loc, size=18, horizontalalignment='left', weight='normal')
+        plt.text(x, y, loc, size=18, horizontalalignment='left', weight='normal', path_effects=path_effects)
     else:
         x, y = m(clon[i]-0.12, clat[i]+0.1)
-        plt.text(x, y, loc, size=18, horizontalalignment='right', weight='normal')
+        plt.text(x, y, loc, size=18, horizontalalignment='right', weight='normal', path_effects=path_effects)
 
 ##########################################################################################
 # add stations for 4.4
 ##########################################################################################
 
-folder = 'Moe_4.4/psa'
+folder = '/Users/trev/Documents/Earthquake_Data/20120619.Moe/Moe_4.4/psa'
 stns = []
 for root, dirnames, filenames in walk(folder):
     for filename in filenames:
@@ -112,7 +118,7 @@ stlat = []
 stlon = []
 stnet = []
 
-lines = open('/Users/tallen/Documents/Code/process_waves/stationlist.dat').readlines()
+lines = open('/Users/trev/Documents/Code/my_codes/stationlist.dat').readlines()
 for stn in stns:
     for line in lines:
         if line.startswith(stn):
@@ -124,15 +130,15 @@ for stn in stns:
     stlat.append(lat)
     stlon.append(lon)
     stnet.append(net)
-    print stn, net, lat
+    print(stn, net, lat)
 stlat = array(stlat)
 stlon = array(stlon)
 #unet = unique(array(stnet))
-#print stns, stnet
+#print(stns, stnet
 
 
 # loop thru networks and plot
-unet = ['AU', 'MEL', 'S', 'UOM']
+unet = ['AU', 'MEL', 'S1', 'UM']
 sym = ['^', 'H', 'd', 's'] 
 ms = [12, 13, 12, 12]
 hnd = []
@@ -146,7 +152,7 @@ for i, u in enumerate(unet):
 # add stations for 5.4
 ##########################################################################################
 
-folder = 'Moe_5.4/psa'
+folder = '/Users/trev/Documents/Earthquake_Data/20120619.Moe/Moe_5.4/psa'
 stns = []
 for root, dirnames, filenames in walk(folder):
     for filename in filenames:
@@ -159,7 +165,7 @@ stlat = []
 stlon = []
 stnet = []
 
-lines = open('/Users/tallen/Documents/Code/process_waves/stationlist.dat').readlines()
+lines = open('/Users/trev/Documents/Code/my_codes/stationlist.dat').readlines()
 for stn in stns:
     for line in lines:
         if line.startswith(stn+'\t'):
@@ -203,10 +209,11 @@ plt.plot(x, y, '*', markerfacecolor='r', markeredgecolor='w', markeredgewidth=.5
 x, y = m(blons, blats)
 
 # Two focal mechanisms for beachball routine, specified as [strike, dip, rake]
+#beachball(mt, size=200, linewidth=2, facecolor='dodgerblue',outfile=outfile)
 focmecs = [[122, 22, 167]]
 for i in range(len(focmecs)):
-    b = Beach(focmecs[i], xy=(x[i], y[i]), width=100000, linewidth=1, facecolor='k')
-    b.set_zorder(10)
+    b = beach(focmecs[i], xy=(x[i], y[i]), width=100000, linewidth=1, facecolor='k')
+    b.set_zorder(1000)
     ax.add_collection(b)
 
 ##########################################################################################
@@ -237,9 +244,8 @@ m2 = Basemap(projection='merc',\
             urcrnrlon=156,urcrnrlat=-9,\
             rsphere=6371200.,resolution='l',area_thresh=10000)
             
-#m2 = Basemap(llcrnrlon=-20,llcrnrlat=3,urcrnrlon=0,urcrnrlat=18, ax=axins)
 m2.drawmapboundary(fill_color='0.8')
-m2.fillcontinents(color='w', lake_color='0.8', zorder=0)
+m2.fillcontinents(color='w', lake_color='0.8') #, zorder=0)
 m2.drawcoastlines()
 m2.drawcountries()
 m2.drawstates()

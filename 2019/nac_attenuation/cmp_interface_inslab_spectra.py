@@ -187,7 +187,8 @@ def makesubplt(colidx, fig, plt, sta, sps, mag, dep, ztor, dip, rake, rhyp, vs30
     
     # get recorded process_waves.py psa data
     T, geomean, pga, rhyp = get_site_geomean(sta, folder)
-    label = ';'.join((datestr + ' ' + netsta, 'Mw '+str(mag), 'Rhyp '+str(rhyp)+' km'))
+    #label = '; '.join((datestr + ' ' + netsta, r'$\mathregular{M_{W}}$ '+str(mag), r'$\mathregular{R_{hyp}}$ '+str(rhyp)+' km'))
+    label = '; '.join((datestr + ' ' + netsta, '$M_W$ '+str(mag), '$R_{hyp}$ '+str(rhyp)+' km'))
     plt.loglog(T, geomean, lw=2.0, color=col, label=label)
 
     if i == 1:
@@ -229,7 +230,7 @@ dip  = 30.
 #vs30 = 760
 
 ii = 1
-fig = plt.figure(ii, figsize=(6, 6))
+fig = plt.figure(ii, figsize=(7, 7))
 #cmap = plt.cm.get_cmap('Spectral', 7)
 ncols = 7
 cptfile = '/Users/trev/Documents/DATA/GMT/cpt/gay-flag-1978.cpt'
@@ -304,7 +305,6 @@ f = open('staloc.txt', 'w')
 f.write(lolatxt)
 f.close()
     
-    
 # now sort by distance
 udists = array(udists)
 idx=argsort(array(datelist))
@@ -312,7 +312,7 @@ udists = udists[idx]
 usites = usites[idx]
 
 ufiles = ufiles[idx]
-ufiles = hstack((ufiles[0], ufiles[2:], ufiles[1]))
+ufiles = hstack((ufiles[0], ufiles[-1], ufiles[2:-1], ufiles[1]))
 
 # loop thru sites ordered by distance
 i = 0

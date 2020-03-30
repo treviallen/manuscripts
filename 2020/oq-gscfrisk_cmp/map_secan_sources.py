@@ -231,7 +231,7 @@ for i, loc in enumerate(cloc):
 # add stations for 4.4
 ##########################################################################################
 
-folder = 'Moe_4.4/psa'
+folder = '/Users/trev/Documents/Earthquake_Data/20120619.Moe/Moe_4.4/psa'
 stns = []
 for root, dirnames, filenames in walk(folder):
     for filename in filenames:
