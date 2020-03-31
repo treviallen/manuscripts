@@ -105,7 +105,7 @@ im = m.imshow(rgb, alpha=1.)
 # add simple faults
 ##########################################################################################
 if getcwd().startswith('/nas'):
-    nfsmshp = '//nas//gemd//ehp//georisk_earthquake//neotectonic//Seismicity_Scenario_models//Hazard Map working 2018//ARCGIS//FSM lines//FSD_simple_faults.shp'
+    nfsmshp = '/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/source_models/faults/FSM/FSD_simple_faults.shp'
 else:
     nfsmshp = '/Users/trev/Documents/Geoscience_Australia/NSHA2018/source_models/faults/FSM/FSD_simple_faults.shp'
     
