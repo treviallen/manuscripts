@@ -5,10 +5,11 @@ import matplotlib as mpl
 from mpl_toolkits.basemap import Basemap
 from matplotlib.colors import LightSource
 from misc_tools import remove_last_cmap_colour
-from numpy import arange, mean, percentile, array, unique, where
+from numpy import arange, mean, percentile, array, unique, where, argsort
 from netCDF4 import Dataset as NetCDFFile
 from gmt_tools import cpt2colormap
 from os import path, walk, system, getcwd
+import shapefile
 #from obspy.imaging.beachball import Beach
 
 plt.rcParams['pdf.fonttype'] = 42
@@ -101,8 +102,60 @@ rgb = ls.shade(topodat, cmap=cmap, norm=norm)
 im = m.imshow(rgb, alpha=1.)
 
 ##########################################################################################
+# add simple faults
+##########################################################################################
+if getcwd().startswith('/nas'):
+    nfsmshp = '//nas//gemd//ehp//georisk_earthquake//neotectonic//Seismicity_Scenario_models//Hazard Map working 2018//ARCGIS//FSM lines//FSD_simple_faults.shp'
+else:
+    nfsmshp = '/Users/trev/Documents/Geoscience_Australia/NSHA2018/source_models/faults/FSM/FSD_simple_faults.shp'
+    
+sf = shapefile.Reader(nfsmshp)
+shapes = sf.shapes()
+records = sf.records()
+'''
+lt_rates = get_field_data(sf, 'SL_RT_LT', 'float') # long term slip rate
+lt_rates = array(lt_rates)
+st_rates = get_field_data(sf, 'SL_RT_ST', 'float') # short term slip rate
+st_rates = array(st_rates)
+
+minslip = 0.
+maxslip = 160.
+slip_diff = maxslip - minslip
+
+sortidx = argsort(argsort(lt_rates))
+'''
+i = 0
+for shape in shapes:
+    lons = []
+    lats = []
+    for xy in shape.points:
+        lons.append(xy[0])
+        lats.append(xy[1])
+    
+    x, y = m(lons, lats)
+    
+    '''
+    if ltr > maxslip:
+        ltr = maxslip
+    
+    # set colour by 
+    colidx = int(round((cmap.N-1) * (ltr-minslip) / slip_diff))
+    '''
+    if i == 0:
+        #plt.plot(x, y, 'r-', lw=2.5, zorder=sortidx[i], label='Neotectonic Features')
+        plt.plot(x, y, 'r-', lw=2.5)
+    else:
+        plt.plot(x, y, 'r-', lw=2.5)
+    
+    i += 1
+
+
+##########################################################################################
 # add cities
 ##########################################################################################
+import matplotlib.patheffects as PathEffects
+pe = [PathEffects.withStroke(linewidth=2.5, foreground="w")]
+
 
 clat = [-38.197, -38.125, -38.235, -38.161] #-37.814, 
 clon = [146.541, 146.263, 146.395, 145.932] #144.964, 
@@ -113,7 +166,7 @@ plt.plot(x, y, 'o', markerfacecolor='maroon', markeredgecolor='w', markeredgewid
 # label cities
 for i, loc in enumerate(cloc):
     x, y = m(clon[i]+0.012, clat[i]+0.008)
-    plt.text(x, y, loc, size=18, horizontalalignment='left', weight='normal')
+    plt.text(x, y, loc, size=18, horizontalalignment='left', weight='normal', path_effects=pe)
 
 ##########################################################################################
 # add powerstations
@@ -131,7 +184,7 @@ for i, loc in enumerate(ploc):
         x, y = m(plon[i]+0.012, plat[i]+0.01)
     else:
         x, y = m(plon[i]+0.012, plat[i]-0.02)
-    plt.text(x, y, loc, size=16, horizontalalignment='left', weight='normal', style='italic')
+    plt.text(x, y, loc, size=16, horizontalalignment='left', weight='normal', style='italic', path_effects=pe)
 
 ##########################################################################################
 # add stations for 4.4
@@ -169,9 +222,8 @@ stlon = array(stlon)
 #unet = unique(array(stnet))
 #print(stns, stnet
 
-
 # loop thru networks and plot
-unet = ['AU', 'MEL', 'S', 'UOM']
+unet = ['AU', 'MEL', 'S', 'UM']
 sym = ['^', 'H', 'd', 's'] 
 ms = [14, 15, 14, 13]
 for i, u in enumerate(unet):
@@ -185,16 +237,16 @@ for i, stn in enumerate(stns):
        and stlon[i] <= urcrnrlon and stlon[i] >= llcrnrlon:
         if stn == 'NARR':
             x, y = m(stlon[i]-0.015, stlat[i]-0.017)
-            plt.text(x, y, stn, size=14, ha='right', weight='normal', style='normal')
+            plt.text(x, y, stn, size=14, ha='right', weight='normal', style='normal', path_effects=pe)
         elif stn == 'MOE3':
             x, y = m(stlon[i]-0.01, stlat[i]+0.01)
-            plt.text(x, y, stn, size=14, ha='right', weight='normal', style='normal')
+            plt.text(x, y, stn, size=14, ha='right', weight='normal', style='normal', path_effects=pe)
         elif stn == 'MOE4':
             x, y = m(stlon[i]-0.01, stlat[i]+0.01)
-            plt.text(x, y, stn, size=14, ha='right', weight='normal', style='normal')
+            plt.text(x, y, stn, size=14, ha='right', weight='normal', style='normal', path_effects=pe)
         else:
             x, y = m(stlon[i]+0.015, stlat[i]-0.017)
-            plt.text(x, y, stn, size=14, ha='left', weight='normal', style='normal')
+            plt.text(x, y, stn, size=14, ha='left', weight='normal', style='normal', path_effects=pe)
         
 print(stns)
 
@@ -237,7 +289,7 @@ hnd = []
 for i, u in enumerate(unet):
     idx = where(array(stnet) == u)[0]
     x, y = m(stlon[idx], stlat[idx])
-    h = plt.plot(x, y, sym[i], markerfacecolor = '0.1', markeredgecolor='w', markeredgewidth=1.5, markersize=ms[i])
+    h = plt.plot(x, y, sym[i], markerfacecolor = '0.1', mec='w', mew=1.5, markersize=ms[i], label=unet[i])
     hnd.append(h[0])
 
 # label stations
@@ -246,19 +298,19 @@ for i, stn in enumerate(stns):
        and stlon[i] <= urcrnrlon and stlon[i] >= llcrnrlon:
         if stn == 'NARR':
             x, y = m(stlon[i]-0.015, stlat[i]-0.017)
-            plt.text(x, y, stn, size=14, ha='right', weight='normal', style='normal')
+            plt.text(x, y, stn, size=14, ha='right', weight='normal', style='normal', path_effects=pe)
         else:
             x, y = m(stlon[i]+0.015, stlat[i]-0.017)
-            plt.text(x, y, stn, size=14, ha='left', weight='normal', style='normal')
+            plt.text(x, y, stn, size=14, ha='left', weight='normal', style='normal', path_effects=pe)
 
 # add power stations?
-plt.legend(hnd, list(unet), fontsize=16, loc=1, numpoints=1)
+plt.legend(fontsize=16, loc=1, numpoints=1)
 
 ##########################################################################################
 # annotate earthquake
 ##########################################################################################
 
-# plt M5.4
+# plt M4.4 - using SRC locs
 eqlat = -38.229
 eqlon = 146.218
 blats = [-39.75]
@@ -268,8 +320,8 @@ x, y = m(eqlon, eqlat)
 plt.plot(x, y, '*', markerfacecolor='darkred', markeredgecolor='w', markeredgewidth=1.5, markersize=10*4.2)
 
 # plt M5.4
-eqlat = -38.252
-eqlon = 146.234
+eqlat = -38.279
+eqlon = 146.269
 blats = [-39.75]
 blons = [146.5]
 
