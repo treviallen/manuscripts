@@ -56,10 +56,10 @@ m.drawmapscale(146.5, -38.5, 146.5, -38.5, 40, fontsize = 17, barstyle='fancy', 
 ##########################################################################################
 # plot gebco
 ##########################################################################################
-
+'''
 print('Reading netCDF file...')
 if getcwd().startswith('/nas'):
-    netcdffile = 'srtm_66_20.grd'
+    netcdffile = 'topo/srtm_66_20.grd'
 else:
     netcdffile = '//Users//trev//Documents//DATA//SRTM03//srtm_66_20//srtm_66_20.grd'
 nc = NetCDFFile(netcdffile)
@@ -77,7 +77,7 @@ zscale =30. #colour
 data = nc.variables['z'][:] / zscale
 lons = nc.variables['lon'][:]
 lats = nc.variables['lat'][:]
-'''
+
 # transform to metres      
 nx = int((m.xmax-m.xmin)/30.)+1
 ny = int((m.ymax-m.ymin)/30.)+1
@@ -90,7 +90,8 @@ if getcwd().startswith('/nas'):
     cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/wiki-2.0.cpt'
 else:
     cptfile = '//Users//trev//Documents//DATA//GMT//cpt//wiki-2.0.cpt'
-cmap, zvals = cpt2colormap(cptfile, 30)
+cmap, zvals = cpt2colormap(cptfile, 117)
+print(len(zvals))
 cmap = remove_last_cmap_colour(cmap)
         
 # make shading
