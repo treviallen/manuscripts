@@ -246,8 +246,8 @@ for i, stn in enumerate(stns):
             x, y = m(stlon[i]-0.01, stlat[i]+0.01)
             plt.text(x, y, stn, size=14, ha='right', weight='normal', style='normal', path_effects=pe)
         elif stn == 'LILL':
-            x, y = m(stlon[i]-0.01, stlat[i]-0.017)
-            plt.text(x, y, stn, size=14, ha='left', weight='normal', style='normal', path_effects=pe)
+            x, y = m(stlon[i]-0.015, stlat[i]-0.017)
+            plt.text(x, y, stn, size=14, ha='right', weight='normal', style='normal', path_effects=pe)
         else:
             x, y = m(stlon[i]+0.015, stlat[i]-0.017)
             plt.text(x, y, stn, size=14, ha='left', weight='normal', style='normal', path_effects=pe)
