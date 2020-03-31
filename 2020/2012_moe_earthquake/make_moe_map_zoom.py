@@ -56,7 +56,7 @@ m.drawmapscale(146.5, -38.5, 146.5, -38.5, 40, fontsize = 17, barstyle='fancy', 
 ##########################################################################################
 # plot gebco
 ##########################################################################################
-'''
+
 print('Reading netCDF file...')
 if getcwd().startswith('/nas'):
     netcdffile = 'topo/srtm_66_20.grd'
@@ -64,7 +64,7 @@ else:
     netcdffile = '//Users//trev//Documents//DATA//SRTM03//srtm_66_20//srtm_66_20.grd'
 nc = NetCDFFile(netcdffile)
 
-zscale =30. #colour
+zscale =20. #colour
 data = nc.variables['z'][:] / zscale
 lons = nc.variables['x'][:]
 lats = nc.variables['y'][:]
@@ -77,7 +77,7 @@ zscale =30. #colour
 data = nc.variables['z'][:] / zscale
 lons = nc.variables['lon'][:]
 lats = nc.variables['lat'][:]
-
+'''
 # transform to metres      
 nx = int((m.xmax-m.xmin)/30.)+1
 ny = int((m.ymax-m.ymin)/30.)+1
