@@ -226,7 +226,7 @@ stlon = array(stlon)
 #print(stns, stnet
 
 # loop thru networks and plot
-unet = ['AU', 'MEL', 'S', 'UM']
+unet = ['AU', 'MEL', 'UM']
 sym = ['^', 'H', 'd', 's'] 
 ms = [14, 15, 14, 13]
 for i, u in enumerate(unet):
