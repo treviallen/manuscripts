@@ -37,7 +37,7 @@ for line in lines:
 # get MFD
 ##########################################################################################
 fig = plt.figure(1, figsize=(16, 7.5))
-ax = plt.subplot(1, 2, 1)
+ax = plt.subplot(1, 2, 2)
 
 mrng = arange(-0.1, 4.5, 0.1)
 mbin2 = diff(mrng)[0] / 2.
@@ -92,11 +92,11 @@ plt.text(xtxt, ytxt, abtxt, size=18, ha='right', va='top', weight='normal', bbox
 xdiff = diff(ax.get_xlim())
 xtxt = ax.get_xlim()[0] + xdiff * 0.02
 ytxt = get_log_xy_locs(ax.get_ylim(), 0.98)
-plt.text(xtxt, ytxt, 'A', size=20, ha='left', verticalalignment='top', weight='normal')
+plt.text(xtxt, ytxt, '(b)', size=20, ha='left', verticalalignment='top', weight='normal')
 
 plt.grid(b=True, which='both',axis='both')
 
-ax = plt.subplot(1, 2, 2)
+ax = plt.subplot(1, 2, 1)
 n_bins = len(evdt)
 nbins = 1000
 plt.hist(evdt, n_bins, histtype='step', ec='k', cumulative=True, lw=1.5)
@@ -126,7 +126,7 @@ ax.annotate('2012-07-20 ML 4.4', xy=([evdt[m4idx], m4idx+1]), xytext=(datetime(2
                                     
 xtxt = get_log_xy_locs(ax.get_xlim(), 0.02)            
 ytxt = ax.get_ylim()[1] * 0.98
-plt.text(xtxt, ytxt, 'B', size=20, ha='left', verticalalignment='top', weight='normal')
+plt.text(xtxt, ytxt, '(a)', size=20, ha='left', verticalalignment='top', weight='normal')
 
 
 plt.savefig('moe_cum_rate.png', format='png', bbox_inches='tight', dpi=300)

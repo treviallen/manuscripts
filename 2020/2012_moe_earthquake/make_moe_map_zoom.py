@@ -64,7 +64,7 @@ else:
     netcdffile = '//Users//trev//Documents//DATA//SRTM03//srtm_66_20//srtm_66_20.grd'
 nc = NetCDFFile(netcdffile)
 
-zscale =20. #colour
+zscale =5. #colour
 data = nc.variables['z'][:] / zscale
 lons = nc.variables['x'][:]
 lats = nc.variables['y'][:]
@@ -209,8 +209,10 @@ if getcwd().startswith('/nas'):
 else:
     lines = open('/Users/trev/Documents/Code/my_codes/stationlist.dat').readlines()
 for stn in stns:
+    #print(stn)
     for line in lines:
         if line.startswith(stn+'\t'):
+            #print(stn)
             dat = line.strip().split('\t')
             lat = float(dat[5])
             lon = float(dat[4])
@@ -277,7 +279,7 @@ else:
     lines = open('/Users/trev/Documents/Code/my_codes/stationlist.dat').readlines()
 for stn in stns:
     for line in lines:
-        if line.startswith(stn):
+        if line.startswith(stn+'\t'):
             dat = line.strip().split('\t')
             lat = float(dat[5])
             lon = float(dat[4])
