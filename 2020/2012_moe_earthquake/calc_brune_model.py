@@ -1,24 +1,26 @@
 from numpy import array, arange, sqrt, exp, log, log10, logspace, where, interp, unique, vstack, \
-                  argwhere, ones_like, pi, concatenate, mean, nanmean, std, nanstd, isfinite
+                  argwhere, ones_like, zeros_like, pi, concatenate, mean, nanmean, std, nanstd, isfinite
 from os import path, walk, system
 from sys import argv
 import matplotlib.pyplot as plt
 from gmt_tools import cpt2colormap
 from mag_tools import m02mw
-from misc_tools import get_log_xy_locs, listdir_extension
+from misc_tools import get_log_xy_locs, listdir_extension, savitzky_golay, get_mpl2_colourlist
 from os import path
 from scipy import interpolate
 from scipy.odr import Data, Model, ODR, models
 import scipy.odr.odrpack as odrpack
 import matplotlib.pyplot as plt
 import pickle
+import matplotlib as mpl
+mpl.style.use('classic')
 
 folder = argv[1] # fds folder
 fdsfiles = listdir_extension(folder, 'fds')
 
 interpfreqs = logspace(-1, log10(50), 100)
 maxr = 430.
-minr = 10.
+minr = 0.
 
 # get stn from file list
 fdsdict = []
@@ -55,13 +57,19 @@ for files in fdsfiles:
         # use spline interpolation smooth and interp to interpfreqs
         n = len(fdict['freqs'])
         #index = argwhere(interpfreqs < abs(fdict['freqs'][n])).flatten()
-        w = ones_like(fdict['freqs'])
-        tck = interpolate.splrep(abs(fdict['freqs']),log(abs(fdict['fds'])),w=w, s=n/5.,k=3)
+        #w = ones_like(fdict['freqs'])
+        #tck = interpolate.splrep(abs(fdict['freqs']),log(abs(fdict['fds'])),w=w, s=n/5.,k=3)
         #tck = interpolate.splrep(abs(fdict['freqs']),log(abs(fdict['fds'])),k=2, s=3)
-        smoothfft = exp(interpolate.splev(interpfreqs,tck,der=0))
+        #smoothfft = exp(interpolate.splev(interpfreqs,tck,der=0))
+        
+        if fdict['stn'] == 'MILA':
+           sw = 5
+        else:
+            sw = 51
+        smoothfft = exp(savitzky_golay(log(abs(fdict['fds'])), sw, 3))
         	       	
         fdict['smfreqs'] = interpfreqs
-        fdict['smfds'] = smoothfft
+        fdict['smfds'] = exp(interp(log(interpfreqs), log(fdict['freqs']), log(smoothfft)))
         
         fdsdict.append(fdict)
         
@@ -84,7 +92,7 @@ pklfile.close()
 # now atten correct
 ####################################################################################
 
-def correct_GR_model(freqs, logfds, r, kappa, region):
+def correct_2012_GR_model(freqs, logfds, r, kappa, region):
     # r = rhyp  
     if region == 'sea':
         # get G(R)
@@ -109,17 +117,54 @@ def correct_GR_model(freqs, logfds, r, kappa, region):
         Qfact = array(c1 + c2*log10(freqs))
         findex = where(freqs <= 2.0)[0]
         Qfact[findex] = 0.
-        #print(exp(Qfact*(r**3 + r1**3)**(1./3.))
         
-        #print(exp(-1 * pi * freqs * kappa)
-        
-        corfds = (10**GRfact * 10**logfds \
-                 / exp(Qfact*(r**3 + r1**3)**(1./3.))) \
-                 / exp(-1 * pi * freqs * kappa) # in  m-s 
+        corfds = 10**(GRfact + logfds - log10(exp(Qfact*(r**3 + r1**3)**(1./3.))) - log10(exp(-1 * pi * freqs * kappa))) # in  m-s 
                  
         #corfds = (10**GRfact * 10**logfds) # in  m-s 
             
     return corfds
+    
+def correct_2007_GR_model(freqs, logfds, r, kappa, region):
+    # r = rhyp  
+    if region == 'sea':
+        # get G(R)
+        r1 = 90.
+        r2 = 160.
+        b1 = -1.3
+        b2 = 0.1
+        b3 = -1.6
+        vs = 3.6
+        
+        if r <= r1:
+            GRfact = b1*log10(r)
+        elif r > r1 and r <= r2:
+            GRfact = b1*log10(r1) + b2*log10(r/r1)
+        elif r > r2:
+            GRfact = b1*log10(r1) + b2*log10(r2/r1) + b3*log10(r/r2)
+        
+        GRfact = abs(GRfact)
+        
+        # get Q(f)
+        c1 = 5.85E-3
+        c2 = -0.015
+        freqs = array(freqs)
+        Qfact = zeros_like(freqs)
+        
+        fidx = where(freqs <= 3.92)[0]
+        Qfact[fidx] = 10**(3.66 - 1.05 * log10(freqs[fidx]))
+        fidx = where((freqs > 3.92) & (freqs <= 9.83))[0]
+        Qfact[fidx] = 10**(3.01 + 0.03 * log10(freqs[fidx]))
+        fidx = where(freqs > 9.83)[0]
+        Qfact[fidx] = 10**(2.56 + 0.48 * log10(freqs[fidx]))
+        
+        Qterm = exp(-1 * pi * freqs * r / (vs * Qfact))
+        
+        corfds = 10**(GRfact + logfds - log10(Qterm) - log10(exp(-1 * pi * freqs * kappa))) # in m-s 
+                 
+        #corfds = (10**GRfact * 10**logfds) # in  m-s 
+            
+    return corfds
+
 
 ####################################################################################
 # set def params
@@ -164,14 +209,21 @@ for line in lines:
     dat = line.strip().split('\t')
     kapstn.append(dat[0].strip())
     kapval.append(float(dat[1].strip()))
-
         
 ####################################################################################
 # start main
 ####################################################################################
-fig = plt.figure(1, figsize=(10,10))
+fig = plt.figure(1, figsize=(7,7))
 ax = plt.subplot(111)
 stack_logfds = []
+
+# loop through & plot station  data
+cmap = plt.get_cmap('hsv_r', len(fdsdict)+1)
+#cs = (cmap(arange(len(fdsdict)+1)))
+cs = get_mpl2_colourlist()
+
+handles1 = []
+labels1 = []
 for i, fds in enumerate(fdsdict):
     # correct G(R)
     if fds['rhyp'] < maxdist:
@@ -182,27 +234,31 @@ for i, fds in enumerate(fdsdict):
             if stn == fds['stn']:
                 kappa = kapval[k]
         
-        print(fds['stn'], fds['rhyp'], kappa)
+        print(fds['stn'], fds['rhyp'], kappa, len(fds['fds']))
         
         #if fds['stn'] == 'FSHM':
-        corfds = correct_GR_model(fds['smfreqs'], log10(fds['smfds']), fds['rhyp'], kappa, 'sea')
+        corfds = correct_2007_GR_model(fds['smfreqs'], log10(fds['smfds']), fds['rhyp'], kappa, 'sea')
         fdsdict[i]['corfds']  = corfds
-        h1 = plt.loglog(fds['smfreqs'],fds['corfds'],'-', color='0.7', lw=0.75)
+        if i <= 9:
+            h1, = plt.loglog(fds['smfreqs'],fds['corfds'],'-', c=cs[i], lw=1, label=fds['stn'])
+        else:
+            h1, = plt.loglog(fds['smfreqs'],fds['corfds'],'--', c=cs[i-10], lw=1, label=fds['stn'])
+        handles1.append(h1)
+        labels1.append(fds['stn'])
         
         # label curves
         minf = 0.4
-        maxsf = 0.45
+        maxsf = 0.4
         sfidx = where((interpfreqs >= minf) & (interpfreqs <= maxsf))[0]
         meanamp = exp(nanmean(log(fds['corfds'][sfidx])))
-        plt.text(0.42, meanamp, fds['stn'], size=10, ha='left', verticalalignment='top', weight='normal')
-
-
-        
+                
         # get data for average mean
         if stack_logfds == []:
             stack_logfds = log(corfds)
         else:
             stack_logfds = vstack((stack_logfds, log(corfds)))
+
+leg1 = plt.legend(handles=handles1, loc=3, fontsize=13, ncol=2)
 
 # get mean of logfds
 mean_fds = exp(stack_logfds.mean(axis=0))
@@ -215,8 +271,8 @@ for f in range(0, len(stack_logfds[0])):
 mean_fds = array(mean_fds)
 
 #mean_fds = exp(stack_logfds)
-h2 = plt.loglog(fds['smfreqs'],mean_fds,'--', color='0.35', lw=2)
-plt.grid(which='both', color='0.75', ls='--')
+h2, = plt.loglog(fds['smfreqs'],mean_fds,'--', color='0.2', lw=2, label='Mean Source Spectrum')
+plt.grid(which='both', color='0.75')
 
 # now fit Brune model
 def fit_brune_model(c, f):
@@ -235,27 +291,32 @@ def fit_brune_model(c, f):
     #print(f
 
     # fit curve
-    FittedCurve = log(c[0] / (1 + (exp(f) / abs(c[1]))**2))
+    FittedCurve = log(c[0] / (1 + (exp(f) / (c[1]))**2))
     #FittedCurve = C * omega / (1 + (f / c[1])**2)
     
     return FittedCurve
 
 # call model fit and plot
-minf = .6
+if folder.startswith('fds/20120720'):
+    minf = .5
+else:
+    minf = .4
+
 maxsf = 0.45
-maxf = 20.
+maxf = 15.
 fidx = where((interpfreqs >= minf) & (interpfreqs <= maxf))[0]
-sfidx = where((interpfreqs >= minf) & (interpfreqs <= maxsf))[0] # for labelling curves
+#sfidx = where((interpfreqs >= minf) & (interpfreqs <= maxsf))[0] # for labelling curves
 
 data = odrpack.RealData(log(interpfreqs[fidx]), log(mean_fds[fidx]))
 fitted_brune = odrpack.Model(fit_brune_model)
 odr = odrpack.ODR(data, fitted_brune, beta0=[1.,1.])
-odr.set_job(fit_type=0) #if set fit_type=2, returns the same as leastsq
+odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
 out = odr.run()
 #out.pprint()
 
 omega0 = out.beta[0]
 f0 = out.beta[1]
+print('f0', f0)
 
 m0 = C * omega0
 print('\nMw', m02mw(m0))
@@ -269,14 +330,17 @@ print('\nf0', f0, 'Hz' )
 
 # plot fitted curve
 fitted_curve = omega0 / (1 + (interpfreqs / f0)**2)
-h3 = plt.loglog(interpfreqs, fitted_curve, 'k-', lw=2.)
-
+h3, = plt.loglog(interpfreqs, fitted_curve, 'k-', lw=2., label='Fitted Brune Model')
+plt.legend(handles=[h2, h3], loc=1, fontsize=16)
+plt.gca().add_artist(leg1)
 
 plt.xlim([0.3, 35])
-plt.ylim([1E-6, .1])
+if folder.startswith('fds/20120720'):
+    plt.ylim([1E-6, .03])
+else:
+    plt.ylim([1E-5, .3])
 plt.xlabel('Frequency (Hz)', fontsize=18)
 plt.ylabel('Fourier Displacement Spectra (m-s)', fontsize=18)
-plt.legend((h1[0], h2[0], h3[0]), ('Corrected Spectra', 'Mean Source Spectrum', 'Fitted Brune Model'), fontsize=16)
 plt.savefig(folder.split('/')[1]+'.Moe.brunefit.png', format='png', dpi=150, bbox_inches='tight')
 plt.show() 
 
@@ -284,17 +348,16 @@ plt.show()
 def fit_brune_model_fixed_m0(c, f):
     from numpy import array, log
 
-    # set constants
-
     # fit curve
-    FittedCurve = log(omega0 / (1 + (exp(f) / abs(c[0]))**2))
+    FittedCurve = log(omega0 / (1 + (exp(f) / (c[0]))**2))
     
     return FittedCurve
 
 
 # given mag, fit individual recs fro stress drop uncert
 f0i = []
-sdi = []
+sdi = [] 
+smw = []
 for lfds in stack_logfds:
     
     data = odrpack.RealData(log(interpfreqs[fidx]), lfds[fidx])
@@ -306,6 +369,21 @@ for lfds in stack_logfds:
     f0i.append(out.beta[0])
     r0 = 2.34 * vsm / (2 * pi * f0i[-1])
     sdi.append(7. * m0 / (16. * r0**3) / 10**6) # in MPa
+    
+    # get mag uncert
+    fitted_brune = odrpack.Model(fit_brune_model)
+    odr = odrpack.ODR(data, fitted_brune, beta0=[1.,1.])
+    odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
+    out = odr.run()
+    #out.pprint()
 
+    omega0 = out.beta[0]
+    f0 = out.beta[1]
+
+    m0 = C * omega0
+    #print('Mw', m02mw(m0))  
+    smw.append(m02mw(m0))
+
+print('\nMW uncert', nanstd(smw))
 print('SD uncert', exp(nanstd(log(sdi))), 'MPa')
 print('f0 uncert', nanstd(f0i), 'Hz')

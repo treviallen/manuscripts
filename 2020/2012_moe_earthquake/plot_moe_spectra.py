@@ -137,12 +137,17 @@ def get_site_geomean(stn, folder):
 # reads psa data files and returns period (T) and acceleration (SA) vectors
 def read_psa(psafile):
     from numpy import array
-
-    lines = open(psafile).readlines()[24:]  # ignore first 23 lines
+    
+    
+    lines = open(psafile).readlines() 
+    if lines[22].startswith('---'):
+        stidx = 23
+    else:
+        stidx = 24
 
     SA = []
     T = []
-    for line in lines:
+    for line in lines[stidx:]:
         dat = line.strip().split('\t')
         T.append(float(dat[0]))
         SA.append(float(dat[1]))
@@ -151,9 +156,14 @@ def read_psa(psafile):
     
 # get other details for plotting
 def read_psa_details(psafile):
-    lines = open(psafile).readlines()[0:24]
+    lines = open(psafile).readlines()
+    
+    if lines[22].startswith('---'):
+        enidx = 23
+    else:
+        enidx = 24
 
-    for line in lines:
+    for line in lines[:enidx]:
         dat = line.strip().split('\t')
         if line.find('STA') >= 0:
             sta = dat[1]
@@ -191,11 +201,20 @@ def makesubplt(i, fig, plt, sta, sps, mag, dep, ztor, dip, rake, rhyp, vs30):
     
     Tea19 = tang2019_cam_gsim(mag, dep, rrup, vs30)
     
-    nga_e_imt = nga_east_mean(mag, dep, dip, rake, rrup, vs30)
-    
     # adjust some GMMs using Seyhan & Stewart 2014
     A12imt = adjust_gmm_with_SS14(A12imt, 820., vs30)
     Sea09imt = adjust_gmm_with_SS14(Sea09imt, 865., vs30)
+    
+    # get mean USGS NGA-E
+    nga_e_imt = nga_east_mean(mag, dep, dip, rake, rrup, vs30)
+    #plt.loglog(nga_e_imt['per'], exp(nga_e_imt['sa']),'--' , lw=1.5, color=cs[5]) # for testing amp factors
+    nga_e_imt_hold = nga_e_imt
+    
+    # adjust NGA-E from 3000 -> target
+    nga_e_imt = adjust_gmm_with_nga_east(nga_e_imt, vs30)
+    
+    #print(nga_e_imt['per'])
+    #print(exp(nga_e_imt['sa']) / exp(nga_e_imt_hold['sa']))
     
     ax = plt.subplot(3, 3, i)
     if colTrue == 'True':
@@ -216,17 +235,19 @@ def makesubplt(i, fig, plt, sta, sps, mag, dep, ztor, dip, rake, rhyp, vs30):
         plt.xlabel('Period (s)', fontsize=9)
     if i == 1 or i == 4 or i == 7:
         plt.ylabel('Spectral Acceleration (g)', fontsize=9)
-        
+    
     plt.xlim([0.01, 10])
     #plt.title(' '.join((sta+'; MW =',str("%0.1f" % mag)+'; Rrup =',str(rrup),'km')), fontsize=9)
     if zcomp == True:
         sta += '*'
     plt.title(' '.join((sta+'; Rhyp =',str(rhyp),'km; VS30 =', str(int(round(vs30))))), fontsize=8)
     plt.grid(which='both', color='0.75')
-
+    
     if i == 1:
         #plt.legend(['Yea97', 'AB06','A12imt','Aea16', 'A19 (BS)', 'A19 (NGH)', 'A19 (OB)','Data'],loc=3, fontsize=7.)
         plt.legend(['AB06','Sea09', 'A12','Bea14', 'NGA-E', 'Tea19', 'Data'],loc=3, fontsize=9.)
+        
+    return ax
 
 '''
 start main
@@ -240,7 +261,8 @@ import matplotlib as mpl
 mpl.style.use('classic')
 
 from calc_oq_gmpes import inslab_gsims, scr_gsims, tang2019_cam_gsim, \
-                          nga_east_mean, get_station_vs30, adjust_gmm_with_SS14
+                          nga_east_mean, get_station_vs30, adjust_gmm_with_SS14, \
+                          adjust_gmm_with_nga_east
 from data_fmt_tools import return_sta_data
 from mapping_tools import distance
 from gmt_tools import cpt2colormap, remove_last_cmap_colour
@@ -253,13 +275,13 @@ colTrue = 'True'
 
 # set event details
 if prefix.startswith('201206'):
-    mag  = 5.0
+    mag  = 5.16
     eqdep = 18.0
     eqlat = -38.259
     eqlon = 146.290
 
 elif prefix.startswith('201207'):
-    mag  = 4.5
+    mag  = 4.40
     eqdep = 12.41
     eqlat = -38.231
     eqlon = 146.215
@@ -268,8 +290,7 @@ ztor = 8. # guess
 rake = 90. # USGS CMT
 dip  = 30.
 
-# set site details
-#vs30 = 760
+letters = ['(a)', '(b)', '(c)', '(d)', '(e)', '(f)', '(g)', '(h)', '(i)']
 
 ii = 1
 fig = plt.figure(ii, figsize=(10, 10))
@@ -399,8 +420,8 @@ for stn in usites:
         
         if isnan(vs30):
             vs30 = 760.
-            
-        makesubplt(i, fig, plt, stn, sps, mag, eqdep, ztor, dip, rake, rhyp, vs30)
+        
+        ax = makesubplt(i, fig, plt, stn, sps, mag, eqdep, ztor, dip, rake, rhyp, vs30)
         if ii == 1:
             if prefix.startswith('201206'):
                 if rhyp <= 100:
@@ -409,15 +430,19 @@ for stn in usites:
                     plt.ylim([1e-5, 0.02])
                     
             elif prefix.startswith('201207'):
-                if rhyp <= 15:
-                    plt.ylim([1e-4, .2])
+                if rhyp <= 20:
+                    plt.ylim([1e-4, .3])
                 elif rhyp <= 50:
-                    plt.ylim([1e-4, .1])
+                    plt.ylim([4e-5, .1])
                 else:
-                    plt.ylim([1e-5, 0.02])
+                    plt.ylim([1e-5, 0.03])
                 
-        elif  rhyp > 1000.:
+        elif rhyp > 1000.:
             plt.ylim([2e-5, 0.01])
+        
+        # add letter
+        ylims = ax.get_ylim()
+        plt.text(0.008, ylims[1]*1.1, letters[i-1], va='bottom', ha ='right', fontsize=13)
         
         if i == 9:
             i = 0
