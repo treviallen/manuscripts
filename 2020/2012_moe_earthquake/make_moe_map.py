@@ -8,8 +8,10 @@ from numpy import arange, mean, percentile, array, unique, where
 from netCDF4 import Dataset as NetCDFFile
 from gmt_tools import cpt2colormap
 from misc_tools import remove_last_cmap_colour
+from mapping_tools import drawmanualshapepoly, drawshapepoly
 from os import path, walk, system
 from obspy.imaging.beachball import beach, beachball
+import shapefile
 
 plt.rcParams['pdf.fonttype'] = 42
 import matplotlib as mpl
@@ -79,9 +81,25 @@ rgb = ls.shade(topodat, cmap=cmap, norm=norm)
 im = m.imshow(rgb, alpha=1.)
 
 ##########################################################################################
-# add cities
+# add basins
 ##########################################################################################
 import matplotlib.patheffects as PathEffects
+path_effects=[PathEffects.withStroke(linewidth=2.5, foreground="w")]
+
+shpfile = 'gis/gippslans_bass_basin_wgs84.shp'
+sf = shapefile.Reader(shpfile)
+drawshapepoly(m, plt, sf, col='r', fillcolor='r', edgecolor='r', lw=0.75, alpha=0.2, fillshape = True)
+
+# label polygons
+x, y = m(146, -40.1)
+plt.text(x, y, 'Bass\nBasin', size=12, c='r', ha='center', va='top', weight='normal', style='italic', path_effects=path_effects)
+
+x, y = m(148.5, -39.)
+plt.text(x, y, 'Gippsland\nBasin', size=12, c='r', ha='center', weight='normal', style='italic', path_effects=path_effects)
+
+##########################################################################################
+# add cities
+##########################################################################################
 path_effects=[PathEffects.withStroke(linewidth=3, foreground="w")]
 
 clat = [-37.814, -42.882, -35.282]
@@ -195,8 +213,8 @@ plt.legend(hnd, list(unet), fontsize=14, loc=4, numpoints=1)
 
 eqlat = -38.252
 eqlon = 146.234
-blats = [-39.75]
-blons = [146.5]
+blats = [-39.6]
+blons = [147.]
 
 # line connecting epi to beachball
 x, y = m([blons[0], eqlon], [blats[0], eqlat])
