@@ -31,8 +31,6 @@ for line in lines:
     evdp.append(float(dat[3]))
     evml.append(float(dat[5]))
 
-
-
 ##########################################################################################
 # get MFD
 ##########################################################################################
@@ -77,7 +75,7 @@ plt.semilogy(mrng[::-1][uidx], array(cum_mag)[::-1][uidx], 'ko', ms=7)
 plt.semilogy(mrng[9:], N[9:], 'r-', lw=2.)
 # get xlim
 #plt.xlim([datetime(2012,6,15), datetime(2012,12,31)])
-plt.ylabel('Cumulative Number', fontsize=18)
+
 plt.xlabel('Local Magnitude', fontsize=18)
 plt.xlim([-0.2, 4.5])
 plt.ylim([0.5, 1000])
@@ -127,7 +125,7 @@ ax.annotate('2012-07-20 ML 4.4', xy=([evdt[m4idx], m4idx+1]), xytext=(datetime(2
 xtxt = get_log_xy_locs(ax.get_xlim(), 0.02)            
 ytxt = ax.get_ylim()[1] * 0.98
 plt.text(xtxt, ytxt, '(a)', size=20, ha='left', verticalalignment='top', weight='normal')
-
+plt.ylabel('Cumulative Number', fontsize=18)
 
 plt.savefig('moe_cum_rate.png', format='png', bbox_inches='tight', dpi=300)
 plt.show()

@@ -38,7 +38,8 @@ ax = plt.subplot(111)
 ##############################################################################
 # get 2012-2015
 ##############################################################################
-gadat = parse_ga_event_query('earthquakes_export_2012-16_250.edit.csv')
+#gadat = parse_ga_event_query('earthquakes_export_2012-16_250.edit.csv')
+gadat = parse_ga_event_query('2014-2016_earthquakes_export.edit.csv')
 
 eqdt = dictlist2array(gadat, 'datetime')
 mag = dictlist2array(gadat, 'mag_ml')
@@ -51,7 +52,8 @@ crate = []
 for m in magrng:
     crate.append(len(mag[mag>=m]) / 4.) # get annual rate assuming 4-year period
     
-plt.semilogy(magrng, crate, 'o', c='darkorange', label='2012-2015; N ='+str(len(mag)))
+#plt.semilogy(magrng, crate, 'o', c='darkorange', label='2012-2015; N ='+str(len(mag)))
+plt.semilogy(magrng, crate, 'o', c='darkorange', label='2014-2016; N ='+str(len(mag)))
 
 print(len(mag))
 print(len(mag[mag>=3.]))
@@ -61,7 +63,8 @@ print(min(mag))
 ##############################################################################
 # get 2012-2015
 ##############################################################################
-gadat = parse_ga_event_query('earthquakes_export_2016-20_250.edit.csv')
+#gadat = parse_ga_event_query('earthquakes_export_2016-20_250.edit.csv')
+gadat = parse_ga_event_query('2017-2019_earthquakes_export.edit.csv')
 
 eqdt = dictlist2array(gadat, 'datetime')
 mag = dictlist2array(gadat, 'mag_ml')
@@ -74,7 +77,8 @@ crate = []
 for m in magrng:
     crate.append(len(mag[mag>=m]) / 4.) # get annual rate assuming 4-year period
     
-plt.semilogy(magrng, crate, 'o', c='dodgerblue', label='2016-2019; N ='+str(len(mag)))
+#plt.semilogy(magrng, crate, 'o', c='dodgerblue', label='2016-2019; N ='+str(len(mag)))
+plt.semilogy(magrng, crate, 'o', c='dodgerblue', label='2017-2019; N ='+str(len(mag)))
 
 print('\n')
 print(len(mag))

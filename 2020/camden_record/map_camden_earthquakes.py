@@ -87,7 +87,8 @@ shpfile = 'PetroleumTitles28August2019.shp'
 sf = shapefile.Reader(shpfile)
 drawshapepoly(m, plt, sf, col='r',lw=0.75, alpha=0.5, fillshape = True)
 '''
-gadat = parse_ga_event_query('earthquakes_export_2012-16_250.edit.csv')
+#gadat = parse_ga_event_query('earthquakes_export_2012-16_250.edit.csv')
+gadat = parse_ga_event_query('2014-2016_earthquakes_export.edit.csv')
 
 la = dictlist2array(gadat, 'lat')
 lo = dictlist2array(gadat, 'lon')
@@ -95,7 +96,8 @@ mag = dictlist2array(gadat, 'mag_ml')
 x,y = m(lo, la)
 scatter = plt.scatter(x,y,s=-75+mag*80, c='darkorange', zorder=10000, alpha=0.7)
 
-gadat = parse_ga_event_query('earthquakes_export_2016-20_250.edit.csv')
+#gadat = parse_ga_event_query('earthquakes_export_2016-20_250.edit.csv')
+gadat = parse_ga_event_query('2017-2019_earthquakes_export.edit.csv')
 
 la = dictlist2array(gadat, 'lat')
 lo = dictlist2array(gadat, 'lon')
@@ -155,8 +157,10 @@ for sta, slon, slat in zip(sta_code, sta_lon, sta_lat):
 # add legends
 ##########################################################################################
 
-legend1 = ax.legend(['ANSN', 'Camden Seismic Network', '2012-2015', '2016-2019'], \
-                    loc=3, numpoints=1, fontsize=11, labelspacing=1.)
+#legend1 = ax.legend(['ANSN', 'Camden Seismic Network', '2012-2015', '2016-2019'], \
+#                    loc=3, numpoints=1, fontsize=11, labelspacing=1.)
+legend1 = ax.legend(['ANSN', 'Camden Seismic Network', '2014-2016', '2017-2019'], \
+                    loc=3, numpoints=1, fontsize=11, labelspacing=1.)                    
 ax.add_artist(legend1)
 
 for m in [2.0, 3.0, 4.0]:
