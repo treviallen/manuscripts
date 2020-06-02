@@ -1346,10 +1346,11 @@ def regress_zone(stdict, zgroup):
     
         sidx = where((resY < -10) & (log10(rhyp)<2.6))[0]
         #sidx = where(resY .)[0]
-        print(stas[sidx])
-        print(unique(array(stas)))
+        print(array(stas)[sidx])
+        #print(unique(array(stas)))
         #print(azim[sidx])
-        print(date[sidx])
+        print(array(date)[sidx])
+        #print(date)
     plt.suptitle('Dist Residuals')
     plt.savefig('final_res.'+region+'.png', fmt='png', bbox_inches='tight')
     plt.show()

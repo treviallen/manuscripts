@@ -217,7 +217,7 @@ def parse_usgs_events(usgscsv):
     return evdict
 
 usgscsv = '20190625_merged_events.csv'
-usgscsv = '2019-20-26_event.csv'
+#usgscsv = '2019-02-26_event.csv'
 # parse catalogue
 evdict = parse_usgs_events(usgscsv)
 ###############################################################################
@@ -227,8 +227,8 @@ outtxt = ''
 """records = 'preferred_records_edit.csv'
 mseedfiles = open(records).readlines(dat[9])[0:]"""
 
-mseedfiles = listdir_extension('mseed_dump', 'mseed')
-#mseedfiles = listdir_extension('ausarray_mseed', 'mseed')
+#mseedfiles = listdir_extension('mseed_dump', 'mseed')
+mseedfiles = listdir_extension('ausarray2_mseed', 'mseed')
 
 m = 1
 for mseedfile in mseedfiles:
@@ -244,15 +244,15 @@ for mseedfile in mseedfiles:
     if not path.isfile(pick_path):
         
         # read mseed
-        st = read(path.join('mseed_dump', mseedfile))
-        #st = read(path.join('ausarray_mseed', mseedfile))
+        #st = read(path.join('mseed_dump', mseedfile))
+        st = read(path.join('ausarray2_mseed', mseedfile))
         
         # remove junk channels
         st = remove_low_sample_data(st)
         
-    ###############################################################################
-    # associate event and get distance
-    ###############################################################################
+        ###############################################################################
+        # associate event and get distance
+        ###############################################################################
     
         evFound = False
         for evnum, ev in enumerate(evdict): 
@@ -274,73 +274,78 @@ for mseedfile in mseedfiles:
             rngkm, azim, baz = distance(eqla, eqlo, sta_data['stla'], sta_data['stlo'])
             rngdeg = km2deg(rngkm)
             
-            # get arrivals
-            if eqdp < 0:
-                arrival_dep = 0.
-            else:
-                arrival_dep = eqdp
-                
-            arrivals = model.get_travel_times(source_depth_in_km=arrival_dep, distance_in_degree=rngdeg)
+            if rngkm < 1800.:
             
-            # find P and S
-            p = []
-            s = []
-            for a in arrivals:
-                if a.name.upper() == 'P':
-                    p.append(a.time)
-                if a.name.upper() == 'S':
-                    s.append(a.time)
+                # get arrivals
+                if eqdp < 0:
+                    arrival_dep = 0.
+                else:
+                    arrival_dep = eqdp
                     
-            pTravelTime = p[0]
-            sTravelTime = s[0]
-            
-            # estimate Lg Arrival (from Goulet et al 2014 P25-26)
-            lgTravelTime = sTravelTime + 8.71 * 0.026*rngkm
-            
-            sTravelTime2 = 4 * sTravelTime
-            
-            # estimate Rg
-            rgTravelTime = rngkm/3.05
-            
-    ###############################################################################
-    # plot
-    ###############################################################################
-            # plot seismos only
-            picks, x1, x2, x3, channels = do_picks(st, eqdt)
-            
-            # check acc
-            if rngkm < 800 and x1 > x3:
-                doAcc = False
-                for tr in st:
-                    if tr.stats.channel[1] == 'N':
-                       doAcc = True
-                if doAcc == True:
-                    picks, x1, x2, x3, channels = do_acc_picks(st, eqdt)
-                    
-            # capture data proc file
-            tr = st[0]
-            outtxt = ','.join((tr.stats.starttime.strftime('%Y-%m-%dT%H:%M:%S.%f'), eqdt.strftime('%Y-%m-%dT%H:%M:%S.%f'), \
-                               str(eqlo), str(eqla), str(eqdp), str(eqmag), str('%0.2f' % rngkm), str('%0.1f' % azim), \
-                               str(st[0].stats.sampling_rate), channels[0], channels[1], channels[2], \
-                               str('%0.3f' % picks[0,0]), str('%0.3f' % picks[1,0]), str('%0.3f' % picks[2,0]), \
-                               str(x1), str(x2), str(x3), \
-                               path.join(getcwd(), 'mseed_dump', mseedfile)))
-            
-            # only write if x3 > x1
-            if x3 > x1:
-                # save processing file
+                arrivals = model.get_travel_times(source_depth_in_km=arrival_dep, distance_in_degree=rngdeg)
                 
-                outfile = path.join('record_picks',recfile)
-                f = open(outfile, 'wb')
-                f.write(outtxt)
-                f.close()
-             
-            # write junk file so don't reveiw again
+                # find P and S
+                p = []
+                s = []
+                for a in arrivals:
+                    if a.name.upper() == 'P':
+                        p.append(a.time)
+                    if a.name.upper() == 'S':
+                        s.append(a.time)
+                        
+                pTravelTime = p[0]
+                sTravelTime = s[0]
+                
+                # estimate Lg Arrival (from Goulet et al 2014 P25-26)
+                lgTravelTime = sTravelTime + 8.71 * 0.026*rngkm
+                
+                sTravelTime2 = 4 * sTravelTime
+                
+                # estimate Rg
+                rgTravelTime = rngkm/3.05
+                
+                ###############################################################################
+                # plot
+                ###############################################################################
+                # plot seismos only
+                picks, x1, x2, x3, channels = do_picks(st, eqdt)
+                
+                # check acc
+                if rngkm < 800 and x1 > x3:
+                    doAcc = False
+                    for tr in st:
+                        if tr.stats.channel[1] == 'N':
+                           doAcc = True
+                    if doAcc == True:
+                        picks, x1, x2, x3, channels = do_acc_picks(st, eqdt)
+                        
+                # capture data proc file
+                tr = st[0]
+                outtxt = ','.join((tr.stats.starttime.strftime('%Y-%m-%dT%H:%M:%S.%f'), eqdt.strftime('%Y-%m-%dT%H:%M:%S.%f'), \
+                                   str(eqlo), str(eqla), str(eqdp), str(eqmag), str('%0.2f' % rngkm), str('%0.1f' % azim), \
+                                   str(st[0].stats.sampling_rate), channels[0], channels[1], channels[2], \
+                                   str('%0.3f' % picks[0,0]), str('%0.3f' % picks[1,0]), str('%0.3f' % picks[2,0]), \
+                                   str(x1), str(x2), str(x3), \
+                                   path.join(getcwd(), 'mseed_dump', mseedfile)))
+                
+                # only write if x3 > x1
+                if x3 > x1:
+                    # save processing file
+                    
+                    outfile = path.join('record_picks',recfile)
+                    f = open(outfile, 'w')
+                    f.write(outtxt)
+                    f.close()
+                 
+                # write junk file so don't reveiw again
+                else:
+                    outfile = path.join('record_picks',recfile)
+                    f = open(outfile, 'w')
+                    f.write('junk')
+                    f.close()
+                    
             else:
-                outfile = path.join('record_picks',recfile)
-                f = open(outfile, 'wb')
-                f.write('junk')
-                f.close()
+                print('    R > 1800 km')    
             
         elif evFound == False:
            print('Cannot associate event for:', mseedfile)

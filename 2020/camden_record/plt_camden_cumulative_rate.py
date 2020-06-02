@@ -50,7 +50,7 @@ magrng = arange(1., 5.1, 0.1)
 # get cum rates
 crate = []
 for m in magrng:
-    crate.append(len(mag[mag>=m]) / 4.) # get annual rate assuming 4-year period
+    crate.append(len(mag[mag>=m]) / 3.) # get annual rate assuming 4-year period
     
 #plt.semilogy(magrng, crate, 'o', c='darkorange', label='2012-2015; N ='+str(len(mag)))
 plt.semilogy(magrng, crate, 'o', c='darkorange', label='2014-2016; N ='+str(len(mag)))
@@ -75,7 +75,7 @@ magrng = arange(1., 4.5, 0.1)
 # get cum rates
 crate = []
 for m in magrng:
-    crate.append(len(mag[mag>=m]) / 4.) # get annual rate assuming 4-year period
+    crate.append(len(mag[mag>=m]) / 3.) # get annual rate assuming 4-year period
     
 #plt.semilogy(magrng, crate, 'o', c='dodgerblue', label='2016-2019; N ='+str(len(mag)))
 plt.semilogy(magrng, crate, 'o', c='dodgerblue', label='2017-2019; N ='+str(len(mag)))

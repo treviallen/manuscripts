@@ -38,10 +38,13 @@ ax = plt.subplot(111)
 ##############################################################################
 # get 2012-2015
 ##############################################################################
-gadat = parse_ga_event_query('earthquakes_export_2012-16_250.edit.csv')
+#gadat = parse_ga_event_query('earthquakes_export_2012-16_250.edit.csv')
+gadat = parse_ga_event_query('2014-2016_earthquakes_export.edit.csv')
+
 
 eqdt = dictlist2array(gadat, 'datetime')
-mindate = dt.datetime(2012,1,1)
+#mindate = dt.datetime(2012,1,1)
+mindate = dt.datetime(2014,1,1)
 ndays = max(eqdt) - mindate
 difftime = eqdt - mindate
 
@@ -56,7 +59,8 @@ cum = 0
 for c, b in zip(counts[1:], bins[1:]):
     if c > 0:
         if cum == 0:
-            plt.plot([b, b], [cum, cum+c], c='darkorange', lw=1.5, label='2012-2015; N ='+str(len(eqdt)))
+            #plt.plot([b, b], [cum, cum+c], c='darkorange', lw=1.5, label='2012-2015; N ='+str(len(eqdt)))
+            plt.plot([b, b], [cum, cum+c], c='darkorange', lw=1.5, label='2014-2016; N ='+str(len(eqdt)))
             pb = b
         else:
             plt.plot([pb, b], [cum, cum], c='darkorange', lw=1.5)
@@ -67,10 +71,12 @@ for c, b in zip(counts[1:], bins[1:]):
 ##############################################################################
 # get 2012-2015
 ##############################################################################
-gadat = parse_ga_event_query('earthquakes_export_2016-20_250.edit.csv')
+#gadat = parse_ga_event_query('earthquakes_export_2016-20_250.edit.csv')
+gadat = parse_ga_event_query('2017-2019_earthquakes_export.edit.csv')
 
 eqdt = dictlist2array(gadat, 'datetime')
-mindate = dt.datetime(2016,1,1)
+#mindate = dt.datetime(2016,1,1)
+mindate = dt.datetime(2017,1,1)
 ndays = max(eqdt) - mindate
 difftime = eqdt - mindate
 
@@ -85,7 +91,8 @@ cum = 0
 for c, b in zip(counts[1:], bins[1:]):
     if c > 0:
         if cum == 0:
-            plt.plot([b, b], [cum, cum+c], c='dodgerblue', lw=1.5, label='2016-2019; N ='+str(len(eqdt)))
+            #plt.plot([b, b], [cum, cum+c], c='dodgerblue', lw=1.5, label='2016-2019; N ='+str(len(eqdt)))
+            plt.plot([b, b], [cum, cum+c], c='dodgerblue', lw=1.5, label='2017-2019; N ='+str(len(eqdt)))
             pb = b
         else:
             plt.plot([pb, b], [cum, cum], c='dodgerblue', lw=1.5)
@@ -101,7 +108,8 @@ plt.xlabel('Number of Days', fontsize=18)
 plt.ylabel('Cumulative Number', fontsize=18)
 plt.legend(loc=2, fontsize=13, numpoints=1)
 plt.grid(which='both')
-plt.xlim([0, 1500])
+#plt.xlim([0, 1500])
+plt.xlim([0, 1100])
 
 #plt.hist(xbins, bins=bins)
 plt.savefig('camden_cumulative_number.png', fmt='png', bbox_inches='tight')

@@ -224,7 +224,7 @@ def makesubplt(i, fig, plt, sta, sps, mag, dep, ztor, dip, rake, rhyp, vs30):
 start main
 '''
 # start of plotting routine
-from numpy import array, arange, sqrt, exp, log, unique, argsort
+from numpy import array, arange, sqrt, exp, log, unique, argsort, isnan
 from sys import argv
 import matplotlib.pyplot as plt
 plt.rcParams['pdf.fonttype'] = 42
@@ -364,6 +364,9 @@ for stn in usites:
         i += 1
         print('rhyp', rhyp)
         vs30 = get_station_vs30(stn)[0]
+        if isnan(vs30):
+            vs30 = 450
+            
         makesubplt(i, fig, plt, stn, sps, mag, dep, ztor, dip, rake, rhyp, vs30)
         if ii == 1:
             if rhyp <= 800:

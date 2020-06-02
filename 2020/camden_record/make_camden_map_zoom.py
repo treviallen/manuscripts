@@ -248,4 +248,5 @@ for i, st in enumerate(state):
 ##########################################################################################
 
 plt.savefig('camden_csg_boreholes.png', format='png', bbox_inches='tight', dpi=150)
+plt.savefig('camden_csg_boreholes.svg', format='svg', bbox_inches='tight', dpi=150)
 plt.show()

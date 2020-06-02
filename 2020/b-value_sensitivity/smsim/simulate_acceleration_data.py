@@ -1,4 +1,4 @@
-from numpy import arange, array, random, where, reshape
+from numpy import arange, array, random, where, reshape, log10
 from os import system, path
 from misc_tools import listdir_extension
 from obspy import Trace
@@ -62,24 +62,27 @@ nstas = [5, 7, 9, 14, 19, 19]
 
 # read base ctrl
 lines = open('allen07_a_ts_drvr_base.ctl').readlines()
-"""
+
 # now loop through magnitudes
 for m in mags:
     
     # first, calculate 1 site within 50 km
-    d = random.rand(1) * 50.
+    dists = 5 + random.rand(2) * 45.
     
-    # now, write ctrl file
-    lines[8] = '  simulations/m'+str('%0.2f' % m)+'r'+str('%0.1f' % d)+'_\n'
-    lines[10] = '  '+str('%0.2f' % m)+' '+str('%0.f' % d) + '\n'
+    # loop through near-source dists
+    for d in dists:
     
-    # write ctrl file
-    f = open('allen07_a_ts_drvr.ctl', 'w')
-    f.writelines(lines)
-    f.close()
-    
-    # now call smsim
-    system('./a_ts_drvr_mod')
+        # now, write ctrl file
+        lines[8] = '  simulations/m'+str('%0.2f' % m)+'r'+str('%0.1f' % d)+'_\n'
+        lines[10] = '  '+str('%0.2f' % m)+' '+str('%0.f' % d) + '\n'
+        
+        # write ctrl file
+        f = open('allen07_a_ts_drvr.ctl', 'w')
+        f.writelines(lines)
+        f.close()
+        
+        # now call smsim
+        system('./a_ts_drvr_mod')
     
     # get other run params
     idx = where(maglims > m)[0][0] # always return first idx
@@ -101,7 +104,7 @@ for m in mags:
         
         # now call smsim
         system('./a_ts_drvr_mod')
-"""        
+        
 ################################################################################
 # get W-A amplitudes
 ################################################################################
@@ -116,7 +119,11 @@ for smcfile in smcfiles:
     r = smcfile.split('r')[-1].split('_')[0]
     
     disp_trace = read_smc_file(path.join('simulations',smcfile)) # in m
-    wa_amp = get_wa_amp(disp_trace)
+    wa_amp = get_wa_amp(disp_trace)                
+    
+    # add random Gaussian to WA amps                               
+    rand_gaus = random.normal(loc=0., scale=0.25, size=1)
+    wa_amp = 10**(log10(wa_amp) + rand_gaus[0])                     
     
     data += ','.join((m, r, str(wa_amp))) + '\n'
     
