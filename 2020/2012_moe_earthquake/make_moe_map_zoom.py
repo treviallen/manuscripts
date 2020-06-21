@@ -99,7 +99,7 @@ print('Making map...')
 ls = LightSource(azdeg = 180, altdeg = 5)
 #norm = mpl.colors.Normalize(vmin=-8000/zscale, vmax=5000/zscale)
 norm = mpl.colors.Normalize(vmin=-1000/zscale, vmax=1900/zscale) #wiki
-rgb = ls.shade(topodat, cmap=cmap, norm=norm)
+rgb = ls.shade(topodat.data, cmap=cmap, norm=norm)
 im = m.imshow(rgb, alpha=1.)
 
 ##########################################################################################
@@ -227,7 +227,7 @@ stlon = array(stlon)
 
 # loop thru networks and plot
 unet = ['AU', 'MEL', 'UM']
-sym = ['^', 'H', 'd', 's'] 
+sym = ['^', 'H', 's'] 
 ms = [14, 15, 14, 13]
 for i, u in enumerate(unet):
     idx = where(array(stnet) == u)[0]
@@ -295,7 +295,10 @@ hnd = []
 for i, u in enumerate(unet):
     idx = where(array(stnet) == u)[0]
     x, y = m(stlon[idx], stlat[idx])
-    h = plt.plot(x, y, sym[i], markerfacecolor = '0.1', mec='w', mew=1.5, markersize=ms[i], label=unet[i])
+    if unet[i] == 'MEL':
+        h = plt.plot(x, y, sym[i], markerfacecolor = '0.1', mec='w', mew=1.5, markersize=ms[i], label='SRC')
+    else:
+        h = plt.plot(x, y, sym[i], markerfacecolor = '0.1', mec='w', mew=1.5, markersize=ms[i], label=unet[i])
     hnd.append(h[0])
 
 # label stations

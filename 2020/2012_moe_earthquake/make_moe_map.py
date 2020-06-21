@@ -77,7 +77,7 @@ print('Making map...')
 ls = LightSource(azdeg = 180, altdeg = 5)
 #norm = mpl.colors.Normalize(vmin=-8000/zscale, vmax=5000/zscale)
 norm = mpl.colors.Normalize(vmin=-1000/zscale, vmax=1900/zscale)#wiki
-rgb = ls.shade(topodat, cmap=cmap, norm=norm)
+rgb = ls.shade(topodat.data, cmap=cmap, norm=norm)
 im = m.imshow(rgb, alpha=1.)
 
 ##########################################################################################
@@ -144,6 +144,7 @@ for stn in stns:
             lat = float(dat[5])
             lon = float(dat[4])
             net = dat[6]
+            net = net.replace('S', 'S1')
             
     stlat.append(lat)
     stlon.append(lon)
@@ -153,7 +154,6 @@ stlat = array(stlat)
 stlon = array(stlon)
 #unet = unique(array(stnet))
 #print(stns, stnet
-
 
 # loop thru networks and plot
 unet = ['AU', 'MEL', 'S1', 'UM']
@@ -204,7 +204,8 @@ for i, u in enumerate(unet):
     x, y = m(stlon[idx], stlat[idx])
     h = plt.plot(x, y, sym[i], markerfacecolor = '0.1', markeredgecolor='w', markeredgewidth=1.5, markersize=ms[i])
     hnd.append(h[0])
-    
+
+unet = ['AU', 'SRC', 'S1', 'UM']
 plt.legend(hnd, list(unet), fontsize=14, loc=4, numpoints=1)
 
 ##########################################################################################
