@@ -2,7 +2,8 @@
 from mmi_tools import allen_etal_2012_rrup_ipe, allen_etal_2012_rhypo_ipe, \
                       atkinson_wald_ceus_ipe, atkinson_wald_cal_ipe, pgm2mmi_worden12, \
                       parse_usgs_dyfi_geocoded, parse_usgs_dyfi_zip, \
-                      atkinson_worden_wald14_cal_ipe, atkinson_worden_wald14_ceus_ipe
+                      atkinson_worden_wald14_cal_ipe, atkinson_worden_wald14_ceus_ipe, \
+                      atkinson_worden_wald14_ceus_oq
 from misc_tools import get_mpl2_colourlist
 from calc_oq_gmpes import scr_gsims, crustal_gsims
 from mapping_tools import distance
@@ -147,6 +148,8 @@ AWW14ceus, sig = atkinson_worden_wald14_ceus_ipe(mag, rhypo, repi)
 # do AWW14 CA
 AWW14cal, sig = atkinson_worden_wald14_cal_ipe(mag, rhypo)
 
+#AWW14ceus_oq, sig = atkinson_worden_wald14_ceus_oq(mag, rhypo, eqdep) # this works, but not needed
+
 # do Bea14 - W12 PGA
 logB14pga = [] # tried pgv, but looked really bad!
 
@@ -189,6 +192,7 @@ plt.semilogx(rjb, Aea12rup, '-', c=cl[2], lw=2)
 #plt.semilogx(rjb, Aea12hypo, '--', color='orange', lw=2)
 plt.semilogx(rjb, B14W12mmiPGA, '-', color=cl[3], lw=2)
 plt.semilogx(rjb, B14W12mmiPGV, '-', color=cl[4], lw=2)
+#plt.semilogx(rjb, AWW14ceus_oq, '-', color='k', lw=4)
 plt.semilogx(rjb, AWW14ceus, '-', color=cl[5], lw=2)
 h8 = plt.semilogx(rjb, AWW14cal, '-.', color=cl[6], lw=2)
 #h9 = plt.semilogx(repi, A19_deep, '-', color=cl[7], lw=2)
