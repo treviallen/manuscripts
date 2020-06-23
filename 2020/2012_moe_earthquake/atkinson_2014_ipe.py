@@ -129,7 +129,7 @@ class AtkinsonEtAl2014CEUS(AtkinsonEtAl2014Cal):
         mean = (self._compute_magnitude_term(C, rup.mag) +
                 self._compute_distance_term(C, dists.rhypo, rup.mag) +
                 self._compute_ceus_term(C, dists.rhypo, rup.hypo_depth))
-        stddevs = self._get_stddevs(stddev_types)
+        stddevs = self._get_stddevs(stddev_types, dists.rhypo.shape[0])
         return mean, stddevs
 
     def _compute_ceus_term(self, C, rhypo, hypo_depth):

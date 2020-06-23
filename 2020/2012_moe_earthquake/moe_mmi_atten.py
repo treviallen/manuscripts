@@ -148,7 +148,7 @@ AWW14ceus, sig = atkinson_worden_wald14_ceus_ipe(mag, rhypo, repi)
 # do AWW14 CA
 AWW14cal, sig = atkinson_worden_wald14_cal_ipe(mag, rhypo)
 
-#AWW14ceus_oq, sig = atkinson_worden_wald14_ceus_oq(mag, rhypo, eqdep) # this works, but not needed
+AWW14ceus_oq, sig = atkinson_worden_wald14_ceus_oq(mag, rhypo, eqdep) # this works, but not needed
 
 # do Bea14 - W12 PGA
 logB14pga = [] # tried pgv, but looked really bad!
