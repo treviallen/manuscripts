@@ -21,8 +21,8 @@ fig = plt.figure(figsize=(10, 6))
 plt.tick_params(labelsize=12)
 
 # event details
-mag = 5.0
-eqdep = 18.0 
+mag = 5.17
+eqdep = 17.2 
 eqlat = -38.259
 eqlon = 146.290
 ztor = eqdep
@@ -148,7 +148,7 @@ AWW14ceus, sig = atkinson_worden_wald14_ceus_ipe(mag, rhypo, repi)
 # do AWW14 CA
 AWW14cal, sig = atkinson_worden_wald14_cal_ipe(mag, rhypo)
 
-AWW14ceus_oq, sig = atkinson_worden_wald14_ceus_oq(mag, rhypo, eqdep) # this works, but not needed
+AWW14ceus_oq, sig_oq = atkinson_worden_wald14_ceus_oq(mag, rhypo, eqdep) # this works, but not needed
 
 # do Bea14 - W12 PGA
 logB14pga = [] # tried pgv, but looked really bad!
@@ -192,7 +192,7 @@ plt.semilogx(rjb, Aea12rup, '-', c=cl[2], lw=2)
 #plt.semilogx(rjb, Aea12hypo, '--', color='orange', lw=2)
 plt.semilogx(rjb, B14W12mmiPGA, '-', color=cl[3], lw=2)
 plt.semilogx(rjb, B14W12mmiPGV, '-', color=cl[4], lw=2)
-#plt.semilogx(rjb, AWW14ceus_oq, '-', color='k', lw=4)
+plt.semilogx(rjb, AWW14ceus_oq, '-', color='k', lw=4)
 plt.semilogx(rjb, AWW14ceus, '-', color=cl[5], lw=2)
 h8 = plt.semilogx(rjb, AWW14cal, '-.', color=cl[6], lw=2)
 #h9 = plt.semilogx(repi, A19_deep, '-', color=cl[7], lw=2)
