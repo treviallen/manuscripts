@@ -60,6 +60,7 @@ zscale =5. #colour
 data = nc.variables['z'][:] / zscale
 lons = nc.variables['x'][:]
 lats = nc.variables['y'][:]
+print(min(lons))
 
 # transform to metres
 nx = int((m.xmax-m.xmin)/30.)+1
@@ -141,13 +142,13 @@ im = m.imshow(rgb)
 polys = get_map_polygons(m)
 
 #mask_outside_polygon(polys[1][::-1], ax=None)
-mask_outside_polygons(polys, 'dodgerblue', plt)
+mask_outside_polygons(polys, 'lightskyblue', plt)
 
 # get lake ploygons
 polygons = []
 for polygon in m.lakepolygons:
     poly = polygon.get_coords()
-    plt.fill(poly[:,0], poly[:,1], 'dodgerblue')
+    plt.fill(poly[:,0], poly[:,1], 'lightskyblue')
     polygons.append(poly)
     
 ##########################################################################################
