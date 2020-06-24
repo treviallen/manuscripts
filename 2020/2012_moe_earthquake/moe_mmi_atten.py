@@ -192,7 +192,7 @@ plt.semilogx(rjb, Aea12rup, '-', c=cl[2], lw=2)
 #plt.semilogx(rjb, Aea12hypo, '--', color='orange', lw=2)
 plt.semilogx(rjb, B14W12mmiPGA, '-', color=cl[3], lw=2)
 plt.semilogx(rjb, B14W12mmiPGV, '-', color=cl[4], lw=2)
-plt.semilogx(rjb, AWW14ceus_oq, '-', color='k', lw=4)
+plt.semilogx(rjb, AWW14ceus_oq, '-', color='k', lw=5)
 plt.semilogx(rjb, AWW14ceus, '-', color=cl[5], lw=2)
 h8 = plt.semilogx(rjb, AWW14cal, '-.', color=cl[6], lw=2)
 #h9 = plt.semilogx(repi, A19_deep, '-', color=cl[7], lw=2)
@@ -224,7 +224,7 @@ leg1 = plt.legend([h1[0], h2[0], h3[0], h4[0], h5[0], h6[0], h7[0], h8[0]], \
             'AWW14 CEUS', 'AWW14 CA'], fontsize=10, loc=1, numpoints=1)
 
 plt.legend([d1[0], d2[0], d3[0], d4[0]], \
-           ['AU MMI', 'MEL MMI', 'USGS DYFI', 'Mean MMI'], fontsize=10, loc=3, numpoints=1)
+           ['AU MMI', 'SRC MMI', 'USGS DYFI', 'Mean MMI'], fontsize=10, loc=3, numpoints=1)
            
 plt.gca().add_artist(leg1)
 
