@@ -130,8 +130,7 @@ A19_deep = c0 * mag + c1 + c2 * log10(sqrt(rrup**2 + rref**2)) + (h1*erf((eqdep-
 AW07ceus, sig = atkinson_wald_ceus_ipe(mag, rrup)
 
 # do biased AW07 CEUS
-SMbias = -0.30
-AW07ceus_bias, sig = atkinson_wald_ceus_ipe(mag+SMbias, rrup)
+#AW07ceus_bias, sig = atkinson_wald_ceus_ipe(mag+SMbias, rrup)
 
 # do AW07 CA
 AW07cal, sig = atkinson_wald_cal_ipe(mag, rrup)
@@ -143,12 +142,14 @@ Aea12rup, Aea12sig = allen_etal_2012_rrup_ipe(mag, rrup, eqdep)
 Aea12hypo, Aea12sig = allen_etal_2012_rhypo_ipe(mag, rrup, eqdep)
 
 # do AWW14 CEUS
+SMbias = -0.233
 AWW14ceus, sig = atkinson_worden_wald14_ceus_ipe(mag, rhypo, repi)
+AWW14ceus_bias = AWW14ceus + SMbias
 
 # do AWW14 CA
 AWW14cal, sig = atkinson_worden_wald14_cal_ipe(mag, rhypo)
 
-AWW14ceus_oq, sig_oq = atkinson_worden_wald14_ceus_oq(mag, rhypo, eqdep) # this works, but not needed
+#AWW14ceus_oq, sig_oq = atkinson_worden_wald14_ceus_oq(mag, rhypo, eqdep) # this works, but not needed
 
 # do Bea14 - W12 PGA
 logB14pga = [] # tried pgv, but looked really bad!
@@ -186,14 +187,15 @@ B14W12mmiPGVnan, sig = pgm2mmi_worden12(B14pgv, 'pgv', nan, nan)
 cl = get_mpl2_colourlist()
 
 plt.semilogx(rjb, AW07ceus, '-', color=cl[0], lw=2)
-h2 = plt.semilogx(rjb, AW07ceus_bias, '--', color=cl[0], lw=2)
+#h2 = plt.semilogx(rjb, AW07ceus_bias, '--', color=cl[0], lw=2)
 plt.semilogx(rjb, AW07cal, '-', color=cl[1], lw=2)
 plt.semilogx(rjb, Aea12rup, '-', c=cl[2], lw=2)
 #plt.semilogx(rjb, Aea12hypo, '--', color='orange', lw=2)
 plt.semilogx(rjb, B14W12mmiPGA, '-', color=cl[3], lw=2)
 plt.semilogx(rjb, B14W12mmiPGV, '-', color=cl[4], lw=2)
-plt.semilogx(rjb, AWW14ceus_oq, '-', color='k', lw=5)
+#plt.semilogx(rjb, AWW14ceus_oq, '-', color='k', lw=5)
 plt.semilogx(rjb, AWW14ceus, '-', color=cl[5], lw=2)
+h2 = plt.semilogx(rjb, AWW14ceus_bias, '--', color=cl[5], lw=2)
 h8 = plt.semilogx(rjb, AWW14cal, '-.', color=cl[6], lw=2)
 #h9 = plt.semilogx(repi, A19_deep, '-', color=cl[7], lw=2)
 
@@ -219,12 +221,12 @@ meanres, stdres, medx, outbins, nperbin = get_binned_stats_mean(bins, log10(binr
 
 d4 = plt.errorbar(10**medx, meanres, yerr=stdres, fmt='ks', ms=7) 
 
-leg1 = plt.legend([h1[0], h2[0], h3[0], h4[0], h5[0], h6[0], h7[0], h8[0]], \
-           ['AW07 CEUS', 'AW07 CEUS + '+r'$\delta$', 'AW07 CA', 'Aea12 Rrup', 'Bea14-Wea12 (PGA)', 'Bea14-Wea12 (PGV)', 
-            'AWW14 CEUS', 'AWW14 CA'], fontsize=10, loc=1, numpoints=1)
+leg1 = plt.legend([h1[0], h3[0], h4[0], h5[0], h6[0], h7[0], h2[0], h8[0]], \
+           ['AW07 CEUS', 'AW07 CA', 'Aea12 Rrup', 'Bea14-Wea12 (PGA)', 'Bea14-Wea12 (PGV)', 
+            'AWW14 CEUS', 'AWW14 CEUS + '+r'$\delta$', 'AWW14 CA'], fontsize=10, loc=1, numpoints=1)
 
 plt.legend([d1[0], d2[0], d3[0], d4[0]], \
-           ['AU MMI', 'SRC MMI', 'USGS DYFI', 'Mean MMI'], fontsize=10, loc=3, numpoints=1)
+           ['AU MMI', 'SRC MMI', 'USGS DYFI', 'Mean MMI'], fontsize=12, loc=3, numpoints=1)
            
 plt.gca().add_artist(leg1)
 
@@ -241,6 +243,7 @@ ylab = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII']
 ytic = range(1, 8)
 plt.yticks(ytic, ylab)
 
-plt.savefig('moe_mmi_atten.png', format='png', dpi=300, bbox_inches='tight')
+plt.savefig('figures/moe_mmi_atten.png', format='png', dpi=300, bbox_inches='tight')
+plt.savefig('figures/moe_mmi_atten.svg', format='svg', dpi=300, bbox_inches='tight')
 
 plt.show()

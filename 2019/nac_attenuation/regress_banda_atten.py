@@ -85,6 +85,7 @@ mpl.style.use('classic')
 import warnings
 warnings.filterwarnings("ignore")
 maxDist = 1750.
+#maxDist = 1500.
 
 # get zone
 region = argv[1]
@@ -114,6 +115,7 @@ for saf in safiles:
 ################################################################################
 # loop stations
 ################################################################################
+from calc_oq_gmpes import get_station_vs30
 
 stdict = []
 for saf in safiles:
@@ -150,8 +152,12 @@ for saf in safiles:
         
         rec = read_sa(path.join(folder, saf))
         datestr = rec['datestr']
+        
+        # get vs30
+        vs30 = get_station_vs30(fsplit[3])[0] 
+        
         sd = {'ev':datestr, 'sta':fsplit[3], 'chans':chans, 'chstr':chstr, 'net':fsplit[2], \
-        	    'filedate':saf[0:16], 'azim':0.0, 'rhyp':9999}
+              'filedate':saf[0:16], 'azim':0.0, 'rhyp':9999, 'vs30':vs30}
         
         #if not sd['sta'] == 'AS31':
         stdict.append(sd)
@@ -359,9 +365,11 @@ for i, sd in enumerate(stdict):
     # remove noisy psa data
     idx = where(sd['per'] > (1./lof_limit))[0]
     stdict[i]['geom'][idx] = nan
+    stdict[i]['smooth_geom'][idx] = nan
     
     idx = where(sd['per'] < (1./hif_limit))[0]
     stdict[i]['geom'][idx] = nan
+    stdict[i]['smooth_geom'][idx] = nan
     
     
     if recFound == False:
@@ -376,10 +384,10 @@ import scipy.odr.odrpack as odrpack
 
 if region == 'BS':
     xref = 650.
-    xref_hinge = 650.
+    xref_hinge = 600.
     minDist = 100
 elif region == 'NGH':
-    xref = 1000 # NGH
+    xref = 1200 # NGH
     xref_hinge = 800.
     minDist = 10
 elif region == 'OBE':
@@ -391,9 +399,16 @@ mrng = arange(5.3, 7.9, 0.1)
 mpltrng = 0.05
 
 def fit_atten(c, x):
-    from numpy import sqrt, log10
+    from numpy import log10
     
     ans = c[0] - c[1]*(x) - c[2]*log10(x)
+    
+    return ans
+    
+def refit_near_gr(c, x):
+    from numpy import log10
+    
+    ans = c[0] * (x-log10(xref_hinge))
     
     return ans
     
@@ -480,7 +495,11 @@ def normalise_data(stdict, T):
     norm_stas = []
     norm_date = []
     
+    print('!!!!!! USING SMOOTHED GEO-MEAN !!!!') # see below
+    
     for i, mplt in enumerate(mrng):
+        
+        stdict[i]['geom'] = stdict[i]['smooth_geom']
                 
         # for each record, log interpolate across period
         amp_plt = []
@@ -517,10 +536,12 @@ def normalise_data(stdict, T):
         auth = dictlist2array(stdict, 'network')
         stas = dictlist2array(stdict, 'sta')
         date = dictlist2array(stdict, 'date')
+        vs30 = dictlist2array(stdict, 'vs30')
         
         # get events within mag and T bin
         #midx = where((mags >= (mplt-mpltrng)) & (mags < (mplt+mpltrng)) & (deps >= 30.))[0]
-        midx = where((mags >= (mplt-mpltrng)) & (mags < (mplt+mpltrng)))[0]
+        midx = where((mags >= (mplt-mpltrng)) & (mags < (mplt+mpltrng)) & (vs30 >= 150) & (auth != 'OA') \
+                      & (stas != 'COEN') & (stas != 'MTSU'))[0]
         
         if len(midx) > 0:
     
@@ -553,6 +574,7 @@ def regress_zone(stdict, zgroup):
     
     Tplt = array([0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0, 4.0, 5.0, 7.5, 10.]) # secs; PGA = 0.01; PGV = -99
     Tplt = array([0.067, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0, 4.0, 5.0, 7.5, 9.5, 10.]) #, 10.]) # secs; PGA = 0.01; PGV = -99
+    Tplt = array([0.05, 0.075, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 7.5, 9., 10., 12, 15.]) #, 10.]) # secs; PGA = 0.01; PGV = -99
     bins = arange(log10(minDist), log10(maxDist), 0.1)
     
     # compute inslab gmpes
@@ -572,7 +594,13 @@ def regress_zone(stdict, zgroup):
     blf_init_c1 = []
     blf_init_c2 = []
 
-    for ii, T in enumerate(Tplt):
+    ii = 0
+    for T in Tplt:
+        pltPeriod = False
+        
+        if T >= 0.1 and T < 5.:
+            pltPeriod = True
+            ii += 1
     
         norm_rhyp, norm_amp_all, norm_dep, norm_stas, norm_mag, norm_date = normalise_data(stdict, T)
         
@@ -580,16 +608,15 @@ def regress_zone(stdict, zgroup):
         # now get atten for normalised data
         ################################################################################
          
-        ax = plt.subplot(4,5,ii+1)
         idx = where(norm_amp_all < 1000)[0]
         logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(norm_rhyp[idx]), log(norm_amp_all[idx]))
         
         norm = mpl.colors.Normalize(vmin=0, vmax=500)
         
-        #if ii < 20:
-        #print(norm_amp_all)
-        sc = plt.scatter(norm_rhyp, norm_amp_all, c=norm_dep, marker='o', s=25, \
-                         cmap='Spectral_r', norm=norm, alpha=0.6)
+        if pltPeriod == True:
+            ax = plt.subplot(4,5,ii)
+            sc = plt.scatter(norm_rhyp, norm_amp_all, c=norm_dep, marker='o', s=25, \
+                             cmap='Spectral_r', norm=norm, alpha=0.6)
                          
         # find suspect data
         norm_amp_all=array(norm_amp_all)
@@ -632,8 +659,15 @@ def regress_zone(stdict, zgroup):
     sg_poly = 2
     smooth_c2 = savitzky_golay(array(init_c2), sg_window, sg_poly) # slope
     
-    for ii, T in enumerate(Tplt):
-        ax = plt.subplot(4,5,ii+1)
+    ii = 0
+    for i, T in enumerate(Tplt):
+        pltPeriod = False
+        
+        if T >= 0.1 and T < 5.:
+            pltPeriod = True
+            ii += 1
+            ax = plt.subplot(4,5,ii)
+            print(ii)
         
         # prep data again
         norm_rhyp, norm_amp_all, norm_dep, norm_stas, norm_mag, norm_date = normalise_data(stdict, T)
@@ -642,7 +676,7 @@ def regress_zone(stdict, zgroup):
         data = odrpack.RealData(medx, logmedamp)
         
         # fix far-field slope
-        sff_gr = smooth_c2[ii] # using smoothed far-field slope
+        sff_gr = smooth_c2[i] # using smoothed far-field slope
         
         hxfix = log10(xref_hinge)
         def bilinear_reg_fix_hinge_slope(c, x):
@@ -667,11 +701,15 @@ def regress_zone(stdict, zgroup):
         out = odr.run()
         
         af = out.beta[0]
-        bf = out.beta[1]
+        bf = out.beta[1] 
+        print(af, bf)
         
-        if af > 0:
-            af = 0
-            bf = 1. 
+        if zgroup == 'BS':
+            if af > 0 or af < -10:
+                af = 0
+                bf = 1.
+        elif af > 0:
+            af = 0 
         
         blf_init_c1.append(af)
         blf_init_c0.append(bf)
@@ -681,22 +719,24 @@ def regress_zone(stdict, zgroup):
         yhinge = bf + af * hxfix
         idx = log10(rrup) > hxfix
         attenfit_blf[idx] = sff_gr * (log10(rrup[idx])-hxfix) + yhinge
-        plt.loglog(rrup, exp(attenfit_blf), 'k-', lw=2)  
         
         ################################################################################
         # make pretty
         ################################################################################
         
-        ax.set_xscale("log")
-        ax.set_yscale("log")
-        plt.xlim([50, maxDist])
-        plt.ylim([1E-3, 1E2])
-        plt.grid(which='both')
-        #plt.title('Normalised Amplitudes')
+        if pltPeriod == True:
+            plt.loglog(rrup, exp(attenfit_blf), 'k-', lw=2)  
         
-        plt.ylabel('SA('+str(T)+') in g')
-        if ii > 15:
-            plt.xlabel('Hypocental Distance (km)')
+            ax.set_xscale("log")
+            ax.set_yscale("log")
+            plt.xlim([50, maxDist])
+            plt.ylim([1E-3, 1E2])
+            plt.grid(which='both')
+            #plt.title('Normalised Amplitudes')
+            
+            plt.ylabel('SA('+str(T)+') in g')
+            if ii > 15:
+                plt.xlabel('Hypocental Distance (km)')
         
     '''
     if zgroup == 'NGH':
@@ -715,7 +755,7 @@ def regress_zone(stdict, zgroup):
         bl_init_c2 = array(bl_init_c2)
     
     # smooth bi-linear - near-field slope
-    sg_window = 7
+    sg_window = 9
     sg_poly = 2
     #smooth_c1 = savitzky_golay(array(bl_init_c1), sg_window, sg_poly) # far-field slope
             
@@ -781,6 +821,9 @@ def regress_zone(stdict, zgroup):
     azim = dictlist2array(stdict, 'azim')
     stas = dictlist2array(stdict, 'sta')
     date = dictlist2array(stdict, 'date')
+    auth = dictlist2array(stdict, 'network')
+    vs30 = dictlist2array(stdict, 'vs30')
+    
     '''
     print('\nMW 6.3')
     wmag = 6.3
@@ -801,12 +844,13 @@ def regress_zone(stdict, zgroup):
         # for each record, log interpolate across period
         amp_plt = []
         for st in stdict:
-            if T == 0.01:
-                amp_plt.append(st['pga'])
-            elif T == -99:
-                amp_plt.append(st['pgv'])
-            else:
-                amp_plt.append(exp(interp(log(T), log(st['per']), log(st['geom']))))
+            #if st['network'] != 'OA':
+                if T == 0.01:
+                    amp_plt.append(st['pga'])
+                elif T == -99:
+                    amp_plt.append(st['pgv'])
+                else:
+                    amp_plt.append(exp(interp(log(T), log(st['per']), log(st['geom']))))
         
         amp_plt = array(amp_plt)
         t_amplitudes.append(amp_plt)
@@ -815,9 +859,11 @@ def regress_zone(stdict, zgroup):
             
             # for banda sea - just use h > 40 km to calibrate mag scaling
             if zgroup == 'BS':
-                midx = where((mags >= (mplt-mpltrng)) & (mags < (mplt+mpltrng)) & (isnan(amp_plt) == False) & (deps > 40.))[0]
+                midx = where((mags >= (mplt-mpltrng)) & (mags < (mplt+mpltrng)) & (isnan(amp_plt) == False) \
+                              & (deps > 40.) & (vs30 >= 150) & (auth != 'OA') & (stas != 'COEN') & (stas != 'MTSU'))[0]
             else:
-                midx = where((mags >= (mplt-mpltrng)) & (mags < (mplt+mpltrng)) & (isnan(amp_plt) == False) & (deps < 300.))[0]
+                midx = where((mags >= (mplt-mpltrng)) & (mags < (mplt+mpltrng)) & (isnan(amp_plt) == False) \
+                              & (deps < 300.) & (vs30 >= 150) & (auth != 'OA') & (stas != 'COEN') & (stas != 'MTSU'))[0]
             
             if len(midx) > 0:
                 # get binned medians
@@ -860,9 +906,22 @@ def regress_zone(stdict, zgroup):
         # fit straight quadratic
         nn = where(isnan(init_c0)==False)[0]
         m1, m2, m0 = polyfit((array(init_mw)[nn]-6), array(init_c0)[nn], 2)
-        m0_array.append(m0)
-        m1_array.append(m1)
-        m2_array.append(m2)
+        mag_quad_fit = m0 + m1 * (mrng-6.)**2. + m2 * (mrng-6.)
+        
+        # also fit liner
+        m2_lin, m0_lin = polyfit((array(init_mw)[nn]-6), array(init_c0)[nn], 1)
+        mag_lin_fit = m0_lin + m2_lin * (mrng-6.)
+        
+        # check concavity of slope - use quadratic
+        if mag_quad_fit[0] < mag_lin_fit[0] and mag_quad_fit[-1] < mag_lin_fit[-1]:                    
+            m0_array.append(m0)
+            m1_array.append(m1)
+            m2_array.append(m2)
+        # use linear
+        else:
+            m0_array.append(m0_lin)
+            m1_array.append(0.0)
+            m2_array.append(m2_lin)
         
         t_dept_c0.append(array(init_c0))
         t_dept_mw.append(array(init_mw))
@@ -969,20 +1028,26 @@ def regress_zone(stdict, zgroup):
     fig = plt.figure(10, figsize=(18,10))
     
     i = 0
+    ii = 0
     for T, ym, xm in zip(Tplt, t_dept_c0, t_dept_mw):
-        plt.subplot(4,5,i+1)
-        plt.plot(xm, ym, 'bo')
-        plt.ylabel(str(T))
+        pltPeriod = False
         
-        #mfit = m0_array[i] + m1_array[i]*(mrng-6)**2 + m2_array[i]*(mrng-6)
-        mfit = smooth_m0[i] + smooth_m1[i]*(mrng-6)**2 + smooth_m2[i]*(mrng-6)
-        plt.plot(mrng, mfit, 'g-', lw=2.)
-        #plt.ylim([4.5, 7])
+        if T >= 0.1 and T < 5.:
+            pltPeriod = True
+            i += 1
         
-        if i >= 16:
-            plt.xlabel('MW')
-        
-        i += 1
+            plt.subplot(4,5,i)
+            plt.plot(xm, ym, 'bo')
+            plt.ylabel(str(T))
+            
+            #mfit = m0_array[i] + m1_array[i]*(mrng-6)**2 + m2_array[i]*(mrng-6)
+            mfit = smooth_m0[ii] + smooth_m1[ii]*(mrng-6)**2 + smooth_m2[ii]*(mrng-6)
+            plt.plot(mrng, mfit, 'g-', lw=2.)
+            
+            if i >= 16:
+                plt.xlabel('MW')
+                
+        ii += 1
     
     plt.suptitle('mag scaling')
     plt.savefig('.'.join(('mag_scaling', zgroup, 'png')), fmt='png', bbox_inches='tight')
@@ -993,8 +1058,14 @@ def regress_zone(stdict, zgroup):
     ######################################################################################
     fig = plt.figure(30, figsize=(18,10))
     
-    for i, T in enumerate(Tplt):
-        #attenCor = (- smooth_c2[i]*log10(rhyp) - smooth_c3[i]*(rhyp)) # old
+    i = 0
+    for T in Tplt:
+        pltPeriod = False
+        
+        if T >= 0.1 and T < 5.:
+            pltPeriod = True
+            i += 1
+            
         atten_cor = smooth_c1[i] * log10(rhyp)
   
         yhinge = smooth_c1[i] * hxfix
@@ -1007,26 +1078,29 @@ def regress_zone(stdict, zgroup):
         resY = log(t_amplitudes[i]) - logY
     
         # plot
-        ax = plt.subplot(4,5,i+1)
-        
-        norm = mpl.colors.Normalize(vmin=0, vmax=700)
-        
-        sc = plt.scatter(log10(rhyp), resY, c=deps, marker='o', s=20, \
-                         cmap='viridis_r', norm=norm, alpha=1.0)
-        plt.plot([1,3.4], [0,0], 'r--', lw=1.5)
+        if pltPeriod == True:
+            ax = plt.subplot(4,5,i)
+            
+            norm = mpl.colors.Normalize(vmin=0, vmax=700)
+            
+            sc = plt.scatter(log10(rhyp), resY, c=deps, marker='o', s=20, \
+                             cmap='viridis_r', norm=norm, alpha=1.0)
+            plt.plot([1,3.4], [0,0], 'r--', lw=1.5)
         
         # get binned medians
         bins = arange(2.0, log10(maxDist), 0.1)
         nn = where((isnan(resY) == False) & (isnan(log10(rhyp)) == False) & (isfinite(resY) == True))[0]
         logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(rhyp[nn]), resY[nn])
-        plt.plot(medx, logmedamp, 'rs', ms=6.5)
         
-        plt.xlim([2,3.4])
-        plt.ylim([-6, 6])
-        plt.ylabel(str(T))
-        
-        if i >= 16:
-            plt.xlabel('log Rhyp (km)')
+        if pltPeriod == True:
+            plt.plot(medx, logmedamp, 'rs', ms=6.5)
+            
+            plt.xlim([2,3.4])
+            plt.ylim([-6, 6])
+            plt.ylabel(str(T))
+            
+            if i >= 16:
+                plt.xlabel('log Rhyp (km)')
     
     plt.suptitle('First Dist Residuals')
     plt.savefig('init_dist_res.png', fmt='png', bbox_inches='tight')
@@ -1049,7 +1123,14 @@ def regress_zone(stdict, zgroup):
     t_dept_res = []
     t_dept_logdep = []
     
+    ii = 0
     for i, T in enumerate(Tplt):
+        pltPeriod = False
+        
+        if T >= 0.1 and T < 5.:
+            pltPeriod = True
+            ii += 1
+            
         #attenCor = (- smooth_c2[i]*log10(rhyp) - smooth_c3[i]*(rhyp)) # old
         atten_cor = smooth_c1[i] * log10(rhyp)
   
@@ -1063,34 +1144,40 @@ def regress_zone(stdict, zgroup):
         resY = log(t_amplitudes[i]) - logY
          
         # plot
-        ax = plt.subplot(4,5,i+1)
-         
-        norm = mpl.colors.Normalize(vmin=0, vmax=2000)
-        
-        sc = plt.scatter(log10(deps), resY, c=rhyp, marker='o', s=20, \
-                         cmap='viridis_r', norm=norm, alpha=1.0)
-        plt.plot([0.4,3], [0,0], 'r--', lw=1.5)
-        
-        plt.ylabel(str(T))
-        if i >= 16:
-            plt.xlabel('log Depth (km)')
-        plt.xlim([0.4, 3])
-        plt.ylim([-6, 6])
+        if pltPeriod == True:
+            ax = plt.subplot(4,5,ii)
+             
+            norm = mpl.colors.Normalize(vmin=0, vmax=2000)
+            
+            sc = plt.scatter(log10(deps), resY, c=rhyp, marker='o', s=20, \
+                             cmap='viridis_r', norm=norm, alpha=1.0)
+            plt.plot([0.4,3], [0,0], 'r--', lw=1.5)
+            
+            plt.ylabel(str(T))
+            if ii >= 16:
+                plt.xlabel('log Depth (km)')
+            plt.xlim([0.4, 3])
+            plt.ylim([-6, 6])
         
         # get binned medians
         bins = arange(0.5, 2.8, 0.1)
         
         if zgroup == 'OBE':
-            nn = where((isnan(resY) == False) & (isnan(log10(deps)) == False) & (isfinite(resY) == True) & (deps < 300.))[0]
+            nn = where((isnan(resY) == False) & (isnan(log10(deps)) == False) & (isfinite(resY) == True) & (deps < 300.) \
+                        & (vs30 >= 150) & (auth != 'OA') & (stas != 'COEN') & (stas != 'MTSU'))[0]
         else:
-            nn = where((isnan(resY) == False) & (isnan(log10(deps)) == False) & (isfinite(resY) == True))[0]
+            nn = where((isnan(resY) == False) & (isnan(log10(deps)) == False) & (isfinite(resY) == True) \
+                        & (vs30 >= 150) & (auth != 'OA') & (stas != 'COEN') & (stas != 'MTSU'))[0]
         
         logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(deps[nn]), resY[nn])
-        plt.plot(medx, logmedamp, 'rs', ms=6.5)
+        
+        if pltPeriod == True:
+            plt.plot(medx, logmedamp, 'rs', ms=6.5)
         
         if zgroup == 'NGH' or zgroup == 'OBE': # fit linear
             d3, d0 = polyfit(log10(deps[nn]), resY[nn], 1) # full data
-            #d3, d0 = polyfit(array(medx), array(logmedamp), 1) # binned data
+            #didx = where(medx < 2.)[0]
+            #d3, d0 = polyfit(array(medx[didx]), array(logmedamp[didx]), 1) # binned data
             d0_array.append(d0)
             d1_array.append(0.0)
             d2_array.append(0.0)
@@ -1119,8 +1206,9 @@ def regress_zone(stdict, zgroup):
         # plot quadratics
         dx = arange(0.5, 2.9, 0.01)
         dy = d0 + d1*dx**3 + d2*dx**2 + d3*dx
-        #print(dx, dy)
-        plt.plot(dx, dy, 'g-', lw=2.)
+        
+        if pltPeriod == True:
+            plt.plot(dx, dy, 'g-', lw=2.)
         
     d0_array = array(d0_array)
     d1_array = array(d1_array)
@@ -1190,6 +1278,7 @@ def regress_zone(stdict, zgroup):
             refit_d2.append(m[1])
             refit_d3.append(m[2])
         
+        """
         smooth_d1 = savitzky_golay(array(refit_d1), sg_window, sg_poly)
         
         ######################################################################################
@@ -1276,8 +1365,8 @@ def regress_zone(stdict, zgroup):
             refit_d3.append(m[0])
         
         smooth_d3 = savitzky_golay(array(refit_d3), sg_window, sg_poly)
-    
-    # over ride smoothing
+    """
+    # override smoothing
     smooth_d0 = d0_array
     smooth_d1 = d1_array
     smooth_d2 = d2_array
@@ -1292,7 +1381,7 @@ def regress_zone(stdict, zgroup):
     plt.semilogx(Tplt, smooth_d2, 'ro')
     
     plt.subplot(224)
-    plt.semilogx(Tplt, refit_d3, 'go')
+    #plt.semilogx(Tplt, refit_d3, 'go')
     plt.semilogx(Tplt, smooth_d3, 'ro')
     
     plt.suptitle('Depth Coefs')
@@ -1307,8 +1396,15 @@ def regress_zone(stdict, zgroup):
     mod_res = []
     log_drng = arange(1, 2.9, 0.1)
     
+    ii = 0
+    nf_gr_fix = []
     for i, T in enumerate(Tplt):
-        #atten_cor = (- smooth_c2[i]*log10(rhyp) - smooth_c3[i]*(rhyp)) # old
+        pltPeriod = False
+        
+        if T >= 0.1 and T < 5.:
+            pltPeriod = True
+            ii += 1
+
         atten_cor = smooth_c1[i] * log10(rhyp)
         yhinge = smooth_c1[i] * hxfix
         idx = log10(rhyp) > hxfix
@@ -1316,33 +1412,72 @@ def regress_zone(stdict, zgroup):
         
         dep_cor = smooth_d0[i] + smooth_d1[i]*log10(deps)**3 + smooth_d2[i]*log10(deps)**2 + smooth_d3[i]*log10(deps)
         
-        logY = smooth_m0[i] + smooth_m1[i]*(mags-6)**2 + smooth_m2[i]*(mags-6) \
-               + atten_cor + dep_cor
+        mag_cor = smooth_m0[i] + smooth_m1[i]*(mags-6)**2 + smooth_m2[i]*(mags-6)
+                  
+        logY = mag_cor + atten_cor + dep_cor
               
         resY = log(t_amplitudes[i]) - logY
+        
+        #################################################################################
+        # refit near field from hinge distance
+        #################################################################################
+        
+        bins = arange(log10(minDist), hxfix, 0.1)
+        
+        nn = where((isnan(resY) == False) & (isnan(log10(rhyp)) == False) & (isfinite(resY) == True) \
+                    & (vs30 >= 150)  & (auth != 'OA') & (stas != 'COEN') & (stas != 'MTSU'))[0]
+        
+        logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(rhyp[nn]), resY[nn])
+        print(logmedamp, 10**medx)
+        
+        # set data
+        data = odrpack.RealData(medx, logmedamp)
+        
+        # regress
+        refit_near_slope = odrpack.Model(refit_near_gr)
+        odr = odrpack.ODR(data, refit_near_slope, beta0=[-1.])
+        
+        odr.set_job(fit_type=2) #if set fit_type=2, returns the same as least squares
+        out = odr.run()
+        #out.pprint()
+        
+        gr_fix = out.beta[0]
+        nf_gr_fix.append(gr_fix)
+        
+        #################################################################################
+        # get final residuals
+        #################################################################################
+        # apply near-field fix
+        idx = where(rhyp <= 10**hxfix)[0]
+        logY[idx] += gr_fix * (log10(rhyp[idx]) - hxfix)
+        
+        resY = log(t_amplitudes[i]) - logY
          
-        # plot
-        ax = plt.subplot(4,5,i+1)
-        
-        norm = mpl.colors.Normalize(vmin=0, vmax=700)
-        
-        sc = plt.scatter(log10(rhyp), resY, c=deps, marker='o', s=20, \
-                         cmap='viridis_r', norm=norm, alpha=1.0)
-        
-        plt.plot([1,3.4], [0,0], 'r--', lw=1.5)
-        
+        if pltPeriod == True:
+            ax = plt.subplot(4,5,ii)
+            
+            norm = mpl.colors.Normalize(vmin=0, vmax=700)
+            
+            sc = plt.scatter(log10(rhyp), resY, c=deps, marker='o', s=20, \
+                             cmap='viridis_r', norm=norm, alpha=1.0)
+            
+            plt.plot([1,3.4], [0,0], 'r--', lw=1.5)
+            
         # get binned medians
         bins = arange(log10(minDist), log10(maxDist), 0.1)
-        nn = where((isnan(resY) == False) & (isnan(log10(rhyp)) == False) & (isfinite(resY) == True))[0]
+        nn = where((isnan(resY) == False) & (isnan(log10(rhyp)) == False) & (isfinite(resY) == True) \
+                    & (vs30 >= 150)  & (auth != 'OA') & (stas != 'COEN') & (stas != 'MTSU'))[0]
         logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(rhyp[nn]), resY[nn])
-        plt.plot(medx, logmedamp, 'rs', ms=6.5)
         
-        plt.xlim([2,3.4])
-        plt.ylim([-4, 4])
-        plt.ylabel(str(T))
-        
-        if i >= 16:
-            plt.xlabel('log Rhyp (km)')
+        if pltPeriod == True:
+            plt.plot(medx, logmedamp, 'rs', ms=6.5)
+            
+            plt.xlim([2,3.4])
+            plt.ylim([-4, 4])
+            plt.ylabel(str(T))
+            
+            if i >= 16:
+                plt.xlabel('log Rhyp (km)')
     
         sidx = where((resY < -10) & (log10(rhyp)<2.6))[0]
         #sidx = where(resY .)[0]
@@ -1364,8 +1499,14 @@ def regress_zone(stdict, zgroup):
     mod_res = []
     bins = arange(5.4, 8.1, 0.2)
     
-    for i, T in enumerate(Tplt):
-        #atten_cor = (- smooth_c2[i]*log10(rhyp) - smooth_c3[i]*(rhyp)) # old
+    i = 0
+    for T in Tplt:
+        pltPeriod = False
+        
+        if T >= 0.1 and T < 5.:
+            pltPeriod = True
+            i += 1
+
         atten_cor = smooth_c1[i] * log10(rhyp)
         yhinge = smooth_c1[i] * hxfix
         idx = log10(rhyp) > hxfix
@@ -1379,27 +1520,30 @@ def regress_zone(stdict, zgroup):
         resY = log(t_amplitudes[i]) - logY
          
         # plot
-        ax = plt.subplot(4,5,i+1)
-        
-        norm = mpl.colors.Normalize(vmin=0, vmax=700)
-        
-        sc = plt.scatter(mags, resY, c=deps, marker='o', s=20, \
-                         cmap='viridis_r', norm=norm, alpha=1.0)
-        
-        plt.plot([5,8], [0,0], 'r--', lw=1.5)
+        if pltPeriod == True:
+            ax = plt.subplot(4,5,i)
+            
+            norm = mpl.colors.Normalize(vmin=0, vmax=700)
+            
+            sc = plt.scatter(mags, resY, c=deps, marker='o', s=20, \
+                             cmap='viridis_r', norm=norm, alpha=1.0)
+            
+            plt.plot([5,8], [0,0], 'r--', lw=1.5)
         
         # get binned medians
         #bins = arange(log10(minDist), log10(maxDist), 0.1)
         nn = where((isnan(resY) == False) & (isnan(mags) == False) & (isfinite(resY) == True))[0]
         logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, mags[nn], resY[nn])
-        plt.plot(medx, logmedamp, 'rs', ms=6.5)
         
-        plt.xlim([5.,8])
-        plt.ylim([-4, 4])
-        plt.ylabel(str(T))
+        if pltPeriod == True:
+            plt.plot(medx, logmedamp, 'rs', ms=6.5)
         
-        if i >= 16:
-            plt.xlabel('MW')
+            plt.xlim([5.,8])
+            plt.ylim([-4, 4])
+            plt.ylabel(str(T))
+        
+            if i >= 16:
+                plt.xlabel('MW')
     
         sidx = where((resY < -3) & (log10(rhyp)<2.6))[0]
         #sidx = where(resY .)[0]
@@ -1415,7 +1559,7 @@ def regress_zone(stdict, zgroup):
     
     #ctxt = '#ln Y = c0 + c1*(M-6)**2 + c2*(M-6) - c3*log10(Rhyp) - c4*(Rhyp) + (d0 + d1*log10(h)**3 + d2*log10(h)**2 + d3*log10(h))\nT, c0, c1, c2, c3, c4, d0, d1, d2, d3\n'
     #ctxt = '#Rhyp <= hx: ln Y = c0 + c1*(M-6)**2 + c2*(M-6) + (c3*log10(Rhyp)) + (d0 + d1*log10(h)**3 + d2*log10(h)**2 + d3*log10(h))\n'
-    ctxt = '#Rhyp <= hx: ln Y = c0 + c1*(M-6)**2 + c2*(M-6) + (c3*hx +  c4*(log10(Rhyp)-hx)) + (d0 + d1*log10(h)**3 + d2*log10(h)**2 + d3*log10(h))\nT, c0, c1, c2, c3, c4, d0, d1, d2, d3, hx\n'
+    ctxt = '#Rhyp <= hx: ln Y = c0 + c1*(M-6)**2 + c2*(M-6) + (c3*hx +  c4*(log10(Rhyp)-hx)) + (d0 + d1*log10(h)**3 + d2*log10(h)**2 + d3*log10(h)) + n0 * (log10(Rhyp) - hx)\nT, c0, c1, c2, c3, c4, d0, d1, d2, d3, n0, hx\n'
     for i, t in enumerate(Tplt):
         '''
         ctxt += ','.join((str(t), str('%0.5f' % smooth_m0[i]), str('%0.5f' % smooth_m1[i]), str('%0.5f' % smooth_m2[i]), \
@@ -1427,7 +1571,7 @@ def regress_zone(stdict, zgroup):
                           str('%0.5f' % smooth_c1[i]), str('%0.5e' % smooth_c2[i]), \
                           str('%0.5f' % smooth_d0[i]), str('%0.5f' % smooth_d1[i]), \
                           str('%0.5f' % smooth_d2[i]), str('%0.5f' % smooth_d3[i]), \
-                          str('%0.5f' % hxfix))) + '\n'
+                          str('%0.5f' % nf_gr_fix[i]), str('%0.5f' % hxfix))) + '\n'
                           
         '''
         atten_cor = bl_init_c1[i] * log10(rhyp)

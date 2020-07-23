@@ -53,10 +53,10 @@ mdiv = 500.
 if getcwd().startswith('/nas'):
     netcdffile = 'topo/srtm_66_20.grd'
 else:
-    netcdffile = '//Users//trev//Documents//DATA//SRTM03//srtm_66_20//srtm_66_20.grd'
+    netcdffile = '//Users//trev//Documents//DATA//SRTM03//victoria_srtm03.grd'
 nc = NetCDFFile(netcdffile)
 
-zscale =5. #colour
+zscale = 5. #colour
 data = nc.variables['z'][:] / zscale
 lons = nc.variables['x'][:]
 lats = nc.variables['y'][:]
@@ -72,7 +72,7 @@ topodat = m.transform_scalar(data,lons,lats,nx,ny)
 # parse shakemap grid
 ##########################################################################################
 
-xmlPath = 'shakemap/grid.xml'
+xmlPath = 'shakemap/au_scr_gmms/grid.xml'
 
 event, gridspec, fields, xmldata = parse_dataxml(xmlPath)
 
@@ -121,7 +121,7 @@ lats = ogrid[extent[2]:extent[3]:N]
 if getcwd().startswith('/nas'):
     mmidat = m.transform_scalar(resampled.T,lons,lats,nx,ny)
 else:
-    mmidat = m.transform_scalar(resampled,lons,lats,nx,ny)
+    mmidat = m.transform_scalar(resampled.T,lons,lats,nx,ny)
 
 print( 'Getting colormap...')
 # get colormap
@@ -191,7 +191,7 @@ for line in lines:
 x, y = m(mellon, mellat)
 h2 = plt.plot(x, y, 'ko', markerfacecolor='None', lw=2., ms=7)
 
-dyfifile = 'usgs_geocoded_cdi.txt'
+dyfifile = 'mmi_data/usgs_geocoded_cdi.txt'
 dyfidict = parse_usgs_dyfi_geocoded(dyfifile)
 #dyfifile = 'usgs_zip_cdi.txt'
 #dyfidict = parse_usgs_dyfi_zip(dyfifile)
@@ -213,10 +213,12 @@ plt.legend([h1[0], h2[0], h3[0]], ['AU MMI', 'SRC MMI', 'USGS DYFI'], \
 ##########################################################################################
 # add cities
 ##########################################################################################
+import matplotlib.patheffects as PathEffects
+pe = [PathEffects.withStroke(linewidth=2.5, foreground="w")]
 
-clat = [-37.814, -38.197, -38.125, -38.235, -38.161] #-37.]
-clon = [144.964, 146.541, 146.263, 146.395, 145.932] #144.]
-cloc = ['Melbourne','Traralgon', 'Moe', 'Morwell', 'Warragul']
+clat = [-37.814, -38.197, -38.125, -38.235, -38.161, -38.563] #-37.]
+clon = [144.964, 146.541, 146.263, 146.395, 145.932, 146.676] #144.]
+cloc = ['Melbourne','Traralgon', 'Moe', 'Morwell', 'Warragul', 'Yarram']
 x, y = m(clon, clat)
 plt.plot(x, y, 'o', markerfacecolor='maroon', markeredgecolor='w', markeredgewidth=2, markersize=11)
 
@@ -224,14 +226,14 @@ plt.plot(x, y, 'o', markerfacecolor='maroon', markeredgecolor='w', markeredgewid
 off = 0.25
 for i, loc in enumerate(cloc):
     if i == 3:
-        x, y = m(clon[i]+0.02, clat[i]-0.02)
-        plt.text(x, y, loc, size=18, horizontalalignment='left', verticalalignment='top', weight='normal')
+        x, y = m(clon[i]+0.027, clat[i]-0.027)
+        plt.text(x, y, loc, size=18, ha='left', va='top', weight='normal', path_effects=pe)
     elif i == 4:
-        x, y = m(clon[i]-0.02, clat[i]+0.02)
-        plt.text(x, y, loc, size=18, horizontalalignment='right', weight='normal')
+        x, y = m(clon[i]-0.027, clat[i]+0.027)
+        plt.text(x, y, loc, size=18, ha='right', weight='normal', path_effects=pe)
     else:
-        x, y = m(clon[i]+0.02, clat[i]+0.02)
-        plt.text(x, y, loc, size=18, horizontalalignment='left', weight='normal')
+        x, y = m(clon[i]+0.027, clat[i]+0.027)
+        plt.text(x, y, loc, size=18, ha='left', weight='normal', path_effects=pe)
 
 ##########################################################################################
 # annotate earthquake

@@ -10,17 +10,18 @@ def calc_nac_gmm_spectra(mag, rhyp, dep, vs30, region):
     
     coeffs = loadtxt(coeffile, delimiter=',', skiprows=2)  
     
-    T  = coeffs[:,0]
-    c0 = coeffs[:,1]
-    c1 = coeffs[:,2]
-    c2 = coeffs[:,3]
-    c3 = coeffs[:,4]
-    c4 = coeffs[:,5]
-    d0 = coeffs[:,6]
-    d1 = coeffs[:,7]
-    d2 = coeffs[:,8]
-    d3 = coeffs[:,9]
-    hx = coeffs[:,10]
+    T  = coeffs[:,0] #[2:-2]
+    c0 = coeffs[:,1] #[2:-2]
+    c1 = coeffs[:,2] #[2:-2]
+    c2 = coeffs[:,3] #[2:-2]
+    c3 = coeffs[:,4] #[2:-2]
+    c4 = coeffs[:,5] #[2:-2]
+    d0 = coeffs[:,6] #[2:-2]
+    d1 = coeffs[:,7] #[2:-2]
+    d2 = coeffs[:,8] #[2:-2]
+    d3 = coeffs[:,9] #[2:-2]
+    n0 = coeffs[:,10]
+    hx = coeffs[:,11] #[2:-2]
     
     logdep = log10(dep)
 #    lnsa = c0 + c1*(mag-6)**2 + c2*(mag-6) - c3*log10(rhyp) - c4*rhyp # \
@@ -36,10 +37,13 @@ def calc_nac_gmm_spectra(mag, rhyp, dep, vs30, region):
     else:
         hy = c3 * hx[0]
         atten_term = c4 * (log10(rhyp)-hx[0]) + hy
+        
+    near_field_term = n0 * (log10(rhyp)-hx[0])
     
     dep_term = d0 + d1*logdep**3 + d2*logdep**2 + d3*logdep
     
     # get site coefs
+    '''
     sitefile = 'nac_site_amp_coeffs.csv'
     coeffs = loadtxt(sitefile, delimiter=',', skiprows=1)  
     
@@ -48,8 +52,8 @@ def calc_nac_gmm_spectra(mag, rhyp, dep, vs30, region):
     s1 = coeffs[:,2]
     	
     site_term = s0 + s1 / (log10(vs30) - log10(150))
-    
-    lnsa = mag_term + atten_term + dep_term + site_term
+    '''
+    lnsa = mag_term + atten_term + dep_term + near_field_term #+ site_term # ! temp fix!
            
     A19imt = {'per':T, 'sa':lnsa}
 
@@ -190,7 +194,8 @@ def makesubplt(i, fig, plt, sta, sps, mag, dep, ztor, dip, rake, rhyp, vs30):
              
     A19imt_BS = calc_nac_gmm_spectra(mag, rhyp, dep, vs30, 'BS') # use rrup
     A19imt_NGH = calc_nac_gmm_spectra(mag, rhyp, dep, vs30, 'NGH') # use rrup
-    A19imt_OBE = calc_nac_gmm_spectra(mag, rhyp, dep, vs30, 'OBE') # use rrup
+    #A19imt_OBE = calc_nac_gmm_spectra(mag, rhyp, dep, vs30, 'OBE') # use rrup
+    #print(A19imt_BS)
     
     ax = plt.subplot(3, 3, i)
     if colTrue == 'True':
@@ -200,7 +205,7 @@ def makesubplt(i, fig, plt, sta, sps, mag, dep, ztor, dip, rake, rhyp, vs30):
         #plt.loglog(Aea15imt['per'], exp(Aea15imt['sa']),'-' , lw=1.5, color=cs[3])
         plt.loglog(A19imt_BS['per'], exp(A19imt_BS['sa']),'-' , lw=1.5, color=cs[4])
         plt.loglog(A19imt_NGH['per'], exp(A19imt_NGH['sa']),'-' , lw=1.5, color=cs[5])
-        plt.loglog(A19imt_OBE['per'], exp(A19imt_OBE['sa']),'-' , lw=1.5, color=cs[6])
+       # plt.loglog(A19imt_OBE['per'], exp(A19imt_OBE['sa']),'-' , lw=1.5, color=cs[6])
         
     # get recorded process_waves.py psa data
     T, geomean, pga, rhyp = get_site_geomean(sta, folder)
@@ -218,7 +223,7 @@ def makesubplt(i, fig, plt, sta, sps, mag, dep, ztor, dip, rake, rhyp, vs30):
 
     if i == 1:
         #plt.legend(['Yea97', 'AB06','A12imt','Aea16', 'A19 (BS)', 'A19 (NGH)', 'A19 (OB)','Data'],loc=3, fontsize=7.)
-        plt.legend(['Yea97', 'AB06','A12','A19 (BS)', 'A19 (NGH)', 'A19 (OB)', 'Data'],loc=3, fontsize=7.)
+        plt.legend(['Yea97', 'AB06','A12','A19 (BS)', 'A19 (NGH)', 'Data'],loc=3, fontsize=7.)
 
 '''
 start main
@@ -256,6 +261,7 @@ fig = plt.figure(ii, figsize=(10, 10))
 #cmap = plt.cm.get_cmap('Spectral', 7)
 ncols = 7
 cptfile = '/Users/trev/Documents/DATA/GMT/cpt/gay-flag-1978.cpt'
+cptfile = '/Users/trev/Documents/DATA/GMT/cpt/keshet.cpt'
 #cptfile = 'U:\\DATA\\GMT\\cpt\\gay-flag-1978.cpt'
 cmap, zvals = cpt2colormap(cptfile, ncols+1)
 cmap = remove_last_cmap_colour(cmap)
@@ -379,10 +385,10 @@ for stn in usites:
         
         if i == 9:
             i = 0
-            plt.savefig(prefix+'_'+str(ii)+'_spectra.png', format='png', dpi=150, bbox_inches='tight')
+            plt.savefig('event_psa/'+prefix+'_'+str(ii)+'_spectra.png', format='png', dpi=150, bbox_inches='tight')
             ii += 1
             fig = plt.figure(ii, figsize=(10, 10))
 
-plt.savefig(prefix+'_'+str(ii)+'_spectra.png', format='png', dpi=150, bbox_inches='tight')
+plt.savefig('event_psa/'+prefix+'_'+str(ii)+'_spectra.png', format='png', dpi=150, bbox_inches='tight')
 plt.show()
 

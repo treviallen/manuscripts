@@ -157,7 +157,6 @@ for shape in shapes:
 import matplotlib.patheffects as PathEffects
 pe = [PathEffects.withStroke(linewidth=2.5, foreground="w")]
 
-
 clat = [-38.197, -38.125, -38.235, -38.161] #-37.814, 
 clon = [146.541, 146.263, 146.395, 145.932] #144.964, 
 cloc = ['Traralgon', 'Moe', 'Morewell', 'Warragul'] # 'Melbourne', 

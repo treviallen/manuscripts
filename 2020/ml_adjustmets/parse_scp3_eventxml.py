@@ -1,4 +1,5 @@
-from misc_tools import dictlist2array, listdir_extension
+from misc_tools import dictlist2array, listdir_extension, get_mpl2_colourlist, \
+                       get_binned_stats
 from os import path
 from numpy import nan, nanmedian, arange
 import matplotlib.pyplot as plt
@@ -68,7 +69,10 @@ for scpxmlfile in scpxmlfiles:
 ###############################################################################
 fig = plt.figure(1, figsize=(11,11))
 evmag_uncert = dictlist2array(evdict, 'mag_uncert')
+evmag = dictlist2array(evdict, 'mag')
 origin = dictlist2array(evdict, 'origin')
+allmags = evmag
+alluncert = evmag_uncert
 print(min(origin))
 print(max(origin))
 print('median =', nanmedian(evmag_uncert))
@@ -104,10 +108,11 @@ for poly in shapes:
     polygons.append(Polygon(poly.points))
     
 ml_reg = get_field_data(sf, 'ML_REGION', 'str')
-mmin = 2.5
+mmin = 2.45
 
 i = 2
 letter = ['(b)', '(c)', '(d)']
+reg_dict = []
 for poly, reg in zip(polygons, ml_reg):
     reg_evdict = []
     for ev in evdict:
@@ -117,6 +122,8 @@ for poly, reg in zip(polygons, ml_reg):
             
     # now plot regions
     evmag_uncert = dictlist2array(reg_evdict, 'mag_uncert')
+    evmag = dictlist2array(reg_evdict, 'mag')
+    
     print('median =', nanmedian(evmag_uncert))
     
     ax = plt.subplot(2,2,i)
@@ -126,7 +133,7 @@ for poly, reg in zip(polygons, ml_reg):
         plt.xlabel('$\mathregular{M_L}$ Uncertainty', fontsize=16)
     if i == 3:
         plt.ylabel('Count', fontsize=16)
-    plt.xlim([0, 0.9])
+    plt.xlim([0, 1.0])
     
     text = ' '.join((r'$\tilde{x}_{'+reg+'}$', '=', str('%0.2f' % nanmedian(evmag_uncert))+'\n',\
                      r'$\it{n}$', '=', str(len(evmag_uncert)),''))
@@ -135,7 +142,32 @@ for poly, reg in zip(polygons, ml_reg):
     plt.text(0.02*0.9, ylims[1]*0.98, letter[i-2], ha='left', va='top', fontsize=20)
    
     i += 1
+    
+    reg_tmp = {'mag_uncert': evmag_uncert, 'mag': evmag, 'reg': reg}
+    print (len(evmag_uncert))
+    print (len(evmag))
+    reg_dict.append(reg_tmp)
 
 plt.savefig('ml_uncertainty_histograms.png', fmt='png', bbox_inches='tight')
 plt.show()
 
+###############################################################################
+# plot mag uncert with mag
+###############################################################################
+
+fig = plt.figure(2, figsize=(10,5))
+sym = ['^', 'D', 'o']
+cols = get_mpl2_colourlist()
+for i, reg in enumerate(reg_dict):
+    plt.plot(reg['mag'], reg['mag_uncert'], sym[i], mec=cols[i], mfc='none', mew=1.5, label = reg['reg'])
+
+# get binned stats
+bins = arange(2.5, 6.1, 0.1)
+med_uncert, std_uncert, medx, bins, nperbin = get_binned_stats(bins, allmags, alluncert)
+plt.errorbar(bins, med_uncert, yerr=std_uncert, fmt='rs', label='Binned Median')  
+plt.legend(loc=1, numpoints=1)
+plt.ylim([0, 1])
+plt.xlim([2.4, 5])
+
+plt.savefig('ml_uncertainty_vs_ml.png', fmt='png', bbox_inches='tight')    
+plt.show()
