@@ -8,11 +8,11 @@ from obspy.taup import TauPyModel
 from readwaves import return_data, readeqwave, readbkn
 from mapping_tools import distance, km2deg
 from response import get_response_info
-from misc_tools import listdir_extension
+from misc_tools import listdir_extension, dictlist2array
 from data_fmt_tools import return_sta_data
 from datetime import datetime, timedelta
 from os import path, getcwd, remove
-from numpy import asarray
+from numpy import asarray, array, median, where
 import matplotlib.pyplot as plt
 plt.ion()
 import matplotlib as mpl
@@ -41,25 +41,25 @@ def do_picks(st, eqdt):
            if tr.stats.channel[1] != 'N' and len(st) > 3:
                i += 1
                ax = plt.subplot(3, 1, i)
-               plt_trace(tr, plt, ax, reftime)
+               tr = plt_trace(tr, plt, ax, reftime)
                channels.append(tr.stats.channel)
            
            elif tr.stats.channel[1] != 'N' and len(st) == 2:
                i += 1
                ax = plt.subplot(3, 1, i)
-               plt_trace(tr, plt, ax, reftime)
+               tr = plt_trace(tr, plt, ax, reftime)
                channels.append(tr.stats.channel)
                
            elif len(st) == 3:
                i += 1
                ax = plt.subplot(3, 1, i)
-               plt_trace(tr, plt, ax, reftime)
+               tr = plt_trace(tr, plt, ax, reftime)
                channels.append(tr.stats.channel)
            
            elif len(st) < 3 and tr.stats.channel[1] != 'N':
                i += 1
                ax = plt.subplot(3, 1, i)
-               plt_trace(tr, plt, ax, reftime)
+               tr = plt_trace(tr, plt, ax, reftime)
                channels.append(tr.stats.channel)
     
     # labels last
@@ -68,12 +68,11 @@ def do_picks(st, eqdt):
     plt.suptitle(' '.join((tr.stats.starttime.strftime('%Y-%m-%dT%H:%M:%S.%f'), tr.stats.station)))
     
     # now traces are plotted, pick phases
-    picks = asarray(plt.ginput(3,timeout=-1))
+    picks = asarray(plt.ginput(2,timeout=-1))
 
     # get x indicies for fft
     x1 = int((picks[0,0]-reftime) * tr.stats.sampling_rate)
     x2 = int((picks[1,0]-reftime) * tr.stats.sampling_rate)
-    x3 = int((picks[2,0]-reftime) * tr.stats.sampling_rate)
     
     plt.close(fig)
     
@@ -84,7 +83,7 @@ def do_picks(st, eqdt):
         channels.append('')
         channels.append('')
     
-    return picks, x1, x2, x3, channels
+    return picks, x1, x2, channels, tr
     
 ###############################################################################
 # acc plotting function
@@ -121,12 +120,11 @@ def do_acc_picks(st, eqdt):
     plt.suptitle(' '.join((tr.stats.starttime.strftime('%Y-%m-%dT%H:%M:%S.%f'), tr.stats.station)))
     
     # now traces are plotted, pick phases
-    picks = asarray(plt.ginput(3,timeout=-1))
+    picks = asarray(plt.ginput(2,timeout=-1))
 
     # get x indicies for fft
     x1 = int((picks[0,0]-reftime) * tr.stats.sampling_rate)
     x2 = int((picks[1,0]-reftime) * tr.stats.sampling_rate)
-    x3 = int((picks[2,0]-reftime) * tr.stats.sampling_rate)
     
     plt.close(fig)
     
@@ -137,7 +135,7 @@ def do_acc_picks(st, eqdt):
         channels.append('')
         channels.append('')
     
-    return picks, x1, x2, x3, channels
+    return picks, x1, x2, channels
 
 
 # plot individual traces
@@ -148,6 +146,7 @@ def plt_trace(tr, plt, ax, reftime):
     
     # fiter record
     tr_filt = tr.copy()
+    tr_filt = tr_filt.differentiate()
     tr_filt.filter('bandpass', freqmin=0.2, freqmax=tr.stats.sampling_rate*0.45, corners=2, zerophase=True)
     
     # get absolute arrival times
@@ -155,6 +154,8 @@ def plt_trace(tr, plt, ax, reftime):
     #sArrival = UTCDateTime(eqdt) + sTravelTime
     
     plt.plot(times, tr_filt.data, 'b-', lw=0.5, label='Data')
+    
+    
     #ax = plt.gca()
     ylims = ax.get_ylim()
     
@@ -184,9 +185,10 @@ def plt_trace(tr, plt, ax, reftime):
     #    plt.plot([rgTravelTime, rgTravelTime], ylims, 'k--', label='Rg Phase')
     plt.plot([lgTravelTime, lgTravelTime], ylims, 'm--', label='Lg Phase')
     
-    
     plt.ylabel(' '.join((tr.stats.channel,'-',str('%0.0f' % rngkm),'km')), fontsize=15)
     plt.legend(fontsize=10)
+    
+    return tr_filt
 
 ###############################################################################
 # set velocity mdel
@@ -228,8 +230,9 @@ outtxt = ''
 mseedfiles = open(records).readlines(dat[9])[0:]"""
 
 #mseedfiles = listdir_extension('mseed_dump', 'mseed')
-mseedfiles = listdir_extension('missing_mseed', 'mseed')
+mseedfiles = listdir_extension('hsd_mseed', 'mseed')
 
+records = []
 m = 1
 for mseedfile in mseedfiles:
     
@@ -238,17 +241,17 @@ for mseedfile in mseedfiles:
 # first check to see if the pick file exists
 ###############################################################################
     recfile = path.split(mseedfile)[-1][:-5]+'picks'
-    pick_path = path.join('record_picks',recfile)
+    pick_path = path.join('hsd_picks',recfile)
     
     # check if pick file exists
     if not path.isfile(pick_path):
         
         # read mseed
         #st = read(path.join('mseed_dump', mseedfile))
-        st = read(path.join('missing_mseed', mseedfile))
+        st = read(path.join('hsd_mseed', mseedfile))
         
         # remove junk channels
-        st = remove_low_sample_data(st)
+        #st = remove_low_sample_data(st)
         
         ###############################################################################
         # associate event and get distance
@@ -274,82 +277,70 @@ for mseedfile in mseedfiles:
             rngkm, azim, baz = distance(eqla, eqlo, sta_data['stla'], sta_data['stlo'])
             rngdeg = km2deg(rngkm)
             
-            if rngkm < 1800.:
-            
-                # get arrivals
-                if eqdp < 0:
-                    arrival_dep = 0.
-                else:
-                    arrival_dep = eqdp
-                    
-                arrivals = model.get_travel_times(source_depth_in_km=arrival_dep, distance_in_degree=rngdeg)
-                
-                # find P and S
-                p = []
-                s = []
-                for a in arrivals:
-                    if a.name.upper() == 'P':
-                        p.append(a.time)
-                    if a.name.upper() == 'S':
-                        s.append(a.time)
+            chans = []
+            hsd_max = []
+            lsd_max = []
+            sampling_rte = []
+            ratios = []
+            if rngkm < 1000.:
+                for tr in st:
+                    if not st[0].stats.channel[1] == 'N':
+                        tr_acc = tr.differentiate()
                         
-                pTravelTime = p[0]
-                sTravelTime = s[0]
-                
-                # estimate Lg Arrival (from Goulet et al 2014 P25-26)
-                lgTravelTime = sTravelTime + 8.71 * 0.026*rngkm
-                
-                sTravelTime2 = 4 * sTravelTime
-                
-                # estimate Rg
-                rgTravelTime = rngkm/3.05
-                
-                ###############################################################################
-                # plot
-                ###############################################################################
-                # plot seismos only
-                picks, x1, x2, x3, channels = do_picks(st, eqdt)
-                
-                # check acc
-                if rngkm < 800 and x1 > x3:
-                    doAcc = False
-                    for tr in st:
-                        if tr.stats.channel[1] == 'N':
-                           doAcc = True
-                    if doAcc == True:
-                        picks, x1, x2, x3, channels = do_acc_picks(st, eqdt)
+                    else:
+                        tr_acc = tr.copy()
+                    
+                    # only use HSD horizontal chans
+                    if tr.stats.sampling_rate >= 100 and tr.stats.channel.endswith('Z') == False:
+                        chans.append(tr.stats.channel)
+                        sampling_rte.append(tr.stats.sampling_rate)
                         
-                # capture data proc file
-                tr = st[0]
-                outtxt = ','.join((tr.stats.starttime.strftime('%Y-%m-%dT%H:%M:%S.%f'), eqdt.strftime('%Y-%m-%dT%H:%M:%S.%f'), \
-                                   str(eqlo), str(eqla), str(eqdp), str(eqmag), str('%0.2f' % rngkm), str('%0.1f' % azim), \
-                                   str(st[0].stats.sampling_rate), channels[0], channels[1], channels[2], \
-                                   str('%0.3f' % picks[0,0]), str('%0.3f' % picks[1,0]), str('%0.3f' % picks[2,0]), \
-                                   str(x1), str(x2), str(x3), \
-                                   path.join(getcwd(), 'mseed_dump', mseedfile)))
-                
-                # only write if x3 > x1
-                if x3 > x1:
-                    # save processing file
+                        tr_acc.filter('bandpass', freqmin=0.05, freqmax=tr.stats.sampling_rate*0.45, corners=2, zerophase=True)
+                        
+                        # get hsd max 
+                        hsd_max.append(abs(tr_acc.max()))
+                        
+                        # resample
+                        tr_acc.resample(40) 
+                        lsd_max.append(abs(tr_acc.max()))
                     
-                    outfile = path.join('record_picks',recfile)
-                    f = open(outfile, 'w')
-                    f.write(outtxt)
-                    f.close()
-                 
-                # write junk file so don't reveiw again
-                else:
-                    outfile = path.join('record_picks',recfile)
-                    f = open(outfile, 'w')
-                    f.write('junk')
-                    f.close()
+                # get idx
+                idx = []
+                if len(chans) > 2:
+                    for i, chan in enumerate(chans):
+                        if chan.startswith('HH'):
+                            idx.append(i)
+                    if len(idx) < 2:
+                        idx = []
+                        for i, chan in enumerate(chans):
+                            if chan.startswith('HN'):
+                                idx.append(i)
+                                
+                elif len(chans) ==  2:
+                    idx = [0, 1]
+                # get ratios
+                ratio = max(array(hsd_max)[idx]) / max(array(lsd_max)[idx])
+                print(array(chans)[idx])
                     
-            else:
-                print('    R > 1800 km')    
+                record = {'mag':eqmag, 'channels':chans, 'samplingrate':sampling_rte, \
+                          'hsd_max':hsd_max, 'lsd_max': lsd_max, 'ratio':ratio, 'mseed':mseedfile}
             
         elif evFound == False:
            print('Cannot associate event for:', mseedfile)
            #remove(path.join('mseed_dump', mseedfile))
            
-        m += 1
-        
+    records.append(record)
+    
+###############################################################################
+# now analyse
+
+ratios = dictlist2array(records, 'ratio')
+mags = dictlist2array(records, 'mag')
+
+med_ratio = median(ratios)
+
+fig = plt.figure(1, figsize=(8, 4))
+ax = plt.subplot(111)
+
+plt.semilogy(mags, ratios, 'o')
+plt.show()

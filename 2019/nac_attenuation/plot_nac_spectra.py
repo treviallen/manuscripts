@@ -43,7 +43,6 @@ def calc_nac_gmm_spectra(mag, rhyp, dep, vs30, region):
     dep_term = d0 + d1*logdep**3 + d2*logdep**2 + d3*logdep
     
     # get site coefs
-    '''
     sitefile = 'nac_site_amp_coeffs.csv'
     coeffs = loadtxt(sitefile, delimiter=',', skiprows=1)  
     
@@ -52,8 +51,8 @@ def calc_nac_gmm_spectra(mag, rhyp, dep, vs30, region):
     s1 = coeffs[:,2]
     	
     site_term = s0 + s1 / (log10(vs30) - log10(150))
-    '''
-    lnsa = mag_term + atten_term + dep_term + near_field_term #+ site_term # ! temp fix!
+    
+    lnsa = mag_term + atten_term + dep_term + near_field_term + site_term
            
     A19imt = {'per':T, 'sa':lnsa}
 
@@ -369,7 +368,7 @@ for stn in usites:
     if stn != 'CDNM.HNH':
         i += 1
         print('rhyp', rhyp)
-        vs30 = get_station_vs30(stn)[0]
+        vs30 = get_station_vs30(stn)[2] # use USGS
         if isnan(vs30):
             vs30 = 450
             

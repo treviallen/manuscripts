@@ -1,4 +1,4 @@
-def calc_nac_gmm_spectra(mag, rhyp, dep, region):
+def calc_nac_gmm_spectra(mag, rhyp, dep, vs30, region):
     from numpy import loadtxt, log10, log
     
     if region == 'BS':
@@ -10,17 +10,18 @@ def calc_nac_gmm_spectra(mag, rhyp, dep, region):
     
     coeffs = loadtxt(coeffile, delimiter=',', skiprows=2)  
     
-    T  = coeffs[:,0]
-    c0 = coeffs[:,1]
-    c1 = coeffs[:,2]
-    c2 = coeffs[:,3]
-    c3 = coeffs[:,4]
-    c4 = coeffs[:,5]
-    d0 = coeffs[:,6]
-    d1 = coeffs[:,7]
-    d2 = coeffs[:,8]
-    d3 = coeffs[:,9]
-    hx = coeffs[:,10]
+    T  = coeffs[:,0] #[2:-2]
+    c0 = coeffs[:,1] #[2:-2]
+    c1 = coeffs[:,2] #[2:-2]
+    c2 = coeffs[:,3] #[2:-2]
+    c3 = coeffs[:,4] #[2:-2]
+    c4 = coeffs[:,5] #[2:-2]
+    d0 = coeffs[:,6] #[2:-2]
+    d1 = coeffs[:,7] #[2:-2]
+    d2 = coeffs[:,8] #[2:-2]
+    d3 = coeffs[:,9] #[2:-2]
+    n0 = coeffs[:,10]
+    hx = coeffs[:,11] #[2:-2]
     
     logdep = log10(dep)
 #    lnsa = c0 + c1*(mag-6)**2 + c2*(mag-6) - c3*log10(rhyp) - c4*rhyp # \
@@ -36,10 +37,22 @@ def calc_nac_gmm_spectra(mag, rhyp, dep, region):
     else:
         hy = c3 * hx[0]
         atten_term = c4 * (log10(rhyp)-hx[0]) + hy
+        
+    near_field_term = n0 * (log10(rhyp)-hx[0])
     
     dep_term = d0 + d1*logdep**3 + d2*logdep**2 + d3*logdep
     
-    lnsa = mag_term + atten_term #+ dep_term
+    # get site coefs
+    sitefile = 'nac_site_amp_coeffs.csv'
+    coeffs = loadtxt(sitefile, delimiter=',', skiprows=1)  
+    
+    T  = coeffs[:,0]
+    s0 = coeffs[:,1]
+    s1 = coeffs[:,2]
+    	
+    site_term = s0 + s1 / (log10(vs30) - log10(150))
+    
+    lnsa = mag_term + atten_term #+ dep_term + near_field_term + site_term
            
     A19imt = {'per':T, 'sa':lnsa}
 

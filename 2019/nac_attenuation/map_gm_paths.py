@@ -3,7 +3,7 @@ from matplotlib import colors, colorbar
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 from mpl_toolkits.basemap import Basemap
-from matplotlib.colors import LightSource
+#from matplotlib.colors import LightSource
 from numpy import arange, mean, percentile, array, unique, where, argsort, floor
 from netCDF4 import Dataset as NetCDFFile
 from gmt_tools import cpt2colormap
