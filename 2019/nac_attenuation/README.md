@@ -1,0 +1,6 @@
+1) run "pick_phases.py"
+2) run "get_sn_fft_spectra.py"
+3) run "regress_banda_atten.py region"
+4) run "map_gm_paths.py"
+5) run "plt_mag_dist.py"
+6) run "regress_nac_site_class_model.py"
