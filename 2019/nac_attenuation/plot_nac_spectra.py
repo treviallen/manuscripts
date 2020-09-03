@@ -37,8 +37,12 @@ def calc_nac_gmm_spectra(mag, rhyp, dep, vs30, region):
     else:
         hy = c3 * hx[0]
         atten_term = c4 * (log10(rhyp)-hx[0]) + hy
-        
-    near_field_term = n0 * (log10(rhyp)-hx[0])
+    
+    # get near source correction
+    if log10(rhyp) < hx[0]:
+        near_field_term = n0 * (log10(rhyp)-hx[0])
+    else:
+        near_field_term = 0.0
     
     dep_term = d0 + d1*logdep**3 + d2*logdep**2 + d3*logdep
     
@@ -57,7 +61,6 @@ def calc_nac_gmm_spectra(mag, rhyp, dep, vs30, region):
     A19imt = {'per':T, 'sa':lnsa}
 
     return A19imt
-
 
 # finds files and gets geometric mean of two horizonal componets
 def get_site_geomean(stn, folder):

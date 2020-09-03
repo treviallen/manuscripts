@@ -165,6 +165,8 @@ for saf in safiles:
 ################################################################################
 # now get geometric mean for each stn
 ################################################################################
+sg_window = 17
+sg_poly = 2
 
 for i, st in enumerate(stdict):
     geom = nan
@@ -200,6 +202,7 @@ for i, st in enumerate(stdict):
         
         geom = exp((log(edat) + log(ndat)) / 2.)        
         stdict[i]['geom'] = geom
+        stdict[i]['smooth_geom'] = savitzky_golay(geom, sg_window, sg_poly)
     
     # else, get on or other horizontal
     elif st['chans'][0] == 1 or st['chans'][1] == 1:
@@ -209,6 +212,7 @@ for i, st in enumerate(stdict):
                 and rec['chan'] == st['chstr'][0]:
                 
                 stdict[i]['geom'] = rec['sa']
+                stdict[i]['smooth_geom'] = savitzky_golay(rec['sa'], sg_window, sg_poly)
                 # add additional info
                 stdict[i]['rhyp'] = rec['rhyp']
                 stdict[i]['azim'] = rec['azim']
@@ -229,6 +233,7 @@ for i, st in enumerate(stdict):
                 and rec['chan'] == st['chstr'][1]:
                 
                 stdict[i]['geom'] = rec['sa']
+                stdict[i]['smooth_geom'] = savitzky_golay(rec['sa'], sg_window, sg_poly)
                 # add additional info
                 stdict[i]['rhyp'] = rec['rhyp']
                 stdict[i]['azim'] = rec['azim']
@@ -540,8 +545,8 @@ def normalise_data(stdict, T):
         
         # get events within mag and T bin
         #midx = where((mags >= (mplt-mpltrng)) & (mags < (mplt+mpltrng)) & (deps >= 30.))[0]
-        midx = where((mags >= (mplt-mpltrng)) & (mags < (mplt+mpltrng)) & (vs30 >= 150) & (auth != 'OA') \
-                      & (stas != 'COEN') & (stas != 'MTSU'))[0]
+        midx = where((mags >= (mplt-mpltrng)) & (mags < (mplt+mpltrng)) & (vs30 >= 150) & (auth != 'OAH') \
+                      & (stas != 'COENH') & (stas != 'MTSU'))[0]
         
         if len(midx) > 0:
     
@@ -860,10 +865,10 @@ def regress_zone(stdict, zgroup):
             # for banda sea - just use h > 40 km to calibrate mag scaling
             if zgroup == 'BS':
                 midx = where((mags >= (mplt-mpltrng)) & (mags < (mplt+mpltrng)) & (isnan(amp_plt) == False) \
-                              & (deps > 40.) & (vs30 >= 150) & (auth != 'OA') & (stas != 'COEN') & (stas != 'MTSU'))[0]
+                              & (deps > 40.) & (vs30 >= 150) & (auth != 'OAH') & (stas != 'COENH') & (stas != 'MTSU'))[0]
             else:
                 midx = where((mags >= (mplt-mpltrng)) & (mags < (mplt+mpltrng)) & (isnan(amp_plt) == False) \
-                              & (deps < 300.) & (vs30 >= 150) & (auth != 'OA') & (stas != 'COEN') & (stas != 'MTSU'))[0]
+                              & (deps < 300.) & (vs30 >= 150) & (auth != 'OAH') & (stas != 'COENH') & (stas != 'MTSU'))[0]
             
             if len(midx) > 0:
                 # get binned medians
@@ -1164,10 +1169,10 @@ def regress_zone(stdict, zgroup):
         
         if zgroup == 'OBE':
             nn = where((isnan(resY) == False) & (isnan(log10(deps)) == False) & (isfinite(resY) == True) & (deps < 300.) \
-                        & (vs30 >= 150) & (auth != 'OA') & (stas != 'COEN') & (stas != 'MTSU'))[0]
+                        & (vs30 >= 150) & (auth != 'OAH') & (stas != 'COENH') & (stas != 'MTSU'))[0]
         else:
             nn = where((isnan(resY) == False) & (isnan(log10(deps)) == False) & (isfinite(resY) == True) \
-                        & (vs30 >= 150) & (auth != 'OA') & (stas != 'COEN') & (stas != 'MTSU'))[0]
+                        & (vs30 >= 150) & (auth != 'OAH') & (stas != 'COENH') & (stas != 'MTSU'))[0]
         
         logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(deps[nn]), resY[nn])
         
@@ -1425,7 +1430,7 @@ def regress_zone(stdict, zgroup):
         bins = arange(log10(minDist), hxfix, 0.1)
         
         nn = where((isnan(resY) == False) & (isnan(log10(rhyp)) == False) & (isfinite(resY) == True) \
-                    & (vs30 >= 150)  & (auth != 'OA') & (stas != 'COEN') & (stas != 'MTSU'))[0]
+                    & (vs30 >= 150)  & (auth != 'OAH') & (stas != 'COENH') & (stas != 'MTSU'))[0]
         
         logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(rhyp[nn]), resY[nn])
         print(logmedamp, 10**medx)
@@ -1466,7 +1471,7 @@ def regress_zone(stdict, zgroup):
         # get binned medians
         bins = arange(log10(minDist), log10(maxDist), 0.1)
         nn = where((isnan(resY) == False) & (isnan(log10(rhyp)) == False) & (isfinite(resY) == True) \
-                    & (vs30 >= 150)  & (auth != 'OA') & (stas != 'COEN') & (stas != 'MTSU'))[0]
+                    & (vs30 >= 150)  & (auth != 'OAH') & (stas != 'COENH') & (stas != 'MTSU'))[0]
         logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(rhyp[nn]), resY[nn])
         
         if pltPeriod == True:
@@ -1532,7 +1537,7 @@ def regress_zone(stdict, zgroup):
         
         # get binned medians
         #bins = arange(log10(minDist), log10(maxDist), 0.1)
-        nn = where((isnan(resY) == False) & (isnan(mags) == False) & (isfinite(resY) == True))[0]
+        nn = where((isnan(resY) == False) & (isnan(mags) == False) & (isfinite(resY) == True) & (auth != 'OAH'))[0]
         logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, mags[nn], resY[nn])
         
         if pltPeriod == True:

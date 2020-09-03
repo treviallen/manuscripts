@@ -74,7 +74,7 @@ from scipy.stats import linregress
 import pickle
 
 print('Loading pkl file...')
-stdict = pickle.load(open("stdict.pkl", "rb" ))
+stdict = pickle.load(open("stdict_ampfact.pkl", "rb" ))
 
 shpfile = 'shapefiles/nac_gmm_zones.shp'
 sf = shapefile.Reader(shpfile)

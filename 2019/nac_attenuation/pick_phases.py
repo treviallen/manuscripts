@@ -216,7 +216,7 @@ def parse_usgs_events(usgscsv):
         
     return evdict
 
-usgscsv = '20200511_merged_events.csv'
+usgscsv = '20200821_merged_events.csv'
 #usgscsv = '2019-02-26_event.csv'
 # parse catalogue
 evdict = parse_usgs_events(usgscsv)
@@ -228,7 +228,7 @@ outtxt = ''
 mseedfiles = open(records).readlines(dat[9])[0:]"""
 
 #mseedfiles = listdir_extension('mseed_dump', 'mseed')
-mseedfiles = listdir_extension('missing_mseed', 'mseed')
+mseedfiles = listdir_extension('mseed_2020', 'mseed')
 
 m = 1
 for mseedfile in mseedfiles:
@@ -245,7 +245,7 @@ for mseedfile in mseedfiles:
         
         # read mseed
         #st = read(path.join('mseed_dump', mseedfile))
-        st = read(path.join('missing_mseed', mseedfile))
+        st = read(path.join('mseed_2020', mseedfile))
         
         # remove junk channels
         st = remove_low_sample_data(st)

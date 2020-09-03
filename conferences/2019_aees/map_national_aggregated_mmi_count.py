@@ -174,8 +174,11 @@ mpl.style.use('classic')
 # get colormap
 if getcwd().startswith('/nas'):
     cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/qual-dark-06.cpt'
+    cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/WhiteBlueGreenYellowRed.cpt'
 else:
     cptfile = '//Users//trev//Documents//DATA//GMT//cpt//qual-dark-06.cpt'
+    cptfile = '//Users//trev//Documents//DATA//GMT//cpt//WhiteBlueGreenYellowRed.cpt'
+    perc2 9lev
 ncols = 6
 cmap, zvals = cpt2colormap(cptfile, ncols+1, rev=False)
 cmap = remove_last_cmap_colour(cmap)
