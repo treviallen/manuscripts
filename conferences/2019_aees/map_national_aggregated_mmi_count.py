@@ -32,12 +32,15 @@ from datetime import datetime
 ###############################################################################
 
 gacsv = 'earthquakes_export_edit.csv'
+gacsv = 'earthquakes_export_oct_2020_edit.csv'
+
 events = parse_ga_event_query(gacsv)
 
 ###############################################################################
 # grab 10-km aggregated
 ###############################################################################
-json_folder = 'all_felt_reports_aggregated'
+json_folder = '2019_all_felt_reports_aggregated'
+json_folder = '2020_bulk_felt_reports_geojson'
 
 # getting aggregated files
 all_geojson = listdir_extension(json_folder, 'geojson')
@@ -172,6 +175,7 @@ mpl.style.use('classic')
 # get cmap
 ##########################################################################################
 # get colormap
+'''
 if getcwd().startswith('/nas'):
     cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/qual-dark-06.cpt'
     cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/WhiteBlueGreenYellowRed.cpt'
@@ -179,9 +183,11 @@ else:
     cptfile = '//Users//trev//Documents//DATA//GMT//cpt//qual-dark-06.cpt'
     cptfile = '//Users//trev//Documents//DATA//GMT//cpt//WhiteBlueGreenYellowRed.cpt'
     perc2 9lev
-ncols = 6
 cmap, zvals = cpt2colormap(cptfile, ncols+1, rev=False)
 cmap = remove_last_cmap_colour(cmap)
+'''
+ncols = 6
+cmap = plt.get_cmap('viridis_r', ncols)
 cs = (cmap(arange(ncols)))
 
 ##########################################################################################
