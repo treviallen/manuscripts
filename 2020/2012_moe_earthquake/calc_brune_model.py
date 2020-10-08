@@ -20,7 +20,7 @@ fdsfiles = listdir_extension(folder, 'fds')
 
 interpfreqs = logspace(-1, log10(50), 100)
 maxr = 430.
-minr = 50.
+minr = 20.
 
 # get stn from file list
 fdsdict = []
@@ -260,7 +260,7 @@ for i, fds in enumerate(fdsdict):
         else:
             stack_logfds = vstack((stack_logfds, log(corfds)))
 
-leg1 = plt.legend(handles=handles1, loc=3, fontsize=13, ncol=2)
+leg1 = plt.legend(handles=handles1, loc=3, fontsize=12, ncol=2)
 
 # get mean of logfds
 mean_fds = exp(stack_logfds.mean(axis=0))
@@ -333,14 +333,36 @@ print('\nf0', f0, 'Hz' )
 # plot fitted curve
 fitted_curve = omega0 / (1 + (interpfreqs / f0)**2)
 h3, = plt.loglog(interpfreqs, fitted_curve, 'k-', lw=2., label='Fitted Brune Model')
-plt.legend(handles=[h2, h3], loc=1, fontsize=16)
+plt.legend(handles=[h2, h3], loc=1, fontsize=13)
 plt.gca().add_artist(leg1)
 
 plt.xlim([0.3, 35])
+
 if folder.startswith('fds/20120720'):
     plt.ylim([1E-6, .03])
 else:
     plt.ylim([1E-5, .3])
+
+# annotate arrows
+xlim = ax.get_xlim()
+log_xlim_rng = 0.17*(log10(xlim[1]) - log10(xlim[0]))
+start_xtxt = 10**(log10(f0) + log_xlim_rng)
+
+ax.annotate(r'$\Omega_0$', xy=(f0, omega0), xycoords='data', xytext=(start_xtxt, omega0), 
+            fontsize=18, va='center',
+            arrowprops=dict(arrowstyle="-|>, head_width=0.2, head_length=0.8", 
+            linewidth=1., facecolor='k', edgecolor='k'))
+
+ylim = ax.get_ylim()
+log_ylim_rng = 0.17*(log10(ylim[1]) - log10(ylim[0]))
+start_ytxt = 10**(log10(omega0) + log_ylim_rng)
+
+ax.annotate(r'$f_0$', xy=(f0, omega0), xycoords='data', xytext=(f0, start_ytxt), 
+            fontsize=18, ha='center',
+            arrowprops=dict(arrowstyle="-|>, head_width=0.2, head_length=0.8", 
+            linewidth=1., facecolor='k', edgecolor='k'))
+
+# annotate labels
 plt.xlabel('Frequency (Hz)', fontsize=18)
 plt.ylabel('Fourier Displacement Spectra (m-s)', fontsize=18)
 plt.savefig(folder.split('/')[1]+'.Moe.brunefit.png', format='png', dpi=150, bbox_inches='tight')
