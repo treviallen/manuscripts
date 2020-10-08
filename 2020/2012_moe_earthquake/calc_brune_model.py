@@ -20,7 +20,7 @@ fdsfiles = listdir_extension(folder, 'fds')
 
 interpfreqs = logspace(-1, log10(50), 100)
 maxr = 430.
-minr = 0.
+minr = 50.
 
 # get stn from file list
 fdsdict = []
@@ -241,8 +241,10 @@ for i, fds in enumerate(fdsdict):
         fdsdict[i]['corfds']  = corfds
         if i <= 9:
             h1, = plt.loglog(fds['smfreqs'],fds['corfds'],'-', c=cs[i], lw=1, label=fds['stn'])
-        else:
+        elif i <= 19:
             h1, = plt.loglog(fds['smfreqs'],fds['corfds'],'--', c=cs[i-10], lw=1, label=fds['stn'])
+        else:
+            h1, = plt.loglog(fds['smfreqs'],fds['corfds'],'-.', c=cs[i-20], lw=1, label=fds['stn'])
         handles1.append(h1)
         labels1.append(fds['stn'])
         
