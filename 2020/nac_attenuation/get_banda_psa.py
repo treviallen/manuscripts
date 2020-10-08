@@ -43,7 +43,8 @@ pickfiles = listdir_extension(folder, 'picks')
 ################################################################################
 # loop through earthquakes and get data
 ################################################################################
-usgscsv = '20190625_merged_events.csv'
+usgscsv = '20200511_merged_events.csv'
+usgscsv = '20201008_events.csv'
 evdict = parse_usgs_events(usgscsv)
 
 # read dataless seed volumes
@@ -65,12 +66,13 @@ else:
     ge_parser = Parser('/Users/trev/Documents/Networks/GE/GE1.IRIS.dataless')
     #ge2_parser = Parser('/Users/trev/Documents/Networks/GE/GE2.IRIS.dataless')
 
-                    
+'''                    
 from obspy.clients.arclink.client import Client
 arclink_client = Client(user='trevor.allen@ga.gov.au')
 
 from obspy.clients.fdsn.client import Client
 iris_client = Client("IRIS")
+'''
 
 '''
 # get mseed datafiles
@@ -84,7 +86,7 @@ sstxt = ''
 # loop thru pickfiles
 #for p, pf in enumerate(pickfiles[0:2900][::-1]):
     #for p, pf in enumerate(pickfiles[3000:]):
-for p, pf in enumerate(pickfiles):
+for p, pf in enumerate(pickfiles[::-1]):
     print pf
     # parse pick file
     line = open(path.join(folder, pf)).read()
@@ -232,11 +234,16 @@ for p, pf in enumerate(pickfiles):
                     use_stationlist = False
                     if tr.stats.network == 'AU' and tr.stats.channel.startswith('HH'):
                         use_stationlist = True
+                    elif tr.stats.network == 'OA' and tr.stats.channel.startswith('HH'):
+                        use_stationlist = True
                     elif tr.stats.network == 'AU' and tr.stats.channel.startswith('EH'):
-                        use_stationlist = True                        
+                        use_stationlist = True
+                    elif tr.stats.network == '' and tr.stats.channel.startswith('EN'): # for DRS
+                        use_stationlist = True                         
                     elif tr.stats.station == 'AS31' or tr.stats.station.startswith('PH0'): 
                         use_stationlist = True
-                        
+                    #print('use_stationlist', use_stationlist) 
+                       
                     if use_stationlist == True:
                         #recdate = datetime.strptime(ev['timestr'], "%Y-%m-%dT%H:%M:%S.%fZ")
                         recdate = pickDat['origintime']
@@ -276,7 +283,7 @@ for p, pf in enumerate(pickfiles):
                         elif tr.stats.network == 'S1':
                             paz = s1_parser.get_paz(seedid,start_time)
                             staloc = s1_parser.get_coordinates(seedid,start_time)
-                        print(tr.stats.station+'2')
+                        #print(tr.stats.station+'2')
                         
                         tr = tr.simulate(paz_remove=paz)
                         

@@ -262,7 +262,6 @@ while lon_grd < maxlon:
        grd_geom.append(geom)
        
        # check if mmi data exists
-       min_nresp = 2
        idx1 = where((cent_lonlist >= lon_grd) & (cent_lonlist < nxt_lon) & (cent_mmi >= 2.) \
                    & (cent_latlist >= lat_grd) & (cent_latlist < nxt_lat) & (cent_nresp >= min_nresp))[0]
        

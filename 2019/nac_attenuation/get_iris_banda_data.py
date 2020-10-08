@@ -65,7 +65,8 @@ def get_iris_event_data(bulk, folder, timestr, dataless, event):
             if not path.isfile(fpath) and getRecord == True:
                  bulk2 = [(b[0], b[1], b[2], "*", b[4], b[5])] #,
 #                         ("AU", "AFI", "1?", "BHE",  b[4], b[5])]
-                 st = fdsn_client.get_waveforms_bulk(bulk2)
+                 client = Client("IRIS")
+                 st = client.get_waveforms_bulk(bulk2)
                  
                  '''
                  st = fdsn_client.get_waveforms(network=b[0], station=b[1], location=b[2],
@@ -147,7 +148,7 @@ def get_arclink_event_data(bulk, fname, dataless, event):
 ################################################################################
 from obspy.core.utcdatetime import UTCDateTime
 import datetime as dt
-from data_fmt_tools import get_iris_data
+#from data_fmt_tools import get_iris_data
 
 ################################################################################
 # load usgs event list
@@ -155,6 +156,9 @@ from data_fmt_tools import get_iris_data
 
 usgscsv = '20190625_merged_events.csv'
 usgscsv = '2019-20-26_event.csv'
+usgscsv = '20200511_events.csv'
+usgscsv = '20200824_events.csv'
+usgscsv = '20201008_events.csv'
 
 def parse_usgs_events(usgscsv):
     lines = open(usgscsv).readlines()[1:]
@@ -313,7 +317,7 @@ for ev in evdict[0:]:
                     st = get_iris_event_data(bulk, folder, ev['timestr'][:16], s1_parser, ev)
                     
                 ###########################################################################
-                
+                """
                 # get IU network
                 t1 = ev['starttime'] - 60
                 t2 = t1 + 2100 
@@ -345,7 +349,7 @@ for ev in evdict[0:]:
                               t1.minute)
                 
                 st = get_iris_event_data(bulk, folder, ev['timestr'][:16], ii_parser, ev)
-                
+                """
                 ###########################################################################
                 '''
                 # get IA network
@@ -402,10 +406,10 @@ for ev in evdict[0:]:
                         ("GE", "FAKI", "*", "[BH]H*", t1, t2)]  
                 
                 #print fname
-                st = get_iris_event_data(bulk, folder, ev['timestr'][:16], ge_parser, ev)
+                #st = get_iris_event_data(bulk, folder, ev['timestr'][:16], ge_parser, ev)
                 
                 #try:
-                '''
+                
                 for b in bulk:
                     fname = '.'.join((ev['timestr'][:16],'GE',b[1],'mseed')).replace(':','.')
                     fpath = path.join('mseed_dump', fname)
@@ -417,7 +421,7 @@ for ev in evdict[0:]:
                             st = get_arclink_event_data(b, fpath, ge2_parser, ev)
                         except:
                             b = 1
-                '''
+                
                 #except:
                 #    print('No GEOFON data...')
                 
