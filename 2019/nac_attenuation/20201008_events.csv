@@ -1,0 +1,4 @@
+time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,type,horizontalError,depthError,magError,magNst,status,locationSource,magSource
+2020-09-17T10:32:25.544Z,-6.7757,129.3625,182.77,5.5,mww,,18,2.264,1.28,us,us7000bpbx,2020-09-18T10:36:29.288Z,Banda Sea,earthquake,7.3,0.4,0.093,11,reviewed,us,us
+2020-09-08T00:45:20.952Z,-4.9124,129.7627,174.05,5.9,mww,,12,3.173,0.78,us,us7000bjgb,2020-09-09T00:49:01.271Z,"197 km SSE of Amahai, Indonesia",earthquake,6.4,3.6,0.086,13,reviewed,us,us
+2020-05-23T00:13:38.002Z,-7.1501,129.1447,124.95,5.3,mww,,16,2.29,1.35,us,us70009nva,2020-08-08T18:17:51.040Z,"281 km ENE of Lospalos, Timor Leste",earthquake,5.8,3.6,0.061,26,reviewed,us,us
