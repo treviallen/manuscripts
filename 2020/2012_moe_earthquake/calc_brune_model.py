@@ -65,7 +65,7 @@ for files in fdsfiles:
         if fdict['stn'] == 'MILA':
            sw = 5
         else:
-            sw = 51
+            sw = 71
         smoothfft = exp(savitzky_golay(log(abs(fdict['fds'])), sw, 3))
         	       	
         fdict['smfreqs'] = interpfreqs

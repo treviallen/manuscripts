@@ -249,7 +249,7 @@ plt.plot(x, y, 'k--', lw=1.5)
 ft2lat = min(f2lat)+0.
 ft2lon = max(f2lon)+0.1
 x, y = m(ft2lon, ft2lat)
-plt.text(x, y, 'Figure 2', size=14, horizontalalignment='left', weight='bold', style='italic')
+plt.text(x, y, 'Figure 4', size=14, ha='left', weight='bold', style='italic')
 
 ##########################################################################################
 # make map inset

@@ -64,16 +64,18 @@ def get_iris_event_data(bulk, folder, timestr, dataless, event):
             #print(path.isfile(fpath), getRecord)
             if not path.isfile(fpath) and getRecord == True:
                  bulk2 = [(b[0], b[1], b[2], "*", b[4], b[5])] #,
+                 print('B2',bulk2)
 #                         ("AU", "AFI", "1?", "BHE",  b[4], b[5])]
                  client = Client("IRIS")
-                 st = client.get_waveforms_bulk(bulk2)
+                 #st = client.get_waveforms_bulk(bulk2)
+                 st = client.get_waveforms(b[0], b[1], b[2], "*", b[4], b[5])
                  
                  '''
                  st = fdsn_client.get_waveforms(network=b[0], station=b[1], location=b[2],
                                                 channel=b[3], starttime=b[4], endtime=b[5],
                                                 attach_response=True)
                  '''
-                 print(st[0].stats.location)
+                 #print(st[0].stats.location)
                  st = st.merge(method=0, fill_value='interpolate')
                  sta += st
                  
@@ -115,7 +117,7 @@ def get_arclink_event_data(bulk, fname, dataless, event):
             except:
                 a=1 # dummy call
             # try another seed id fmt
-            seedid = '.'.join((b[0], b[1], '10', channel)) #'AU.DPH.00.BNZ'
+            seedid = '.'.join((b[0], b[1], '', channel)) #'AU.DPH.00.BNZ'
             try:
                 staloc = dataless.get_coordinates(seedid,b[4])
             except:
@@ -123,10 +125,12 @@ def get_arclink_event_data(bulk, fname, dataless, event):
         
         # now get distance and azimuth
         rngkm, az, baz = distance(event['lat'], event['lon'], staloc['latitude'], staloc['longitude'])
-        print(rngkm, az, baz)
-        
+        #print(rngkm, az, baz)
+        print('arclink',seedid)
         getRecord = False
-        if rngkm <= 2000. and az > 120. and az < 240.:
+        if rngkm <= 2000. and az > 110. and az < 250.:
+            getRecord = True
+        elif rngkm <= 50.:
             getRecord = True
         
         # check if file already exists
@@ -217,7 +221,6 @@ if getcwd().startswith('/nas'):
     ge_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/GE/GE1.IRIS.dataless')
     ge2_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/GE/GE1.IRIS.dataless')
     iu_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/IU/IU.IRIS.dataless')
-    
     ii_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/II/II.IRIS.dataless')
     
 else:
@@ -227,7 +230,6 @@ else:
     iu_parser = Parser('/Users/trev/Documents/Networks/IU/IU.IRIS.dataless')
     ge1_parser = Parser('/Users/trev/Documents/Networks/GE/GE1.IRIS.dataless')
     ge2_parser = Parser('/Users/trev/Documents/Networks/GE/GE2.IRIS.dataless')
-    
     ii_parser = Parser('/Users/trev/Documents/Networks/II/II.IRIS.dataless')
     
 folder = 'mseed_dump'
@@ -244,7 +246,7 @@ for ev in evdict[0:]:
            mmin = 5.25
         else:
            mmin = 5.75
-           
+        
         if pt.within(poly):
             print('Getting event data:', ev['time'], ev['lon'], ev['lat'])
     
@@ -252,6 +254,7 @@ for ev in evdict[0:]:
             if ev['magType'].upper().startswith('MW') and ev['mag'] >= mmin:
                 cnt += 1
                 
+                """
                 # get AU network    
                 t1 = ev['starttime'] + 60
                 t2 = t1 + 2100
@@ -315,7 +318,7 @@ for ev in evdict[0:]:
                             ("S1", "AUKAT", "*", "*", t1, t2)]  
                     
                     st = get_iris_event_data(bulk, folder, ev['timestr'][:16], s1_parser, ev)
-                    
+                """    
                 ###########################################################################
                 """
                 # get IU network
@@ -395,15 +398,15 @@ for ev in evdict[0:]:
                 # get GE network
                 t1 = ev['starttime'] - 60
                 t2 = t1 + 1500
-                bulk = [("GE", "SAUI", "*", "[BH]H*", t1, t2),
-                        ("GE", "SOEI", "*", "[BH]H*", t1, t2),
-                        ("GE", "GENI", "*", "[BH]H*", t1, t2),
-                        ("GE", "PMG",  "*", "[BH]H*", t1, t2),
-                        ("GE", "MMRI", "*", "[BH]H*", t1, t2),
-                        ("GE", "BNDI", "*", "[BH]H*", t1, t2),
-                        ("GE", "PLAI", "*", "[BH]H*", t1, t2),
-                        ("GE", "JAGI", "*", "[BH]H*", t1, t2),
-                        ("GE", "FAKI", "*", "[BH]H*", t1, t2)]  
+                bulk = [("GE", "SAUI", "*", "*", t1, t2),
+                        ("GE", "SOEI", "*", "*", t1, t2),
+                        ("GE", "GENI", "*", "*", t1, t2),
+                        ("GE", "PMG",  "*", "*", t1, t2),
+                        ("GE", "MMRI", "*", "*", t1, t2),
+                        ("GE", "BNDI", "*", "*", t1, t2),
+                        ("GE", "PLAI", "*", "*", t1, t2),
+                        ("GE", "JAGI", "*", "*", t1, t2),
+                        ("GE", "FAKI", "*", "*", t1, t2)]  
                 
                 #print fname
                 #st = get_iris_event_data(bulk, folder, ev['timestr'][:16], ge_parser, ev)
@@ -416,12 +419,15 @@ for ev in evdict[0:]:
                     #st = get_arclink_event_data(b, fpath, ge_parser, ev)
                     try:
                         st = get_arclink_event_data(b, fpath, ge1_parser, ev)
+                        #st = get_iris_event_data(b, folder, ev['timestr'][:16], ge1_parser, ev)
                     except:
                         try:
                             st = get_arclink_event_data(b, fpath, ge2_parser, ev)
+                            #st = get_iris_event_data(b, folder, ev['timestr'][:16], ge2_parser, ev)
                         except:
                             b = 1
                 
                 #except:
                 #    print('No GEOFON data...')
-                
+        else:
+           print('Not in polygon:', ev['time'], ev['lon'], ev['lat'])

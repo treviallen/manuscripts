@@ -121,7 +121,7 @@ colTrue = 'True'
 
 # set event details
 if prefix.startswith('201206'):
-    mag  = 5.16
+    mag  = 5.14
     dep = 18.0
     eqlat = -38.259
     eqlon = 146.290
@@ -228,7 +228,7 @@ for j, t in enumerate(Tplot):
     for i,r in enumerate(rrup):
 
         # get ground motion estimates from GMPEs
-        Tea02imt, C03imt, AB06imt, Sea09imt, Sea09YCimt, Pea11imt, A12imt, Bea14imt , SP16imt \
+        Tea02imt, C03imt, AB06imt, Sea09imt, Sea09YCimt, Pea11imt, A12imt, Bea14imt \
                  = scr_gsims(mag, dep, ztor, dip, rake, rrup[i], rjb[i], vs30)
         
         Tea19imt = tang2019_cam_gsim(mag, dep, rrup[i], vs30)
@@ -242,7 +242,9 @@ for j, t in enumerate(Tplot):
         
         # adjust NGA-E from 3000 -> target
         nga_e_imt = adjust_gmm_with_nga_east(nga_e_imt, vs30)
-
+        
+        syms = ['s', 'x', '+', '1', '2', 'o']
+        
         if t == 0.0:
             #Tea02r.append(Tea02imt['pga'][0])
             Tea02r.append(Tea02imt['sa'][0])
@@ -287,13 +289,19 @@ for j, t in enumerate(Tplot):
 
         #h1 = plt.loglog(rjb, exp(Tea02r), '-', lw=1.5, color=cs[0])
         #h2 = plt.loglog(rjb, exp(C03r),   '-', lw=1.5, color=cs[1])
-        h1 = plt.loglog(rjb, exp(AB06r),  '-', lw=1.5, color=cs[0])
-        h2 = plt.loglog(rjb, exp(Sea09r), '-', lw=1.5, color=cs[1])
+        h1 = plt.loglog(rjb, exp(AB06r), syms[0], ls='-', lw=1., color=cs[0], \
+                        ms=5, mec=cs[0], mfc='none',  mew=1., markevery=8)
+        h2 = plt.loglog(rjb, exp(Sea09r), syms[1], ls='-', lw=1., color=cs[1], \
+                        ms=5, mec=cs[1], mfc='none',  mew=1., markevery=8)
         #h5 = plt.loglog(rjb, exp(Pea11r), '-', lw=1.5, color=cs[4])
-        h3 = plt.loglog(rjb, exp(A12r),   '-', lw=1.5, color=cs[2])
-        h4 = plt.loglog(rjb, exp(Bea14r), '-', lw=1.5, color=cs[3])
-        h5 = plt.loglog(rjb, exp(NGAEr),  '-', lw=1.5, color=cs[5])
-        h6 = plt.loglog(rjb, exp(Tea19r),  '-', lw=1.5, color=cs[6])
+        h3 = plt.loglog(rjb, exp(A12r), syms[2], ls='-', lw=1., color=cs[2], \
+                        ms=5, mec=cs[2], mfc='none',  mew=1., markevery=8)
+        h4 = plt.loglog(rjb, exp(Bea14r), syms[3], ls='-', lw=1., color=cs[3], \
+                        ms=5, mec=cs[3], mfc='none',  mew=1., markevery=8)
+        h5 = plt.loglog(rjb, exp(NGAEr), syms[4], ls='-', lw=1., color=cs[5], \
+                        ms=5, mec=cs[5], mfc='none',  mew=1., markevery=8)
+        h6 = plt.loglog(rjb, exp(Tea19r), syms[5], ls='-', lw=1., color=cs[6], \
+                        ms=5, mec=cs[6], mfc='none',  mew=1., markevery=8)
         
         #h11 = plt.loglog(rjb, exp(AA13r),  '-', lw=2.5, color='k')
         #if t <= 0.01:

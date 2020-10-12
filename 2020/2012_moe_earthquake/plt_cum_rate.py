@@ -63,48 +63,58 @@ nidx = where(array(cum_diff) != 0)[0]
 
 # get b-values
 bvals = []
+sigs_b = []
 for mc in mrng:
     #mc = 0.9
     b_val, sigma_b = aki_maximum_likelihood(mrng, number_obs, mc)
     bvals.append(b_val)
+    sigs_b.append(sigma_b)
 
 #plt.semilogy(mrng[nidx], array(cum_mag)[nidx], 'ko', ms=7)
 
 ax1.set_xlabel('Local Magnitude', fontsize=18)
 ax1.set_ylabel('Cumulative Number', fontsize=18)
 
-ax1.semilogy(mrng[::-1][uidx], array(cum_mag)[::-1][uidx], 'ko', ms=7, label='Cumulative')
+h1 = ax1.semilogy(mrng[::-1][uidx], array(cum_mag)[::-1][uidx], 'ko', ms=7, label='Cumulative')
 
 ax2 = ax1.twinx()
-ax2.plot(mrng[::-1][uidx], array(bvals)[::-1][uidx],'^-', c='0.4', ms=7, label='b-value')
+h2 = ax2.errorbar(mrng[:-11], array(bvals)[:-11],yerr=sigs_b[:-11], marker='^', ls='-', c='0.5', ms=7, label='b-value')
 ax2.set_ylabel('b-value', fontsize=18)
+
+plt.legend([h1[0], h2[0]], ['Cumulative', 'b-value'], loc=3, fontsize=16, numpoints=1)
 
 #plt.semilogy(mrng[::-1][uidx], array(cum_mag)[::-1][uidx], 'ko', ms=7)
 # get xlim
 #plt.xlim([datetime(2012,6,15), datetime(2012,12,31)])    
 
-# get a-value
+# take b-val at ML 0.9 and get a-value
 mc = 1.0
 m_upper = mc+1. # only include well behaved data
-a_val = fit_a_value(cum_mag, bvals[11], mrng, mc, m_upper)
-N = 10**(a_val - bvals[11]*mrng)
+a_val = fit_a_value(cum_mag, bvals[10], mrng, mc, m_upper)
+N = 10**(a_val - bvals[10]*mrng)
 ax1.semilogy(mrng[10:], N[10:], 'r-', lw=2.)
 ax1.set_xlim([-0.2, 4.5])
 ax1.set_ylim([0.5, 1000])
 
 # label b-value
-abtxt = 'a-value = '+str('%0.2f' % a_val)+'\nb-value = '+str('%0.2f' % b_val)
-xtxt = ax1.get_xlim()[1] * 0.96
+abtxt = 'a-value = '+str('%0.2f' % a_val)+'\nb-value = '+str('%0.2f' % bvals[10])
+xtxt = 1. #ax1.get_xlim()[1] * 0.96
 ytxt = get_log_xy_locs(ax1.get_ylim(), 0.96)
 props = dict(boxstyle='round', facecolor='w', alpha=1)
-plt.text(xtxt, ytxt, abtxt, size=18, ha='right', va='top', weight='normal', bbox=props)
+tb = ax1.text(xtxt, ytxt, abtxt, size=18, ha='left', va='top', weight='normal', bbox=props)
 
-xdiff = diff(ax1.get_xlim())
+xdiff = diff(ax1.get_xlim())[0]
 xtxt = ax1.get_xlim()[0] + xdiff * 0.02
 ytxt = get_log_xy_locs(ax1.get_ylim(), 0.98)
-plt.text(xtxt, ytxt, '(b)', size=20, ha='left', verticalalignment='top', weight='normal')
+ax1.text(xtxt, ytxt, '(b)', size=20, ha='left', verticalalignment='top', weight='normal')
 
-plt.grid(b=True, which='both',axis='both')
+ax1.grid(b=True, which='both',axis='both')
+
+tb.set_zorder(1000)
+
+##########################################################################################
+# make subplot A
+##########################################################################################
 
 ax = plt.subplot(1, 2, 1)
 n_bins = len(evdt)

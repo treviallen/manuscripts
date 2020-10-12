@@ -139,7 +139,8 @@ def makesubplt(i, fig, plt, sta, sps, mag, dep, ztor, dip, rake, rhyp, vs30):
     rjb = sqrt(rrup**2 - dep**2) # assume point source; i.e. repi = rjb
     
     # get ground motion estimates from GMPEs
-    Tea02imt, C03imt, AB06imt, Sea09imt, Sea09YCimt, Pea11imt, A12imt, Bea14imt , SP16imt \
+    print(mag, dep, ztor, dip, rake, rrup, rjb, vs30)
+    Tea02imt, C03imt, AB06imt, Sea09imt, Sea09YCimt, Pea11imt, A12imt, Bea14imt \
              = scr_gsims(mag, dep, ztor, dip, rake, rrup, rjb, vs30)
     
     Tea19 = tang2019_cam_gsim(mag, dep, rrup, vs30)
@@ -160,14 +161,21 @@ def makesubplt(i, fig, plt, sta, sps, mag, dep, ztor, dip, rake, rhyp, vs30):
     #print(exp(nga_e_imt['sa']) / exp(nga_e_imt_hold['sa']))
     
     ax = plt.subplot(3, 3, i)
+    syms = ['s', 'x', '+', '1', '2', 'o']
     if colTrue == 'True':
-        plt.loglog(AB06imt['per'], exp(AB06imt['sa']), '-' , lw=1.5, color=cs[0])
-        plt.loglog(Sea09imt['per'], exp(Sea09imt['sa']), '-' , lw=1.5, color=cs[1])
-        plt.loglog(A12imt['per'], exp(A12imt['sa']),'-' , lw=1.5, color=cs[2])
-        plt.loglog(Bea14imt['per'], exp(Bea14imt['sa']),'-' , lw=1.5, color=cs[3])
-        #plt.loglog(YA15imt['per'], exp(YA15imt['sa']),'-' , lw=1.5, color=cs[4])
-        plt.loglog(nga_e_imt['per'], exp(nga_e_imt['sa']),'-' , lw=1.5, color=cs[5])
-        plt.loglog(Tea19['per'], exp(Tea19['sa']),'-' , lw=1.5, color=cs[6])
+        plt.loglog(AB06imt['per'], exp(AB06imt['sa']), syms[0], ls='-', lw=1., color=cs[0], \
+                   ms=4, mec=cs[0], mfc='none',  mew=1., markevery=5)
+        plt.loglog(Sea09imt['per'], exp(Sea09imt['sa']), syms[1], ls='-', lw=1., color=cs[1], \
+                   ms=5, mec=cs[1], mfc='none',  mew=1., markevery=5)
+        plt.loglog(A12imt['per'], exp(A12imt['sa']),syms[2], ls='-', lw=1., color=cs[2], \
+                   ms=5, mec=cs[2], mfc='none',  mew=1., markevery=4)
+        plt.loglog(Bea14imt['per'], exp(Bea14imt['sa']),syms[3], ls='-', lw=1., color=cs[3], \
+                   ms=6, mec=cs[3], mfc='none',  mew=1., markevery=10)
+        #plt.loglog(YA15imt['per'], exp(YA15imt['sa']),'-' , lw=1., color=cs[4])
+        plt.loglog(nga_e_imt['per'], exp(nga_e_imt['sa']),syms[4], ls='-', lw=1., color=cs[5], \
+                   ms=6, mec=cs[5], mfc='none',  mew=1., markevery=5)
+        plt.loglog(Tea19['per'], exp(Tea19['sa']),syms[5], ls='-', lw=1., color=cs[6], \
+                   ms=4, mec=cs[6], mfc='none',  mew=1., markevery=5)
         
         
     # get recorded process_waves.py psa data
@@ -188,7 +196,7 @@ def makesubplt(i, fig, plt, sta, sps, mag, dep, ztor, dip, rake, rhyp, vs30):
     
     if i == 1:
         #plt.legend(['Yea97', 'AB06','A12imt','Aea16', 'A19 (BS)', 'A19 (NGH)', 'A19 (OB)','Data'],loc=3, fontsize=7.)
-        plt.legend(['AB06','Sea09', 'A12','Bea14', 'NGA-E', 'Tea19', 'Data'],loc=3, fontsize=9.)
+        plt.legend(['AB06','Sea09', 'A12','Bea14', 'NGA-E', 'Tea19', 'Data'],loc=3, fontsize=9., numpoints=1)
         
     return ax
 
@@ -218,7 +226,7 @@ colTrue = 'True'
 
 # set event details
 if prefix.startswith('201206'):
-    mag  = 5.16
+    mag  = 5.14
     eqdep = 18.0
     eqlat = -38.259
     eqlon = 146.290
@@ -300,7 +308,7 @@ for stn in usites:
                     psafile = path.join(root, filename)
                 
     # get record details
-    sta, sps, rhyp, pga, pgv, mag, dep, stlo, stla = read_psa_details(psafile)
+    sta, sps, rhyp, pga, pgv, mag_hold, dep, stlo, stla = read_psa_details(psafile)
     udists.append(rhyp)
     lolatxt += '\t'.join((stlo, stla, sta))+'\n'
 
@@ -338,20 +346,10 @@ for stn in usites:
                 
     # get record details
     print(stn, psafile)
-    sta, sps, rhyp, pga, pgv, mag, dep, stlo, stla = read_psa_details(psafile)
-    
-    # temp fix
-    # set event details
-    if prefix.startswith('201206'):
-        mag  = 5.0
-        #dep = 11.
-    elif prefix.startswith('201207'):
-        mag  = 4.4
-        #dep = 11.
-
+    sta, sps, rhyp, pga, pgv, mag_hold, dep, stlo, stla = read_psa_details(psafile)
     
     # now plot
-    if stn != 'CDNMX.HNH':
+    if stn != 'CDNM':
         i += 1
         print('rhyp', rhyp)
         vs30, isproxy, usgsvs, asscmvs, kvs, stla, stlo = get_station_vs30(stn)

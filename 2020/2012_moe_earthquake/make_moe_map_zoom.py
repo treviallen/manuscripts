@@ -325,7 +325,7 @@ blats = [-39.75]
 blons = [146.5]
 
 x, y = m(eqlon, eqlat)
-plt.plot(x, y, '*', markerfacecolor='darkred', markeredgecolor='w', markeredgewidth=1.5, markersize=10*4.2)
+plt.plot(x, y, '*', markerfacecolor='0.4', markeredgecolor='w', markeredgewidth=1.5, markersize=10*4.3)
 
 # plt M5.4
 eqlat = -38.279
@@ -334,7 +334,7 @@ blats = [-39.75]
 blons = [146.5]
 
 x, y = m(eqlon, eqlat)
-plt.plot(x, y, '*', markerfacecolor='r', markeredgecolor='w', markeredgewidth=1.5, markersize=10*5.4)
+plt.plot(x, y, '*', markerfacecolor='k', markeredgecolor='w', markeredgewidth=1.5, markersize=10*5.1)
 ##########################################################################################
 # make map inset
 ##########################################################################################

@@ -216,7 +216,7 @@ def parse_usgs_events(usgscsv):
         
     return evdict
 
-usgscsv = '20200821_merged_events.csv'
+usgscsv = '20201008_merged_events.csv'
 #usgscsv = '2019-02-26_event.csv'
 # parse catalogue
 evdict = parse_usgs_events(usgscsv)

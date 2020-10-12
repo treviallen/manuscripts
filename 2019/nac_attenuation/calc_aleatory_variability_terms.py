@@ -402,7 +402,7 @@ for pr in pltReg:
             plt.semilogx([1, 1700],[0,0], 'k--', lw=1.)
             
             if i >= 2:
-               plt.xlabel('Hypocentral Distance', fontsize=16)
+               plt.xlabel('Hypocentral Distance (km)', fontsize=16)
             if i == 0 or i == 2:
                plt.ylabel('Intra-Event\n(ln Residual)', fontsize=16)
             
