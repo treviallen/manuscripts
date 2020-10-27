@@ -300,7 +300,7 @@ def fit_brune_model(c, f):
 
 # call model fit and plot
 if folder.startswith('fds/20120720'):
-    minf = .5
+    minf = .75
 else:
     minf = .4
 
@@ -317,7 +317,7 @@ out = odr.run()
 #out.pprint()
 
 omega0 = out.beta[0]
-f0 = out.beta[1]
+f0 = abs(out.beta[1])
 print('f0', f0)
 
 m0 = C * omega0

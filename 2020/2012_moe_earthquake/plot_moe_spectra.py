@@ -196,7 +196,7 @@ def makesubplt(i, fig, plt, sta, sps, mag, dep, ztor, dip, rake, rhyp, vs30):
     
     if i == 1:
         #plt.legend(['Yea97', 'AB06','A12imt','Aea16', 'A19 (BS)', 'A19 (NGH)', 'A19 (OB)','Data'],loc=3, fontsize=7.)
-        plt.legend(['AB06','Sea09', 'A12','Bea14', 'NGA-E', 'Tea19', 'Data'],loc=3, fontsize=9., numpoints=1)
+        plt.legend(['AB06','Sea09', 'A12','Bea14', 'NGA-E', 'Tea20', 'Data'],loc=3, fontsize=9., numpoints=1)
         
     return ax
 
@@ -232,7 +232,7 @@ if prefix.startswith('201206'):
     eqlon = 146.290
 
 elif prefix.startswith('201207'):
-    mag  = 4.40
+    mag  = 4.32
     eqdep = 12.41
     eqlat = -38.231
     eqlon = 146.215

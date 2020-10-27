@@ -127,7 +127,7 @@ if prefix.startswith('201206'):
     eqlon = 146.290
 
 elif prefix.startswith('201207'):
-    mag  = 4.40
+    mag  = 4.32
     dep = 12.41
     eqlat = -38.231
     eqlon = 146.215
@@ -370,7 +370,7 @@ for j, t in enumerate(Tplot):
         #plt.legend((h1[0], h2[0], h3[0], h4[0], h5[0], h6[0], h7[0], h8[0], h11[0], h9[0], h10[0]), \
         #           ['T02', 'C03','AB06','Sea09','Pea11','A12','Bea14','YA15', 'Gea90', 'Data', 'Data (TAS)'],loc=3,numpoints=1,fontsize=9.)
         plt.legend((h1[0], h2[0], h3[0], h4[0], h5[0], h6[0], h7[0], h8[0]), \
-                   ['AB06','Sea09', 'A12','Bea14', 'NGA-E', 'Tea19', 'Data', 'Data (TAS)'],loc=3,numpoints=1,fontsize=9.)
+                   ['AB06','Sea09', 'A12','Bea14', 'NGA-E', 'Tea20', 'Data', 'Data (TAS)'],loc=3,numpoints=1,fontsize=9.)
         #plt.legend(['T02', 'C03','AB06','Sea09','Pea11','A12','Data'],loc=3,numpoints=1,fontsize=10)
 
 plt.savefig(evid+'_atten.png', format='png', dpi=300, bbox_inches='tight')
