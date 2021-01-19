@@ -1,4 +1,4 @@
-from calculate_magnitudes import calc_R35, calc_MLM92, calc_BJ84
+from calculate_magnitudes import calc_R35, calc_MLM92, calc_HB87
 import matplotlib.pyplot as plt
 from numpy import array, arange, sqrt
 
@@ -15,20 +15,20 @@ rhyp = sqrt(repi**2 + dep**2)
 # get log A0 corrections
 r35 = []
 mlm92 = []
-bj84 = []
+hb87 = []
 for i in range(0, len(repi)):
    r35.append(calc_R35(1, 0.0, repi[i]))
    mlm92.append(calc_MLM92(1, 0.0, rhyp[i]))
-   bj84.append(calc_BJ84(1, 0.0, rhyp[i]))
+   hb87.append(calc_HB87(1, 0.0, rhyp[i]))
 mldiff = array(mlm92) - array(r35)
-mldiff_modern = array(mlm92) - array(bj84)
+mldiff_modern = array(mlm92) - array(hb87)
 
 # now plot
 fig = plt.figure(1, figsize=(12, 4))
 
 plt.plot([0, 600], [0, 0], 'k--')
 plt.plot(repi, mldiff, '-', c='orangered', lw=2, label='Richter (1935)')
-plt.plot(repi, mldiff_modern, '--', c='seagreen', lw=2, label='Bakun & Joyner (1984)')
+plt.plot(repi, mldiff_modern, '--', c='seagreen', lw=2, label='Hutton & Boore (1987)')
 
 plt.xlabel('Epicentral Distance (km)', fontsize=16)
 plt.ylabel('-log $\mathregular{A_0}$ (MLM92 - CA)', fontsize=16)
@@ -42,7 +42,7 @@ txt = 'Site 1\nClosest Site = 100 km\nCorrection = '+str('%0.1f' % mldiff[100])+
 plt.text(100, 0.3, txt, ha='center', va='bottom', fontsize=14)
 
 plt.plot(510, 0.2, '^', ms=18, c='dodgerblue')
-plt.plot([510, 510], [0, mldiff[510]], '--', c='dodgerblue', lw=2)
+plt.plot([510, 510], [0, mldiff[510]], ':', c='dodgerblue', lw=2)
 txt = 'Site 2\nClosest Site = 510 km\nCorrection = '+str('%0.1f' % mldiff[510])+' mu'
 plt.text(510, 0.3, txt, ha='center', va='bottom', fontsize=14)
 
