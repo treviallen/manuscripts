@@ -74,7 +74,7 @@ for m in mags:
     
         # now, write ctrl file
         lines[8] = '  simulations/m'+str('%0.2f' % m)+'r'+str('%0.1f' % d)+'_\n'
-        lines[10] = '  '+str('%0.2f' % m)+' '+str('%0.f' % d) + '\n'
+        lines[10] = '  '+str('%0.2f' % m)+' '+str('%0.1f' % d) + '\n'
         
         # write ctrl file
         f = open('allen07_a_ts_drvr.ctl', 'w')
@@ -95,7 +95,7 @@ for m in mags:
     
         # now, write ctrl file
         lines[8] = '  simulations/m'+str('%0.2f' % m)+'r'+str('%0.1f' % d)+'_\n'
-        lines[10] = '  '+str('%0.2f' % m)+' '+str('%0.f' % d) + '\n'
+        lines[10] = '  '+str('%0.2f' % m)+' '+str('%0.1f' % d) + '\n'
         
         # write ctrl file
         f = open('allen07_a_ts_drvr.ctl', 'w')

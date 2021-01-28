@@ -37,7 +37,7 @@ idx = where(mags == 5.0)[0]
 plt.loglog(dists[idx], pgvs[idx], 'o', mec='b', mfc='none', label='ML 5.0')
 
 # plt approx wwssn SP level
-plt.plot([10,500],[0.001, 0.001], 'b--', lw=2, label='WWSSN')
+plt.plot([10,500],[0.001, 0.001], 'b--', lw=2, label='WWSSN SP')
 plt.plot([10,500],[0.006, 0.006], '--', c='orange', lw=2, label='Willmore MkII/BBox')
 plt.plot([10,500],[1.3, 1.3], 'r--', lw=2, label='STS-2')
 
@@ -47,6 +47,7 @@ plt.grid(which='both')
 plt.xlim([10,500])
 plt.legend(loc=3, fontsize=10)
 
+plt.savefig('example_clip_levels.png', bbox_inches='tight')
 plt.show()
 
 

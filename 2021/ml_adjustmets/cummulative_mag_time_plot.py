@@ -127,7 +127,7 @@ for i, mm in enumerate(minmag):
    plt.plot([1990, 1990], [0, ylims[1]], 'k', ls='dashdot', lw=1.5, zorder=0)
    
    # shade potentially incomplete data
-   xs = [1940, 1955, 1956, 1940, 1940]
+   xs = [1935, 1954, 1954, 1935, 1935]
    ys = [0, 0, ylims[1], ylims[1], 0]
    plt.fill(xs, ys, c='0.8', edgecolor='0.8', zorder=0)
    
