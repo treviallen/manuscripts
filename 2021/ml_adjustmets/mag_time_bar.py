@@ -13,6 +13,7 @@ from gmt_tools import cpt2colormap
 from numpy import array, where, hstack, delete, arange
 import matplotlib.pyplot as plt
 from datetime import datetime as dt 
+from os import getcwd
 import matplotlib as mpl
 mpl.style.use('classic')
 
@@ -23,14 +24,20 @@ nshacat = parse_NSHA2018_catalogue(nsha_csv)
 '''
 
 # get colours
-cptfile = '//Users//trev//Documents//DATA//GMT//cpt//Paired_10.cpt'
+if getcwd().startswith('/nas'):
+    cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/Paired_10.cpt'
+else:
+    cptfile = '//Users//trev//Documents//DATA//GMT//cpt//Paired_10.cpt'
 ncolours = 11
 cmap, zvals = cpt2colormap(cptfile, ncolours)
 cmap = remove_last_cmap_colour(cmap)
 cs = (cmap(arange(ncolours-1)))
 
 # parse HMTK csv - use declustered catalogue
-hmtk_csv = '/Users/trev/Documents/Geoscience_Australia/NSHA2018/catalogue/data//NSHA18CAT_V0.2_hmtk_declustered.csv'
+if getcwd().startswith('/nas'):
+    hmtk_csv = '/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/catalogue/data//NSHA18CAT_V0.3_hmtk_declustered.csv'
+else:
+    hmtk_csv = '/Users/trev/Documents/Geoscience_Australia/NSHA2018/catalogue/data//NSHA18CAT_V0.3_hmtk_declustered.csv'
 nshacat = parse_altmag_hmtk_catalogue(hmtk_csv)[0]
 
 '''

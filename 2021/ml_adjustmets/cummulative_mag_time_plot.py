@@ -16,9 +16,15 @@ from shapely.geometry import Point, Polygon
 from mapping_tools import get_field_data
 import matplotlib as mpl
 mpl.style.use('classic')
+from os import getcwd
 
 # parse HMTK csv - use declustered catalogue
-hmtk_csv = '/Users/trev/Documents/Geoscience_Australia/NSHA2018/catalogue/data//NSHA18CAT_V0.2_hmtk_declustered.csv'
+
+if getcwd().startswith('/nas'):
+    hmtk_csv = '/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/catalogue/data//NSHA18CAT_V0.3_hmtk_declustered.csv'
+else:
+    hmtk_csv = '/Users/trev/Documents/Geoscience_Australia/NSHA2018/catalogue/data//NSHA18CAT_V0.3_hmtk_declustered.csv'
+
 nshacat = parse_altmag_hmtk_catalogue(hmtk_csv)[0]
 
 mx_orig = dictlist2array(nshacat, 'mx_origML')
