@@ -17,7 +17,7 @@ data = loadtxt(magdiffcsv, delimiter=',')
 fig = plt.figure(1, figsize=(7,7))
 
 plt.plot([2,7], [2,7], '--', c='0.25', lw=2.0, label='1:1')
-plt.plot(data[:,2], data[:,3], '+', c='orange', label='Data')
+plt.plot(data[:,2], data[:,3], '+', c='r', label='Data')
 	
 # bin data and regress
 mbins = arange(1, 6.2, 0.2)

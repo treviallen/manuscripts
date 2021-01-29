@@ -43,8 +43,11 @@ def timedelta2days_hours_minutes(td):
 ###############################################################################
 
 bin_width = 0.1
-shpfile  = '/Users/trev/Documents/Geoscience_Australia/NSHA2018/source_models/zones/shapefiles/Other/Mcomp_NSHA18_multi.shp'
-
+if getcwd().startswith('/nas'):
+    shpfile  = '/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/source_models/zones/shapefiles/Other/Mcomp_NSHA18_multi.shp'
+else:
+    shpfile  = '/Users/trev/Documents/Geoscience_Australia/NSHA2018/source_models/zones/shapefiles/Other/Mcomp_NSHA18_multi.shp'
+    
 magLabels = ['Original $\mathregular{M_X}$ $\mathregular{(M_{LH})}$', 'Revised $\mathregular{M_{XR}}$ $\mathregular{(M_{LR})}$', \
              'Data ($\mathregular{M_X}$)', 'Data ($\mathregular{M_{XR}}$)']
 
@@ -200,7 +203,11 @@ srcidx = range(len(src_code))
 ###############################################################################
 
 # parse NSHA-Cat catalogue
-hmtk_csv = '/Users/trev/Documents/Geoscience_Australia/NSHA2018/catalogue/data//NSHA18CAT_V0.2_hmtk_declustered.csv'
+if getcwd().startswith('/nas'):
+    hmtk_csv  = '/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/catalogue/data//NSHA18CAT_V0.3_hmtk_declustered.csv'
+else:
+    hmtk_csv = '/Users/trev/Documents/Geoscience_Australia/NSHA2018/catalogue/data//NSHA18CAT_V0.3_hmtk_declustered.csv'
+
 nshaCat, neq = parse_alt_mag_catalogue(hmtk_csv)
 nshaMaxYear = toYearFraction(nshaCat[-1]['datetime'])
 
@@ -319,8 +326,8 @@ for i in srcidx:
             plt.semilogy(mfd_mrng[:-1], betacurve[:-1], ls=linestyles[j], lw=2.5, c=cs[2*cidx[j]+1], \
             	           label=magLabels[j], zorder=1000)
             
-            plt.semilogy(mrng[::-1][uidx], cum_rates[::-1][uidx], marker[j], c=cs[2*cidx[j]], ms=8, \
-            	           mec=cs[2*cidx[j]], label=magLabels[j+2])
+            plt.semilogy(mrng[::-1][uidx], cum_rates[::-1][uidx], marker[j], c=list(cs[2*cidx[j]]), ms=8, \
+            	           mec=list(cs[2*cidx[j]]), label=magLabels[j+2])
                     
     ###############################################################################
     # finish mfd
