@@ -108,7 +108,7 @@ m.drawmeridians(arange(0.,360.,10.), labels=[0,0,0,1], fontsize=16, dashes=[2, 2
 # plot gebco
 ##########################################################################################
 
-print 'Reading netCDF file...'
+print( 'Reading netCDF file...')
 try:
     nc = NetCDFFile('//Users//tallen//Documents//DATA//GMT//GEBCO//Australia_30c.nc')
 except:
@@ -126,7 +126,7 @@ ny = int((m.ymax-m.ymin)/500.)+1
 
 topodat = m.transform_scalar(data,lons,lats,nx,ny)
 
-print 'Getting colormap...'
+print( 'Getting colormap...')
 # get colormap
 try:
     cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//wiki-2.0.cpt'
@@ -138,7 +138,7 @@ except:
 cmap = remove_last_cmap_colour(cmap)
         
 # make shading
-print 'Making map...'
+print( 'Making map...')
 ls = LightSource(azdeg = 180, altdeg = 5)
 #norm = mpl.colors.Normalize(vmin=-8000/zscale, vmax=5000/zscale)#myb
 norm = mpl.colors.Normalize(vmin=-1000/zscale, vmax=1900/zscale)#wiki
@@ -199,7 +199,7 @@ for lm in legmag:
     h = m.plot(x, y, 'ko', mfc='k', markersize=(-4 + lm*3.0), alpha=1., zorder=len(mlrv)+1, lw=2)
     legh.append(h[0])
 
-l = plt.legend(legh, ('$\mathregular{M_L}$ 3.0', '$\mathregular{M_L}$ 5.0', '$\mathregular{M_L}$ 7.0'), loc=1, numpoints=1)
+l = plt.legend(legh, ('$\mathregular{M_L}$ 3.0', '$\mathregular{M_L}$ 5.0', '$\mathregular{M_L}$ 7.0'), loc=3, numpoints=1)
 l.set_zorder(len(mlrv)+5)
 
 
@@ -253,11 +253,11 @@ for stn in stns:
     stlat.append(lat)
     stlon.append(lon)
     stnet.append(net)
-    print stn, net, lat
+    print( stn, net, lat
 stlat = array(stlat)
 stlon = array(stlon)
 #unet = unique(array(stnet))
-#print stns, stnet
+#print( stns, stnet
 
 
 # loop thru networks and plot
@@ -410,4 +410,5 @@ cb.set_label('ML Difference', rotation=270, labelpad=20, fontsize=15)
 
 
 plt.savefig('aus_ml_diff.png', format='png', bbox_inches='tight', dpi=200)
+plt.savefig('aus_ml_diff.eps', format='eps', bbox_inches='tight', dpi=200)
 plt.show()

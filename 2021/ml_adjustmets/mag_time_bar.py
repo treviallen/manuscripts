@@ -170,9 +170,12 @@ for minmag in minmags:
         
         if pm == True:
             figname = '_'.join(('mag_time_bar',str(minmag),'avplt.png'))
+            figname_eps = '_'.join(('mag_time_bar',str(minmag),'avplt.eps'))
         else:
             figname = '_'.join(('mag_time_bar',str(minmag)+'.png'))
+            figname_eps = '_'.join(('mag_time_bar',str(minmag)+'.eps'))
         plt.savefig(figname, fmt='png', bbox_inches='tight', dpi=300)
+        plt.savefig(figname_eps, fmt='eps', bbox_inches='tight', dpi=300)
         
 plt.show()
 

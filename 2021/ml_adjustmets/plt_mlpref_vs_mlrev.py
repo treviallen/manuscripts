@@ -61,5 +61,6 @@ plt.xlabel('Original $\mathregular{M_L}$ $\mathregular{(M_{LH})}$', fontsize=16)
 plt.ylabel('Revised $\mathregular{M_L}$ $\mathregular{(M_{LR})}$', fontsize=16)
 
 plt.savefig('hist_mag_fit.png', fmt='png', bbox_inches='tight')
+plt.savefig('hist_mag_fit.eps', fmt='eps', bbox_inches='tight')
 
 plt.show()

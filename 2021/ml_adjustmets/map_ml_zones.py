@@ -121,5 +121,5 @@ for i in range(0, len(x)):
 plt.legend(loc=3, fontsize=14, numpoints=1)
 
 plt.savefig('neac_ml_zones.png', format='png', bbox_inches='tight')
-plt.savefig('neac_ml_zones.svg', format='svg', bbox_inches='tight')
+plt.savefig('neac_ml_zones.eps', format='eps', bbox_inches='tight')
 plt.show()

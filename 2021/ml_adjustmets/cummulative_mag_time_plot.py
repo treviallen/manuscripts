@@ -140,6 +140,7 @@ for i, mm in enumerate(minmag):
    plt.grid()
    
 plt.savefig('cummulative_mag_time_decluster.png', fmt='png', bbox_inches='tight', dpi=300)
+plt.savefig('cummulative_mag_time_decluster.eps', fmt='eps', bbox_inches='tight', dpi=300)
 plt.show()
 
   

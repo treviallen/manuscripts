@@ -149,6 +149,7 @@ for poly, reg in zip(polygons, ml_reg):
     reg_dict.append(reg_tmp)
 
 plt.savefig('ml_uncertainty_histograms.png', fmt='png', bbox_inches='tight')
+plt.savefig('ml_uncertainty_histograms.eps', fmt='eps', bbox_inches='tight')
 plt.show()
 
 ###############################################################################
@@ -170,4 +171,5 @@ plt.ylim([0, 1])
 plt.xlim([2.4, 5])
 
 plt.savefig('ml_uncertainty_vs_ml.png', fmt='png', bbox_inches='tight')    
+plt.savefig('ml_uncertainty_vs_ml.eps', fmt='eps', bbox_inches='tight') 
 plt.show()

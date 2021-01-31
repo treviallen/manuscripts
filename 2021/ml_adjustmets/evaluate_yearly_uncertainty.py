@@ -159,5 +159,6 @@ for fe in range(0, len(evlo)):
         plt.legend((h0[0], h1[0]), ('Mean Adjustment', 'Adjustment Range'), loc=3, fontsize=14)
     
 plt.savefig('yearly_mag_adj_sensitivity.png', fmt='png', bbox_inches='tight')
+plt.savefig('yearly_mag_adj_sensitivity.eps', fmt='eps', bbox_inches='tight')
 plt.show()           
    

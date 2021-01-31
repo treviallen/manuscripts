@@ -49,4 +49,5 @@ plt.text(510, 0.3, txt, ha='center', va='bottom', fontsize=14)
 plt.legend(loc=3, fontsize=14)
 
 plt.savefig('ml_correction_schematic.png', fmt='png', dpi=300, bbox_inches='tight')
+plt.savefig('ml_correction_schematic.eps', fmt='eps', dpi=300, bbox_inches='tight')
 plt.show()

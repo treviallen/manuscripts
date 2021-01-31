@@ -373,6 +373,7 @@ for i in srcidx:
         # save figure
 #plt.savefig(path.join('cat_mfd_test', src_code[i]+'_mfdplt.png'), fmt='png', bbox_inches='tight')
 plt.savefig('mfdplt.png', fmt='png', dpi=300, bbox_inches='tight')
+plt.savefig('mfdplt.eps', fmt='eps', dpi=300, bbox_inches='tight')
     
 ###############################################################################
 # write csv
