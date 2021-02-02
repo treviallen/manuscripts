@@ -543,7 +543,7 @@ for mi, ma in zip(mmin, mmax):
 pngfile = 'intra_eqn_res.png'
 epsfile = 'intra_eqn_res.eps'
 plt.savefig(pngfile, fmt='png', bbox_inches='tight')
-plt.savefig(pngfile, fmt='eps', bbox_inches='tight')
+plt.savefig(epsfile, fmt='eps', bbox_inches='tight')
 """    
 ###############################################################################
 # now plot MLM92 vs A16
