@@ -38,12 +38,12 @@ plt.ylim([-0.8, 0.8])
 
 # now plot stns
 plt.plot(100, 0.2, '^', ms=18, c='dodgerblue')
-txt = 'Site 1\nClosest Site = 100 km\nCorrection = '+str('%0.1f' % mldiff[100])+' mu'
+txt = 'Site 1\nClosest Site = 100 km\nCorrection = '+str('%0.2f' % mldiff[100])+' mu'
 plt.text(100, 0.3, txt, ha='center', va='bottom', fontsize=14)
 
 plt.plot(510, 0.2, '^', ms=18, c='dodgerblue')
 plt.plot([510, 510], [0, mldiff[510]], ':', c='dodgerblue', lw=2)
-txt = 'Site 2\nClosest Site = 510 km\nCorrection = '+str('%0.1f' % mldiff[510])+' mu'
+txt = 'Site 2\nClosest Site = 510 km\nCorrection = '+str('%0.2f' % mldiff[510])+' mu'
 plt.text(510, 0.3, txt, ha='center', va='bottom', fontsize=14)
 
 plt.legend(loc=3, fontsize=14)

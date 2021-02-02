@@ -20,7 +20,7 @@ txt = 'STA,STLO,STLA,M17,WA07,Kea15\n'
 for sta in unique_sites:
     vs30, isproxy, usgsvs, asscmvs, kvs, stla, stlo = get_station_vs30(sta)
     
-    txt += ','.join((sta, str('%0.3f' % stlo), str('%0.3f' % stlo), \
+    txt += ','.join((sta, str('%0.3f' % stlo), str('%0.3f' % stla), \
                      str(round(asscmvs)), str(round(usgsvs)), str(round(kvs)))) + '\n'
 
 # now write

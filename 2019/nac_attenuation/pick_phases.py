@@ -228,7 +228,7 @@ outtxt = ''
 mseedfiles = open(records).readlines(dat[9])[0:]"""
 
 #mseedfiles = listdir_extension('mseed_dump', 'mseed')
-mseedfiles = listdir_extension('mseed_2020', 'mseed')
+mseedfiles = listdir_extension('mseed_new', 'mseed')
 
 m = 1
 for mseedfile in mseedfiles:
@@ -245,7 +245,7 @@ for mseedfile in mseedfiles:
         
         # read mseed
         #st = read(path.join('mseed_dump', mseedfile))
-        st = read(path.join('mseed_2020', mseedfile))
+        st = read(path.join('mseed_new', mseedfile))
         
         # remove junk channels
         st = remove_low_sample_data(st)

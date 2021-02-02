@@ -236,6 +236,8 @@ for p, pf in enumerate(pickfiles[::-1]):
                         use_stationlist = True
                     elif tr.stats.network == 'OA' and tr.stats.channel.startswith('HH'):
                         use_stationlist = True
+                    elif tr.stats.network == '2O' and tr.stats.channel.startswith('HH'):
+                        use_stationlist = True
                     elif tr.stats.network == 'AU' and tr.stats.channel.startswith('EH'):
                         use_stationlist = True
                     elif tr.stats.network == '' and tr.stats.channel.startswith('EN'): # for DRS
