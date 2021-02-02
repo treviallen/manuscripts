@@ -53,7 +53,7 @@ idx = []
 i = 0
 for la, lo, ed in zip(lat, lon, evdt):
     for poly, reg in zip(polygons, ml_reg):
-        if reg == 'EA' or reg == 'none':
+        if reg == 'EA' or reg == 'SA': # or reg == 'WCA':
             pt = Point(lo, la)
             if pt.within(poly) and ed >= datelim:
                 idx.append(i)
@@ -98,6 +98,11 @@ for i, mm in enumerate(minmag):
    # now plot
    plt.step(decimal_yrs[mxoidx], range(0, len(mxoidx)), color='orange', lw=2)
    plt.step(decimal_yrs[mxridx], range(0, len(mxridx)), color='dodgerblue', lw=2)
+   
+   # print N events
+   print('\nNumber of MLH '+ str(len(mxoidx)))
+   print('Number of MLR '+ str(len(mxridx)))
+   print('Percent Change = '+str(100.*(len(mxoidx)-len(mxridx))/len(mxoidx))+'\n')
    
    # regress rate
    datelim = dt(1989, 12, 1)

@@ -411,10 +411,10 @@ for mi, ma in zip(mmin, mmax):
     
     # get MLM92
     plt.subplot(2,2,2*i+2)
-    plt.plot(rhypres[midx], mlm92res[midx], '+', color='0.6')
+    plt.plot(rhypres[midx], mlm92res[midx], '+', color='0.6',zorder=-32)
     #plt.plot(rhypres[gidx], mlm92res[gidx], '+', color='seagreen')
     medbin, stdbin, meanx, outbins, nperbin = get_binned_stats(bins, rhypres[midx], mlm92res[midx])
-    plt.errorbar(outbins, medbin, yerr=stdbin, color='r', fmt='s', mec='r')
+    plt.errorbar(outbins, medbin, yerr=stdbin, color='r', fmt='s', mec='r', zorder=1000)
     
     #medbin, stdbin, meanx, outbins, nperbin = get_binned_stats(bins, rhypres[gidx], mlm92res[gidx])
     #plt.errorbar(outbins, medbin, yerr=stdbin, color='b', fmt='s', mfc='none', mec='b')
@@ -480,9 +480,9 @@ for mi, ma in zip(mmin, mmax):
     '''
     # get R35
     plt.subplot(2,2,2*i+1)
-    plt.plot(rhypres[midx], r35res[midx], '+', color='0.6')
+    plt.plot(rhypres[midx], r35res[midx], '+', color='0.6', zorder=-32)
     medbin, stdbin, meanx, outbins, nperbin = get_binned_stats(bins, rhypres[midx], r35res[midx])
-    plt.errorbar(outbins, medbin, yerr=stdbin, color='r', fmt='s', mec='r')
+    plt.errorbar(outbins, medbin, yerr=stdbin, color='r', fmt='s', mec='r', zorder=1000)
 
     plt.plot([0, 800], [0, 0], 'k--')
     plt.xlim([0, 800])
