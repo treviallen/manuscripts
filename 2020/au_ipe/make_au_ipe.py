@@ -30,7 +30,6 @@ rh_lu = contlookup[:,1]
 #lines = open('mmidat_export.csv').readlines()[1:]
 lines = open('mmi_grad.csv').readlines()[1:]
 	
-
 repi = []
 rhyp = []
 rrup = []
