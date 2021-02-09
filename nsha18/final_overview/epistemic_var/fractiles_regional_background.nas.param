@@ -1,0 +1,9 @@
+fractiles_collapse
+AUS6 (R);/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/source_models/zones/2018_mw/AUS6/results_fractiles_mul
+DIMAUS (R);/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/source_models/zones/2018_mw/DIMAUS/results_fractiles_mul
+NSHM12 (R);/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/source_models/zones/2018_mw/NSHA13/results_fractiles_mul
+Domains (B);/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/source_models/zones/2018_mw/Domains_multi_mc/results_fractiles_mul
+Leonard (2008) (B);/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/source_models/zones/2018_mw/Leonard2008/results_fractiles_mul
+NSHM12 BG (B);/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/source_models/zones/2018_mw/NSHA13_Background/results_fractiles_mul
+GA Adaptive (SS);/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/source_models/smoothed_seismicity/GA_adaptive/results_fractiles
+NSHM12 (ST);/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/source_models/zones/2018_mw/NSHA13/seismotectonic_results_fractiles
