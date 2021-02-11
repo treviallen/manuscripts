@@ -281,6 +281,11 @@ for i, st in enumerate(stdict):
 didx = []
 stdict = array(stdict)
 for j, st in enumerate(stdict):
+    try:
+        repi = sqrt(st['rhyp']**2 + st['dep']**2)
+    except:
+        repi = 9999.
+        
     if st['chstr'][0] == '' and st['chstr'][0] == '':
         didx.append(j)
     elif st['net'] == 'GE' and st['rhyp'] > 400:
@@ -289,11 +294,11 @@ for j, st in enumerate(stdict):
         didx.append(j)
     elif st['net'] == 'GE' and st['azim'] < 150:
         didx.append(j)
-    elif st['sta'] == 'PMG' and st['rhyp'] > 400:
-        didx.append(j)
     elif st['sta'] == 'PMG' and st['azim'] > 210:
         didx.append(j)
     elif st['sta'] == 'PMG' and st['azim'] < 150:
+        didx.append(j)
+    elif st['sta'] == 'PMG' and st['rhyp'] > 400:
         didx.append(j)
     elif st['azim'] > 240 and st['net'] != 'AEES':
         didx.append(j)
@@ -303,6 +308,10 @@ for j, st in enumerate(stdict):
         didx.append(j)
     elif st['rhyp'] > maxDist:
         didx.append(j)
+
+    '''
+    
+    '''
 
 del recs
 print(len(stdict))
@@ -319,6 +328,7 @@ pklfile = open("stdict.pkl", "wb" )
 pickle.dump(stdict, pklfile) #, protocol=-1)
 pklfile.close()
 """
+
 print('Loading pkl file...')
 stdict = pickle.load(open("stdict.pkl", "rb" ))
 
@@ -340,6 +350,9 @@ for i, sd in enumerate(stdict):
             print(sd['sta'], sd['ev'], sn['ev'])
         
         '''
+        if sn['ev'].startswith('2015-11-04T03:51') and sd['ev'].startswith('2015-11-04T03:51') and sd['sta'] =='KNRA':
+            print(sd)
+            print(sn)
         if sd['ev'] == sn['ev'].replace('.',':') and sd['sta'] == sn['sta']:
             #print(sd['ev'], sd['sta'], 'blah')
             #print(sd['geom'])

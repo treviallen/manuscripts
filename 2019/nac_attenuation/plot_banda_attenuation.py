@@ -109,8 +109,8 @@ cs = (cmap(arange(ncols)))
 cs = get_mpl2_colourlist()
 #cs = vstack((cs[0:3], cs[4:]))
 
-titles = ['Sa(0.5)','Sa(2.0)','Sa(2.0)']
-Tplot = [0.5, 2.0]
+titles = ['Sa(0.2)','Sa(2.0)','Sa(2.0)']
+Tplot = [0.2, 2.0]
 letters = ['(a)', '(b)', '(c)', '(d)', '(e)', '(f)', '(g)', '(h)', '(i)']
 syms = ['o', '^', 's', 'd', 'v', '<', 'h']
 props = dict(boxstyle='round', facecolor='w', alpha=1)
@@ -219,5 +219,5 @@ for j, t in enumerate(Tplot):
         plt.legend(loc=3,numpoints=1,fontsize=13.5)
         
         
-plt.savefig('banda_atten.png', format='png', dpi=300, bbox_inches='tight')
+plt.savefig('figures/banda_atten.png', format='png', dpi=300, bbox_inches='tight')
 plt.show()

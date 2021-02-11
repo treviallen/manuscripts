@@ -84,26 +84,28 @@ fig = plt.figure(1, figsize=(8,8))
 ax = plt.subplot(1, 1, 1)
 
 depths = [20, 50, 100, 150, 200, 300]
-cmap = plt.cm.get_cmap('jet',len(depths))
+#cmap = plt.cm.get_cmap('jet',len(depths))
 #cols = (cmap(arange(len(depths))))
 cols = get_mpl2_colourlist()
-mag = 7.
+mag = 7.3
 rhyp = 700.
 vs30 = 760.
 
 for i, dep in enumerate(depths):
     A19imt_BS = calc_nac_gmm_spectra(mag, rhyp, dep, vs30, 'BS') # use rrup
-    label = '\n$\mathregular{h_z}$ = '+str(int(round(dep)))+' km'
+    label = '$\mathregular{h_z}$ = '+str(int(round(dep)))+' km'
     plt.loglog(A19imt_BS['per'], exp(A19imt_BS['sa']),'-' , lw=1.5, color=cols[i], label=label)
     
-plt.xlabel('Period (s)', fontsize=16)
-plt.ylabel('Spectral Acceleration (g)', fontsize=16)
+plt.xlabel('Period (s)', fontsize=20)
+plt.ylabel('Spectral Acceleration (g)', fontsize=20)
     
 plt.xlim([0.05, 10])
 plt.grid(which='both', color='0.75')
 
-plt.legend(loc=3, fontsize=10.)
+plt.legend(loc=3, fontsize=16)
+plt.xticks(fontsize=16)
+plt.yticks(fontsize=16)
 
-plt.savefig('figures/spectra_with_depth.png', format='png', dpi=150, bbox_inches='tight')
+plt.savefig('figures/spectra_with_depth.png', format='png', dpi=300, bbox_inches='tight')
 plt.show()
 
