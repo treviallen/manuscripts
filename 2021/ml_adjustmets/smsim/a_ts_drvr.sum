@@ -1,0 +1,110 @@
+ Summary file for program a_ts_drvr
+   Using control file: allen07_a_ts_drvr.ctl                                                                                                                                                                                   
+ *** Results computed using A_TS_DRVR ***
+
+   ***************** SMSIM, Version  7.050 ************************
+
+ test a_ts_drvr                                                                 
+
+ Date: 2021/01/23
+ Time Start: 17:36:06.040
+
+ file with parameters: allen_etal_2007.params
+ !Title:
+      Allen et al. (2007) attenuation model                               
+ !rho, beta, prtitn, rtp, fs:
+   2.80  3.60 0.707 0.55 2.00
+ !spectral shape: source number, pf_a, pd_a, pf_b, pd_b
+ !  (1=Single Corner;2=Joyner;3=A93;...;8=Jena;9=AS00;10=A05;11=Generalized multiplicative 2-corner; 12=Generalized additive 2-corner)
+ !  pf, pd (1-corner spectrum = 1/(1+(f/fc)**pf)**pd; 0.0 otherwise)
+ !  (usual model: pf=2.0,pd=1.0; Butterworth: pf=4.0,pd=0.5)
+ !  (Note: power of high freq decay --> pf*pd)
+ !  NOTE: see a params file for more complete description of parameters
+   1 2.00 1.00 0.00 0.00
+ ! spectral scaling: stressc, dlsdm, fbdfa, amagc c1_fa, c2_fa, amagc4fa, c1_eps, c2_eps, amagc4eps, mag4eps1
+ !  (stress=stressc*10.0**(dlsdm*(amag-amagc))
+ !  (fbdfa, amagc for Joyner model, usually 4.0, 7.0)
+ !  (not used for srce 3, but placeholders still needed)
+ !  NOTE: see ofr.params for more complete description of parameters
+   370.00  0.000E+00  4.00 7.00  0.000E+00  0.000E+00  0.00  0.000E+00  0.000E+00  0.00 0.00
+ !
+ !finite_fault factor specification:
+ !  iflag_f_ff, nlines, c1, c2, c3, c4, DeltaM (0 0 0 0 0 0 0 if a finite-fault factor is not to be used)
+ !
+ !  Distance for point-source calculation
+ !    If iflag_f_ff = 1: rps = sqrt(r^2 + f_ff^2))
+ !    If iflag_f_ff = 2: rps =  r + f_ff
+ !   Use rps in the calculations (this variable is called rmod in the code; it should be changed to rps to
+ !   reflect my current preferred terminology.  I do not have time to do this now).
+ !  Specification of the finite-fault factor h:
+ !    If nlines = 1
+ !      log10(f_ff) = c1 + c2*amag
+ !    If nlines = 2
+ !      log10(f_ff) = c1 + c2*amag  for amag<Mh
+ !      log10(f_ff) = c3 + c4*amag  for amag>=Mh
+ !      where Mh is determined by the intersection of the two lines
+ !      (this is computed in the program)
+ !    If nlines = 3
+ !      log10(f_ff) = c1 + c2*amag  for amag<Mh-DeltaM/2
+ !      log10(f_ff) = c3 + c4*amag  for amag>=Mh+DeltaM/2
+ !      log10(f_ff) given by a cubic in amag between the two lines (this
+ !        produces a smooth transition over the magnitude range DeltaM
+           1           3  -1.82760000      0.430000007     -0.512600005      0.234999999       2.00000000    
+     mh_f_ff, m1t_f_ff, m2t_f_ff =   6.74  5.74  7.74
+     c0t_f_ff, c1t_f_ff, c2t_f_ff, c3t_f_ff =   6.421E-01  4.300E-01 -4.875E-02  5.588E-09
+ i_gsprd_option =  0
+  r1_dmb_gsprd, pgsprd_r_le_r1_lf, pgsprd_r_le_r1_hf, pgsprd_r_gt_r1, ft1_dmb_gsprd, ft2_dmb_gsprd = 
+  10.00  0.00  0.00  0.00  0.00  0.00
+ gsprd: r_ref, nsegs, (rlow(i), a_s, b_s, m_s(i))  (Usually set r_ref = 1.0 km)
+    1.00
+    3
+     1.00 -1.300E+00  0.000E+00 6.50
+    90.00  1.000E-01  0.000E+00 6.50
+   160.00 -1.600E+00  0.000E+00 6.50
+ q: fr1, Qr1, s1, ft1, ft2, fr2, qr2, s2, c_q
+    1.000 4571.00 -1.050   3.920   9.830  10.000 1096.00  0.480 3.60
+ source duration: weights of 1/fa, 1/fb
+  0.50 0.50
+ path duration: nknots, (rdur(i), dur(i), slope of last segment
+    3
+     0.0   0.00
+    70.0   9.80
+   170.0   5.80
+   7.000E-02
+ site amplification: namps, (famp(i), amp(i))
+    1
+    1.000  1.000
+ site diminution parameters: fm, akappa, dkappadmag, amagkref
+    0.000  6.000E-03  0.000E+00 6.00
+ low-cut filter parameters: fcut, nslope
+    0.000  8
+ high-cut filter parameters: 
+   itype_hcfilt
+     0=no high-cut filter (but the other parameters are needed as placeholders)
+     1=raised half cycle of cosine
+     2= quarter cycle of a cosine
+     fhc1, fhc2 (low and high frequency
+     eta_hcfilt (power of cosine)
+           0   25.0000000       50.0000000       1.00000000    
+ window params: indxwind(0=box,1=exp),  taper, eps_w, eta_w, f_tb2te, f_te_xtnd
+  1 0.05  0.20  0.050  2.1  1.0
+ timing stuff: dur_fctr, dt, tshift, seed, nsims, iran_type
+  1.30 0.0100  50.00  123.0  800 0
+ Stem = simulations/m5.00r500s9_
+ amag    r =
+  4.76  500.00
+ nsims_total, nsims_start, nsims2save = 
+           1           1           1
+ nstart, nstop =    5001  11217
+ npw2, te =   16384    62.17
+ jsim, real_head(2), dble(real_head(2)), 1.0d0/dble(dt),           dt =       1    1.000000E+02    1.000000E+02    1.000000E+02    1.000000E-02
+
+ index       pga
+     1  2.481E-02
+
+  arithmetic mean =   2.481E-02
+  geometric mean =   2.481E-02
+
+
+ Time Stop: 17:36:06.064
+ Elapsed time (sec):   2.400E-02
