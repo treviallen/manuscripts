@@ -207,7 +207,7 @@ for i, T in enumerate(Tplt):
 ###############################################################################
 # regress coeffs
 ###############################################################################
-sg_window = 7
+sg_window = 11
 sg_poly = 2
 
 #linreg = linregress(log10(Tplt), log10(array(coefs1)[:,1]))
@@ -255,7 +255,7 @@ fig = plt.figure(2, figsize=(12, 7))
 ax = plt.subplot(1,2,1)
 
 plt.semilogx(Tplt, array(coefs1)[:,0], 'ro')
-plt.semilogx(Tplt, array(coefs2)[:,0], 'bo')
+plt.semilogx(Tplt, array(coefs2)[:,0], 'bo') # re-fitted coefs
 	
 ax = plt.subplot(1,2,2)
 
@@ -280,24 +280,3 @@ for i, t in enumerate(Tplt):
 f = open('nac_site_amp_coeffs.csv', 'w')
 f.write(txt)
 f.close()    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    

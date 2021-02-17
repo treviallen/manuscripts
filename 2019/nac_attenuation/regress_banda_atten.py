@@ -95,8 +95,10 @@ region = argv[1]
 ################################################################################
 #usgscsv = '20190625_merged_events.csv'
 #evdict = parse_usgs_events(usgscsv)
-"""
+
 folder = 'psa'
+"""
+#folder = 'psa_amp' # when using this, saves to stdict_ampfact.pkl
 extension = 'psa'
 safiles = listdir_extension(folder, extension)
 recs = []
@@ -328,9 +330,15 @@ pklfile = open("stdict.pkl", "wb" )
 pickle.dump(stdict, pklfile) #, protocol=-1)
 pklfile.close()
 """
+if folder == 'psa':
+    print('Loading regular pkl file...')
 
-print('Loading pkl file...')
-stdict = pickle.load(open("stdict.pkl", "rb" ))
+    stdict = pickle.load(open("stdict.pkl", "rb" ))
+else:
+    print('Loading amp pkl file...')
+	  
+    stdict = pickle.load(open("stdict_ampfact.pkl", "rb" ))
+    crash
 
 ################################################################################
 # cross-check with S/N data
@@ -593,6 +601,7 @@ def regress_zone(stdict, zgroup):
     Tplt = array([0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0, 4.0, 5.0, 7.5, 10.]) # secs; PGA = 0.01; PGV = -99
     Tplt = array([0.067, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0, 4.0, 5.0, 7.5, 9.5, 10.]) #, 10.]) # secs; PGA = 0.01; PGV = -99
     Tplt = array([0.05, 0.075, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 7.5, 9., 10., 12, 15.]) #, 10.]) # secs; PGA = 0.01; PGV = -99
+    Tplt = array([12.0, 10.0, 7.5, 6.0, 5.0, 4.0, 3.0, 2.5, 2.0, 1.5, 1.25, 1.0, 0.75, 0.6, 0.5, 0.45, 0.4, 0.3, 0.25, 0.20, 0.15, 0.125, 0.10, 0.075, 0.05])[::-1] # use NGA-E periods
     bins = arange(log10(minDist), log10(maxDist), 0.1)
     
     # compute inslab gmpes
@@ -681,7 +690,7 @@ def regress_zone(stdict, zgroup):
     for i, T in enumerate(Tplt):
         pltPeriod = False
         
-        if T >= 0.1 and T < 5.:
+        if T >= 0.1 and T <=10.:
             pltPeriod = True
             ii += 1
             ax = plt.subplot(4,5,ii)
@@ -1050,7 +1059,7 @@ def regress_zone(stdict, zgroup):
     for T, ym, xm in zip(Tplt, t_dept_c0, t_dept_mw):
         pltPeriod = False
         
-        if T >= 0.1 and T < 5.:
+        if T >= 0.1 and T <=10.:
             pltPeriod = True
             i += 1
         
@@ -1080,7 +1089,7 @@ def regress_zone(stdict, zgroup):
     for T in Tplt:
         pltPeriod = False
         
-        if T >= 0.1 and T < 5.:
+        if T >= 0.1 and T <=10.:
             pltPeriod = True
             i += 1
             
@@ -1145,7 +1154,7 @@ def regress_zone(stdict, zgroup):
     for i, T in enumerate(Tplt):
         pltPeriod = False
         
-        if T >= 0.1 and T < 5.:
+        if T >= 0.1 and T <=10.:
             pltPeriod = True
             ii += 1
             
@@ -1419,7 +1428,7 @@ def regress_zone(stdict, zgroup):
     for i, T in enumerate(Tplt):
         pltPeriod = False
         
-        if T >= 0.1 and T < 5.:
+        if T >= 0.1 and T <=10.:
             pltPeriod = True
             ii += 1
 
@@ -1521,7 +1530,7 @@ def regress_zone(stdict, zgroup):
     for T in Tplt:
         pltPeriod = False
         
-        if T >= 0.1 and T < 5.:
+        if T >= 0.1 and T <=10.:
             pltPeriod = True
             i += 1
 

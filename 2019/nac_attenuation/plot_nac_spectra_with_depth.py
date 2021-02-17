@@ -87,6 +87,7 @@ depths = [20, 50, 100, 150, 200, 300]
 #cmap = plt.cm.get_cmap('jet',len(depths))
 #cols = (cmap(arange(len(depths))))
 cols = get_mpl2_colourlist()
+syms = ['o', '^', 's', 'd', 'p', 'v']
 mag = 7.3
 rhyp = 700.
 vs30 = 760.
@@ -94,7 +95,12 @@ vs30 = 760.
 for i, dep in enumerate(depths):
     A19imt_BS = calc_nac_gmm_spectra(mag, rhyp, dep, vs30, 'BS') # use rrup
     label = '$\mathregular{h_z}$ = '+str(int(round(dep)))+' km'
-    plt.loglog(A19imt_BS['per'], exp(A19imt_BS['sa']),'-' , lw=1.5, color=cols[i], label=label)
+    if i== 4:
+        plt.loglog(A19imt_BS['per'], exp(A19imt_BS['sa']), syms[i], ls='-', lw=1.5, color=cols[i], \
+                   ms=8, mec=cols[i], mfc='none', mew=2, markevery=5, label=label)
+    else:
+        plt.loglog(A19imt_BS['per'], exp(A19imt_BS['sa']), syms[i], ls='-', lw=1.5, color=cols[i], \
+                   ms=8, mec=cols[i], mfc='none', mew=2, markevery=4, label=label)
     
 plt.xlabel('Period (s)', fontsize=20)
 plt.ylabel('Spectral Acceleration (g)', fontsize=20)
@@ -102,7 +108,7 @@ plt.ylabel('Spectral Acceleration (g)', fontsize=20)
 plt.xlim([0.05, 10])
 plt.grid(which='both', color='0.75')
 
-plt.legend(loc=3, fontsize=16)
+plt.legend(loc=3, fontsize=16, numpoints=1)
 plt.xticks(fontsize=16)
 plt.yticks(fontsize=16)
 
