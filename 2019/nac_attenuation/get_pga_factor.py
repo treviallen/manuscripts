@@ -12,7 +12,7 @@ from misc_tools import listdir_extension, dictlist2array
 from data_fmt_tools import return_sta_data
 from datetime import datetime, timedelta
 from os import path, getcwd, remove
-from numpy import asarray, array, median, where
+from numpy import asarray, array, median, where, log, std
 import matplotlib.pyplot as plt
 plt.ion()
 import matplotlib as mpl
@@ -218,7 +218,7 @@ def parse_usgs_events(usgscsv):
         
     return evdict
 
-usgscsv = '20200511_merged_events.csv'
+usgscsv = '20201008_merged_events.csv'
 #usgscsv = '2019-02-26_event.csv'
 # parse catalogue
 evdict = parse_usgs_events(usgscsv)
@@ -332,12 +332,21 @@ for mseedfile in mseedfiles:
     records.append(record)
     
 ###############################################################################
-# now analyse
+# now analyse 
 
 ratios = dictlist2array(records, 'ratio')
 mags = dictlist2array(records, 'mag')
 
 med_ratio = median(ratios)
+ln_med_ratio = median(log(ratios))
+ln_std_ratio = std(log(ratios))
+print('Ln Median Ratio: '+str(ln_med_ratio))
+print('Std Dev: '+str(ln_std_ratio))
+
+# Save to file
+f = open('ln_pga_correction.csv', 'w')
+f.write(','.join((str(ln_med_ratio), str(ln_std_ratio))))
+f.close()
 
 fig = plt.figure(1, figsize=(8, 4))
 ax = plt.subplot(111)

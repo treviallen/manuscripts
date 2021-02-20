@@ -1,6 +1,7 @@
 time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,type,horizontalError,depthError,magError,magNst,status,locationSource,magSource
 2020-09-17T10:32:25.544Z,-6.7757,129.3625,182.77,5.5,mww,,18,2.264,1.28,us,us7000bpbx,2020-09-18T10:36:29.288Z,Banda Sea,earthquake,7.3,0.4,0.093,11,reviewed,us,us
 2020-09-08T00:45:20.952Z,-4.9124,129.7627,174.05,5.9,mww,,12,3.173,0.78,us,us7000bjgb,2020-09-09T00:49:01.271Z,"197 km SSE of Amahai, Indonesia",earthquake,6.4,3.6,0.086,13,reviewed,us,us
+2020-08-21T04:09:51.930Z,-6.71,123.4649,624,6.9,mww,,20,2.267,1.31,us,us6000bi4p,2020-10-31T19:06:13.040Z,"222 km SSE of Katabu, Indonesia",earthquake,8.8,1.9,0.052,36,reviewed,us,us
 2020-05-23T00:13:38.002Z,-7.1501,129.1447,124.95,5.3,mww,,16,2.29,1.35,us,us70009nva,2020-08-08T18:17:51.040Z,"281 km ENE of Lospalos, Timor Leste",earthquake,5.8,3.6,0.061,26,reviewed,us,us
 2020-05-11T01:06:18.684Z,-6.0661,129.9186,10,5.6,mww,,41,2.345,0.91,us,us70009dvh,2020-05-12T01:08:37.901Z,"259km NW of Saumlaki, Indonesia",earthquake,6.5,1.8,0.071,19,reviewed,us,us
 2020-05-06T13:53:56.960Z,-6.7949,129.8613,107,6.8,mww,,17,1.85,0.61,us,us70009b14,2020-05-10T00:04:43.829Z,"205km NW of Saumlaki, Indonesia",earthquake,6.9,4.2,0.065,23,reviewed,us,us

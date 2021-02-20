@@ -390,6 +390,6 @@ for stn in usites:
             ii += 1
             fig = plt.figure(ii, figsize=(10, 10))
 
-plt.savefig('event_psa/'+prefix+'_spectra.png', format='png', dpi=300, bbox_inches='tight')
+plt.savefig('figures/'+prefix+'_spectra.png', format='png', dpi=300, bbox_inches='tight')
 plt.show()
 

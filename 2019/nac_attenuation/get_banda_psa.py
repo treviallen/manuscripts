@@ -43,7 +43,7 @@ pickfiles = listdir_extension(folder, 'picks')
 ################################################################################
 # loop through earthquakes and get data
 ################################################################################
-usgscsv = '20190625_merged_events.csv'
+usgscsv = '20201008_merged_events.csv'
 evdict = parse_usgs_events(usgscsv)
 
 # read dataless seed volumes

@@ -608,15 +608,3 @@ for i, sig in enumerate(sigdict):
     
 plt.savefig('figures/standard_deviations.png', fmt='png', bbox_inches='tight')       
 plt.show()
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    

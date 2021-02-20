@@ -89,7 +89,7 @@ depths = [20, 50, 100, 150, 200, 300]
 cols = get_mpl2_colourlist()
 syms = ['o', '^', 's', 'd', 'p', 'v']
 mag = 7.3
-rhyp = 700.
+rhyp = 600.
 vs30 = 760.
 
 for i, dep in enumerate(depths):
