@@ -79,7 +79,7 @@ def get_iris_event_data(bulk, folder, timestr, dataless, event):
                  st = st.merge(method=0, fill_value='interpolate')
                  sta += st
                  
-                 print('Writing file:', fpath)
+                 print('Writing file: '+fpath)
                  st.write(fpath, format="MSEED")
             else:
                 print('File exists:', fpath)

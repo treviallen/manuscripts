@@ -43,7 +43,8 @@ maxdist = 2200
 for ev in gadat[40:]:
     dt = ev['datetime']
     print(dt)
-    dateTuple = (dt.year, dt.month, dt.day, dt.hour, dt.minute-2) # allow 2 mins pre-event 
+    # allow 2 mins pre-event - subs realised "get_iris_data" already pads by 2 mins, so have 4 mins
+    dateTuple = (dt.year, dt.month, dt.day, dt.hour, dt.minute-2) 
     # loop thru stations
     for isl in iris_sta_list:
         

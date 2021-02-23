@@ -30,9 +30,9 @@ network = 'AU'
 # read ga sta list
 ##############################################################################
 
-# get singel station data
-td_start = -120
-td_end = 1680.
+# get singel station data - use 4 mins padding
+td_start = -240
+td_end = 1560
 
 ##############################################################################
 # loop through events
@@ -50,7 +50,7 @@ for ev in gadat[40:]:
         for isl in iris_sta_list:
             
             # check if station is open
-            if isl['starttime'] <= dt and isl['stoptime'] >= dt:
+            if isl['stoptime'] >= dt:
                 
                 # check if in distance range
                 repi = distance(ev['lat'], ev['lon'], isl['lat'], isl['lon'])[0]
