@@ -47,7 +47,7 @@ def parse_usgs_events(usgscsv):
 ##########################################################################################
 # reads sa data files and returns period (T) and acceleration (SA) vectors
 print('Loading pkl file...')
-recs = pickle.load(open("stdict.pkl", "rb" ))
+recs = pickle.load(open("stdict_ampfact.pkl", "rb" ))
 
 ##########################################################################################
 #108/152/-44/-8
