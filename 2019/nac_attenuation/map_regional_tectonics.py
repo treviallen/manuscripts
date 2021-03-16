@@ -4,7 +4,7 @@ from matplotlib import colors, colorbar
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 from mpl_toolkits.basemap import Basemap
-from matplotlib.colors import LightSource
+from matplotlib.colors import LightSource, ListedColormap
 from numpy import arange, mean, percentile, array, unique, where, argsort, floor, sqrt
 from netCDF4 import Dataset as NetCDFFile
 from gmt_tools import cpt2colormap
@@ -14,7 +14,7 @@ import pickle
 #from obspy.imaging.beachball import Beach
 #from hmtk.parsers.catalogue.csv_catalogue_parser import CsvCatalogueParser, CsvCatalogueWriter
 from misc_tools import remove_last_cmap_colour, listdir_extension
-from mapping_tools import drawshapepoly, get_field_data, drawoneshapepoly, distance, reckon
+from mapping_tools import drawshapepoly, get_field_data, drawoneshapepoly, distance, reckon, map_fault_dip_dirn
 import shapefile
 
 mpl.style.use('classic')
@@ -22,8 +22,8 @@ mpl.style.use('classic')
 ##########################################################################################
 #108/152/-44/-8
 urcrnrlat = 1.0
-llcrnrlat = -28.
-urcrnrlon = 155.
+llcrnrlat = -26.
+urcrnrlon = 153.
 llcrnrlon = 112
 lon_0 = mean([llcrnrlon, urcrnrlon])
 lat_1 = percentile([llcrnrlat, urcrnrlat], 25)
@@ -36,7 +36,7 @@ ax = fig.add_subplot(111)
 m = Basemap(projection='lcc',lat_1=lat_1,lat_2=lat_2,lon_0=lon_0,\
             llcrnrlon=llcrnrlon,llcrnrlat=llcrnrlat, \
             urcrnrlon=urcrnrlon,urcrnrlat=urcrnrlat,\
-            rsphere=6371200.,resolution='l',area_thresh=1000.)
+            rsphere=6371200.,resolution='i',area_thresh=500.)
 
 # draw coastlines, state and country boundaries, edge of map.
 #m.shadedrelief()
@@ -45,8 +45,8 @@ m = Basemap(projection='lcc',lat_1=lat_1,lat_2=lat_2,lon_0=lon_0,\
 m.drawcoastlines()
 m.drawstates()
 m.drawcountries()
-m.fillcontinents(color='w',lake_color='w')
-m.drawmapboundary(fill_color='w')
+#m.fillcontinents(color='w',lake_color='w')
+#m.drawmapboundary(fill_color='w')
 m.drawparallels(arange(-90.,90.,4.), labels=[1,0,0,0],fontsize=16, dashes=[2, 2], color='0.5', linewidth=0.75)
 m.drawmeridians(arange(0.,360.,6.), labels=[0,0,0,1], fontsize=16, dashes=[2, 2], color='0.5', linewidth=0.75)
 #m.drawmapscale(144, -34.8, 146., -38.5, 400, fontsize = 16, barstyle='fancy', zorder=100)
@@ -55,12 +55,15 @@ m.drawmeridians(arange(0.,360.,6.), labels=[0,0,0,1], fontsize=16, dashes=[2, 2]
 # plot gebco
 ##########################################################################################
 
-print('Reading netCDF file...')
-nc = NetCDFFile('//Users//trev//Documents//DATA//GMT//GEBCO//Australia_30c.nc')
+print( 'Reading netCDF file...')
+try:
+    nc = NetCDFFile('//Users//trev//Documents//DATA//GMT//GEBCO//au_indo_gebco_2020.nc')
+except:
+    nc = NetCDFFile('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/GEBCO/au_gebco.nc')
 
-zscale =20. #gray
-zscale =30. #colour
-data = nc.variables['z'][:] / zscale
+zscale =30. #gray
+#zscale =30. #colour
+data = nc.variables['elevation'][:] / zscale
 lons = nc.variables['lon'][:]
 lats = nc.variables['lat'][:]
 
@@ -70,19 +73,30 @@ ny = int((m.ymax-m.ymin)/500.)+1
 
 topodat = m.transform_scalar(data,lons,lats,nx,ny)
 
-print('Getting colormap...')
+print( 'Getting colormap...')
 # get colormap
-cptfile = '//Users//trev//Documents//DATA//GMT//cpt//wiki-2.0.cpt'
-cmap, zvals = cpt2colormap(cptfile, 30)
-cmap = remove_last_cmap_colour(cmap)
+try:
+    cptfile = '//Users//trev//Documents//DATA//GMT//cpt//wiki-2.0.cpt'
+    cptfile = '//Users//trev//Documents//DATA//GMT//cpt//lightgrey.cpt'
+    cptfile = '//Users//trev//Documents//DATA//GMT//cpt//grey_fade.cpt'
+except:
+    cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/wiki-2.0.cpt'
 
+#cmap, zvals = cpt2colormap(cptfile, 30) # wiki
+cmap, zvals = cpt2colormap(cptfile, 31) # grey
+#cmap = remove_last_cmap_colour(cmap)
+
+#cmap = ListedColormap
+        
 # make shading
-print('Making map...')
-ls = LightSource(azdeg = 180, altdeg = 5)
-#norm = mpl.colors.Normalize(vmin=-8000/zscale, vmax=5000/zscale)
-norm = mpl.colors.Normalize(vmin=-1000/zscale, vmax=1900/zscale)#wiki
+print( 'Making map...')
+ls = LightSource(azdeg = 135, altdeg = 10)
+#norm = mpl.colors.Normalize(vmin=-8000/zscale, vmax=5000/zscale)#myb
+#norm = mpl.colors.Normalize(vmin=-1000/zscale, vmax=1900/zscale)#wiki
+norm = mpl.colors.Normalize(vmin=-2000/zscale, vmax=3500/zscale)#wiki
+
 rgb = ls.shade(topodat.data, cmap=cmap, norm=norm)
-im = m.imshow(rgb, alpha=1.)
+im = m.imshow(rgb, alpha=1.0)
 
 ##########################################################################################
 # add domains
@@ -164,11 +178,13 @@ shpfile = '/Users/trev/Documents/DATA/GIS/Faults/PB2002_boundaries.shp'
 sf = shapefile.Reader(shpfile)
 
 faults2plot = ['SU/AU', 'TI-AU', 'BH\BS', 'BS-AU', 'BH-BS']
+arrowDirn = [1, 1, -1, 1, -1]
+arraowCol = ['k', '0.5', 'k', '0.5', 'k']
 
 discLen = 150. # km
 triLen = 40.
 halfTriLen = triLen / 2.
-for fault in faults2plot:
+for fault, adirn , acol, in zip(faults2plot, arrowDirn, arraowCol):
     flolas = drawoneshapepoly(m, plt, sf, 'Name', fault, lw=1.5, polyline=True)
     
     discLon = []
@@ -206,14 +222,66 @@ for fault in faults2plot:
         
         # pt3 - assum equilateral triange
         triHeight = sqrt(triLen**2 - halfTriLen**2)
-        triLons.append(reckon(dla, dlo, triHeight, daz-90)[0])
-        triLats.append(reckon(dla, dlo, triHeight, daz-90)[1])
+        arrowAng = adirn * 90.
+        triLons.append(reckon(dla, dlo, triHeight, daz-arrowAng)[0])
+        triLats.append(reckon(dla, dlo, triHeight, daz-arrowAng)[1])
     
         xx, yy = m(triLons, triLats)
         #plt.plot(xx, yy, 'o', c='r', lw=2, )
-        plt.fill(xx,yy, facecolor='k', edgecolor='none', linewidth=0.75, alpha=1)
+        plt.fill(xx,yy, facecolor=acol, edgecolor='k', linewidth=0.5, alpha=1)
     
-    
+# add Flores-Wetar
+shpfile = 'fault_geometries/flores-wetar.shp'
+sf = shapefile.Reader(shpfile)
+flolas = drawshapepoly(m, plt, sf, lw=1.5, polyline=True)
+lons = flolas[0][0]
+lats = flolas[0][1]
+map_fault_dip_dirn(m, plt, lons, lats, discLen, triLen, fc='0.5', ec='k', lw=0.5, invArrow=True)
+
+##########################################################################################
+# annotate text
+##########################################################################################
+import matplotlib.patheffects as PathEffects
+path_effects=[PathEffects.withStroke(linewidth=3, foreground="w")]
+
+# label polygons
+x, y = m(135, -17.5)
+plt.text(x, y, 'North Australian\nCraton', size=18, c='maroon', ha='center', va='top', weight='normal', style='italic', path_effects=path_effects)
+
+x, y = m(126, -14.5)
+plt.text(x, y, 'Kimberly\nCraton', size=18, c='maroon', ha='center', va='top', weight='normal', style='italic', path_effects=path_effects)
+
+x, y = m(126, -12.5)
+plt.text(x, y, 'Western\nExtended Crust', size=18, c='g', ha='center', weight='normal', style='italic', path_effects=path_effects)
+
+x, y = m(130, -24.5)
+plt.text(x, y, 'Central Australia Reactivated\nProterozoic Crust', size=18, c='orangered', \
+         va='center', ha='center', weight='normal', style='italic', path_effects=path_effects)
+
+x, y = m(145.5, -24)
+plt.text(x, y, 'Tasmanides', size=18, c='b', ha='center', weight='normal', style='italic', path_effects=path_effects)
+
+x, y = m(129, -5)
+plt.text(x, y, 'Banda Sea', size=18, c='k', ha='center', va='center', weight='normal', style='italic', path_effects=path_effects)
+
+# add faults
+
+x, y = m(129, -9.8)
+plt.text(x, y, 'Timor Trough', size=16, c='k', va='center', ha='center', weight='normal', \
+         rotation=10 , path_effects=path_effects)
+         
+x, y = m(117, -11.9)
+plt.text(x, y, 'Sunda Arc', size=16, c='k', va='center', ha='center', weight='normal', \
+         rotation=-0.5 , path_effects=path_effects)
+         
+x, y = m(122, -7)
+plt.text(x, y, 'Flores-Wetar\nThrust', size=16, c='k', va='center', ha='center', weight='normal', \
+         rotation=-0 , path_effects=path_effects)
+
+
+
+
+
 '''
 # label polygons
 x, y = m(146, -40.1)
@@ -222,7 +290,7 @@ plt.text(x, y, 'Bass\nBasin', size=12, c='r', ha='center', va='top', weight='nor
 x, y = m(148.5, -39.)
 plt.text(x, y, 'Gippsland\nBasin', size=12, c='r', ha='center', weight='normal', style='italic', path_effects=path_effects)
 '''
-plt.legend(loc=1, fontsize=13)
+plt.legend(loc=1, fontsize=14)
 
 plt.savefig('figures/tectonic_setting.png',fmt='png',dpi=150,bbox_inches='tight')
 plt.show()
