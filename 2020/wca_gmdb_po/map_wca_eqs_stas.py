@@ -59,9 +59,9 @@ stalon = array(stalon)
 stalat = array(stalat)  
 ##########################################################################################
 #108/152/-44/-8
-urcrnrlat = -16.
+urcrnrlat = -14.
 llcrnrlat = -36.
-urcrnrlon = 138.
+urcrnrlon = 140.
 llcrnrlon = 111.
 lon_0 = mean([llcrnrlon, urcrnrlon])
 lat_1 = percentile([llcrnrlat, urcrnrlat], 25)
@@ -184,6 +184,41 @@ l.set_zorder(len(mag)+5)
 shpfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/source_models/zones/shapefiles/Domains/Domains_Sep2011.shp'
 sfz = shapefile.Reader(shpfile)
 drawshapepoly(m, plt, sfz, edgecolor='r', col='r', lw=1., zorder=1)
+
+##########################################################################################
+# make map inset
+##########################################################################################
+
+from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes
+axins = zoomed_inset_axes(ax, 0.115, loc=1)
+
+m2 = Basemap(projection='merc',\
+            llcrnrlon=109,llcrnrlat=-45, \
+            urcrnrlon=156,urcrnrlat=-9,\
+            rsphere=6371200.,resolution='l',area_thresh=10000)
+            
+m2.drawmapboundary(fill_color='0.8')
+m2.fillcontinents(color='w', lake_color='0.8') #, zorder=0)
+m2.drawcoastlines()
+m2.drawcountries()
+m2.drawstates()
+
+# fill main area
+xv = array([llcrnrlon, llcrnrlon, urcrnrlon, urcrnrlon, llcrnrlon])
+yv = array([llcrnrlat, urcrnrlat, urcrnrlat, llcrnrlat, llcrnrlat])
+x, y = m2(xv, yv)
+plt.plot(x, y, 'r-', lw=1.5)
+
+##########################################################################################
+# label states
+##########################################################################################
+
+state = ['WA', 'NT', 'SA', 'QLD', 'NSW', 'VIC', 'TAS']
+slat = [-26, -21.0, -29.5, -23.0, -32.5, -37.1, -44.2]
+slon = [122, 133.5, 135.0, 144.5, 146.5, 143.6, 150.0]
+for i, st in enumerate(state):
+    x, y = m2(slon[i], slat[i])
+    plt.text(x, y, st, size=11, horizontalalignment='center', verticalalignment='center', weight='normal')
 
 ##########################################################################################
 # add colourbar
