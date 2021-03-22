@@ -3,7 +3,7 @@ from matplotlib import colors, colorbar
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 from mpl_toolkits.basemap import Basemap
-#from matplotlib.colors import LightSource
+from matplotlib.colors import LightSource
 from numpy import arange, mean, percentile, array, unique, where, argsort, floor
 from netCDF4 import Dataset as NetCDFFile
 from gmt_tools import cpt2colormap
@@ -13,7 +13,7 @@ import pickle
 #from obspy.imaging.beachball import Beach
 #from hmtk.parsers.catalogue.csv_catalogue_parser import CsvCatalogueParser, CsvCatalogueWriter
 from misc_tools import remove_last_cmap_colour, listdir_extension
-from mapping_tools import drawshapepoly
+from mapping_tools import drawshapepoly, get_field_data
 
 mpl.style.use('classic')
 #plt.rcParams['pdf.fonttype'] = 42
@@ -48,13 +48,14 @@ def parse_usgs_events(usgscsv):
 # reads sa data files and returns period (T) and acceleration (SA) vectors
 print('Loading pkl file...')
 recs = pickle.load(open("stdict_ampfact.pkl", "rb" ))
+#recs = pickle.load(open("stdict.pkl", "rb" ))
 
 ##########################################################################################
 #108/152/-44/-8
-urcrnrlat = 1.0
-llcrnrlat = -28.
-urcrnrlon = 160.
-llcrnrlon = 107
+urcrnrlat = -4.0
+llcrnrlat = -26.
+urcrnrlon = 142.
+llcrnrlon = 117
 lon_0 = mean([llcrnrlon, urcrnrlon])
 lat_1 = percentile([llcrnrlat, urcrnrlat], 25)
 lat_2 = percentile([llcrnrlat, urcrnrlat], 75)
@@ -66,7 +67,7 @@ ax = fig.add_subplot(111)
 m = Basemap(projection='lcc',lat_1=lat_1,lat_2=lat_2,lon_0=lon_0,\
             llcrnrlon=llcrnrlon,llcrnrlat=llcrnrlat, \
             urcrnrlon=urcrnrlon,urcrnrlat=urcrnrlat,\
-            rsphere=6371200.,resolution='l',area_thresh=1000.)
+            rsphere=6371200.,resolution='i',area_thresh=500.)
 
 # draw coastlines, state and country boundaries, edge of map.
 #m.shadedrelief()
@@ -75,11 +76,52 @@ m = Basemap(projection='lcc',lat_1=lat_1,lat_2=lat_2,lon_0=lon_0,\
 m.drawcoastlines()
 m.drawstates()
 m.drawcountries()
-m.fillcontinents(color='w',lake_color='0.9')
-m.drawmapboundary(fill_color='0.9')
+#m.fillcontinents(color='w',lake_color='0.9')
+#m.drawmapboundary(fill_color='0.9')
 m.drawparallels(arange(-90.,90.,4.), labels=[1,0,0,0],fontsize=16, dashes=[2, 2], color='0.5', linewidth=0.75)
 m.drawmeridians(arange(0.,360.,6.), labels=[0,0,0,1], fontsize=16, dashes=[2, 2], color='0.5', linewidth=0.75)
 #m.drawmapscale(144, -34.8, 146., -38.5, 400, fontsize = 16, barstyle='fancy', zorder=100)
+
+##########################################################################################
+# plot gebco
+##########################################################################################
+
+print( 'Reading netCDF file...')
+try:
+    nc = NetCDFFile('//Users//trev//Documents//DATA//GMT//GEBCO//au_indo_gebco_2020.nc')
+except:
+    nc = NetCDFFile('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/GEBCO/au_gebco.nc')
+
+zscale =30. #gray
+#zscale =30. #colour
+data = nc.variables['elevation'][:] / zscale
+lons = nc.variables['lon'][:]
+lats = nc.variables['lat'][:]
+
+# transform to metres
+nx = int((m.xmax-m.xmin)/500.)+1
+ny = int((m.ymax-m.ymin)/500.)+1
+
+topodat = m.transform_scalar(data,lons,lats,nx,ny)
+
+print( 'Getting colormap...')
+# get colormap
+try:
+    cptfile = '//Users//trev//Documents//DATA//GMT//cpt//wiki-2.0.cpt'
+except:
+    cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/wiki-2.0.cpt'
+
+cmap, zvals = cpt2colormap(cptfile, 30)
+cmap = remove_last_cmap_colour(cmap)
+
+# make shading
+print('Making map...')
+ls = LightSource(azdeg = 180, altdeg = 5)
+#norm = mpl.colors.Normalize(vmin=-8000/zscale, vmax=5000/zscale)
+norm = mpl.colors.Normalize(vmin=-1000/zscale, vmax=1900/zscale)#wiki
+
+rgb = ls.shade(topodat.data, cmap=cmap, norm=norm)
+im = m.imshow(rgb, alpha=1.0)
 
 ##########################################################################################
 # add epicentres
@@ -96,50 +138,142 @@ import shapefile
 shpfile = 'shapefiles/nac_gmm_zones.shp'
 sf = shapefile.Reader(shpfile)
 shapes = sf.shapes()
+zone_code = get_field_data(sf, 'CODE', 'str')
 polygons = []
 for poly in shapes:
     polygons.append(Polygon(poly.points))
     
-drawshapepoly(m, plt, sf, col='r')
+#drawshapepoly(m, plt, sf, col='r')
+
+# get net IDs
+netid = []
+stas = []
+
+unets = ['AU', 'GE', 'S1', 'II', 'IU', 'OA', '2O']
+netsym = ['^', 'H', 'd', 's', 'v', 'p', 'D']
+msize = [10, 10, 10, 8, 10, 10, 7]
 
 # loop thru zones
 i = 0
 for j, poly in enumerate(polygons):
     
-    eqlo = []
-    eqla = []
-    emag = []
-    stlo = []
-    stla = []
-    
-    # plt paths
-    for rec in recs: #[0:100])):
-        #if rec['dep'] >= 50:
-        
-        pt = Point(rec['eqlo'], rec['eqla'])
-        if pt.within(poly):
-            #plt eq
-            x1, y1 = m(rec['eqlo'], rec['eqla'])
-            x2, y2 = m(rec['stlo'], rec['stla'])
+    if zone_code[j] == 'BS':
+        eqlo = []
+        eqla = []
+        emag = []
+        edep = []
+        stlo = []
+        stla = []
+        stas = []
+        netid = []
+                
+        # plt paths
+        for rec in recs: #[0:100])):
+            #if rec['dep'] >= 50:
             
-            plt.plot([x1, x2], [y1, y2], '-', c=cs[j*2], lw=0.5, alpha=0.7)
+            pt = Point(rec['eqlo'], rec['eqla'])
+            if pt.within(poly):
+                #plt eq
+                x1, y1 = m(rec['eqlo'], rec['eqla'])
+                x2, y2 = m(rec['stlo'], rec['stla'])
+                
+                plt.plot([x1, x2], [y1, y2], '-', c='0.5', lw=0.3, alpha=1)
+                
+                eqlo.append(rec['eqlo'])
+                eqla.append(rec['eqla'])
+                stlo.append(rec['stlo'])
+                stla.append(rec['stla'])
+                emag.append(rec['mag'])
+                edep.append(rec['dep'])
+                stas.append(rec['sta'])
+                netid.append(rec['network'])
+                
             
-            eqlo.append(rec['eqlo'])
-            eqla.append(rec['eqla'])
-            stlo.append(rec['stlo'])
-            stla.append(rec['stla'])
-            emag.append(rec['mag'])
+        '''
+        # plt stns and events
+        for i in range(0, len(eqlo)):
         
-    # plt stns and events
-    for i in range(0, len(eqlo)):
+            x, y = m(eqlo[i], eqla[i])
+            plt.plot(x, y, 'o', mfc=cs[j*2+1], mec='k', markeredgewidth=0.5, markersize=(-15 + emag[i]*4.), alpha=1., zorder=10000+i)
+            
+            x, y = m(stlo[i], stla[i])
+            plt.plot(x, y, '^', markerfacecolor='0.1', markeredgecolor='w', markeredgewidth=1., \
+                     markersize=9, alpha=1)
+        '''
+###############################################################################
+# map eqs
+###############################################################################
+# set colours
+netid = array(netid)
+deprngs = array([0, 100, 200, 300, 400, 500, 600, 700])
+ncols = len(deprngs)-1
+cmap = plt.get_cmap('viridis_r', ncols)
+cs = (cmap(arange(ncols)))
+
+# get zorder for plotting
+emag = array(emag)
+sortidx = argsort(argsort(emag))
+for i in range(0, len(emag)):
+    #get colour idx
     
-        x, y = m(eqlo[i], eqla[i])
-        plt.plot(x, y, 'o', mfc=cs[j*2+1], mec='k', markeredgewidth=0.5, markersize=(-15 + emag[i]*4.), alpha=1., zorder=10000+i)
-        
-        x, y = m(stlo[i], stla[i])
-        plt.plot(x, y, '^', markerfacecolor='darkred', markeredgecolor='k', markeredgewidth=0.5, \
-                 markersize=9, alpha=1)
-    
+    colidx = int(round((ncols-1) * edep[i] / max(deprngs)))
+    x, y = m(eqlo[i], eqla[i])
+    zo = sortidx[i] + 20
+    plt.plot(x, y, 'o', mfc=list(cs[colidx]), markeredgecolor='k', markeredgewidth=0.5, \
+             markersize=(-15 + emag[i]*4.), zorder=zo, alpha=0.8)
+
+###############################################################################
+# add stations
+###############################################################################
+unets = ['AU', 'GE', 'S1', 'II', 'IU', 'OA', '2O']
+netsym = ['^', 'H', 'd', 's', 'v', 'p', 'D']
+
+stas = array(stas)
+ustas = unique(stas)
+
+for us in ustas:
+    pltsta = True
+    for i in range(0, len(netid)):
+       if stas[i] == us and pltsta == True:
+           if netid[i] == 'AU' or netid[i] == 'DPH' or netid[i] == 'DRS':
+               x, y = m(stlo[i], stla[i])
+               print(stlo[i], stla[i])
+               sym = netsym[0]
+               ms = msize[0]
+           elif netid[i] == 'GE':
+               x, y = m(stlo[i], stla[i])
+               sym = netsym[1]
+               ms = msize[1]
+           elif netid[i] == 'S1' or netid[i] == 'S':
+               x, y = m(stlo[i], stla[i])
+               sym = netsym[2]
+               ms = msize[2]
+           elif netid[i] == 'II':
+               x, y = m(stlo[i], stla[i])
+               sym = netsym[3]
+               ms = msize[3]
+           elif netid[i] == 'IU':
+               x, y = m(stlo[i], stla[i])
+               sym = netsym[4] 
+               ms = msize[4]
+           elif netid[i] == 'OA':
+               x, y = m(stlo[i], stla[i])
+               sym = netsym[5] 
+               ms = msize[5]
+           elif netid[i] == '2O':
+               x, y = m(stlo[i], stla[i])
+               sym = netsym[6] 
+               ms = msize[6]
+              
+           plt.plot(x, y, sym, markerfacecolor='0.1', markeredgecolor='w', markeredgewidth=0.5, \
+                    markersize=ms, alpha=1, zorder=1000)
+           pltsta = False
+
+
+###############################################################################
+# add legends
+###############################################################################
+
 # make legend
 legmag = [6., 7., 8.]
 legh = []
@@ -148,176 +282,36 @@ for lm in legmag:
     h = m.plot(x, y, 'ko', mec='k', markersize=(-15 + lm*4.), alpha=1., lw=0.5)
     legh.append(h[0])
 
-l = plt.legend(legh, ('MW 6.0', 'MW 7.0', 'MW 8.0'), loc=1, numpoints=1)
-l.set_zorder(99)
+labels = ['$\mathregular{M_W}$ 6.0', '$\mathregular{M_W}$ 7.0', '$\mathregular{M_W}$ 8.0'] 
+l = plt.legend(legh, labels, loc=3, numpoints=1)
+#l.set_zorder(99)
 
+# add 2nd legend here
+legh = []
+for un, ns in zip(unets, netsym):
+    x, y = m(0, 0)
+    h = plt.plot(x, y, ns, markerfacecolor='0.1', markeredgecolor='w', markeredgewidth=0.5, \
+                 markersize=10, alpha=1)
+    legh.append(h[0])
+plt.legend(legh, unets, loc=2, numpoints=1)
 
-'''
-##########################################################################################
-# add cities
-##########################################################################################
-
-clat = [-37.814, -42.882, -35.282]
-clon = [144.964, 147.324, 149.129]
-cloc = ['Melbourne', 'Hobart', 'Canberra']
-x, y = m(clon, clat)
-plt.plot(x, y, 'o', markerfacecolor='maroon', markeredgecolor='w', markeredgewidth=2, markersize=14)
-
-# label cities
-off = 0.25
-for i, loc in enumerate(cloc):
-    if i == 1:
-        x, y = m(clon[i]+0.12, clat[i]+0.1)
-        plt.text(x, y, loc, size=18, horizontalalignment='left', weight='normal')
-    else:
-        x, y = m(clon[i]-0.12, clat[i]+0.1)
-        plt.text(x, y, loc, size=18, horizontalalignment='right', weight='normal')
-
-##########################################################################################
-# add stations for 4.4
-##########################################################################################
-
-folder = 'Moe_4.4/psa'
-stns = []
-for root, dirnames, filenames in walk(folder):
-    for filename in filenames:
-        if filename.endswith('.psa'):
-            stns.append(filename.split('.')[1])
-            
-stns = unique(array(stns))
-
-stlat = []
-stlon = []
-stnet = []
-
-lines = open('/Users/tallen/Documents/Code/process_waves/stationlist.dat').readlines()
-for stn in stns:
-    for line in lines:
-        if line.startswith(stn):
-            dat = line.strip().split('\t')
-            lat = float(dat[5])
-            lon = float(dat[4])
-            net = dat[6]
-            
-    stlat.append(lat)
-    stlon.append(lon)
-    stnet.append(net)
-    print(stn, net, lat)
-stlat = array(stlat)
-stlon = array(stlon)
-#unet = unique(array(stnet))
-#print(stns, stnet
-
-
-# loop thru networks and plot
-unet = ['AU', 'MEL', 'S', 'UOM']
-sym = ['^', 'H', 'd', 's'] 
-ms = [12, 13, 12, 12]
-hnd = []
-for i, u in enumerate(unet):
-    idx = where(array(stnet) == u)[0]
-    x, y = m(stlon[idx], stlat[idx])
-    h = plt.plot(x, y, sym[i], markerfacecolor = 'w', markeredgecolor='k', markeredgewidth=1, markersize=ms[i])
-    hnd.append(h[0])
-
-##########################################################################################
-# add stations for 5.4
-##########################################################################################
-
-folder = 'Moe_5.4/psa'
-stns = []
-for root, dirnames, filenames in walk(folder):
-    for filename in filenames:
-        if filename.endswith('.psa'):
-            stns.append(filename.split('.')[1])
-            
-stns = unique(array(stns))
-
-stlat = []
-stlon = []
-stnet = []
-
-lines = open('/Users/tallen/Documents/Code/process_waves/stationlist.dat').readlines()
-for stn in stns:
-    for line in lines:
-        if line.startswith(stn+'\t'):
-            dat = line.strip().split('\t')
-            lat = float(dat[5])
-            lon = float(dat[4])
-            net = dat[6]
-    stlat.append(lat)
-    stlon.append(lon)
-    stnet.append(net)
-stlat = array(stlat)
-stlon = array(stlon)
-
-# loop thru networks and plot
-hnd = []
-for i, u in enumerate(unet):
-    idx = where(array(stnet) == u)[0]
-    x, y = m(stlon[idx], stlat[idx])
-    h = plt.plot(x, y, sym[i], markerfacecolor = '0.1', markeredgecolor='w', markeredgewidth=1.5, markersize=ms[i])
-    hnd.append(h[0])
-    
-plt.legend(hnd, list(unet), fontsize=14, loc=4, numpoints=1)
-
-##########################################################################################
-# annotate earthquake
-##########################################################################################
-
-eqlat = -38.252
-eqlon = 146.234
-blats = [-39.75]
-blons = [146.5]
-
-# line connecting epi to beachball
-x, y = m([blons[0], eqlon], [blats[0], eqlat])
-plt.plot(x, y, 'k-', lw=1.5)
-
-x, y = m(eqlon, eqlat)
-plt.plot(x, y, '*', markerfacecolor='r', markeredgecolor='w', markeredgewidth=.5, markersize=25)
-
-# Add beachballs for two events
-x, y = m(blons, blats)
-
-# Two focal mechanisms for beachball routine, specified as [strike, dip, rake]
-focmecs = [[122, 22, 167]]
-for i in range(len(focmecs)):
-    b = Beach(focmecs[i], xy=(x[i], y[i]), width=100000, linewidth=1, facecolor='k')
-    b.set_zorder(10)
-    ax.add_collection(b)
-
-##########################################################################################
-# draw box for fig 2
-##########################################################################################
-
-# draw box
-f2lat = [-38.55, -37.75, -37.75, -38.55, -38.55]
-f2lon = [145.7, 145.7, 146.75, 146.75, 145.7]
-x, y = m(f2lon, f2lat)
-plt.plot(x, y, 'k--', lw=1.5)
-
-# write text
-ft2lat = min(f2lat)+0.
-ft2lon = max(f2lon)+0.1
-x, y = m(ft2lon, ft2lat)
-plt.text(x, y, 'Figure 2', size=14, horizontalalignment='left', weight='bold', style='italic')
+# re-add leg 1
+plt.gca().add_artist(l)
 
 ##########################################################################################
 # make map inset
 ##########################################################################################
 
 from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes
-axins = zoomed_inset_axes(ax, 0.06, loc=3)
+axins = zoomed_inset_axes(ax, 0.11, loc=1)
 
 m2 = Basemap(projection='merc',\
-            llcrnrlon=111,llcrnrlat=-45, \
-            urcrnrlon=156,urcrnrlat=-9,\
+            llcrnrlon=104,llcrnrlat=-45, \
+            urcrnrlon=160,urcrnrlat=5,\
             rsphere=6371200.,resolution='l',area_thresh=10000)
             
-#m2 = Basemap(llcrnrlon=-20,llcrnrlat=3,urcrnrlon=0,urcrnrlat=18, ax=axins)
 m2.drawmapboundary(fill_color='0.8')
-m2.fillcontinents(color='w', lake_color='0.8', zorder=0)
+m2.fillcontinents(color='w', lake_color='0.8') #, zorder=0)
 m2.drawcoastlines()
 m2.drawcountries()
 m2.drawstates()
@@ -326,7 +320,26 @@ m2.drawstates()
 xv = array([llcrnrlon, llcrnrlon, urcrnrlon, urcrnrlon, llcrnrlon])
 yv = array([llcrnrlat, urcrnrlat, urcrnrlat, llcrnrlat, llcrnrlat])
 x, y = m2(xv, yv)
-plt.plot(x, y, 'k-', lw=1.5)
+plt.plot(x, y, 'r-', lw=1.5)
+
+##########################################################################################
+# add colourbar
+##########################################################################################
+
+#plt.gcf().subplots_adjust(bottom=0.07)
+norm = mpl.colors.Normalize(vmin=0, vmax=max(deprngs))#myb
+cax = fig.add_axes([0.77,0.3,0.015,0.4]) # setup colorbar axes.
+cb = colorbar.ColorbarBase(cax, cmap=cmap, orientation='vertical', alpha=0.8, norm=norm)
+cb.set_ticks(deprngs)
+cb.set_label('Hypocentral Depth (km)', rotation=270, labelpad=20, fontsize=18)
+
+
+# set cb labels
+#ticks = arange(0.5,len(bounds))
+'''
+cnt_rng = ['1', '2-3', '4-5', '6-10', '11-20', '21-30', '31-50', '51-70', '71-100', '101-150', '151+']
+cb.set_ticks(ticks)
+cb.set_ticklabels(cnt_rng)
 '''
 ##########################################################################################
 # label states
@@ -339,5 +352,5 @@ for i, st in enumerate(state):
     x, y = m(slon[i], slat[i])
     #plt.text(x, y, st, size=11, horizontalalignment='center', verticalalignment='center', weight='normal')
 
-plt.savefig('ncc_gmm_paths.png', format='png', bbox_inches='tight', dpi=300)
+plt.savefig('figures/ncc_gm_paths.png', format='png', bbox_inches='tight', dpi=300)
 plt.show()

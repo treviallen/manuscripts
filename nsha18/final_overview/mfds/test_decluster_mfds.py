@@ -20,24 +20,24 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes, zoomed_inset_axes
 style.use('classic')
 
 # import non-standard functions
-try:
-    from catalogue_tools import weichert_algorithm, aki_maximum_likelihood, bval2beta
-    from oq_tools import get_oq_incrementalMFD, beta2bval #, bval2beta
-    from mapping_tools import get_field_data, get_field_index, drawoneshapepoly, \
-                              drawshapepoly, labelpolygon, get_WGS84_area
-    #from catalogue.parsers import parse_ggcat
-    from catalogue.writers import ggcat2ascii
-    from mag_tools import nsha18_bilin_mw2ml
-    from gmt_tools import cpt2colormap 
-    from misc_tools import remove_last_cmap_colour, get_log_xy_locs
-    
+from catalogue_tools import weichert_algorithm, aki_maximum_likelihood, bval2beta
+from oq_tools import get_oq_incrementalMFD, beta2bval #, bval2beta
+from mapping_tools import get_field_data, get_field_index, drawoneshapepoly, \
+                          drawshapepoly, labelpolygon, get_WGS84_area
+#from catalogue.parsers import parse_ggcat
+from catalogue.writers import ggcat2ascii
+from mag_tools import nsha18_bilin_mw2ml
+from gmt_tools import cpt2colormap 
+from misc_tools import remove_last_cmap_colour, get_log_xy_locs
+
     #from misc_tools import listdir_extension
     #from make_nsha_oq_inputs import write_oq_sourcefile
+'''
 except:
     cwd = getcwd().split(sep)
     pythonpath = sep.join(pt[0:-3])+sep+'tools'
-    print '\nSet environmental variables, e.g.:\n\nexport PYTHONPATH='+pythonpath+':$PYTHONPATH\n'
-
+    print('\nSet environmental variables, e.g.:\n\nexport PYTHONPATH='+pythonpath+':$PYTHONPATH\n'
+'''
 def timedelta2days_hours_minutes(td):
     return td.days, td.seconds//3600, (td.seconds//60)%60
         
@@ -65,7 +65,7 @@ cs = (cmap(arange(ncolours-1)))
 # parse shapefile and make shapely objects
 ###############################################################################
 
-print 'Reading source shapefile...'
+print('Reading source shapefile... ' )
 sf = shapefile.Reader(shpfile)
 shapes = sf.shapes()
 polygons = []
@@ -141,7 +141,7 @@ def parse_alt_mag_catalogue(hmtk_csv):
         try:
             evdt = datetime.strptime(dateStr, '%Y%m%d%H%M')
         except:
-            print dateStr
+            print(dateStr)
             evdt = datetime.strptime(dateStr, '%Y-%m-%d %H:%M')
         ev_date = evdt
         
@@ -167,7 +167,7 @@ new_n0_l = src_n0_l
 new_n0_u = src_n0_u
 
 # reset Mmin to 4.8
-#print '!!!Setting Mmin = 4.5!!!'
+#print('!!!Setting Mmin = 4.5!!!'
 #src_mmin = 4.5 * ones_like(src_mmin)
 #src_mmin_reg = 4. * ones_like(src_mmin_reg)
 
@@ -182,7 +182,7 @@ srcidx = range(len(src_code))
 ###############################################################################
 
 # parse NSHA-Cat catalogue
-hmtk_csv = path.join('/Users/tallen/Documents/Geoscience_Australia/NSHA2018','catalogue','data','NSHA18CAT_V0.2_hmtk_mx_orig.csv')
+hmtk_csv = path.join('/Users/trev/Documents/Geoscience_Australia/NSHA2018','catalogue','data','NSHA18CAT_V0.2_hmtk_mx_orig.csv')
 #fullCat = parse_NSHA2018_catalogue(hmtk_csv)
 #parser = CsvCatalogueParser(hmtk_csv)
 #fullCat = parser.read_file()
@@ -207,7 +207,7 @@ for line in lines:
 ###############################################################################
 
 # parse NSHA-Cat catalogue
-hmtk_csv = path.join('/Users/tallen/Documents/Geoscience_Australia/NSHA2018','catalogue','data','NSHA18CAT_V0.2_hmtk_declustered.csv')
+hmtk_csv = path.join('/Users/trev/Documents/Geoscience_Australia/NSHA2018','catalogue','data','NSHA18CAT_V0.2_hmtk_declustered.csv')
 declCat, neq = parse_alt_mag_catalogue(hmtk_csv)
 nshaMaxYear = toYearFraction(declCat[-1]['datetime'])
 
@@ -220,7 +220,7 @@ src_area = []
 fig = plt.figure(1, figsize=(16, 18))
 k = 0
 for i in srcidx:
-    #print '\nFitting MFD for', src_code[i]
+    #print('\nFitting MFD for', src_code[i]
     # 81 = dalton/gunning; 71 = FLDR; 46 = Otway/Gipps; 51 = SWSZ
     if i == 49 or i == 71:
         k += 1
@@ -231,7 +231,7 @@ for i in srcidx:
         mcomps_mw = array([float(x) for x in src_mcomp[i].split(';')])
         mcomps_mw[0] = 3.15
         
-        print 'if ml based, adjust Mcomp'
+        print('if ml based, adjust Mcomp')
         
         # get mag range for zonea
         mcompmin_mw = min(mcomps_mw)
@@ -266,7 +266,7 @@ for i in srcidx:
         
         # loop through mag keys and get events
         for j, ck in enumerate(catKeys):
-            print '\n'+ck
+            print('\n'+ck)
                 
             mcomps = mcomps_mw
             mrng = mrng_mw
@@ -280,14 +280,14 @@ for i in srcidx:
                     
             # now get events within zone of interest
             mvect, mxvect, tvect, dec_tvect, ev_dict = get_events_in_poly_simple(nshaCat, poly)
-            print 'NEQ Before =', len(mvect)
+            print('NEQ Before =', len(mvect))
                 
             # remove incomplete events based on new MW estimates (mvect)
             mvect, mxvect, tvect, dec_tvect, ev_dict, out_idx, ev_out = \
                  remove_incomplete_events(mvect, mxvect, tvect, dec_tvect, ev_dict, mcomps, ycomps, bin_width)
                 
             # check to see if mvect still non-zero length after removing incomplete events
-            print 'NEQ After =', len(mvect)
+            print('NEQ After =', len(mvect))
             
             # get bval for combined zones data - uses new MW estimates ("total_mvect") to do cleaning
             bval, beta, sigb, sigbeta, fn0, cum_rates, ev_out, err_up, err_lo = \

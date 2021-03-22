@@ -89,7 +89,7 @@ maxDist = 1750.
 
 # get zone
 region = argv[1]
-pgmTrue = argv[2] # if calculating pga & pgv coeffs
+pgmTrue = argv[2] # True if calculating pga & pgv coeffs
 
 ################################################################################
 # loop through sa files and get data
@@ -98,8 +98,8 @@ pgmTrue = argv[2] # if calculating pga & pgv coeffs
 #evdict = parse_usgs_events(usgscsv)
 
 folder = 'psa'
-"""
 #folder = 'psa_amp' # when using this, saves to stdict_ampfact.pkl
+
 extension = 'psa'
 safiles = listdir_extension(folder, extension)
 recs = []
@@ -311,6 +311,10 @@ for j, st in enumerate(stdict):
         didx.append(j)
     elif st['rhyp'] > maxDist:
         didx.append(j)
+        
+    # re-add AUNHS
+    if st['sta'] == 'AUNHS' and st['azim'] > 125:
+        didx = didx[:-1]
 
     '''
     
@@ -327,18 +331,19 @@ print(len(didx))
 ################################################################################
 
 print('Saving pkl file...')
-pklfile = open("stdict.pkl", "wb" )
-pickle.dump(stdict, pklfile) #, protocol=-1)
-pklfile.close()
-"""
+
 if folder == 'psa':
     print('Loading regular pkl file...')
-
-    stdict = pickle.load(open("stdict.pkl", "rb" ))
+    pklfile = open("stdict.pkl", "wb")
+    pickle.dump(stdict, pklfile) #, protocol=-1)
+    pklfile.close()
+    stdict = pickle.load(open("stdict.pkl", "rb"))
 else:
     print('Loading amp pkl file...')
-	  
-    stdict = pickle.load(open("stdict_ampfact.pkl", "rb" ))
+    pklfile = open("stdict_ampfact.pkl", "wb")
+    pickle.dump(stdict, pklfile) #, protocol=-1)
+    pklfile.close()
+    stdict = pickle.load(open("stdict_ampfact.pkl", "rb"))
     crash
 
 ################################################################################

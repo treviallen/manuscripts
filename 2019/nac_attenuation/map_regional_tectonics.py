@@ -278,10 +278,6 @@ x, y = m(122, -7)
 plt.text(x, y, 'Flores-Wetar\nThrust', size=16, c='k', va='center', ha='center', weight='normal', \
          rotation=-0 , path_effects=path_effects)
 
-
-
-
-
 '''
 # label polygons
 x, y = m(146, -40.1)
