@@ -137,7 +137,7 @@ for j, t in enumerate(Tplot):
     for i, r in enumerate(rrup):
 
         # get ground motion estimates from GMPEs
-        Tea02imt, C03imt, AB06imt, Sea09imt, Sea09YCimt, Pea11imt, A12imt, Bea14imt , SP16imt \
+        Tea02imt, C03imt, AB06imt, Sea09imt, Sea09YCimt, Pea11imt, A12imt, Bea14imt \
             = scr_gsims(mag, dep, ztor, dip, rake, rrup[i], rjb[i], vs30)
         
         A12imt = adjust_gmm_with_SS14(A12imt, 820., vs30)

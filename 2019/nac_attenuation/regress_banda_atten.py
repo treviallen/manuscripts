@@ -98,7 +98,7 @@ pgmTrue = argv[2] # True if calculating pga & pgv coeffs
 #evdict = parse_usgs_events(usgscsv)
 
 folder = 'psa'
-#folder = 'psa_amp' # when using this, saves to stdict_ampfact.pkl
+folder = 'psa_amp' # when using this, saves to stdict_ampfact.pkl
 
 extension = 'psa'
 safiles = listdir_extension(folder, extension)
@@ -313,9 +313,10 @@ for j, st in enumerate(stdict):
         didx.append(j)
         
     # re-add AUNHS
-    if st['sta'] == 'AUNHS' and st['azim'] > 125:
-        didx = didx[:-1]
-
+    if st['sta'] == 'AUNHS' and st['azim'] >= 125 and st['rhyp'] <= maxDist:
+        print(len(didx))
+        didx = didx[0:-1]
+        print(len(didx))
     '''
     
     '''

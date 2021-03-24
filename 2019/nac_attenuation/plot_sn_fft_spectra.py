@@ -103,6 +103,8 @@ cols = (cmap(arange(12)))
 f = 0                 
 pf  = pickfiles[400]
 pf  = pickfiles[800]
+pf = '1996-12-30T19.41.AU.KAKA.picks'
+pf = '2001-10-07T02.21.AU.KAKA.picks'
 #pf  = pickfiles[35]
 #pf = '1995-12-25T04.43.AU.DRS.picks'
 #pf = '1995-12-25T04.43.AU.DPH.picks'
@@ -274,7 +276,7 @@ if not data[0].startswith('junk'):
             traceDat['sn_ratio'] = traceDat['p-swave_spec'] / traceDat['noise_spec']
             
             # now set frequency limits - use 1 Hz as centre
-            sn_thresh = 5.
+            sn_thresh = 4.
             
             # find nan ratios
             nanidx = where(isnan(traceDat['sn_ratio']))[0]
@@ -312,7 +314,7 @@ if not data[0].startswith('junk'):
             if channel.endswith('Z'):
                 ll = traceDat['lof_limit']
                 hl = traceDat['hif_limit']
-                plt.fill([hl, hl, ll, ll, hl], [1E-2, 1E8, 1E8, 1E-2, 1E-2], 'palegreen', ec='0.8', label='Used Frequencies', alpha=0.25)
+                plt.fill([hl, hl, ll, ll, hl], [1E-2, 1E8, 1E8, 1E-2, 1E-2], 'w', ec='0.2', label='Used Frequencies', alpha=0.25)
                 plt.fill([0.01, 0.01, ll, ll, 0.01], [1E-2, 1E8, 1E8, 1E-2, 1E-2], '0.8', ec='0.8', label='Rejected Frequencies')
                 plt.fill([100, 100, hl, hl, 100], [1E-2, 1E8, 1E8, 1E-2, 1E-2], '0.8', ec='0.8')
             

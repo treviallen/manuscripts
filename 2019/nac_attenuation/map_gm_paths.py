@@ -170,23 +170,23 @@ for j, poly in enumerate(polygons):
         # plt paths
         for rec in recs: #[0:100])):
             #if rec['dep'] >= 50:
-            
-            pt = Point(rec['eqlo'], rec['eqla'])
-            if pt.within(poly):
-                #plt eq
-                x1, y1 = m(rec['eqlo'], rec['eqla'])
-                x2, y2 = m(rec['stlo'], rec['stla'])
-                
-                plt.plot([x1, x2], [y1, y2], '-', c='0.5', lw=0.3, alpha=1)
-                
-                eqlo.append(rec['eqlo'])
-                eqla.append(rec['eqla'])
-                stlo.append(rec['stlo'])
-                stla.append(rec['stla'])
-                emag.append(rec['mag'])
-                edep.append(rec['dep'])
-                stas.append(rec['sta'])
-                netid.append(rec['network'])
+            if rec['rhyp'] < 2000:
+                pt = Point(rec['eqlo'], rec['eqla'])
+                if pt.within(poly):
+                    #plt eq
+                    x1, y1 = m(rec['eqlo'], rec['eqla'])
+                    x2, y2 = m(rec['stlo'], rec['stla'])
+                    
+                    plt.plot([x1, x2], [y1, y2], '-', c='0.5', lw=0.3, alpha=1)
+                    
+                    eqlo.append(rec['eqlo'])
+                    eqla.append(rec['eqla'])
+                    stlo.append(rec['stlo'])
+                    stla.append(rec['stla'])
+                    emag.append(rec['mag'])
+                    edep.append(rec['dep'])
+                    stas.append(rec['sta'])
+                    netid.append(rec['network'])
                 
             
         '''
