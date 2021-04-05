@@ -174,12 +174,12 @@ ffile = 'fault_geometries/BANDA_model/block_boundaries/SERA'
 plt_faults(m, plt, ffile, c='r', lw=2)
 '''
 #parse shapefile
-shpfile = '/Users/trev/Documents/DATA/GIS/Faults/PB2002_boundaries.shp'
+shpfile = 'fault_geometries/PB_2002_boundaries_edit.shp'
 sf = shapefile.Reader(shpfile)
 
-faults2plot = ['SU/AU', 'TI-AU', 'BH\BS', 'BS-AU', 'BH-BS']
+faults2plot = ['SU/AU', 'TI-AU', 'BH\BS', 'BS-AU']
 arrowDirn = [1, 1, -1, 1, -1]
-arraowCol = ['k', '0.5', 'k', '0.5', 'k']
+arraowCol = ['k', '0.5', 'k', '0.5']
 
 discLen = 150. # km
 triLen = 40.
@@ -276,6 +276,10 @@ plt.text(x, y, 'Sunda Arc', size=16, c='k', va='center', ha='center', weight='no
          
 x, y = m(122, -7)
 plt.text(x, y, 'Flores-Wetar\nThrust', size=16, c='k', va='center', ha='center', weight='normal', \
+         rotation=-0 , path_effects=path_effects)
+         
+x, y = m(137.5, -3)
+plt.text(x, y, 'New Guinea\nHighlands', size=16, c='k', va='center', ha='center', weight='normal', \
          rotation=-0 , path_effects=path_effects)
 
 '''

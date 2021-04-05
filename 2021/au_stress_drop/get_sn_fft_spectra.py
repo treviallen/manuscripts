@@ -264,7 +264,7 @@ for p, pf in enumerate(pickfiles[0:]):
                         lofreq = 0.075
                     else:
                         lofreq = 0.2
-                    
+                    lofreq=0.2
                     hifreq = 0.45 * tr.stats.sampling_rate
                     
                     '''

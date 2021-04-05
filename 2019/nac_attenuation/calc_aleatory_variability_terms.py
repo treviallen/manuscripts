@@ -1,12 +1,20 @@
-def calc_nac_gmm_spectra(mag, rhyp, dep, vs30, region):
+def calc_nac_gmm_spectra(mag, rhyp, dep, vs30, region, pgmTrue):
     from numpy import loadtxt, log10, log
     
-    if region == 'BS':
-        coeffile = 'ncc_gmm_coeffs.BS.csv'
-    elif region == 'NGH':
-        coeffile = 'ncc_gmm_coeffs.NGH.csv'
-    elif region == 'OBE':
-        coeffile = 'ncc_gmm_coeffs.OBE.csv'
+    if pgmTrue == True:
+        if region == 'BS':
+            coeffile = 'ncc_pgm_gmm_coeffs.BS.csv'
+        elif region == 'NGH':
+            coeffile = 'ncc_pgm_gmm_coeffs.NGH.csv'
+        elif region == 'OBE':
+            coeffile = 'ncc_pgm_gmm_coeffs.OBE.csv'
+    else:
+        if region == 'BS':
+            coeffile = 'ncc_gmm_coeffs.BS.csv'
+        elif region == 'NGH':
+            coeffile = 'ncc_gmm_coeffs.NGH.csv'
+        elif region == 'OBE':
+            coeffile = 'ncc_gmm_coeffs.OBE.csv'
     
     coeffs = loadtxt(coeffile, delimiter=',', skiprows=2)  
     
@@ -47,7 +55,11 @@ def calc_nac_gmm_spectra(mag, rhyp, dep, vs30, region):
     dep_term = d0 + d1*logdep**3 + d2*logdep**2 + d3*logdep
     
     # get site coefs
-    sitefile = 'nac_site_amp_coeffs.csv'
+    if pgmTrue == True:
+        sitefile = 'nac_pgm_site_amp_coeffs.csv'
+    else:
+        sitefile = 'nac_site_amp_coeffs.csv'
+        
     coeffs = loadtxt(sitefile, delimiter=',', skiprows=1)  
     
     T  = coeffs[:,0]
@@ -118,6 +130,14 @@ from mpl_toolkits.basemap import Basemap
 import matplotlib.gridspec as gridspec
 from scipy.stats import linregress
 import pickle
+from sys import argv
+'''
+pgmTrue = argv[1] # True if calculating pga & pgv coeffs
+if pgmTrue == 'True':
+    pgmTrue = True
+else:
+    pgmTrue = False
+'''
 
 c = get_mpl2_colourlist()
 
@@ -138,7 +158,7 @@ zone_group = get_field_data(sf, 'ZONE_GROUP', 'str')
 # start loops
 ###############################################################################
 
-pltReg = ['BS', 'NGH']
+pltReg = ['BS']
 sigdict = []
 
 for pr in pltReg:
@@ -147,6 +167,7 @@ for pr in pltReg:
     i = 0
     vs30 = []
     res_stack = []
+    res_stack_pgm = []
     ev_stack = []
     mag_stack = []
     rhyp_stack = []
@@ -174,9 +195,16 @@ for pr in pltReg:
                     vs30 = get_station_vs30(sd['sta'])[2] # use USGS
                     if isnan(vs30):
                         vs30 = 450
-                
-                    A19imt = calc_nac_gmm_spectra(sd['mag'], sd['rhyp'], sd['dep'], vs30, zgroup)
                     
+                    # get PGM residuals
+                    pgmTrue = True
+                    A19imt = calc_nac_gmm_spectra(sd['mag'], sd['rhyp'], sd['dep'], vs30, zgroup, pgmTrue)
+                    lnAmpPGM = array([log(sd['pgv']), log(sd['pga'])])
+                    stdict[i]['lnResPGM'] = lnAmpPGM - A19imt['sa']
+                    
+                    # get SA residuals
+                    pgmTrue = False
+                    A19imt = calc_nac_gmm_spectra(sd['mag'], sd['rhyp'], sd['dep'], vs30, zgroup, pgmTrue)
                     lnAmp = interp(log(A19imt['per']), log(sd['per']), log(sd['geom']))
                     
                     stdict[i]['lnRes'] = lnAmp - A19imt['sa']
@@ -185,8 +213,11 @@ for pr in pltReg:
                     
                     if len(res_stack) == 0:
                         res_stack = array([stdict[i]['lnRes']])
+                        res_stack_pgm = array([stdict[i]['lnResPGM']])
                     else:
                         res_stack = vstack((res_stack, [stdict[i]['lnRes']]))
+                        res_stack_pgm = vstack((res_stack_pgm, [stdict[i]['lnResPGM']]))
+                    
                     ev_stack.append(sd['ev'])
                     mag_stack.append(sd['mag'])
                     rhyp_stack.append(sd['rhyp'])
@@ -198,6 +229,7 @@ for pr in pltReg:
                     #vs30.append(stdict[i]['vs30'])
     
     gmmT = A19imt['per']
+    gmmTPGM = array([-99., 0.01])
     
     #stdict = stdict[array(idx)]
     ev_stack = array(ev_stack)
@@ -217,6 +249,7 @@ for pr in pltReg:
     inter_lat = []
     inter_dep = []
     inter_ev = []
+    inter_ev_pgm = []
     
     for uev in unique_ev:
         idx = where(ev_stack == uev)[0]
@@ -224,8 +257,10 @@ for pr in pltReg:
         #if len(idx) >= 2:
         if len(inter_ev) == 0:
             inter_ev = array(mean(res_stack[idx], axis=0))
+            inter_ev_pgm = array(mean(res_stack_pgm[idx], axis=0))
         else:
             inter_ev = vstack((inter_ev, mean(res_stack[idx], axis=0)))
+            inter_ev_pgm = vstack((inter_ev_pgm, mean(res_stack_pgm[idx], axis=0)))
         
         inter_mag.append(mag_stack[idx][0])
         inter_lon.append(lon_stack[idx][0])
@@ -302,11 +337,17 @@ for pr in pltReg:
     
     # set periods
     Trng = array([0.075, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 7.5, 9., 10.]) #, 10.]) # secs; PGA = 0.01; PGV = -99
+    Trng = A19imt['per']
     Tplt = array([0.2, 0.5, 2.0, 5.0])
     fig = plt.figure(figsize=(14,7))
     props = dict(boxstyle='round', facecolor='w', alpha=1)
     tau = []
     
+    # get pgm tau
+    tauPGM = []
+    tauPGM.append(std(inter_ev_pgm[:,0]))
+    tauPGM.append(std(inter_ev_pgm[:,1]))
+     
     i = 0
     for j, T in enumerate(Trng):
         res = []
@@ -359,19 +400,26 @@ for pr in pltReg:
     ###############################################################################
     
     intra_ev = []
-    for uev, ie in zip(unique_ev, inter_ev):
+    intra_ev_pgm = []
+    for uev, ie, iep in zip(unique_ev, inter_ev, inter_ev_pgm):
         idx = where(ev_stack == uev)[0]
         
         if len(intra_ev) == 0:
             intra_ev = array(res_stack[idx] - ie)
+            intra_ev_pgm = array(res_stack_pgm[idx] - iep)
         else:
             intra_ev = vstack((intra_ev, (res_stack[idx] - ie)))
+            intra_ev_pgm = vstack((intra_ev_pgm, (res_stack_pgm[idx] - iep)))
     
     ###############################################################################
     # plot phi
     ###############################################################################
     
     print('Getting phi...')
+    # get pgm phi
+    phiPGM = []
+    phiPGM.append(std(intra_ev_pgm[:,0]))
+    phiPGM.append(std(intra_ev_pgm[:,1]))
     
     # set periods
     Tplt = [0.2, 0.5, 2.0, 5.0]
@@ -431,8 +479,15 @@ for pr in pltReg:
     ###############################################################################
     
     sigma = sqrt(array(tau)**2 + array(phi)**2)
+    sigmaPGM = []
+    # do PGV first
+    sigmaPGM.append(sqrt(array(tauPGM[0])**2 + array(phiPGM[0])**2))
+    # now do PGA and add correction
+    pgacorstd = float(open('ln_pga_correction.csv').read().strip().split(',')[1])
+    sigmaPGM.append(sqrt(array(tauPGM[0])**2 + array(phiPGM[0])**2 + pgacorstd**2))
     
-    sigtemp = {'phi':phi, 'tau':tau, 'sigma':sigma, 'reg':pr}
+    sigtemp = {'phi':phi, 'tau':tau, 'sigma':sigma, \
+    	         'phipgm':phiPGM, 'taupgm':tauPGM, 'sigmapgm':sigmaPGM, 'reg':pr}
     	
     sigdict.append(sigtemp)
     
@@ -440,6 +495,11 @@ for pr in pltReg:
     # write sigmas
     ###############################################################################
     sigtxt = 'period,tau,phi,sigma\n'
+    # write PGM first
+    gmmTPGM
+    for i, T in enumerate(gmmTPGM):
+        sigtxt += ','.join((str(T), str('%0.3f' % tauPGM[i]), str('%0.3f' % phiPGM[i]), \
+                            str('%0.3f' % sigmaPGM[i]))) + '\n'
     for i, T in enumerate(Trng):
         sigtxt += ','.join((str(T), str('%0.3f' % tau[i]), str('%0.3f' % phi[i]), \
                             str('%0.3f' % sigma[i]))) + '\n'
@@ -576,35 +636,44 @@ for pr in pltReg:
 ###############################################################################
 
 fig = plt.figure(figsize=(16, 5))
-plt.rc('xtick',labelsize=15)
-plt.rc('ytick',labelsize=15)
+plt.rc('xtick',labelsize=14)
+plt.rc('ytick',labelsize=14)
 
 gs = gridspec.GridSpec(1, 2)
 hspace = 0.2
 wspace = 0.1
 gs.update(hspace=hspace, wspace=wspace) 
 
+pgmx = [0.04, 0.065]
 for i, sig in enumerate(sigdict):
     ax = fig.add_subplot(gs[i])
     #plt.subplot(1, 2, i+1)
     
-    plt.semilogx(Trng, sig['sigma'], 'r-', lw=2, label=r'$\sigma$')
-    plt.semilogx(Trng, sig['tau'], 'r-', lw=1, label=r'$\tau$')
-    plt.semilogx(Trng, sig['phi'], 'r--', lw=1, label=r'$\varphi$')
+    plt.semilogx(Trng[1:], sig['sigma'][1:], 'r-', lw=2, label=r'$\sigma$')
+    plt.semilogx(Trng[1:], sig['tau'][1:], 'r-', lw=1, label=r'$\tau$')
+    plt.semilogx(Trng[1:], sig['phi'][1:], 'r--', lw=1, label=r'$\varphi$')
+    
+    plt.semilogx(pgmx, sig['sigmapgm'], 'o', mec='r', mfc='none', ms=7, mew=1, label=r'$\sigma_{PGM}$')
+    plt.semilogx(pgmx, sig['taupgm'], '^', mec='r', mfc='none',   ms=7, mew=1, label=r'$\tau_{PGM}$')
+    plt.semilogx(pgmx, sig['phipgm'], 'p', mec='r', mfc='none',   ms=8, mew=1, label=r'$\varphi_{PGM}$')
     
     plt.xlabel('Period (s)', fontsize=18)
     if i == 0:
         plt.ylabel('Standard Deviations (ln Units)', fontsize=18)
-        plt.legend(loc=3, fontsize=20)
+        plt.legend(loc=3, fontsize=18, numpoints=1, ncol=2)
     
-    plt.xlim([0.07, 10])
+    plt.xlim([0.032, 10])
     plt.ylim([0.1, 1.])
     #ax.set_xticklabels({'fontsize':18})
     
-    
     xpos = get_log_xy_locs([0.07, 10], -0.05)
     ypos = get_log_xy_locs([0.1, 1.], 1.02)
-    plt.text(xpos, ypos, pltlett[i], fontsize=20, va='bottom', ha='right')
+    #plt.text(xpos, ypos, pltlett[i], fontsize=20, va='bottom', ha='right')
+    
+    xticks = [pgmx[0], pgmx[1], 0.1, 1.0, 10]
+    ax.set_xticks(xticks)
+    xticklabels = ['PGV', 'PGA', '0.1', '1.0', '10']
+    ax.set_xticklabels(xticklabels)
     
 plt.savefig('figures/standard_deviations.png', fmt='png', bbox_inches='tight')       
 plt.show()

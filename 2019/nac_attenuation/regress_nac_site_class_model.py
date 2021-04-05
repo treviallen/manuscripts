@@ -1,12 +1,20 @@
-def calc_nac_gmm_spectra(mag, rhyp, dep, region):
+def calc_nac_gmm_spectra(mag, rhyp, dep, region, pgmTrue):
     from numpy import loadtxt, log10, log
     
-    if region == 'BS':
-        coeffile = 'ncc_gmm_coeffs.BS.csv'
-    elif region == 'NGH':
-        coeffile = 'ncc_gmm_coeffs.NGH.csv'
-    elif region == 'OBE':
-        coeffile = 'ncc_gmm_coeffs.OBE.csv'
+    if pgmTrue == True:
+        if region == 'BS':
+            coeffile = 'ncc_pgm_gmm_coeffs.BS.csv'
+        elif region == 'NGH':
+            coeffile = 'ncc_pgm_gmm_coeffs.NGH.csv'
+        elif region == 'OBE':
+            coeffile = 'ncc_pgm_gmm_coeffs.OBE.csv'
+    else:
+        if region == 'BS':
+            coeffile = 'ncc_gmm_coeffs.BS.csv'
+        elif region == 'NGH':
+            coeffile = 'ncc_gmm_coeffs.NGH.csv'
+        elif region == 'OBE':
+            coeffile = 'ncc_gmm_coeffs.OBE.csv'
     
     coeffs = loadtxt(coeffile, delimiter=',', skiprows=2)  
     
@@ -67,11 +75,18 @@ from shapely.geometry import Point, Polygon
 from mapping_tools import get_field_data
 from calc_oq_gmpes import get_station_vs30
 from misc_tools import get_binned_stats, get_binned_stats_meanx
-from numpy import array, arange, exp, log, interp, vstack, nan, isnan, log10, polyfit
+from numpy import array, arange, exp, log, interp, vstack, nan, isnan, log10, polyfit, isfinite, where
 from misc_tools import savitzky_golay
 import scipy.odr.odrpack as odrpack
 from scipy.stats import linregress
 import pickle
+from sys import argv
+
+pgmTrue = argv[1] # True if calculating pga & pgv coeffs
+if pgmTrue == 'True':
+    pgmTrue = True
+else:
+    pgmTrue = False
 
 print('Loading pkl file...')
 stdict = pickle.load(open("stdict_ampfact.pkl", "rb" ))
@@ -94,35 +109,40 @@ res_stack = []
 print('Getting residuals...')
 for poly, zcode, zgroup in zip(polygons, zone_code, zone_group):
     for i, sd in enumerate(stdict):
-        pt = Point(sd['eqlo'], sd['eqla'])
-        
-        if zgroup == 'BS':
-            mmin = 5.25
-        else:
-            mmin = 5.75
+        if sd['rhyp'] < 2000.:
+            pt = Point(sd['eqlo'], sd['eqla'])
             
-        if zgroup == 'OBW':
-            zgroup = 'OBE'
-        
-        if zgroup == 'BS': # or zgroup == 'NGH':
-            if pt.within(poly) and sd['mag'] >= mmin and sd['rhyp'] > 500 and sd['rhyp'] < 1600:
-                A19imt = calc_nac_gmm_spectra(sd['mag'], sd['rhyp'], sd['dep'], zgroup)
+            if zgroup == 'BS':
+                mmin = 5.25
+            else:
+                mmin = 5.75
                 
-                lnAmp = interp(log(A19imt['per']), log(sd['per']), log(sd['geom']))
-                
-                stdict[i]['lnRes'] = lnAmp - A19imt['sa']
-                stdict[i]['lnSA'] = A19imt['sa']
-                # returns: vs30, isproxy, usgsvs, asscmvs, kvs, stla, stlo
-                stdict[i]['vs30'] = get_station_vs30(sd['sta'])[2]
-                
-                if len(res_stack) == 0:
-                    res_stack = array([stdict[i]['lnRes']])
-                else:
-                    res_stack = vstack((res_stack, [stdict[i]['lnRes']]))
-                
-                # build vs30 array
-                vs30.append(stdict[i]['vs30'])
+            if zgroup == 'OBW':
+                zgroup = 'OBE'
             
+            if zgroup == 'BS': # or zgroup == 'NGH':
+                if pt.within(poly) and sd['mag'] >= mmin and sd['rhyp'] > 500 and sd['rhyp'] < 1600:
+                    A19imt = calc_nac_gmm_spectra(sd['mag'], sd['rhyp'], sd['dep'], zgroup, pgmTrue)
+                    
+                    if pgmTrue == True:
+                        lnAmp = array([log(sd['pgv']), log(sd['pga'])])
+                    else:
+                        lnAmp = interp(log(A19imt['per']), log(sd['per']), log(sd['geom']))
+                    
+                    stdict[i]['lnRes'] = lnAmp - A19imt['sa']
+                    stdict[i]['lnSA'] = A19imt['sa']
+                    # returns: vs30, isproxy, usgsvs, asscmvs, kvs, stla, stlo
+                    stdict[i]['vs30'] = get_station_vs30(sd['sta'])[2]
+                    
+                    if len(res_stack) == 0:
+                        res_stack = array([stdict[i]['lnRes']])
+                    else:
+                        res_stack = vstack((res_stack, [stdict[i]['lnRes']]))
+                    
+                    # build vs30 array
+                    vs30.append(stdict[i]['vs30'])
+
+vs30 = array(vs30)            
 ###############################################################################
 # build residual data
 ###############################################################################
@@ -186,7 +206,8 @@ for i, T in enumerate(Tplt):
         return c[0] + c[1] / (x - log10(150))
     
     #data = odrpack.RealData(medx, logmedamp)
-    data = odrpack.RealData(log10(vs30), Yres)
+    idx = where(isfinite(Yres))[0]
+    data = odrpack.RealData(log10(vs30[idx]), Yres[idx])
     
     sitefit = odrpack.Model(fit_site_amp)
     odr = odrpack.ODR(data, sitefit, beta0=[0.1, 0.])
@@ -211,7 +232,10 @@ sg_window = 11
 sg_poly = 2
 
 #linreg = linregress(log10(Tplt), log10(array(coefs1)[:,1]))
-smooth_c1 = savitzky_golay(array(coefs1)[:,1], sg_window, sg_poly) # slope
+if pgmTrue == True:
+    smooth_c1 = array(coefs1)[:,1] # slope - do not smooth
+else:
+    smooth_c1 = savitzky_golay(array(coefs1)[:,1], sg_window, sg_poly) # slope
 
 # refit corner
 refit_c = []
@@ -277,6 +301,9 @@ txt = 'NAC Site Class Model: c0 + c1 / (log10(VS30) - log10(150))\n'
 for i, t in enumerate(Tplt):
     txt += ','.join((str(t), str('%0.5f' % coefs2[i]), str('%0.5f' % smooth_c1[i]))) + '\n'
 
-f = open('nac_site_amp_coeffs.csv', 'w')
+if pgmTrue == True:
+    f = open('nac_pgm_site_amp_coeffs.csv', 'w')
+else:
+    f = open('nac_site_amp_coeffs.csv', 'w')
 f.write(txt)
 f.close()    

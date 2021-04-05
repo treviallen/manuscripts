@@ -138,7 +138,7 @@ fig = plt.figure(1, figsize=(14, 10))
 xmax = 300
 # look at stats
 for i, mr in enumerate(modres):
-    print titles[i], mean(mr), median(mr), std(mr), len(mr)
+    print(titles[i], mean(mr), median(mr), std(mr), len(mr))
     
     ax = plt.subplot(3, 2, i+1)
     

@@ -98,8 +98,8 @@ pgmTrue = argv[2] # True if calculating pga & pgv coeffs
 #evdict = parse_usgs_events(usgscsv)
 
 folder = 'psa'
-folder = 'psa_amp' # when using this, saves to stdict_ampfact.pkl
-
+#folder = 'psa_amp' # when using this, saves to stdict_ampfact.pkl
+"""
 extension = 'psa'
 safiles = listdir_extension(folder, extension)
 recs = []
@@ -326,7 +326,7 @@ print(len(stdict))
 stdict = delete(stdict, array(didx))
 print(len(stdict))
 print(len(didx))
-
+"""
 ################################################################################
 # save/load pickle
 ################################################################################

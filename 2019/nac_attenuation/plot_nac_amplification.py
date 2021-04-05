@@ -93,7 +93,7 @@ for i, vs30 in enumerate(vs30s):
 plt.legend(loc=1, numpoints=1)
 plt.grid(which='both')
 plt.xlim([0.05, 10])
-plt.ylim([0.9, 5])
+plt.ylim([0.9, 8])
 yticks = [1, 2, 5]
 ax.tick_params(axis='both', labelsize=14)
 
