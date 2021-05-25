@@ -57,7 +57,7 @@ def get_fft_spectra(tr_trim, sttr, ettr, channel):
     
     return tr_trim, freqs, disp_amps, smoothed_disp, smoothed_interp_disp
 
-def remove_respnse(tr):
+def remove_response(tr, pickDat):
     seedid = tr.get_id()
     channel = tr.stats.channel
     start_time = tr.stats.starttime
@@ -84,7 +84,7 @@ def remove_respnse(tr):
         nat_freq, inst_ty, damping, sen, recsen, gain, pazfile, stlo, stla, netid \
               = get_response_info(tr.stats.station, recdate.datetime, tr.stats.channel)
         
-        print(pazfile, tr.stats.station)
+        #print(pazfile, tr.stats.station)
         # get fft of trace
         freq, wavfft = calc_fft(tr.data, tr.stats.sampling_rate)
         # get response for given frequencies
@@ -125,7 +125,34 @@ def remove_respnse(tr):
         
         tr = tr.simulate(paz_remove=paz)
         
+    return tr
 
+def retry_stationlist(tr, pickDat):
+    seedid = tr.get_id()
+    channel = tr.stats.channel
+    start_time = tr.stats.starttime
+    
+    recdate = pickDat['origintime']
+    nat_freq, inst_ty, damping, sen, recsen, gain, pazfile, stlo, stla, netid \
+          = get_response_info(tr.stats.station, recdate.datetime, tr.stats.channel)
+    
+    #print(pazfile, tr.stats.station)
+    # get fft of trace
+    freq, wavfft = calc_fft(tr.data, tr.stats.sampling_rate)
+    # get response for given frequencies
+    real_resp, imag_resp = paz_response(freq, pazfile, sen, recsen, \
+                                        gain, inst_ty)
+    # deconvolve response
+    corfftr, corffti = deconvolve_instrument(real_resp, imag_resp, wavfft)
+    
+    # make new instrument corrected velocity trace
+    pgv, ivel = get_cor_velocity(corfftr, corffti, freq, inst_ty)
+    
+    tr.data = ivel.real
+    
+    staloc = {'latitude':stla, 'longitude':stlo}
+    	
+    return tr
 ################################################################################
 # get pick files
 ################################################################################
@@ -203,11 +230,12 @@ for p, pf in enumerate(pickfiles[0:]):
             #print(pickDat['mseed_path'])
             #fileStat = stat(pickDat['mseed_path'])
             #print('filesize', fileStat.st_size
+            #mseedfile = path.join('iris_dump', path.split(pickDat['mseed_path'])[-1])
             st = read(pickDat['mseed_path'])
         except:
             try:
                 mseedfile = path.split(pickDat['mseed_path'])[-1]
-                st = read(path.join('mseed_dump', mseedfile))
+                st = read(path.join('iris_dump', mseedfile))
             except:
                 print('Skipping: '+pickDat['mseed_path'])
                 skipRec = True
@@ -256,7 +284,14 @@ for p, pf in enumerate(pickfiles[0:]):
                     
                     # demean and taper data
                     tr = tr.detrend(type='demean')
+                    
                     #tr = tr.taper(0.02, type='hann', max_length=None, side='both')
+                    
+                    # correct for instrument response
+                    try:
+                        tr = remove_response(tr, pickDat)
+                    except:
+                        tr = retry_stationlist(tr, pickDat)
                     
                     # EN? dodgy stn channel from parsing JUMP data
                     if tr.stats.channel.startswith('BH') or tr.stats.channel.startswith('HH') \
@@ -282,7 +317,7 @@ for p, pf in enumerate(pickfiles[0:]):
                     #try:
                     # remove post instrument correction low-freq noise
                     tr_filt = tr.copy()
-                    tr_filt.filter('highpass', freq=lofreq, corners=2, zerophase=True)
+                    #tr_filt.filter('highpass', freq=lofreq, corners=2, zerophase=True)
                     
                     '''
                     # get noise fft of trace
@@ -396,7 +431,7 @@ for p, pf in enumerate(pickfiles[0:]):
 # now dump all data to pkl
 #####################################################################        
 
-pklfile = open('nac_fft_data.pkl', 'wb')
+pklfile = open('fft_data.pkl', 'wb')
 pickle.dump(records, pklfile, protocol=-1)
 pklfile.close()
 

@@ -528,6 +528,16 @@ def normalise_data(stdict, T):
     norm_stas = []
     norm_date = []
     
+    # get data
+    rhyp = dictlist2array(stdict, 'rhyp')
+    mags = dictlist2array(stdict, 'mag')
+    deps = dictlist2array(stdict, 'dep')
+    azim = dictlist2array(stdict, 'azim')
+    auth = dictlist2array(stdict, 'network')
+    stas = dictlist2array(stdict, 'sta')
+    date = dictlist2array(stdict, 'date')
+    vs30 = dictlist2array(stdict, 'vs30')
+    
     print('!!!!!! USING SMOOTHED GEO-MEAN !!!!') # see below
     
     for i, mplt in enumerate(mrng):
@@ -561,16 +571,6 @@ def normalise_data(stdict, T):
                     amp_plt.append(nan)
         
         amp_plt = array(amp_plt)
-        
-        # get data
-        rhyp = dictlist2array(stdict, 'rhyp')
-        mags = dictlist2array(stdict, 'mag')
-        deps = dictlist2array(stdict, 'dep')
-        azim = dictlist2array(stdict, 'azim')
-        auth = dictlist2array(stdict, 'network')
-        stas = dictlist2array(stdict, 'sta')
-        date = dictlist2array(stdict, 'date')
-        vs30 = dictlist2array(stdict, 'vs30')
         
         # get events within mag and T bin
         #midx = where((mags >= (mplt-mpltrng)) & (mags < (mplt+mpltrng)) & (deps >= 30.))[0]

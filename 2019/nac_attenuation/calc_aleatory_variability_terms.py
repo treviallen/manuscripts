@@ -373,7 +373,7 @@ for pr in pltReg:
             if i >= 2:
                plt.xlabel('Moment Magnitude', fontsize=16)
             if i == 0 or i == 2:
-               plt.ylabel('Inter-Event Terms\n(ln Residual)', fontsize=16)
+               plt.ylabel('Between-Event Terms\n(ln Residual)', fontsize=16)
             
             plt.xlim([5, 7.7])
             plt.ylim([-3, 3])
@@ -452,7 +452,7 @@ for pr in pltReg:
             if i >= 2:
                plt.xlabel('Hypocentral Distance (km)', fontsize=16)
             if i == 0 or i == 2:
-               plt.ylabel('Intra-Event\n(ln Residual)', fontsize=16)
+               plt.ylabel('Within-Event\n(ln Residual)', fontsize=16)
             
             plt.xlim([500, 1600])
             plt.ylim([-3, 3])
@@ -529,7 +529,7 @@ for pr in pltReg:
     plt.semilogx([1, 1700],[0,0], 'k--', lw=1.)
     
     plt.xlabel('Moment Magnitude', fontsize=18)
-    plt.ylabel('Inter-Event\n(ln Residual)', fontsize=18)
+    plt.ylabel('Between-Event\n(ln Residual)', fontsize=18)
     xticks = [5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0]
     ax.set_xticks(xticks)
     ax.set_xticklabels([str(x) for x in xticks])
@@ -572,7 +572,7 @@ for pr in pltReg:
     plt.semilogx([1, 1700],[0,0], 'k--', lw=1.)
     
     plt.xlabel('Hypocentral Distance', fontsize=18)
-    plt.ylabel('Intra-Event\n(ln Residual)', fontsize=18)
+    plt.ylabel('Within-Event\n(ln Residual)', fontsize=18)
     
     plt.xlim([500, 1600])
     plt.ylim([-3, 3])

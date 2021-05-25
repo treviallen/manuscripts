@@ -59,7 +59,7 @@ bmag, brhyp = return_mag_dist(recs, polygons)
 ##########################################################################################
 
 fig = plt.figure(1, figsize=(8,8))
-plt.plot(brhyp, bmag, 'o', mfc='dodgerblue', mec='none', ms=7, label='Base Model', zorder=100)
+plt.plot(brhyp, bmag, 'o', mfc='dodgerblue', mec='none', ms=7, label='Base & Site Model', zorder=100)
 plt.plot(arhyp, amag, 'o', mec='orangered', mfc='none', mew=2, ms=7.5, label='Site Model Only', zorder=1)
 
 

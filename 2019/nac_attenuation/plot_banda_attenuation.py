@@ -112,8 +112,11 @@ cs = get_mpl2_colourlist()
 titles = ['Sa(0.2)','Sa(2.0)','Sa(2.0)']
 Tplot = [0.2, 2.0]
 letters = ['(a)', '(b)', '(c)', '(d)', '(e)', '(f)', '(g)', '(h)', '(i)']
-syms = ['o', '^', 's', 'd', 'v', '<', 'h']
+syms = ['o', '^', 's', 'd', 'v', '<', 'h', 'p']
 props = dict(boxstyle='round', facecolor='w', alpha=1)
+
+# wts for [Aea16, A12, AB03, AB06, AB11, Bea14, Sea09]
+nsha_wts = array([0.222, 0.104, 0.141, 0.139, 0.170, 0.125, 0.099]).reshape(7,1)
 
 #Tplot = [0.0]
 # loop thru periods
@@ -122,6 +125,7 @@ for j, t in enumerate(Tplot):
     Tea02r = []
     C03r = []
     AB06r = []
+    AB11r = []
     AB03r = []
     Sea09r = []
     Sea09YCr = []
@@ -131,13 +135,13 @@ for j, t in enumerate(Tplot):
     Bea14r = [] 
     MP10r = []
     NGAEr = []
-    Aea16sr = []
+    Aea16r = []
     A20_BSr = []
     
     for i, r in enumerate(rrup):
 
         # get ground motion estimates from GMPEs
-        Tea02imt, C03imt, AB06imt, Sea09imt, Sea09YCimt, Pea11imt, A12imt, Bea14imt \
+        Tea02imt, C03imt, AB06imt, AB11imt, Sea09imt, Sea09YCimt, Pea11imt, A12imt, Bea14imt \
             = scr_gsims(mag, dep, ztor, dip, rake, rrup[i], rjb[i], vs30)
         
         A12imt = adjust_gmm_with_SS14(A12imt, 820., vs30)
@@ -167,12 +171,19 @@ for j, t in enumerate(Tplot):
             if i < len(rjb)-1:
                 NGAEr.append(interp(t, nga_e_imt['per'], nga_e_imt['sa']))
             A20_BSr.append(interp(t, A20imt_BS['per'], A20imt_BS['sa']))
-            Aea16sr.append(interp(t, Aea16imt['per'], Aea16imt['sa']))
+            Aea16r.append(interp(t, Aea16imt['per'], Aea16imt['sa']))
             MP10r.append(interp(t, MP10imt['per'], MP10imt['sa']))
             Bea14r.append(interp(t, Bea14imt['per'], Bea14imt['sa']))
             AB06r.append(interp(t, AB06imt['per'], AB06imt['sa']))
             AB03r.append(interp(t, AB03imt['per'], AB03imt['sa']))
             
+            # get remaining models for NSHA18
+            AB11r.append(interp(t, AB11imt['per'], AB11imt['sa']))
+            Sea09r.append(interp(t, Sea09imt['per'], Sea09imt['sa']))
+    
+    # get mean NSHA model
+    wtmods = nsha_wts * exp(vstack((Aea16r, A12r, AB03r, AB06r, AB11r, Bea14r, Sea09r)))
+    wtmods = wtmods.sum(axis=0)
 
     plt.loglog(rjb, exp(Bea14r), syms[0], ls='-', c=cs[0], lw=2, \
                ms=8, mec=cs[0], mfc='none', mew=2, markevery=8, label='Boore et al. (2014)')
@@ -188,10 +199,14 @@ for j, t in enumerate(Tplot):
     '''
     plt.loglog(rjb, exp(AB03r), syms[4], ls='-', c=cs[4], lw=2, \
                ms=8, mec=cs[4], mfc='none', mew=2, markevery=8, label='Atkinson & Boore (2003; slab)')
-    plt.loglog(rjb, exp(Aea16sr), syms[5], ls='-', c=cs[5], lw=2, \
+    plt.loglog(rjb, exp(Aea16r), syms[5], ls='-', c=cs[5], lw=2, \
                ms=8, mec=cs[5], mfc='none', mew=2, markevery=8, label='Abrahamson et al. (2016; slab)')
-    plt.loglog(rjb, exp(A20_BSr), syms[6], ls='-', c=cs[6], lw=2, \
-               ms=8, mec=cs[6], mfc='none', mew=2, markevery=8, label='Banda Sea Model')
+               
+    plt.loglog(rjb, wtmods, syms[6], ls='-', c=cs[6], lw=2, \
+               ms=8, mec=cs[6], mfc='none', mew=2, markevery=8, label='Weighted NSHA18')
+               
+    plt.loglog(rjb, exp(A20_BSr), syms[7], ls='-', c='k', lw=2, \
+               ms=8, mec='k', mfc='none', mew=2, markevery=8, label='Banda Sea Model')
     
     plt.xlabel(r'$\mathregular{R_{JB}}$ (km)', fontsize=18)
     plt.xlim([200, 1500])
@@ -204,7 +219,7 @@ for j, t in enumerate(Tplot):
 
     xtxt = get_log_xy_locs(ax.get_xlim(), 0.95)
     ytxt = get_log_xy_locs(ax.get_ylim(), 0.95)
-    plt.text(xtxt, ytxt, titles[j], size=17, horizontalalignment='right', verticalalignment='top', weight='normal', bbox=props)
+    plt.text(xtxt, ytxt, titles[j], size=20, horizontalalignment='right', verticalalignment='top', weight='normal', bbox=props)
     plt.grid(which='both', color='0.5')
     ylims = ax.get_ylim()
     plt.text(175., ylims[1]*1.25, letters[j], va='bottom', ha ='right', fontsize=20)
@@ -216,7 +231,7 @@ for j, t in enumerate(Tplot):
     
     if j == 0:
         plt.ylabel('Spectral Acceleration (g)', fontsize=18)
-        plt.legend(loc=3,numpoints=1,fontsize=13.5)
+        plt.legend(loc=3,numpoints=1,fontsize=12.5)
         
         
 plt.savefig('figures/banda_atten.png', format='png', dpi=300, bbox_inches='tight')
