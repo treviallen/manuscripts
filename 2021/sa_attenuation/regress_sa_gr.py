@@ -1,6 +1,6 @@
 import pickle
 from misc_tools import dictlist2array, get_binned_stats
-from numpy import array, arange, unique, where, hstack, vstack, log10, sqrt, mean
+from numpy import array, arange, unique, where, hstack, vstack, log10, sqrt, mean, median
 import matplotlib.pyplot as plt
 
 fftdat = pickle.load(open("sa_fft_data.pkl", "rb" ))
@@ -66,21 +66,22 @@ for ev in event_data:
     
         corlogamps = log10(amps[idx]) - gr1 * log10(ev['rhyp'][idx])
         
-        logsrcamp = mean(corlogamps)
+        logsrcamp = median(corlogamps) # switch back to mean when happy with sta responses
         
         # now normalise all data for event
-        if len(ev['rhyp']) > 1:
-            tmplognormamps = log10(ev['specs'][:, regf_idx]) - logsrcamp
-        else:
-            tmplognormamps = log10(array([ev['specs'][regf_idx]])) - logsrcamp
-        	
-        # build normalised array
-        if len(lognormamps) > 0:
-            lognormamps = hstack((lognormamps, tmplognormamps))
-            normrhyps = hstack((normrhyps, ev['rhyp']))
-        else:
-            lognormamps = tmplognormamps
-            normrhyps = ev['rhyp']
+        if len(idx) > 1:
+           if len(ev['rhyp']) > 1:
+               tmplognormamps = log10(ev['specs'][:, regf_idx]) - logsrcamp
+           else:
+               tmplognormamps = log10(array([ev['specs'][regf_idx]])) - logsrcamp
+           	
+           # build normalised array
+           if len(lognormamps) > 0:
+               lognormamps = hstack((lognormamps, tmplognormamps))
+               normrhyps = hstack((normrhyps, ev['rhyp']))
+           else:
+               lognormamps = tmplognormamps
+               normrhyps = ev['rhyp']
      
 ###############################################################################
 # plt normalised data
