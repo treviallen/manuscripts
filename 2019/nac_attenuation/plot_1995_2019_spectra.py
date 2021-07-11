@@ -193,6 +193,9 @@ def makesubplt(i, fig, plt, sta, sps, mag, dep, ztor, dip, rake, rhyp, vs30, dat
     A19imt_BS = calc_nac_gmm_spectra(mag, rhyp, dep, vs30, 'BS') # use rrup
     
     nga_e_imt = nga_east_mean(mag, dep, dip, rake, rrup, vs30)
+    
+    Yea97imt, AB03imt, AB03CISimt, Gea05imt, Zea06imt, Zea06imt, MP10imt, Aea16imt, Zea16imt, Kea20imt \
+            = inslab_gsims(mag, dep, ztor, dip, rake, rrup, rjb, vs30)
         
     # adjust NGA-E from 3000 -> target
     nga_e_imt = adjust_gmm_with_nga_east(nga_e_imt, vs30)
@@ -200,7 +203,8 @@ def makesubplt(i, fig, plt, sta, sps, mag, dep, ztor, dip, rake, rhyp, vs30, dat
     ax = plt.subplot(2, 2, i)
     if colTrue == 'True':
         plt.loglog(nga_e_imt['per'], exp(nga_e_imt['sa']),'--' , lw=1.5, color=cs[0])
-        plt.loglog(A19imt_BS['per'], exp(A19imt_BS['sa']),'-' , lw=1.5, color=cs[1])
+        plt.loglog(Kea20imt['per'], exp(Kea20imt['sa']),'-.' , lw=2., color=cs[1])
+        plt.loglog(A19imt_BS['per'], exp(A19imt_BS['sa']),'-' , lw=1.5, color=cs[2])
         
         
     # get recorded process_waves.py psa data
@@ -218,7 +222,7 @@ def makesubplt(i, fig, plt, sta, sps, mag, dep, ztor, dip, rake, rhyp, vs30, dat
 
     if i == 1:
         #plt.legend(['Yea97', 'AB06','A12imt','Aea16', 'A19 (BS)', 'A19 (NGH)', 'A19 (OB)','Data'],loc=3, fontsize=7.)
-        plt.legend(['Goulet et al (2017)', 'Present Study', 'Geometric Mean'],loc=4, fontsize=11)
+        plt.legend(['Goulet et al (2017)', 'Kuehn et al (2020)', 'Present Study', 'Geometric Mean'],loc=4, fontsize=10)
         
     txtbox = datestr+'\nStation: AU.'+sta+'\n'+'$\mathregular{M_W}$: '+str(mag) \
              +'\n$\mathregular{R_{hyp}}$: '+str(int(round(rhyp)))+' km'\
@@ -246,7 +250,7 @@ plt.rcParams['pdf.fonttype'] = 42
 import matplotlib as mpl
 mpl.style.use('classic')
 from misc_tools import get_mpl2_colourlist, get_log_xy_locs
-from calc_oq_gmpes import scr_gsims, get_station_vs30, nga_east_mean, adjust_gmm_with_nga_east
+from calc_oq_gmpes import scr_gsims, get_station_vs30, nga_east_mean, adjust_gmm_with_nga_east, inslab_gsims
 from gmt_tools import cpt2colormap, remove_last_cmap_colour
 
 folder = 'hsd_plot_spectra'

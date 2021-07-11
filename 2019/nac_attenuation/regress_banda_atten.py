@@ -326,33 +326,41 @@ print(len(stdict))
 stdict = delete(stdict, array(didx))
 print(len(stdict))
 print(len(didx))
-"""
-################################################################################
-# save/load pickle
-################################################################################
-
-print('Saving pkl file...')
 
 if folder == 'psa':
     print('Loading regular pkl file...')
     pklfile = open("stdict.pkl", "wb")
     pickle.dump(stdict, pklfile) #, protocol=-1)
-    pklfile.close()
-    stdict = pickle.load(open("stdict.pkl", "rb"))
+    
 else:
     print('Loading amp pkl file...')
     pklfile = open("stdict_ampfact.pkl", "wb")
     pickle.dump(stdict, pklfile) #, protocol=-1)
     pklfile.close()
-    stdict = pickle.load(open("stdict_ampfact.pkl", "rb"))
     crash
 
+print('Saving pkl file...')
+"""
+
+################################################################################
+# save/load pickle
+################################################################################
+
+if folder == 'psa':
+    print('Loading regular pkl file...')
+    stdict = pickle.load(open("stdict.pkl", "rb"))
+else:
+    print('Loading amp pkl file...')
+    stdict = pickle.load(open("stdict_ampfact.pkl", "rb"))
+    crash
+    
 ################################################################################
 # cross-check with S/N data
 ################################################################################
 print('Loading pkl file...')
 cnt = 0
 sndict = pickle.load(open("nac_fft_data.pkl", "rb" ))
+#crash
 cnt = 0
 for i, sd in enumerate(stdict):
     hif_limit = 0.1
@@ -394,16 +402,19 @@ for i, sd in enumerate(stdict):
                         lof_limit = 0.5
                     '''    
             recFound = True
-            
+    
+    #if recFound == True:        
     # remove noisy psa data
-    idx = where(sd['per'] > (1./lof_limit))[0]
-    stdict[i]['geom'][idx] = nan
-    stdict[i]['smooth_geom'][idx] = nan
-    
-    idx = where(sd['per'] < (1./hif_limit))[0]
-    stdict[i]['geom'][idx] = nan
-    stdict[i]['smooth_geom'][idx] = nan
-    
+    try:
+        idx = where(sd['per'] > (1./lof_limit))[0]
+        stdict[i]['geom'][idx] = nan
+        stdict[i]['smooth_geom'][idx] = nan
+        
+        idx = where(sd['per'] < (1./hif_limit))[0]
+        stdict[i]['geom'][idx] = nan
+        stdict[i]['smooth_geom'][idx] = nan
+    except:
+        print('No H comps: '+sd['ev'] + ' ' + sd['sta'])
     
     if recFound == False:
         print('Not found: '+sd['ev'] + ' ' + sd['sta'])
@@ -657,7 +668,7 @@ def regress_zone(stdict, zgroup):
         norm = mpl.colors.Normalize(vmin=0, vmax=500)
         
         if pltPeriod == True:
-            ax = plt.subplot(4,5,ii)
+            ax = plt.subplot(5,5,ii)
             sc = plt.scatter(norm_rhyp, norm_amp_all, c=norm_dep, marker='o', s=25, \
                              cmap='Spectral_r', norm=norm, alpha=0.6)
                          
@@ -712,12 +723,12 @@ def regress_zone(stdict, zgroup):
         if T >= 0.1 and T <=10. and pgmTrue == 'False':
             pltPeriod = True
             ii += 1
-            ax = plt.subplot(4,5,ii)
+            ax = plt.subplot(5,5,ii)
             print(ii)
         elif pgmTrue == 'True':
             pltPeriod = True
             ii += 1
-            ax = plt.subplot(4,5,ii)
+            ax = plt.subplot(5,5,ii)
         
         # prep data again
         norm_rhyp, norm_amp_all, norm_dep, norm_stas, norm_mag, norm_date = normalise_data(stdict, T)
@@ -1099,7 +1110,7 @@ def regress_zone(stdict, zgroup):
         if pltPeriod == True:
             i += 1
         
-            plt.subplot(4,5,i)
+            plt.subplot(5,5,i)
             plt.plot(xm, ym, 'bo')
             plt.ylabel(str(T))
             
@@ -1146,7 +1157,7 @@ def regress_zone(stdict, zgroup):
     
         # plot
         if pltPeriod == True:
-            ax = plt.subplot(4,5,ii)
+            ax = plt.subplot(5,5,ii)
             
             norm = mpl.colors.Normalize(vmin=0, vmax=700)
             
@@ -1215,7 +1226,7 @@ def regress_zone(stdict, zgroup):
          
         # plot
         if pltPeriod == True:
-            ax = plt.subplot(4,5,ii)
+            ax = plt.subplot(5,5,ii)
              
             norm = mpl.colors.Normalize(vmin=0, vmax=2000)
             
@@ -1529,7 +1540,7 @@ def regress_zone(stdict, zgroup):
         resY = log(t_amplitudes[i]) - logY
          
         if pltPeriod == True:
-            ax = plt.subplot(4,5,ii)
+            ax = plt.subplot(5,5,ii)
             
             norm = mpl.colors.Normalize(vmin=0, vmax=700)
             
@@ -1599,7 +1610,7 @@ def regress_zone(stdict, zgroup):
          
         # plot
         if pltPeriod == True:
-            ax = plt.subplot(4,5,ii)
+            ax = plt.subplot(5,5,ii)
             
             norm = mpl.colors.Normalize(vmin=0, vmax=700)
             
@@ -1678,6 +1689,13 @@ def regress_zone(stdict, zgroup):
 ################################################################################
 # parse shapefile and filter stdict, and regress
 ################################################################################
+# Function to print sum
+def checkKey(dict, key):
+    if key in dict.keys():
+        return True
+    else:
+        return False
+
 '''
 BS = Banda Sea
 NGH = New Guinea Highlands
@@ -1689,7 +1707,7 @@ import shapefile
 from shapely.geometry import Point, Polygon
 from mapping_tools import get_field_data
 
-shpfile = 'shapefiles/nac_gmm_zones.shp'
+shpfile = 'shapefiles/2021_nac_gmm_zones.shp'
 sf = shapefile.Reader(shpfile)
 shapes = sf.shapes()
 polygons = []
@@ -1725,10 +1743,11 @@ else:
 print('Starting inversion...')
 for poly, zcode, zgroup in zip(polygons, zone_code, zone_group):
     for sd in stdict:
-        pt = Point(sd['eqlo'], sd['eqla'])
-        if pt.within(poly) and sd['mag'] >= mmin:
-            if zgroup == zgroup1 or zgroup == zgroup1:
-                reg_stdict.append(sd)
+        if checkKey(sd, 'eqlo') == True:
+            pt = Point(sd['eqlo'], sd['eqla'])
+            if pt.within(poly) and sd['mag'] >= mmin:
+                if zgroup == zgroup1 or zgroup == zgroup1:
+                    reg_stdict.append(sd)
             
 # do regression for each polygon
 resY, deps, norm_stas = regress_zone(reg_stdict, zgroup1)

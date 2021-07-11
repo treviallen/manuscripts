@@ -1,7 +1,7 @@
 1) run "pick_phases.py"
 2) run "get_sn_fft_spectra.py"
 3) run "get_banda_psa.py"
-4) run "regress_banda_atten.py region"
+4) run "regress_banda_atten.py region pgmTrue" - on first run, set "folder = 'psa_amp'"
 5) run "map_gm_paths.py"
 6) run "plt_mag_dist.py"
 7) run "regress_nac_site_class_model.py"

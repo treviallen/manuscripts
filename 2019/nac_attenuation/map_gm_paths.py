@@ -135,7 +135,7 @@ cs = (cmap(arange(ncols)))
 
 # load shape
 import shapefile
-shpfile = 'shapefiles/nac_gmm_zones.shp'
+shpfile = 'shapefiles/2021_nac_gmm_zones.shp'
 sf = shapefile.Reader(shpfile)
 shapes = sf.shapes()
 zone_code = get_field_data(sf, 'CODE', 'str')
@@ -143,7 +143,7 @@ polygons = []
 for poly in shapes:
     polygons.append(Polygon(poly.points))
     
-#drawshapepoly(m, plt, sf, col='r')
+drawshapepoly(m, plt, sf, edgecolor='r', lw=2)
 
 # get net IDs
 netid = []
@@ -344,13 +344,13 @@ cb.set_ticklabels(cnt_rng)
 ##########################################################################################
 # label states
 ##########################################################################################
-
+'''
 state = ['WA', 'NT', 'SA', 'QLD', 'NSW', 'VIC', 'TAS']
 slat = [-26, -21.0, -29.5, -23.0, -32.5, -37.1, -42.]
 slon = [122, 133.5, 135.0, 144.5, 146.5, 143.6, 147.0]
 for i, st in enumerate(state):
     x, y = m(slon[i], slat[i])
     #plt.text(x, y, st, size=11, horizontalalignment='center', verticalalignment='center', weight='normal')
-
+'''
 plt.savefig('figures/ncc_gm_paths.png', format='png', bbox_inches='tight', dpi=300)
 plt.show()

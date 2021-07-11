@@ -198,6 +198,7 @@ for i, T in enumerate(Tplt):
     #d3_array.append(d3)
     
     plt.semilogx(10**medx, logmedamp, 'rs', ms=6)
+    ax.set_xscale('log')
     
     ###############################################################################
     # fit data
@@ -268,7 +269,7 @@ for i, T in enumerate(Tplt):
         
         plt.plot(10**dx, dy, 'r-', lw=1.5)
     
-plt.savefig('nac_attenuation_site_amp.png', fmt='png', bbox_inches='tight')       
+plt.savefig('figures/nac_attenuation_site_amp.png', fmt='png', bbox_inches='tight')       
 plt.show()
 
 ###############################################################################
@@ -289,7 +290,7 @@ plt.semilogx(Tplt, smooth_c1, 'go')
 #c1fix = 10**(linreg[1] + linreg[0]*log10(Tplt))
 #plt.loglog(Tplt, c1fix, 'k-')
 
-plt.savefig('site_amp_coeffs.png', fmt='png', bbox_inches='tight')
+plt.savefig('figures/site_amp_coeffs.png', fmt='png', bbox_inches='tight')
 	
 plt.show()     
 ###############################################################################

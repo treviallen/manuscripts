@@ -95,9 +95,8 @@ rrup = sqrt(rjb**2 + dep**2) # assume point source; i.e. repi = rjb
 #rjb = rrup
 
 fig = plt.figure(1, figsize=(18, 8))
-'''
-ncols = 9
-cmap = plt.cm.get_cmap('Spectral', ncols)
+
+ncols = 8
 
 cptfile = '/Users/trev/Documents/DATA/GMT/cpt/gay-flag-1978.cpt'
 cptfile = '/Users/trev/Documents/DATA/GMT/cpt/keshet.cpt'
@@ -105,14 +104,14 @@ cptfile = '/Users/trev/Documents/DATA/GMT/cpt/keshet.cpt'
 cmap, zvals = cpt2colormap(cptfile, ncols)
 
 cs = (cmap(arange(ncols)))
-'''
-cs = get_mpl2_colourlist()
+
+#cs = get_mpl2_colourlist()
 #cs = vstack((cs[0:3], cs[4:]))
 
 titles = ['Sa(0.2)','Sa(2.0)','Sa(2.0)']
 Tplot = [0.2, 2.0]
 letters = ['(a)', '(b)', '(c)', '(d)', '(e)', '(f)', '(g)', '(h)', '(i)']
-syms = ['o', '^', 's', 'd', 'v', '<', 'h', 'p']
+syms = ['o', '^', 's', 'd', 'v', '<', 'h', '>', 'p']
 props = dict(boxstyle='round', facecolor='w', alpha=1)
 
 # wts for [Aea16, A12, AB03, AB06, AB11, Bea14, Sea09]
@@ -137,6 +136,7 @@ for j, t in enumerate(Tplot):
     NGAEr = []
     Aea16r = []
     A20_BSr = []
+    Kea20r = []
     
     for i, r in enumerate(rrup):
 
@@ -152,7 +152,7 @@ for j, t in enumerate(Tplot):
         nga_e_imt = adjust_gmm_with_nga_east(nga_e_imt, vs30)
         
         # get in-slab models
-        Yea97imt, AB03imt, AB03CISimt, Gea05imt, Zea06imt, Zea06imt, MP10imt, Aea16imt, Zea16imt \
+        Yea97imt, AB03imt, AB03CISimt, Gea05imt, Zea06imt, Zea06imt, MP10imt, Aea16imt, Zea16imt, Kea20imt \
             = inslab_gsims(mag, dep, ztor, dip, rake, rrup[i], rjb[i], vs30)
         
         # get BS model
@@ -176,6 +176,7 @@ for j, t in enumerate(Tplot):
             Bea14r.append(interp(t, Bea14imt['per'], Bea14imt['sa']))
             AB06r.append(interp(t, AB06imt['per'], AB06imt['sa']))
             AB03r.append(interp(t, AB03imt['per'], AB03imt['sa']))
+            Kea20r.append(interp(t, Kea20imt['per'], Kea20imt['sa']))
             
             # get remaining models for NSHA18
             AB11r.append(interp(t, AB11imt['per'], AB11imt['sa']))
@@ -186,27 +187,30 @@ for j, t in enumerate(Tplot):
     wtmods = wtmods.sum(axis=0)
 
     plt.loglog(rjb, exp(Bea14r), syms[0], ls='-', c=cs[0], lw=2, \
-               ms=8, mec=cs[0], mfc='none', mew=2, markevery=8, label='Boore et al. (2014)')
+               ms=8, mec=cs[0], mfc='w', mew=2, markevery=8, label='Boore et al. (2014)')
     plt.loglog(rjb, exp(AB06r), syms[1], ls='-', c=cs[1], lw=2, \
-               ms=8, mec=cs[1], mfc='none', mew=2, markevery=8, label='Atkinson & Boore (2006)')
+               ms=8, mec=cs[1], mfc='w', mew=2, markevery=8, label='Atkinson & Boore (2006)')
     plt.loglog(rjb, exp(A12r), syms[2], ls='-', c=cs[2], lw=2, \
-               ms=8, mec=cs[2], mfc='none', mew=2, markevery=8, label='Allen (2012)')
+               ms=8, mec=cs[2], mfc='w', mew=2, markevery=8, label='Allen (2012)')
     plt.loglog(rjb[:-1], exp(NGAEr), syms[3], ls='-', c=cs[3], lw=2, \
-               ms=8, mec=cs[3], mfc='none', mew=2, markevery=8, label='Goulet et al. (2017)')
+               ms=8, mec=cs[3], mfc='w', mew=2, markevery=8, label='Goulet et al. (2017)')
     '''
     plt.loglog(rjb, exp(MP10r), syms[2], ls='-', c=cs[2], lw=2, \
     	         ms=8, mec=cs[2], mfc='none', mew=2, markevery=8, label='Megawati & Pan (2010; interface)')
     '''
     plt.loglog(rjb, exp(AB03r), syms[4], ls='-', c=cs[4], lw=2, \
-               ms=8, mec=cs[4], mfc='none', mew=2, markevery=8, label='Atkinson & Boore (2003; slab)')
+               ms=8, mec=cs[4], mfc='w', mew=2, markevery=8, label='Atkinson & Boore (2003; slab)')
     plt.loglog(rjb, exp(Aea16r), syms[5], ls='-', c=cs[5], lw=2, \
-               ms=8, mec=cs[5], mfc='none', mew=2, markevery=8, label='Abrahamson et al. (2016; slab)')
+               ms=8, mec=cs[5], mfc='w', mew=2, markevery=8, label='Abrahamson et al. (2016; slab)')
                
-    plt.loglog(rjb, wtmods, syms[6], ls='-', c=cs[6], lw=2, \
-               ms=8, mec=cs[6], mfc='none', mew=2, markevery=8, label='Weighted NSHA18')
+    plt.loglog(rjb, exp(Kea20r), syms[6], ls='-', c=cs[6], lw=2, \
+               ms=8, mec=cs[6], mfc='w', mew=2, markevery=8, label='Kuehn et al. (2020; slab)')
                
-    plt.loglog(rjb, exp(A20_BSr), syms[7], ls='-', c='k', lw=2, \
-               ms=8, mec='k', mfc='none', mew=2, markevery=8, label='Banda Sea Model')
+    plt.loglog(rjb, wtmods, syms[7], ls='-', c=cs[7], lw=2, \
+               ms=8, mec=cs[7], mfc='w', mew=2, markevery=8, label='Weighted NSHA18')
+               
+    plt.loglog(rjb, exp(A20_BSr), syms[8], ls='-', c='k', lw=2, \
+               ms=8, mec='k', mfc='w', mew=2, markevery=8, label='Banda Sea (NAC) Model')
     
     plt.xlabel(r'$\mathregular{R_{JB}}$ (km)', fontsize=18)
     plt.xlim([200, 1500])
@@ -231,6 +235,7 @@ for j, t in enumerate(Tplot):
     
     if j == 0:
         plt.ylabel('Spectral Acceleration (g)', fontsize=18)
+    elif j == 1:
         plt.legend(loc=3,numpoints=1,fontsize=12.5)
         
         
