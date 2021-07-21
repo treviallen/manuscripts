@@ -114,7 +114,7 @@ import pickle
 print('Loading pkl file...')
 stdict = pickle.load(open("stdict.pkl", "rb" ))
 
-shpfile = 'shapefiles/nac_gmm_zones.shp'
+shpfile = 'shapefiles/2021_nac_gmm_zones.shp'
 sf = shapefile.Reader(shpfile)
 shapes = sf.shapes()
 polygons = []
@@ -141,7 +141,7 @@ for poly, zcode, zgroup in zip(polygons, zone_code, zone_group):
             if pt.within(poly) and sd['mag'] >= mmin and sd['rhyp'] > 500 and sd['rhyp'] < 1750:
                 idx.append(i)
             
-                A19imt = calc_nac_gmm_spectra(sd['mag'], sd['rhyp'], sd['dep'], zgroup)
+                A19imt = calc_nac_gmm_spectra(sd['mag'], sd['rhyp'], sd['dep'], 760., zgroup)
                 
                 lnAmp = interp(log(A19imt['per']), log(sd['per']), log(sd['geom']))
                 
@@ -198,7 +198,7 @@ for i, T in enumerate(Tplt):
     ypos = (8*0.92) - 4
     plt.text(xpos, ypos, pertxt, ha='left', va='top', fontsize=16, bbox=props)
 
-plt.savefig('simple_nac_depth_dependence.png', fmt='png', bbox_inches='tight')       
+plt.savefig('figures/simple_nac_depth_dependence.png', fmt='png', bbox_inches='tight')       
 plt.show()
 
     

@@ -88,7 +88,7 @@ for i, vs30 in enumerate(vs30s):
     rat_amp = A19imt['sa'] - A19imt_760['sa']
     
     plt.loglog(A19imt['per'][1:-2], exp(rat_amp)[1:-2], syms[i], ls='-', c=cols[i], lw=2, \
-    	         ms=8, mec=cols[i], mfc='none', mew=2, markevery=4, label=str(vs30)+' m/s')
+               ms=8, mec=cols[i], mfc='w', mew=2, markevery=4, label=str(vs30)+' m/s')
     
 plt.legend(loc=1, numpoints=1)
 plt.grid(which='both')

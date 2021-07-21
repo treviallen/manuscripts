@@ -143,7 +143,7 @@ polygons = []
 for poly in shapes:
     polygons.append(Polygon(poly.points))
     
-drawshapepoly(m, plt, sf, edgecolor='r', lw=2)
+drawshapepoly(m, plt, sf, edgecolor='k', lw=2)
 
 # get net IDs
 netid = []

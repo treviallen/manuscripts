@@ -24,7 +24,6 @@ def parse_usgs_events(usgscsv):
         
     return evdict
 
-
 # reads sa data files and returns period (T) and acceleration (SA) vectors
 def read_sa(safile):
     from numpy import array
@@ -327,6 +326,8 @@ stdict = delete(stdict, array(didx))
 print(len(stdict))
 print(len(didx))
 
+print('Saving pkl file...')
+
 if folder == 'psa':
     print('Loading regular pkl file...')
     pklfile = open("stdict.pkl", "wb")
@@ -338,12 +339,9 @@ else:
     pickle.dump(stdict, pklfile) #, protocol=-1)
     pklfile.close()
     crash
-
-print('Saving pkl file...')
 """
-
 ################################################################################
-# save/load pickle
+# load pickle
 ################################################################################
 
 if folder == 'psa':
@@ -366,6 +364,9 @@ for i, sd in enumerate(stdict):
     hif_limit = 0.1
     lof_limit = 1000.
     
+    if sd['ev'].startswith('2015-11-04T03:51') and sd['sta'] =='KNRA':
+            print(sd)
+            
     recFound = False
     for sn in sndict:
         '''
@@ -649,7 +650,7 @@ def regress_zone(stdict, zgroup):
     for T in Tplt:
         pltPeriod = False
         
-        if T >= 0.1 and T < 10. and pgmTrue == 'False':
+        if T >= 0.1 and T <= 10. and pgmTrue == 'False':
             pltPeriod = True
             ii += 1
         elif pgmTrue == 'True':

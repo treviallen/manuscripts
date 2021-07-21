@@ -281,6 +281,14 @@ plt.text(x, y, 'Flores-Wetar\nThrust', size=16, c='k', va='center', ha='center',
 x, y = m(137.5, -3)
 plt.text(x, y, 'New Guinea\nHighlands', size=16, c='k', va='center', ha='center', weight='normal', \
          rotation=-0 , path_effects=path_effects)
+         
+# add Darwin
+x,y = m(130.83,-12.45)
+plt.plot(x, y, 's', markerfacecolor='maroon', markeredgecolor='w', markeredgewidth=1, markersize=8)
+x, y = m(131.1,-12.65)
+path_effects=[PathEffects.withStroke(linewidth=2, foreground="w")]
+plt.text(x, y, 'Darwin', size=14, c='k', va='top', ha='left', weight='light', \
+         style='italic', rotation=0 , path_effects=path_effects)
 
 '''
 # label polygons

@@ -498,11 +498,11 @@ for pr in pltReg:
     # write PGM first
     gmmTPGM
     for i, T in enumerate(gmmTPGM):
-        sigtxt += ','.join((str(T), str('%0.3f' % tauPGM[i]), str('%0.3f' % phiPGM[i]), \
-                            str('%0.3f' % sigmaPGM[i]))) + '\n'
+        sigtxt += ','.join((str(T), str('%0.4f' % tauPGM[i]), str('%0.4f' % phiPGM[i]), \
+                            str('%0.4f' % sigmaPGM[i]))) + '\n'
     for i, T in enumerate(Trng):
-        sigtxt += ','.join((str(T), str('%0.3f' % tau[i]), str('%0.3f' % phi[i]), \
-                            str('%0.3f' % sigma[i]))) + '\n'
+        sigtxt += ','.join((str(T), str('%0.4f' % tau[i]), str('%0.4f' % phi[i]), \
+                            str('%0.4f' % sigma[i]))) + '\n'
         
     f = open('sigma_model_'+pr+'.csv', 'w')
     f.write(sigtxt)
@@ -649,9 +649,9 @@ for i, sig in enumerate(sigdict):
     ax = fig.add_subplot(gs[i])
     #plt.subplot(1, 2, i+1)
     
-    plt.semilogx(Trng[1:], sig['sigma'][1:], 'r-', lw=2, label=r'$\sigma$')
-    plt.semilogx(Trng[1:], sig['tau'][1:], 'r-', lw=1, label=r'$\tau$')
-    plt.semilogx(Trng[1:], sig['phi'][1:], 'r--', lw=1, label=r'$\varphi$')
+    plt.semilogx(Trng[2:], sig['sigma'][2:], 'r-', lw=2, label=r'$\sigma$')
+    plt.semilogx(Trng[2:], sig['tau'][2:], 'r-', lw=1, label=r'$\tau$')
+    plt.semilogx(Trng[2:], sig['phi'][2:], 'r--', lw=1, label=r'$\varphi$')
     
     plt.semilogx(pgmx, sig['sigmapgm'], 'o', mec='r', mfc='none', ms=7, mew=1, label=r'$\sigma_{PGM}$')
     plt.semilogx(pgmx, sig['taupgm'], '^', mec='r', mfc='none',   ms=7, mew=1, label=r'$\tau_{PGM}$')
