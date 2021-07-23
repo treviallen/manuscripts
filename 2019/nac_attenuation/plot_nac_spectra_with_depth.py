@@ -97,10 +97,10 @@ for i, dep in enumerate(depths):
     label = '$\mathregular{h_z}$ = '+str(int(round(dep)))+' km'
     if i== 4:
         plt.loglog(A19imt_BS['per'], exp(A19imt_BS['sa']), syms[i], ls='-', lw=1.5, color=cols[i], \
-                   ms=8, mec=cols[i], mfc='none', mew=2, markevery=5, label=label)
+                   ms=8, mec=cols[i], mfc='w', mew=2, markevery=5, label=label)
     else:
         plt.loglog(A19imt_BS['per'], exp(A19imt_BS['sa']), syms[i], ls='-', lw=1.5, color=cols[i], \
-                   ms=8, mec=cols[i], mfc='none', mew=2, markevery=4, label=label)
+                   ms=8, mec=cols[i], mfc='w', mew=2, markevery=4, label=label)
     
 plt.xlabel('Period (s)', fontsize=20)
 plt.ylabel('Spectral Acceleration (g)', fontsize=20)
