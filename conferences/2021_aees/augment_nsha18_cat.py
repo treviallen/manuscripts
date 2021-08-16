@@ -1,8 +1,8 @@
 from catalogue.parsers import parse_NSHA2018_catalogue
 from io_catalogues import parse_ga_event_query
-from mag_tools import get_au_ml_zone, nsha18_ml2mw
+from mag_tools import get_au_ml_zone, nsha18_ml2mw, nsha18_mb2mw
 from misc_tools import dictlist2array
-from numpy import where, unique
+from numpy import array, where, unique
 
 ################################################################################
 # parse nsha catalogue
@@ -27,7 +27,7 @@ nsah18_dt = dictlist2array(cat, 'datetime')
 # parse updated GA catalogue
 ################################################################################
 
-ga_csv = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Catalogues/Mapping/earthquakes_export_from_1840_sorted.csv'
+ga_csv = 'earthquakes_export_from_1840_sorted.csv'
 
 # parse  csv
 cat = parse_ga_event_query(ga_csv)
@@ -39,6 +39,7 @@ neac_deps = dictlist2array(cat, 'dep')
 neac_dt = dictlist2array(cat, 'datetime')
 
 # get ml zone
+print('Getting MLa zone...')
 neac_ml_zone = get_au_ml_zone(neac_lons, neac_lats)
 
 ################################################################################
@@ -49,6 +50,7 @@ new_lons = []
 new_lats = []
 new_deps = []
 new_mags = []
+new_mags_mw = []
 new_magTypes = []
 new_magreg = []
 new_dt = []
@@ -66,3 +68,14 @@ for i in range(0, len(neac_mag)):
         # get pref mags
         new_mags.append(neac_mag[i])
         new_magTypes.append(neac_magType[i])
+        
+        # convert to mw if necessary
+        if neac_magType[i] == 'ML':
+            new_mags_mw.append(nsha18_ml2mw(neac_mag[i]))
+        elif neac_magType[i] == 'mb':
+            new_mags_mw.append(nsha18_mb2mw(neac_mag[i]))
+        else:
+            # assume mw of some type
+            new_mags_mw.append(neac_mag[i])
+        
+print(unique(array(new_magTypes)))
