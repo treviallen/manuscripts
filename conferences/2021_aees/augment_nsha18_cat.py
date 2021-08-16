@@ -79,3 +79,4 @@ for i in range(0, len(neac_mag)):
             new_mags_mw.append(neac_mag[i])
         
 print(unique(array(new_magTypes)))
+
