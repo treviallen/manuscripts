@@ -22,11 +22,11 @@ cat = parse_NSHA2018_catalogue(catfile)
 nsha18_mw = dictlist2array(cat, 'prefmag')
 mw_src = dictlist2array(cat, 'mw_src')
 ml_region = dictlist2array(cat, 'ml_region')
-nsah18_auth = dictlist2array(cat, 'auth')
-nsah18_lats = dictlist2array(cat, 'lat')
-nsah18_lons = dictlist2array(cat, 'lon')
-nsah18_deps = dictlist2array(cat, 'dep')
-nsah18_dt = dictlist2array(cat, 'datetime')
+nsha18_auth = dictlist2array(cat, 'auth')
+nsha18_lats = dictlist2array(cat, 'lat')
+nsha18_lons = dictlist2array(cat, 'lon')
+nsha18_deps = dictlist2array(cat, 'dep')
+nsha18_dt = dictlist2array(cat, 'datetime')
 
 ################################################################################
 # parse updated GA catalogue
@@ -55,20 +55,19 @@ new_lons = []
 new_lats = []
 new_deps = []
 new_mags = []
-new_mags_mw = []
+new_mw = []
 new_magTypes = []
 new_magreg = []
 new_dt = []
 
 for i in range(0, len(neac_mag)):
     # check if in date & mag range
-    if neac_dt[i] > nsah18_dt[-1] and neac_mag[i] >= 2.0 and neac_ml_zone[i] != '':
+    if neac_dt[i] > nsha18_dt[-1] and neac_mag[i] >= 2.0 and neac_ml_zone[i] != '':
         # check if in mag polys
         new_dt.append(neac_dt[i])
         new_lons.append(neac_lons[i])
         new_lats.append(neac_lats[i])
         new_deps.append(neac_deps[i])
-        new_dt.append(neac_dt[i])
         
         # get pref mags
         new_mags.append(neac_mag[i])
@@ -76,12 +75,12 @@ for i in range(0, len(neac_mag)):
         
         # convert to mw if necessary
         if neac_magType[i] == 'ML':
-            new_mags_mw.append(nsha18_ml2mw(neac_mag[i]))
+            new_mw.append(nsha18_ml2mw(neac_mag[i]))
         elif neac_magType[i] == 'mb':
-            new_mags_mw.append(nsha18_mb2mw(neac_mag[i]))
+            new_mw.append(nsha18_mb2mw(neac_mag[i]))
         else:
             # assume mw of some type
-            new_mags_mw.append(neac_mag[i])
+            new_mw.append(neac_mag[i])
         
 print(unique(array(new_magTypes)))
 
@@ -103,7 +102,7 @@ def make_event_folder(dt):
 
 def make_shakemap_xml(dt, lat, lon, mag, dep, evpath):
     # read template
-    lines = open('event_xml_template.txt')
+    lines = open('event_xml_template.txt').readlines()
 
     # now make shakemap txt
     newlines = ''
@@ -144,12 +143,21 @@ if not path.exists('data'):
     mkdir('data')
 
 # loop through NSHA cat and make inputs    
-for i in range(0, len(nsah18_dt)):
-    if nsah18_dt[i] >= datetime(1970, 1, 1) and nsah18_mag[i] >= 6.:
+for i in range(0, len(nsha18_dt)):
+    if nsha18_dt[i] >= datetime(1970, 1, 1) and nsha18_mw[i] >= 6.:
         
         # get event ID & make folders
-        evpath = make_event_folder(nsah18_dt[i])
+        evpath = make_event_folder(nsha18_dt[i])
             
         # now make shakemap txt
-        make_shakemap_xml(nsah18_dt[i], nsah18_lats[i], nsah18_lons[i], nsha18_mw[i], nsah18_deps[i], evpath)
+        make_shakemap_xml(nsha18_dt[i], nsha18_lats[i], nsha18_lons[i], nsha18_mw[i], nsha18_deps[i], evpath)
                             
+# loop through new NEAC events    
+for i in range(0, len(new_dt)):
+    if new_mw[i] >= 6.:
+        
+        # get event ID & make folders
+        evpath = make_event_folder(new_dt[i])
+            
+        # now make shakemap txt
+        make_shakemap_xml(new_dt[i], new_lats[i], new_lons[i], new_mw[i], new_deps[i], evpath)
