@@ -113,15 +113,10 @@ def make_shakemap_xml(dt, lat, lon, mag, dep, evpath):
                         'lat="'+str(lat)+'"',
                         'lon="'+str(lon)+'"',
                         'mag="'+str(mag)+'"',
-                        'year="'+str(dt.year)+'"',
-                        'month="'+str(dt.month)+'"',
-                        'day="'+str(dt.day)+'"',
-                        'hour="'+str(dt.hour)+'"',
-                        'minute="'+str(dt.minute)+'"',
-                        'second="'+str(dt.second)+'"',
+                        'time="'+dt.strftime('%Y-%m-%dT%H:%M:%SZ')+'"',
                         'timezone="GMT"',
                         'depth="'+str(dep)+'"',
-                        'locstring="" description="" type="RS" created="1056046245" network="au" />'))
+                        'locstring="" description="" type="RS" created="1056046245" netid="au" />'))
     
     newlines += newline
                         
