@@ -9,14 +9,14 @@ against every frequency band.
 
 """
 
-import extract_Q_freq
+from js_codes import extract_Q_freq
 from math import log
 import numpy as np
-import geographiclib.geodesic as geo
+#import geographiclib.geodesic as geo
 from obspy.taup import TauPyModel
 import matplotlib.pyplot as plt
 from shapely.geometry import Polygon, Point
-
+from mapping_tools import distance, reckon
 
 def convert_list_to_log(input):
     """converts any list into log space
@@ -33,12 +33,14 @@ def calculate_ray(elat, elon, slat, slon, evdp):
     """function calculates the path along a seismic ray
     and outputs a list of lonlat values to be used in calculations
     """
+    #print(elat, elon, slat, slon, evdp)
     model = TauPyModel(model="ak135")
     arrivals = model.get_ray_paths_geo(evdp, elat, elon, slat, slon, \
                                        phase_list=('S'))
     arrival = arrivals[0]
     path_array = arrival.path
     latlons = []
+    print(path_array)
     for point in path_array:
         latlon = [point[4], point[5]]
         latlons.append(latlon)
@@ -75,9 +77,15 @@ def get_centre_ray(elat, elon, slat, slon, evdp):
     would be to locate the deepest point of the ray, but this is
     unessecery
     """
+    '''
     ray = calculate_ray(elat, elon, slat, slon, evdp)
     centre_idx = int(len(ray)/2)
-    return ray[centre_idx]
+    '''
+    
+    rngkm, az, baz = distance(elat, elon, slat, slon)
+    lonlat = reckon(elat, elon, rngkm/2., az)
+    
+    return lonlat
 
 
 def random_points_within(poly, num_points):
@@ -109,23 +117,39 @@ def get_all_Qs_centre(elat, elon, slat, slon, evdp, half_bin_size=3.0, npoints=8
     """
     centre = get_centre_ray(elat, elon, slat, slon, evdp)
     lon, lat = centre[1], centre[0]
-    print(lon, lat)
+    #print(lon, lat)
     # create polygon around central point
     # arbitarily use 3 degrees... ? 
-    left_upper = lon - half_bin_size, lat + half_bin_size
-    right_upper = lon + half_bin_size, lat + half_bin_size
-    left_lower = lon - half_bin_size, lat - half_bin_size
-    right_lower = lon + half_bin_size, lat - half_bin_size
-
+    minlon = lon - half_bin_size
+    maxlon = lon + half_bin_size
+    minlat = lat - half_bin_size
+    maxlat = lat + half_bin_size
+    
     # define polygon
-    poly = Polygon([left_lower, left_upper, right_lower, right_upper])
-    points = random_points_within(poly, npoints)
+    #poly = Polygon([left_lower, left_upper, right_lower, right_upper])
+    #points = random_points_within(poly, npoints)
+    #print(points)
 
     freqs = extract_Q_freq.get_freq_list()
     Q_list = []
     stdevQ_list = []
     #print('looping freqs')
     for freq in freqs:
+        print(freq)
+        qdat = extract_Q_freq.get_Q_data(freq)
+        
+        # get q vals within region
+        idx = where((qdat[:,0] >= minlon) & (qdat[:,0] <= maxlon) \
+        	          (qdat[:,1] >= minlat) & (qdat[:,1] <= maxlat))[0] 
+        
+        Q_vals = qdat[:,2][idx]
+        	
+        # get mean & stdev
+        Q_list.append(np.mean(Q_vals))
+        stdevQ_list.append(np.stdev(Q_vals))
+        
+        
+        '''
         Q_cumulative = 0
         Q_each_point_list = []
         #print('looping points')
@@ -147,5 +171,6 @@ def get_all_Qs_centre(elat, elon, slat, slon, evdp, half_bin_size=3.0, npoints=8
 
         Q_list.append(average_Q)
         stdevQ_list.append(stdev_Q) # stdev in log10 space
+        '''
 
     return Q_list, stdevQ_list

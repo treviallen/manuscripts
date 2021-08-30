@@ -1,46 +1,57 @@
-from obspy import UTCDateTime
-from obspy import read #, read_inventory
-#from obspy.core.stream import Stream
+from obspy import read, UTCDateTime
 from spectral_analysis import calc_fft, prep_psa_simple, calc_response_spectra, get_cor_velocity
-from data_fmt_tools import remove_low_sample_data
-#from plotting import trim_wave
+from data_fmt_tools import remove_low_sample_data, return_sta_data, remove_acceleration_data
 from response import get_response_info, paz_response, deconvolve_instrument
 from misc_tools import listdir_extension, savitzky_golay
-#from write_data import write_response_spectra
-#from mapping_tools import distance
 from os import path, chmod, stat, getcwd
-from numpy import sqrt, pi, exp, log, logspace, interp, nan, where, isnan
+from numpy import arange, sqrt, pi, exp, log, logspace, interp, nan, where, isnan
 from datetime import datetime
-#import matplotlib.pyplot as plt
 import pickle
+import warnings
+warnings.filterwarnings("ignore")
+#import matplotlib.pyplot as plt
+#import matplotlib as mpl
+#mpl.style.use('classic')
+
 
 #plt.ion()
-
-def get_fft_spectra(tr_trim, sttr, ettr, channel):
+def parse_pickfile(pickfile):
+    from numpy import nan
     
-    tr_trim.taper(0.02, type='hann', max_length=None, side='both')
-    freq, wavfft = calc_fft(tr_trim.data, tr_trim.stats.sampling_rate)
-    mxidx = (len(freq)/2)
+    # parse pick file
+    line = open(path.join(folder, pickfile)).read()
     
-    mxidx = int(round(mxidx))
-    # get fft freqs and amps
-    freqs = abs(freq[1:mxidx])
-    spec_amps = abs(wavfft.real[1:mxidx])
+    data = line.strip().split(',')
     
-    # get displacement spectra
-    if channel[1] == 'N': # if accelerometer
-        disp_amps = spec_amps / (2.*(pi)*freqs)**2
-    else: # if seismometer
-        disp_amps = spec_amps / (2.*(pi)*freqs)
+    if not data[0].startswith('junk'):
+        starttime = UTCDateTime(datetime.strptime(data[0], '%Y-%m-%dT%H:%M:%S.%f'))
+        origintime = UTCDateTime(datetime.strptime(data[1], '%Y-%m-%dT%H:%M:%S.%f'))
+        recdate = datetime.strptime(data[0], '%Y-%m-%dT%H:%M:%S.%f')
         
+        pickDat = {'starttime': starttime, 'origintime': origintime, \
+                   'ev':data[1][0:16].replace(':','.'),
+                   'eqlo': float(data[2]), 'eqla': float(data[3]),
+                   'eqdp': float(data[4]), 'mag': float(data[5]), 'rhyp': float(data[6]),
+                   'azim': float(data[7]), 'sps': float(data[8]), \
+                   'ch1': data[9], 'ch2': data[10], 'ch3': data[11], 
+                   'ppk': float(data[12]), 'spk': float(data[13]), 'epk': float(data[14]), \
+                   'pidx': int(data[15]), 'sidx': int(data[16]), 'eidx': int(data[17]), 'mseed_path': data[18]}
+                   	
+    else:
+        pickDat = {'mag': nan}
+        
+    return pickDat
+
+def get_smoothed_fft_spectra(freqs, disp_amps):
+    
     # smooth spectra
-    if len(freq) > 10000:
+    if len(freqs) > 10000:
         sw = 201
-    elif len(freq) > 5000:
+    elif len(freqs) > 5000:
         sw = 101
-    elif len(freq) > 1000:
+    elif len(freqs) > 1000:
         sw = 51
-    elif len(freq) > 500:
+    elif len(freqs) > 500:
         sw = 21
     else:
         sw = 5
@@ -55,9 +66,12 @@ def get_fft_spectra(tr_trim, sttr, ettr, channel):
     smoothed_interp_disp = exp(interp(log(interp_freqs), log(freqs), log(smoothed_disp), \
                                left=nan, right=nan))
     
-    return tr_trim, freqs, disp_amps, smoothed_disp, smoothed_interp_disp
+    return smoothed_disp, smoothed_interp_disp
 
-def remove_response(tr, pickDat):
+def response_corrected_fft(tr, pickDat):
+    import matplotlib.pyplot as plt
+    from numpy import fft, sqrt
+    
     seedid = tr.get_id()
     channel = tr.stats.channel
     start_time = tr.stats.starttime
@@ -72,31 +86,37 @@ def remove_response(tr, pickDat):
         use_stationlist = True
     elif tr.stats.network == 'AU' and tr.stats.channel.startswith('EH'):
         use_stationlist = True
+    elif tr.stats.channel.startswith('SH'):
+        use_stationlist = True
     elif tr.stats.network == '' and tr.stats.channel.startswith('EN'): # for DRS
         use_stationlist = True                         
-    elif tr.stats.station == 'AS31' or tr.stats.network == 'MEL': 
+    elif tr.stats.station == 'AS31' or tr.stats.station == 'ARPS' or tr.stats.station == 'ARPS' or tr.stats.network == 'MEL': 
         use_stationlist = True
     #print('use_stationlist', use_stationlist) 
        
     if use_stationlist == True:
         #recdate = datetime.strptime(ev['timestr'], "%Y-%m-%dT%H:%M:%S.%fZ")
         recdate = pickDat['origintime']
+        #print(seedid, channel)
         nat_freq, inst_ty, damping, sen, recsen, gain, pazfile, stlo, stla, netid \
               = get_response_info(tr.stats.station, recdate.datetime, tr.stats.channel)
         
-        #print(pazfile, tr.stats.station)
         # get fft of trace
         freq, wavfft = calc_fft(tr.data, tr.stats.sampling_rate)
+        mi = (len(freq)/2)
+        mi = int(round(mi))
+        
         # get response for given frequencies
         real_resp, imag_resp = paz_response(freq, pazfile, sen, recsen, \
                                             gain, inst_ty)
+        
         # deconvolve response
         corfftr, corffti = deconvolve_instrument(real_resp, imag_resp, wavfft)
         
-        # make new instrument corrected velocity trace
-        pgv, ivel = get_cor_velocity(corfftr, corffti, freq, inst_ty)
-        
-        tr.data = ivel.real
+        if inst_ty == 'N':
+            dispamp = sqrt((tr.stats.delta)**2 * (corfftr**2 + corffti**2)) / ((2 * pi * freq)**2)
+        else:
+            dispamp = sqrt((tr.stats.delta)**2 * (corfftr**2 + corffti**2)) / (2 * pi * freq)
         
         staloc = {'latitude':stla, 'longitude':stlo}
         
@@ -123,48 +143,67 @@ def remove_response(tr, pickDat):
             staloc = s1_parser.get_coordinates(seedid,start_time)
         #print(tr.stats.station+'2')
         
+        # simulate response
         tr = tr.simulate(paz_remove=paz)
         
-    return tr
+        # get fft
+        freq, wavfft = calc_fft(tr.data, tr.stats.sampling_rate)
+        mi = (len(freq)/2)
+        mi = int(round(mi))
+        
+        corfftr = wavfft.real
+        corffti = wavfft.imag
+                
+        if tr.stats.channel[1] == 'N':
+            dispamp = sqrt((tr.stats.delta)**2 * (corfftr**2 + corffti**2)) / ((2 * pi * freq)**2)
+        else:
+            dispamp = sqrt((tr.stats.delta)**2 * (corfftr**2 + corffti**2)) / (2 * pi * freq)
+                
+    return freq[1:mi], dispamp[1:mi]
 
-def retry_stationlist(tr, pickDat):
+def retry_stationlist_fft(tr, pickDat):
     seedid = tr.get_id()
     channel = tr.stats.channel
     start_time = tr.stats.starttime
     
     recdate = pickDat['origintime']
+    #print(seedid, channel, start_time)
     nat_freq, inst_ty, damping, sen, recsen, gain, pazfile, stlo, stla, netid \
           = get_response_info(tr.stats.station, recdate.datetime, tr.stats.channel)
     
-    #print(pazfile, tr.stats.station)
     # get fft of trace
     freq, wavfft = calc_fft(tr.data, tr.stats.sampling_rate)
+    mi = (len(freq)/2)
+    mi = int(round(mi))
+    
     # get response for given frequencies
     real_resp, imag_resp = paz_response(freq, pazfile, sen, recsen, \
                                         gain, inst_ty)
+    
     # deconvolve response
     corfftr, corffti = deconvolve_instrument(real_resp, imag_resp, wavfft)
     
-    # make new instrument corrected velocity trace
-    pgv, ivel = get_cor_velocity(corfftr, corffti, freq, inst_ty)
-    
-    tr.data = ivel.real
+    if inst_ty == 'N':
+        dispamp = sqrt((tr.stats.delta)**2 * (corfftr**2 + corffti**2)) / ((2 * pi * freq)**2)
+    else:
+        dispamp = sqrt((tr.stats.delta)**2 * (corfftr**2 + corffti**2)) / (2 * pi * freq)
     
     staloc = {'latitude':stla, 'longitude':stlo}
     	
-    return tr
+    return freq[1:mi], dispamp[1:mi]
+    	
 ################################################################################
 # get pick files
 ################################################################################
-#folder = 'test_picks'
 folder = 'record_picks'
+#folder = 'record_picks'
 pickfiles = listdir_extension(folder, 'picks')
 
 ################################################################################
 # set some defaults
 ################################################################################
 
-interp_freqs = logspace(-1,2,31)[:-3] # from 0.1-50 Hz
+interp_freqs = logspace(-1,2,121)[:-12] # from 0.1-50 Hz
 
 ################################################################################
 # parse AU dataless
@@ -199,23 +238,9 @@ for p, pf in enumerate(pickfiles[0:]):
     skipRec = False
     recDat = {}
     
-    # parse pick file
-    line = open(path.join(folder, pf)).read()
+    pickDat = parse_pickfile(pf)
     
-    data = line.strip().split(',')
-    
-    if not data[0].startswith('junk'):
-        starttime = UTCDateTime(datetime.strptime(data[0], '%Y-%m-%dT%H:%M:%S.%f'))
-        origintime = UTCDateTime(datetime.strptime(data[1], '%Y-%m-%dT%H:%M:%S.%f'))
-        recdate = datetime.strptime(data[0], '%Y-%m-%dT%H:%M:%S.%f')
-        
-        pickDat = {'starttime': starttime, 'origintime': origintime, \
-                   'eqlo': float(data[2]), 'eqla': float(data[3]),
-                   'eqdp': float(data[4]), 'mag': float(data[5]), 'rhyp': float(data[6]),
-                   'azim': float(data[7]), 'sps': float(data[8]), \
-                   'ch1': data[9], 'ch2': data[10], 'ch3': data[11], 
-                   'ppk': float(data[12]), 'spk': float(data[13]), 'epk': float(data[14]), \
-                   'pidx': int(data[15]), 'sidx': int(data[16]), 'eidx': int(data[17]), 'mseed_path': data[18]}
+    if isnan(pickDat['mag']) == False:
         
         channels = []
         if not pickDat['ch1'] == '':
@@ -248,6 +273,9 @@ for p, pf in enumerate(pickfiles[0:]):
             # remove low sample rate data
             new_st = remove_low_sample_data(st)
             
+            # remove acceleration data
+            new_st = remove_acceleration_data(new_st)
+            
             # purge unused traces
             for tr in new_st:
                 removeTrace = True
@@ -262,13 +290,13 @@ for p, pf in enumerate(pickfiles[0:]):
             if len(new_st) > 3:
                 new_st = new_st[0:3]
             
-            st_filt = new_st.copy()
+            #st_filt = new_st.copy()
             #sidx = int(round(0.05*st_filt[-1].stats.npts))
             #eidx = int(round(0.95*st_filt[-1].stats.npts))
             
             #st_filt.filter('bandpass', freqmin=0.5, freqmax=10, corners=2, zerophase=True)
                     
-            print('\nReading mseed file:', path.split(pickDat['mseed_path'])[-1])
+            print('\n'+str(p)+' Reading mseed file:', path.split(pickDat['mseed_path'])[-1])
                 
             #####################################################################
             # loop thru traces
@@ -282,16 +310,9 @@ for p, pf in enumerate(pickfiles[0:]):
                     channel = tr.stats.channel
                     start_time = tr.stats.starttime 
                     
-                    # demean and taper data
-                    tr = tr.detrend(type='demean')
-                    
-                    #tr = tr.taper(0.02, type='hann', max_length=None, side='both')
-                    
-                    # correct for instrument response
-                    try:
-                        tr = remove_response(tr, pickDat)
-                    except:
-                        tr = retry_stationlist(tr, pickDat)
+                    # demean and taper data  
+                    tr_proc = tr.copy()
+                    tr_proc.detrend(type='demean')
                     
                     # EN? dodgy stn channel from parsing JUMP data
                     if tr.stats.channel.startswith('BH') or tr.stats.channel.startswith('HH') \
@@ -300,24 +321,17 @@ for p, pf in enumerate(pickfiles[0:]):
                     else:
                         lofreq = 0.2
                     lofreq=0.2
-                    hifreq = 0.45 * tr.stats.sampling_rate
+                    hifreq = 0.475 * tr.stats.sampling_rate
                     
-                    '''
-                    tr = tr.filter('bandpass', freqmin=lofreq, freqmax=hifreq, \
-                                    corners=2, zerophase=True)
-                    '''
+                    # get picks
                     xdat = range(0, tr.stats.npts)
                     #plt.plot(xdat, tr.data, 'b-', lw=0.5)
                     pidx = pickDat['pidx']
+                    sidx = pickDat['sidx']
                     eidx = pickDat['eidx']
                     #####################################################################
                     # now do ffts
                     #####################################################################
-                    # checks for errors in FFT
-                    #try:
-                    # remove post instrument correction low-freq noise
-                    tr_filt = tr.copy()
-                    #tr_filt.filter('highpass', freq=lofreq, corners=2, zerophase=True)
                     
                     '''
                     # get noise fft of trace
@@ -334,17 +348,23 @@ for p, pf in enumerate(pickfiles[0:]):
                         sttr = tr.stats.starttime + 1. # should add 1-2 secs instead of proportion 
                         ettr = tr.stats.starttime + pickDat['pidx'] * tr.stats.delta - 1. # allow buffer
                     
-                    ntr_trim = tr_filt.copy()
+                    ntr_trim = tr_proc.copy()
                     ntr_trim.trim(sttr, ettr)
+                    ntr_trim.taper(0.02, type='hann', max_length=None, side='both')
                     
-                    ntr_trim, freqs, disp_amps, smoothed_disp, smoothed_interp_disp \
-                        = get_fft_spectra(ntr_trim, sttr, ettr, channel)
+                    # get instrument corrected spectra
+                    try:
+                        freqs, n_disp_amp = response_corrected_fft(ntr_trim, pickDat)
+                    except:
+                        freqs, n_disp_amp = retry_stationlist_fft(ntr_trim, pickDat)
+                        
+                    smoothed_disp, smoothed_interp_disp = get_smoothed_fft_spectra(freqs, n_disp_amp)
                     
                     traceDat = {'hi_freq_filt': hifreq, 'lo_freq_filt': lofreq, 
                                 'noise_spec': smoothed_interp_disp, 'freqs': interp_freqs,
                                 'sample_rate': tr.stats.sampling_rate}
                         
-                    #plt.plot(xdat[0:eidx], tr.data[0:eidx], 'g-', lw=0.5)
+                    #plt.loglog(freqs, n_disp_amp, 'b-', lw=0.3)
                                   
                     '''
                     # get p/s-wave fft of trace
@@ -353,20 +373,50 @@ for p, pf in enumerate(pickfiles[0:]):
                     sttr = tr.stats.starttime + pickDat['pidx'] * tr.stats.delta - 10. # allow buffer
                     ettr = tr.stats.starttime + pickDat['eidx'] * tr.stats.delta + 10. # allow buffer
                     
-                    pstr_trim = tr_filt.copy()
+                    pstr_trim = tr_proc.copy()
                     pstr_trim.trim(sttr, ettr)
+                    pstr_trim.taper(0.02, type='hann', max_length=None, side='both')
                     
-                    pstr_trim, freqs, disp_amps, smoothed_disp, smoothed_interp_disp \
-                        = get_fft_spectra(pstr_trim, sttr, ettr, channel)
+                    # get instrument corrected spectra
+                    try:
+                        freqs, ps_disp_amp = response_corrected_fft(pstr_trim, pickDat)
+                    except:
+                        freqs, ps_disp_amp = retry_stationlist_fft(pstr_trim, pickDat)
+                        
+                    smoothed_disp, smoothed_interp_disp = get_smoothed_fft_spectra(freqs, ps_disp_amp)
                     
                     traceDat['p-swave_spec'] = smoothed_interp_disp
-                    #plt.plot(xdat[pidx:eidx], tr.data[pidx:eidx], 'r-', lw=0.5)
+                    #plt.loglog(freqs, ps_disp_amp, 'g-', lw=0.3)
+                    
+                    '''
+                    # get s-wave fft of trace
+                    '''
+                    
+                    sttr = tr.stats.starttime + pickDat['sidx'] * tr.stats.delta - 10. # allow buffer
+                    ettr = tr.stats.starttime + pickDat['eidx'] * tr.stats.delta + 10. # allow buffer
+                    
+                    str_trim = tr_proc.copy()
+                    str_trim.trim(sttr, ettr)
+                    str_trim.taper(0.02, type='hann', max_length=None, side='both')
+                    
+                    # get instrument corrected spectra
+                    try:
+                        freqs, s_disp_amp = response_corrected_fft(str_trim, pickDat)
+                    except:
+                        freqs, s_disp_amp = retry_stationlist_fft(str_trim, pickDat)
+                        
+                    smoothed_disp, smoothed_interp_disp = get_smoothed_fft_spectra(freqs, s_disp_amp)
+                    
+                    traceDat['swave_spec'] = smoothed_interp_disp
+                    
+                    #plt.loglog(freqs, s_disp_amp, 'r-', lw=0.3)
+                    #plt.xlim([0.05, 10])
                     #plt.show()
                     
                     '''
                     # get SN-Ratio
                     '''
-                    traceDat['sn_ratio'] = traceDat['p-swave_spec'] / traceDat['noise_spec']
+                    traceDat['sn_ratio'] = traceDat['swave_spec'] / traceDat['noise_spec']
                     
                     # now set frequency limits - use 1 Hz as centre
                     sn_thresh = 5.
@@ -391,6 +441,7 @@ for p, pf in enumerate(pickfiles[0:]):
                         traceDat['lof_limit'] = interp_freqs[fidx[-1]+1]
                     
                     # do a manual check for good data with no noise
+                    '''
                     if sn_ratio[15] > 100.:
                         traceDat['lof_limit'] = interp_freqs[0]
                         fidx = where((interp_freqs >= 3) & (sn_ratio < sn_thresh))[0]
@@ -398,6 +449,7 @@ for p, pf in enumerate(pickfiles[0:]):
                             traceDat['hif_limit'] = interp_freqs[-1]
                         else:
                             traceDat['hif_limit'] = interp_freqs[fidx[0]-1]
+                    '''
                     #####################################################################
                     # add trace data to recDat
                     #####################################################################
@@ -412,7 +464,19 @@ for p, pf in enumerate(pickfiles[0:]):
             recDat['channels'] = chandict
             #recDat['sta'] = tr.stats.station.encode('ascii','ignore')
             recDat['sta'] = tr.stats.station
-            recDat['ev'] = data[1][0:16].replace(':','.')
+            recDat['ev'] = pickDat['ev']
+            recDat['eqlo'] = pickDat['eqlo']
+            recDat['eqla'] = pickDat['eqla']
+            recDat['eqdp'] = pickDat['eqdp']
+            recDat['mag'] =  pickDat['mag']
+            recDat['rhyp'] = pickDat['rhyp']
+            recDat['eqla'] = pickDat['eqla']
+            
+            # get sta data
+            staDat = return_sta_data(tr.stats.station)
+            recDat['stlo'] = staDat['stlo']
+            recDat['stla'] = staDat['stla']
+            
             recDat['mseed_path'] = pickDat['mseed_path']
             records.append(recDat)
             

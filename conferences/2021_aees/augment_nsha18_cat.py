@@ -3,18 +3,23 @@ from io_catalogues import parse_ga_event_query
 from mag_tools import get_au_ml_zone, nsha18_ml2mw, nsha18_mb2mw
 from misc_tools import dictlist2array
 from numpy import array, where, unique
+from datetime import datetime
+from os import path, mkdir, getcwd
 
 ################################################################################
 # parse nsha catalogue
 ################################################################################
 
-catfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/catalogue/data/NSHA18CAT.MW.V0.1.csv'
+if getcwd(),startswith('/nas'):
+    catfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/catalogue/data/NSHA18CAT.MW.V0.1.csv'
+else:
+    catfile = '/Users/trev/Documents/Geoscience_Australia/NSHA2018/catalogue/data/NSHA18CAT.MW.V0.1.csv'
 
 # parse catalogue
 cat = parse_NSHA2018_catalogue(catfile)
 
 # get data arrays
-mw_pref = dictlist2array(cat, 'prefmag')
+nsha18_mw = dictlist2array(cat, 'prefmag')
 mw_src = dictlist2array(cat, 'mw_src')
 ml_region = dictlist2array(cat, 'ml_region')
 nsah18_auth = dictlist2array(cat, 'auth')
@@ -79,4 +84,3 @@ for i in range(0, len(neac_mag)):
             new_mags_mw.append(neac_mag[i])
         
 print(unique(array(new_magTypes)))
-
