@@ -28,16 +28,17 @@ gadat = parse_ga_event_query('au_ge_4.4_earthquakes_export_edit.csv')
 
 iris_sta_list = parse_iris_stationlist('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/AU/gmap-stations-noarray.txt')
 network = 'AU'
-iris_sta_list = parse_iris_stationlist('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/IU/iu-gmap-stations-autrim.txt')
-network = 'IU'
+#iris_sta_list = parse_iris_stationlist('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/IU/iu-gmap-stations-autrim.txt')
+#network = 'IU'
 
 
 ##############################################################################
 # loop through events
 ##############################################################################
 
-mindist = 200
+mindist = 0
 maxdist = 2200
+maxdist = 200 # already got 200 - 2200 km
 
 # loop thru events
 for ev in gadat[40:]:

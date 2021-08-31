@@ -38,8 +38,9 @@ td_end = 1560
 # loop through events
 ##############################################################################
 
-mindist = 200
+mindist = 0
 maxdist = 2200
+maxdist = 200 # already got 200 - 2200 km
 
 # loop thru events
 for ev in gadat[40:]:
