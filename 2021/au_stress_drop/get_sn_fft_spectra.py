@@ -90,7 +90,7 @@ def response_corrected_fft(tr, pickDat):
         use_stationlist = True
     elif tr.stats.network == '' and tr.stats.channel.startswith('EN'): # for DRS
         use_stationlist = True                         
-    elif tr.stats.station == 'AS31' or tr.stats.station == 'ARPS' or tr.stats.station == 'ARPS' or tr.stats.network == 'MEL': 
+    elif tr.stats.station == 'AS32' or tr.stats.station == 'ARPS' or tr.stats.station == 'ARPS' or tr.stats.network == 'MEL': 
         use_stationlist = True
     #print('use_stationlist', use_stationlist) 
        

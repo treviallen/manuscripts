@@ -163,9 +163,9 @@ def plt_trace(tr, plt, ax, reftime):
     if rngkm < 20.:
         plt.xlim([pTravelTime-10, pTravelTime+60])
     elif rngkm >= 20. and rngkm < 100.:
-        plt.xlim([pTravelTime-20, pTravelTime+200])
+        plt.xlim([pTravelTime-20, pTravelTime+150])
     elif rngkm >= 100. and rngkm < 200:
-        plt.xlim([pTravelTime-20, pTravelTime+300])
+        plt.xlim([pTravelTime-20, pTravelTime+250])
     elif rngkm >= 200. and rngkm < 400:
         plt.xlim([pTravelTime-30, pTravelTime+400])
     elif rngkm >= 400. and rngkm < 700:
