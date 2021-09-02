@@ -139,7 +139,7 @@ if not path.exists('data'):
 
 # loop through NSHA cat and make inputs    
 for i in range(0, len(nsha18_dt)):
-    if nsha18_dt[i] >= datetime(1970, 1, 1) and nsha18_mw[i] >= 6.:
+    if nsha18_dt[i] >= datetime(1970, 1, 1) and nsha18_mw[i] >= 4.:
         
         # get event ID & make folders
         evpath = make_event_folder(nsha18_dt[i])
@@ -149,7 +149,7 @@ for i in range(0, len(nsha18_dt)):
                             
 # loop through new NEAC events    
 for i in range(0, len(new_dt)):
-    if new_mw[i] >= 6.:
+    if new_mw[i] >= 4.:
         
         # get event ID & make folders
         evpath = make_event_folder(new_dt[i])
