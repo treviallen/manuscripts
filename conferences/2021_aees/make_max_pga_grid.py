@@ -109,4 +109,4 @@ f.write(grd_txt)
 f.close()
 
 # make grd file
-system('gmt5 xyz2grd max_pga_grd.txt -Gmax_pga_grid.grd -R110/156/-46/-9 -I'+str(res))
+system('gmt5 surface max_pga_grd.txt -Gmax_pga_grid.grd -R110/156/-46/-9 -I'+str(res))
