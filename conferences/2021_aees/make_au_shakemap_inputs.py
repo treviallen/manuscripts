@@ -132,6 +132,11 @@ month="06" day="19" hour="10" minute="53" second="29" timezone="GMT" depth="17.2
 locstring="Moe, Victoria" description="Moe Mean" type="RS" created="1056046245" network="au" />
 '''      
 
+sm_dt   = []
+sm_lats = []
+sm_lons = []
+sm_deps = []
+sm_mags = []
 
 # make data foler if not exist
 if not path.exists('data'):
@@ -146,6 +151,12 @@ for i in range(0, len(nsha18_dt)):
             
         # now make shakemap txt
         make_shakemap_xml(nsha18_dt[i], nsha18_lats[i], nsha18_lons[i], nsha18_mw[i], nsha18_deps[i], evpath)
+        
+        sm_dt.append(nsha18_dt[i])
+        sm_lats.append(nsha18_lats[i])
+        sm_lons.append(nsha18_lons[i])
+        sm_deps.append(nsha18_deps[i])
+        sm_mags.append(nsha18_mw[i])
                             
 # loop through new NEAC events    
 for i in range(0, len(new_dt)):
@@ -156,3 +167,21 @@ for i in range(0, len(new_dt)):
             
         # now make shakemap txt
         make_shakemap_xml(new_dt[i], new_lats[i], new_lons[i], new_mw[i], new_deps[i], evpath)
+        
+        sm_dt.append(new_dt[i])
+        sm_lats.append(new_lats[i])
+        sm_lons.append(new_lons[i])
+        sm_deps.append(new_deps[i])
+        sm_mags.append(new_mw[i])
+        
+# write list of shakemaps
+smtxt = 'DATETIME,LON,LAT,DEP,MW\n'
+for i in range(0, len(sm_dt)):
+    smtxt += ','.join((sm_dt[i].strftime('%Y-%m-%dT%H:%M:%SZ'), str(sm_lons[i]), str(sm_lats[i]), \
+                       str(sm_deps[i]), str(sm_mags[i]))) + '\n'
+                       
+# write to file
+csvfile = 'shakemap_event_list.csv'
+f = open(csvfile, 'w')
+f.write(smtxt)
+f.close()

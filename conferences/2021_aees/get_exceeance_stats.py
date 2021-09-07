@@ -17,8 +17,9 @@ land_nodes = map_nodes - nan_nodes
 ncfiles = ['haz_maps/gaull90/gaull90_interp.0.05.grd',
            'haz_maps/gshap/gshap_interp.0.05.grd',
            'haz_maps/nshm12/nshm12_resampled.0.05.grd',
+           'haz_maps/lam16/lam16_uniform.0.05.grd',
            'haz_maps/nsha18/nsha18_interp.0.05.grd']
-modnames = ['Gaull et al (1990)', 'GSHAP (1999)', 'NSHM12', 'NSHA18']
+modnames = ['Gaull et al (1990)', 'GSHAP (1999)', 'NSHM12', 'Lam et al (2016)', 'NSHA18']
 
 # loop thru stats
 for i, ncf in enumerate(ncfiles):
