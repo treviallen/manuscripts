@@ -16,7 +16,7 @@ grd_lats = arange(-46, -9, res)
 grd_lons = arange(110, 156, res)
 grd_pgas = zeros((len(grd_lats), len(grd_lons)))
 
-#system('gmt5 grdmath -R100/168/-52/-2 -I'+str(res)+' 0 NEG = max_pga_grid.grd')
+#system('gmt5 grdmath -R110/156/-46/-9 -I0.05 0 NEG = max_pga_grid.grd')
 
 ###############################################################################
 # function to convert xml to grd
@@ -50,22 +50,34 @@ def gridxml2grd(xmlfile):
 ###############################################################################
 # loop thru folders and get max pga grid
 ###############################################################################
-
-folders = get_folder_list('data')
+datafolder = 'data_augmm'
+#datafolder = 'data_ceusgmm'
+folders = get_folder_list(datafolder)
 
 # loop thru folders
+smtxt = 'DATETIME,LON,LAT,DEP,MW\n'
+    
 for folder in folders:
     print(folder)
     # set xml path
-    xmlfile = path.join('data', folder, 'current', 'products', 'grid.xml')
-    
+    xmlfile = path.join(datafolder, folder, 'current', 'products', 'grid.xml')
+     
     try:
         event, gridspec, fields, griddata = parse_dataxml(xmlfile)
         
+        # make event list
+        smtxt += ','.join((event['event_timestamp'], str(event['lon']), str(event['lat']), \
+                           str(event['depth']), str(event['magnitude']))) + '\n'
+        
         # write to txt file
-        sm_lons = griddata[:,0]
-        sm_lats = griddata[:,1]
-        sm_pgas = griddata[:,3]
+        if datafolder.endswith('augmm'):
+            sm_lons = griddata[:,0]
+            sm_lats = griddata[:,1]
+            sm_pgas = griddata[:,3]
+        else:
+            sm_lons = griddata[:,0]
+            sm_lats = griddata[:,1]
+            sm_pgas = griddata[:,2]
         	
         # resample arrays
         inc = int(floor(half_res / gridspec['nominal_lon_spacing']))
@@ -103,10 +115,28 @@ grd_txt = ''
 for i, lat in enumerate(grd_lats):
     for j, lon in enumerate(grd_lons):
         grd_txt += ' '.join((str('%0.3f' % lon), str('%0.3f' % lat), str('%0.4e' % grd_pgas[i, j]))) + '\n'
-        
-f = open('max_pga_grd.txt', 'w')
+
+if datafolder.endswith('augmm'):        
+    #f = open('max_pga_grd_au.txt', 'w')
+    f = open('max_pga_grd_ade.txt', 'w')
+else:
+    f = open('max_pga_grd_ceus.txt', 'w')
 f.write(grd_txt)
 f.close()
 
 # make grd file
-system('gmt5 surface max_pga_grd.txt -Gmax_pga_grid.grd -R110/156/-46/-9 -I'+str(res))
+if datafolder.endswith('augmm'):
+    #system('gmt5 surface max_pga_grd_au.txt -Gmax_pga_grid_au.grd -R110/156/-46/-9 -I'+str(res))
+    #system('gmt5 grdmath max_pga_grid_au.grd 0 MAX = max_pga_grid_au.grd')
+    system('gmt5 surface max_pga_grd_ade.txt -Gmax_pga_grid_ade.grd -R110/156/-46/-9 -I'+str(res))
+    system('gmt5 grdmath max_pga_grid_ade.grd 0 MAX = max_pga_grid_ade.grd')
+else:
+    system('gmt5 surface max_pga_grd_ceus.txt -Gmax_pga_grid_ceus.grd -R110/156/-46/-9 -I'+str(res))
+    system('gmt5 grdmath max_pga_grid_ceus.grd 0 MAX = max_pga_grid_ceus.grd')
+
+
+# write to file
+csvfile = 'shakemap_event_list.csv'
+f = open(csvfile, 'w')
+f.write(smtxt)
+f.close()

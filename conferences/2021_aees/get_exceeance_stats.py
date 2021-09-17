@@ -21,11 +21,13 @@ ncfiles = ['haz_maps/gaull90/gaull90_interp.0.05.grd',
            'haz_maps/nsha18/nsha18_interp.0.05.grd']
 modnames = ['Gaull et al (1990)', 'GSHAP (1999)', 'NSHM12', 'Lam et al (2016)', 'NSHA18']
 
+obs_grd = 'max_pga_grid_ade.grd'
+print(obs_grd)
 # loop thru stats
 for i, ncf in enumerate(ncfiles):
     
     # get shakemap / hazard and multiply by land mask
-    system('gmt5 grdmath max_pga_grid.grd ' + ncf + ' DIV au_land_mask.grd MUL = sm_div_haz.grd')
+    system(' '.join(('gmt5 grdmath', obs_grd, ncf,'DIV au_land_mask.grd MUL = sm_div_haz.grd')))
     
     # set vals <= 1 to NaN
     system('gmt5 grdmath sm_div_haz.grd 1.0 GT 0 NAN = exceedance.grd')
