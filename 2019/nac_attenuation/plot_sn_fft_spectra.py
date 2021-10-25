@@ -104,7 +104,7 @@ f = 0
 pf  = pickfiles[400]
 pf  = pickfiles[800]
 pf = '1996-12-30T19.41.AU.KAKA.picks'
-pf = '2001-10-07T02.21.AU.KAKA.picks'
+pf = '2001-10-07T02.21.AU.KAKA.picks' # used for paper
 #pf  = pickfiles[35]
 #pf = '1995-12-25T04.43.AU.DRS.picks'
 #pf = '1995-12-25T04.43.AU.DPH.picks'
@@ -347,6 +347,7 @@ plt.grid(which='both')
 plt.xlabel('Frequency (Hz)', fontsize=16)
 plt.ylabel('Fourier Displacement (Count-s)', fontsize=16)
 plt.savefig('sn_limits_example.png', fmt='png', dpi=300, bbox_inches='tight')
+plt.savefig('figures/fig_5.eps', fmt='eps', dpi=300, bbox_inches='tight')
 plt.show()
       
 

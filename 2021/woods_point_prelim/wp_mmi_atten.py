@@ -3,7 +3,7 @@ from mmi_tools import allen_etal_2012_rrup_ipe, allen_etal_2012_rhypo_ipe, \
                       atkinson_wald_ceus_ipe, atkinson_wald_cal_ipe, pgm2mmi_worden12, \
                       parse_usgs_dyfi_geocoded, parse_usgs_dyfi_zip, \
                       atkinson_worden_wald14_cal_ipe, atkinson_worden_wald14_ceus_ipe, \
-                      atkinson_worden_wald14_ceus_oq
+                      atkinson_worden_wald14_ceus_oq, leonard15_ipe
 from misc_tools import get_mpl2_colourlist
 from calc_oq_gmpes import scr_gsims, crustal_gsims
 from mapping_tools import distance
@@ -117,27 +117,31 @@ AWW14ceus_bias = AWW14ceus + SMbias # from Moe
 # do AWW14 CA
 AWW14cal, sig = atkinson_worden_wald14_cal_ipe(mag, rhypo)
 
+# do Leonard 2015
+L15 = leonard15_ipe(mag, rrup)
+
 #AWW14ceus_oq, sig_oq = atkinson_worden_wald14_ceus_oq(mag, rhypo, eqdep) # this works, but not needed
 
 # do Bea14 - W12 PGA
 logB14pga = [] # tried pgv, but looked really bad!
-
+"""
 for i in range(0, len(rjb)):
     #Bea97imt, Zea06imt, CB08imt, CY08imt, Bea11imt, BA11imt, AA13imt, Aea14imt, Bea14imt, CB14imt, CY14imt \
     #= crustal_gsims(mag, eqdep, ztor, dip, rake, rrup[i], rjb[i], vs30)
     Tea02imt, C03imt, AB06imt, CY08imt, Sea09imt, Pea11imt, A12imt, Bea14imt, YA15imt \
     = scr_gsims(mag, eqdep, ztor, dip, rake, rrup[i], rjb[i], vs30)
     logB14pga.append(Bea14imt['pga'][0][0]) 
-
+"""
 # convert ln g to cm/s**2
 from scipy.constants import g
-B14pga = exp(logB14pga) * 100. * g
+#B14pga = exp(logB14pga) * 100. * g
 # now get MMI from GMICE
 #B14W12mmi, sig = pgm2mmi_worden12(10**array(logB14pgv), 'pga', mag, rrup)  
-B14W12mmiPGA, sig = pgm2mmi_worden12(B14pga, 'pga', mag, rrup) 
+#B14W12mmiPGA, sig = pgm2mmi_worden12(B14pga, 'pga', mag, rrup) 
 
 # do Bea14 - W12 PGV
 logB14pgv = [] # tried pgv, but looked really bad!
+"""
 for i in range(0, len(rjb)):
     #Bea97imt, Zea06imt, CB08imt, CY08imt, Bea11imt, BA11imt, AA13imt, Aea14imt, Bea14imt, CB14imt, CY14imt \
     #= crustal_gsims(mag, eqdep, ztor, dip, rake, rrup[i], rjb[i], vs30)
@@ -147,11 +151,11 @@ for i in range(0, len(rjb)):
         logB14pgv.append(nan) 
     else:
         logB14pgv.append(Bea14imt['pgv'][0][0]) 
-
-B14pgv = exp(array(logB14pgv))
-# now get MMI from GMICE
-B14W12mmiPGV, sig = pgm2mmi_worden12(B14pgv, 'pgv', mag, rrup)  
-B14W12mmiPGVnan, sig = pgm2mmi_worden12(B14pgv, 'pgv', nan, nan)
+"""
+#B14pgv = exp(array(logB14pgv))
+## now get MMI from GMICE
+#B14W12mmiPGV, sig = pgm2mmi_worden12(B14pgv, 'pgv', mag, rrup)  
+#B14W12mmiPGVnan, sig = pgm2mmi_worden12(B14pgv, 'pgv', nan, nan)
  
 # now plot models
 #SMbias = -0.16
@@ -159,12 +163,13 @@ cl = get_mpl2_colourlist()
 syms = ['o', '^', 's', 'd', 'v', '<', 'h', '>', 'p']
 
 # make secondary plots to get around color issues
-h1 = plt.semilogx(rjb, AW07ceus, syms[0], color=cl[0], ls='-', ms=7, mec=cl[0], markevery=5)
-h2 = plt.semilogx(rjb, AW07cal,  syms[1], color=cl[1], ls='-', ms=7, mec=cl[1], markevery=5)
-h3 = plt.semilogx(rjb, Aea12rup, syms[2], color=cl[2], ls='-', ms=7, mec=cl[2], markevery=5)
-h5 = plt.semilogx(rjb, AWW14ceus,syms[3], color=cl[3], ls='-', ms=7, mec=cl[3], markevery=5)
-h6 = plt.semilogx(rjb, AWW14cal, syms[4], color=cl[4], ls='-', ms=7, mec=cl[4], markevery=5)
-h7 = plt.semilogx(rjb, A19_deep, syms[5], color=cl[5], ls='-', ms=7, mec=cl[5], markevery=5)
+#h1 = plt.semilogx(rjb, AW07ceus, syms[0], color=cl[0], ls='-', ms=7, mec=cl[0], markevery=5)
+#h2 = plt.semilogx(rjb, AW07cal,  syms[1], color=cl[1], ls='-', ms=7, mec=cl[1], markevery=5)
+h1 = plt.semilogx(rjb, Aea12rup, syms[0], color=cl[0], ls='-', ms=7, mec=cl[0], markevery=5)
+h2 = plt.semilogx(rjb, AWW14ceus,syms[1], color=cl[1], ls='-', ms=7, mec=cl[1], markevery=5)
+h3 = plt.semilogx(rjb, AWW14cal, syms[2], color=cl[2], ls='-', ms=7, mec=cl[2], markevery=5)
+h4 = plt.semilogx(rjb, L15,      syms[3], color=cl[3], ls='-', ms=7, mec=cl[3], markevery=5)
+h5 = plt.semilogx(rjb, A19_deep, syms[4], color=cl[4], ls='-', ms=7, mec=cl[4], markevery=5)
 
 #h4 = plt.semilogx(rjb, B14W12mmiPGA, '-s', color=cl[3], lw=1.5, ms=7, mec=cl[3], markevery=5)
 
@@ -176,9 +181,8 @@ meanres, stdres, medx, outbins, nperbin = get_binned_stats_mean(bins, log10(dyfi
 
 d4 = plt.errorbar(10**medx, meanres, yerr=stdres, fmt='ks', ms=7, elinewidth=1.5, capsize=5, zorder=30000) 
 
-leg1 = plt.legend([h1[0], h2[0], h3[0], h5[0], h6[0], h7[0], d3[0], d4[0]], \
-           ['AW07 CEUS', 'AW07 CA', 'Aea12 Rrup', 
-            'AWW14 CEUS', 'AWW14 CA', 'A21 AU', 'Raw DYFI', 'Binned MMI'], fontsize=12, loc=3, numpoints=1)
+leg1 = plt.legend([h1[0], h2[0], h3[0], h4[0], h5[0], d3[0], d4[0]], \
+           ['AWW12 ATR', 'AWW14 CEUS', 'AWW14 CA', 'L15 AU', 'A21 AU', 'Raw DYFI', 'Binned MMI'], fontsize=12, loc=3, numpoints=1)
 
 plt.grid(which='both', color='0.5')
 plt.xlim([8, maxrrup])

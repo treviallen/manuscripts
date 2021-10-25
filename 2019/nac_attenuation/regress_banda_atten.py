@@ -191,8 +191,8 @@ for i, st in enumerate(stdict):
                 stdict[i]['eqla'] = rec['eqla']
                 stdict[i]['eqlo'] = rec['eqlo']
                 stdict[i]['per'] = rec['per']
-                stdict[i]['pga'] = rec['pga']
-                stdict[i]['pgv'] = rec['pgv']
+                stdict[i]['epga'] = rec['pga']
+                stdict[i]['epgv'] = rec['pgv']
                 stdict[i]['network'] = rec['network']
                 stdict[i]['date'] = rec['datestr']
                 
@@ -201,8 +201,13 @@ for i, st in enumerate(stdict):
                 and rec['chan'] == st['chstr'][1]:
                 
                 ndat = rec['sa']
+                stdict[i]['npga'] = rec['pga']
+                stdict[i]['npgv'] = rec['pgv']
         
-        geom = exp((log(edat) + log(ndat)) / 2.)        
+        print(i, st['sta'], stdict[i]['date'])
+        geom = exp((log(edat) + log(ndat)) / 2.)
+        stdict[i]['pga'] = exp((log(stdict[i]['epga']) + log(stdict[i]['npga'])) / 2.)
+        stdict[i]['pgv'] = exp((log(stdict[i]['epgv']) + log(stdict[i]['npgv'])) / 2.)
         stdict[i]['geom'] = geom
         stdict[i]['smooth_geom'] = savitzky_golay(geom, sg_window, sg_poly)
     

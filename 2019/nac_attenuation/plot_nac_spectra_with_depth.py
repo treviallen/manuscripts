@@ -113,5 +113,6 @@ plt.xticks(fontsize=16)
 plt.yticks(fontsize=16)
 
 plt.savefig('figures/spectra_with_depth.png', format='png', dpi=300, bbox_inches='tight')
+plt.savefig('figures/fig_13.eps', format='eps', dpi=300, bbox_inches='tight')
 plt.show()
 

@@ -198,7 +198,8 @@ for i, T in enumerate(Tplt):
     ypos = (8*0.92) - 4
     plt.text(xpos, ypos, pertxt, ha='left', va='top', fontsize=16, bbox=props)
 
-plt.savefig('figures/simple_nac_depth_dependence.png', fmt='png', bbox_inches='tight')       
+plt.savefig('figures/simple_nac_depth_dependence.png', fmt='png', bbox_inches='tight') 
+plt.savefig('figures/fig_7.eps', fmt='eps', bbox_inches='tight')       
 plt.show()
 
     

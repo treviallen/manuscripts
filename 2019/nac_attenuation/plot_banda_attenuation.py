@@ -57,8 +57,17 @@ def calc_nac_gmm_spectra(mag, rhyp, dep, vs30, region):
     site_term = s0 + s1 / (log10(vs30) - log10(150))
     
     lnsa = mag_term + atten_term + dep_term + near_field_term + site_term
+    
+    # load sigma model
+    sitefile = 'sigma_model_BS.csv'
+    coeffs = loadtxt(sitefile, delimiter=',', skiprows=1)  
+    
+    sigT  = coeffs[:,0]
+    tau = coeffs[:,1]
+    phi = coeffs[:,2]
+    sig = coeffs[:,2]
            
-    A19imt = {'per':T, 'sa':lnsa}
+    A19imt = {'per':T, 'sa':lnsa, 'sig':sig, 'sigT':sigT}
 
     return A19imt
 
@@ -182,6 +191,9 @@ for j, t in enumerate(Tplot):
             AB11r.append(interp(t, AB11imt['per'], AB11imt['sa']))
             Sea09r.append(interp(t, Sea09imt['per'], Sea09imt['sa']))
     
+    # get A21 sigma
+    A20_BS_sig = interp(t, A20imt_BS['sigT'], A20imt_BS['sig'])
+    
     # get mean NSHA model
     wtmods = nsha_wts * exp(vstack((Aea16r, A12r, AB03r, AB06r, AB11r, Bea14r, Sea09r)))
     wtmods = wtmods.sum(axis=0)
@@ -209,8 +221,11 @@ for j, t in enumerate(Tplot):
     plt.loglog(rjb, wtmods, syms[7], ls='-', c=cs[7], lw=2, \
                ms=8, mec=cs[7], mfc='w', mew=2, markevery=8, label='Weighted NSHA18')
                
-    plt.loglog(rjb, exp(A20_BSr), syms[8], ls='-', c='k', lw=2, \
-               ms=8, mec='k', mfc='w', mew=2, markevery=8, label='Banda Sea (NAC) Model')
+    plt.loglog(rjb, exp(A20_BSr), syms[8], ls='-', c='0.45', lw=2, \
+               ms=8, mec='0.45', mfc='w', mew=2, markevery=8, label='Banda Sea (NAC) Model')
+               
+    plt.loglog(rjb, exp(array(A20_BSr)+A20_BS_sig), ls='--', c='0.45', lw=1.5)
+    plt.loglog(rjb, exp(array(A20_BSr)-A20_BS_sig), ls='--', c='0.45', lw=1.5)
     
     plt.xlabel(r'$\mathregular{R_{JB}}$ (km)', fontsize=18)
     plt.xlim([200, 1500])
@@ -240,4 +255,6 @@ for j, t in enumerate(Tplot):
         
         
 plt.savefig('figures/banda_atten.png', format='png', dpi=300, bbox_inches='tight')
+plt.savefig('figures/fig_11.eps', format='eps', dpi=600, bbox_inches='tight')
+
 plt.show()

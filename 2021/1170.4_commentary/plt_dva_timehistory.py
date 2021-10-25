@@ -17,7 +17,7 @@ mpl.style.use('classic')
 mseedfile = '/Users/trev/Documents/Earthquake_Data/20180916.Lake_Muir/2018-09-16T04.50.00.AU.RKGY.mseed'
 mseedfile = '2018-11-08T21.05.AU.LM04.mseed'
 plt_channels = ['HNE', 'HNN', 'HNZ']
-#plt_channels = ['HHE', 'HHN', 'HHZ']
+#plt_channels = ['HHE', 'HHN', 'HHZ']int
 
 nwid = len(plt_channels)
 
@@ -74,13 +74,16 @@ for tr in st:
                 
                 tr_acc.filter('bandpass', freqmin=0.4, freqmax=50., corners=2, zerophase=True)
                 
-                tr_acc.trim(starttime=tr.stats.starttime+118,endtime=tr.stats.starttime+152)
-                
                 tr_disp = tr_acc.copy()
                 tr_vel = tr_acc.copy()
                 
                 tr_disp.integrate().integrate()
                 tr_vel.integrate()
+                
+                tr_acc.trim(starttime=tr.stats.starttime+121,endtime=tr.stats.starttime+134) # using this t-window
+                tr_vel.trim(starttime=tr.stats.starttime+121,endtime=tr.stats.starttime+134) # using this t-window
+                tr_disp.trim(starttime=tr.stats.starttime+121,endtime=tr.stats.starttime+134) # using this t-window
+                #tr_disp.filter('bandpass', freqmin=0.6, freqmax=50., corners=2, zerophase=True)
                 
             # now make plots
             times = tr_vel.times()
@@ -94,7 +97,7 @@ for tr in st:
             ax = plt.subplot(nwid, 3, c)
             plt.plot(dt_times, (100*tr_acc.data/g), 'r-', lw=0.5, label=seedid)
             
-            ticks = ax.get_xticks()[::2]
+            ticks = ax.get_xticks()[::1]
             ax.set_xticks(ticks)
             labels = [mpl.dates.num2date(t).strftime('%H:%M:%S') for t in ticks]
             ax.set_xticklabels(labels)

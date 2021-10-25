@@ -205,9 +205,9 @@ stlat = array(stlat)
 stlon = array(stlon)
 
 # loop thru networks and plot
-unet = ['AU', 'MEL', 'S1', 'UM']
-sym = ['^', 'H', 'd', 's'] 
-ms = [12, 13, 12, 12]
+unet = ['AU', 'MEL', 'S1', 'UM', 'II']
+sym = ['H', '^', 'd', 's', 'v', 'p', 'D']
+ms = [13, 12, 12, 12, 12]
 
 hnd = []
 for i, u in enumerate(unet):
@@ -216,7 +216,7 @@ for i, u in enumerate(unet):
     h = plt.plot(x, y, sym[i], markerfacecolor = '0.1', markeredgecolor='w', markeredgewidth=1.5, markersize=ms[i])
     hnd.append(h[0])
 
-unet = ['AU', 'SRC', 'S1', 'UM']
+#unet = ['AU', 'SRC', 'S1', 'UM']
 plt.legend(hnd, list(unet), fontsize=14, loc=4, numpoints=1)
 
 ##########################################################################################

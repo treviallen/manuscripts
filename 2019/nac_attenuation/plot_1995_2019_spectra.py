@@ -395,5 +395,6 @@ for stn in usites:
             fig = plt.figure(ii, figsize=(10, 10))
 
 plt.savefig('figures/'+prefix+'_spectra.png', format='png', dpi=300, bbox_inches='tight')
+plt.savefig('figures/fig_12.eps', format='eps', dpi=300, bbox_inches='tight')
 plt.show()
 

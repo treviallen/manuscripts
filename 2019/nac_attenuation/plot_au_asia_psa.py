@@ -191,5 +191,6 @@ plt.ylabel('Spectral Acceleration (g)', fontsize=20)
 ax.tick_params(labelsize=18)  
 
 plt.savefig('figures/au_asia_spectra.png', format='png', dpi=300, bbox_inches='tight')
+plt.savefig('figures/fig_2.eps', format='eps', dpi=300, bbox_inches='tight')
 plt.show()
 

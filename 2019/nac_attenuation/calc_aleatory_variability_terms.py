@@ -484,7 +484,8 @@ for pr in pltReg:
     sigmaPGM.append(sqrt(array(tauPGM[0])**2 + array(phiPGM[0])**2))
     # now do PGA and add correction
     pgacorstd = float(open('ln_pga_correction.csv').read().strip().split(',')[1])
-    sigmaPGM.append(sqrt(array(tauPGM[0])**2 + array(phiPGM[0])**2 + pgacorstd**2))
+    print(pgacorstd)
+    sigmaPGM.append(sqrt(array(tauPGM[1])**2 + array(phiPGM[1])**2 + pgacorstd**2))
     
     sigtemp = {'phi':phi, 'tau':tau, 'sigma':sigma, \
     	         'phipgm':phiPGM, 'taupgm':tauPGM, 'sigmapgm':sigmaPGM, 'reg':pr}
@@ -630,6 +631,7 @@ for pr in pltReg:
     cb.set_label('Moment Magnitude', rotation=270, labelpad=20, fontsize=15)
 
     plt.savefig('figures/combined_sigma_residuals_'+pr+'.png', fmt='png', bbox_inches='tight')       
+    plt.savefig('figures/fig_9.eps', fmt='eps', bbox_inches='tight')       
     plt.show()
 ###############################################################################
 # plot phi & tau with T
@@ -675,5 +677,6 @@ for i, sig in enumerate(sigdict):
     xticklabels = ['PGV', 'PGA', '0.1', '1.0', '10']
     ax.set_xticklabels(xticklabels)
     
-plt.savefig('figures/standard_deviations.png', fmt='png', bbox_inches='tight')       
+plt.savefig('figures/fig_10.png', fmt='png', bbox_inches='tight') 
+plt.savefig('figures/fig_10.eps', fmt='eps', bbox_inches='tight')       
 plt.show()

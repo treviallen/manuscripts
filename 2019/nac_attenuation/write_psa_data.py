@@ -16,7 +16,7 @@ def checkKey(dict, key):
 # save/load pickle
 ################################################################################
 pklfile = 'stdict.pkl'
-#pklfile = 'stdict_ampfact.pkl'
+pklfile = 'stdict_ampfact.pkl'
 stdict = pickle.load(open(pklfile, "rb"))
 
 

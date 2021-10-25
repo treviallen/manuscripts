@@ -301,4 +301,5 @@ plt.text(x, y, 'Gippsland\nBasin', size=12, c='r', ha='center', weight='normal',
 plt.legend(loc=1, fontsize=14)
 
 plt.savefig('figures/tectonic_setting.png',fmt='png',dpi=150,bbox_inches='tight')
+plt.savefig('figures/fig_1.eps',fmt='eps',dpi=300,bbox_inches='tight')
 plt.show()
