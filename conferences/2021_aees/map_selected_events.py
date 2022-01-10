@@ -13,17 +13,18 @@ plt.rcParams['pdf.fonttype'] = 42
 mpl.style.use('classic')
 
 ##########################################################################################
-#108/152/-44/-8
-urcrnrlat = -5.
-llcrnrlat = -49.
-urcrnrlon = 157.
-llcrnrlon = 98.
+bbox = '107.0/153.0/-43.0/-8.0'
+urcrnrlat = -7.
+llcrnrlat = -44.
+urcrnrlon = 154.
+llcrnrlon = 105.
 lon_0 = mean([llcrnrlon, urcrnrlon])
+#lon_0 = 134.
 lat_1 = percentile([llcrnrlat, urcrnrlat], 25)
 lat_2 = percentile([llcrnrlat, urcrnrlat], 75)
 
 fig = plt.figure(figsize=(13,8))
-plt.tick_params(labelsize=14)
+plt.tick_params(labelsize=12)
 ax = fig.add_subplot(111)
 '''
 epsg = 3112
@@ -59,30 +60,31 @@ m.drawmeridians(arange(0.,360.,10.), labels=[0,0,0,1], fontsize=16, dashes=[2, 2
 
 import matplotlib.patheffects as path_effects
 csvfile = 'shakemap_event_list.csv'
-data = loadtxt(csvfile, delimiter=',', skiprows=1)
+#data = loadtxt(csvfile, delimiter=',', skiprows=1)
 
 lines = open(csvfile).readlines()[1:]
 lats = []
 lons = []
+mags = []
 for line in lines:
     dat = line.strip().split(',')
     lons.append(float(dat[1]))
     lats.append(float(dat[2]))
     mags.append(float(dat[4]))
     
-x, y = m(array(lons), array(lats))
-msize = 4 * mags
-sc = plt.scatter(x, y, m='*', s=msize, mfc='r', mec='k', mew=0.25)
-
+for lo, la, ma in zip(lons, lats, mags):
+    x, y = m(lo, la)
+    m.plot(x, y, marker='*', mfc='r', mec='k', mew=0.25, markersize=(5. * ma - 12), alpha=1., zorder=len(mags)+1)
+    
 # make legend
-legmag = [3., 5., 7.]
+legmag = [4.5, 5.5, 6.5]
 legh = []
 for lm in legmag:
     x, y = m(0, 0)
-    h = m.plot(x, y, '*', mfc='r', mec='k', mew=0.25, markersize=(4 * lm), alpha=1., zorder=len(mags)+1)
+    h = m.plot(x, y, '*', mfc='r', mec='k', mew=0.25, markersize=(5 * lm - 12), alpha=1., zorder=len(mags)+1)
     legh.append(h[0])
 
-l = plt.legend(legh, ('MW 3.0', 'MW 5.0', 'MW 7.0'), loc=3, numpoints=1, fontsize=14, title="Magnitude")
+l = plt.legend(legh, ('MW 4.5', 'MW 5.5', 'MW 6.5'), loc=3, numpoints=1, fontsize=10, title="Magnitude")
 l.set_zorder(len(mags)+5)
 
 plt.savefig('atlas_event_map.png', format='png', bbox_inches='tight')

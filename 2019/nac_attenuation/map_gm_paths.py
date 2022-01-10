@@ -352,5 +352,5 @@ for i, st in enumerate(state):
     x, y = m(slon[i], slat[i])
     #plt.text(x, y, st, size=11, horizontalalignment='center', verticalalignment='center', weight='normal')
 '''
-plt.savefig('figures/ncc_gm_paths.png', format='png', bbox_inches='tight', dpi=300)
+plt.savefig('figures/ncc_gm_paths.jpg', format='jpg', bbox_inches='tight', dpi=300)
 plt.show()

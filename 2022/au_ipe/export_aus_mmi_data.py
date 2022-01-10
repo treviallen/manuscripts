@@ -33,7 +33,7 @@ from mmi_tools import allen_etal_2012_rrup_ipe, allen_etal_2012_rhypo_ipe, \
 shpfile = path.join('data', 'iso_p_ASCMM.shp')
 #shpfile = path.join('data', 'iso_p_ASCMM_test.shp')
 
-print 'Reading source shapefile...'
+print('Reading source shapefile...')
 sf = shapefile.Reader(shpfile)
 
 # get data fields
@@ -53,8 +53,8 @@ eqdtstr = []
 
 # get datetime
 for eqd, eqt in zip(eqdate, eqtime):
-    d = '-'.join([str(eqd[0]), str('%02d' % eqd[1]), str('%02d' % eqd[2])])
-    if eqd[0] > 1950:
+    d = '-'.join([str(eqd.year), str('%02d' % eqd.month), str('%02d' % eqd.day)])
+    if eqd.year > 1950:
         eqdt.append(dt.datetime.strptime(d+' '+eqt[0:8], '%Y-%m-%d %H:%M:%S'))
         eqdtstr.append(eqdt[-1].strftime('%Y%m%d%H%M'))
     else:
@@ -99,7 +99,7 @@ eqdep[idx] = 4.0
 
 # temp file
 evfile = '../2016_working/sea_ev_mags.csv'
-evfile = 'aus_mw_mags.csv'
+evfile = 'aus_mw_mags_pre-internet.csv'
 
 lines = open(evfile).readlines()[1:]
 	
@@ -111,7 +111,7 @@ for line in lines:
     
     mweqdt.append(dt.datetime.strptime(dat[0], '%Y%m%d%H%M'))
     evmw.append(float(dat[1])) #
-print '\n!!!! Delete magnitude kluge!!!!\n'
+print('\n!!!! Delete magnitude kluge!!!!\n')
     
 
 ###############################################################################
@@ -131,9 +131,9 @@ for mwd, mw in zip(mweqdt, evmw):
                 # calc distance
                 repi[i] = distance(eqlat[i], eqlon[i], mmilat[i], mmilon[i])[0]
                 
-                # print event
+                # print(event
                 if printdate == True:
-                    print mwd, eqname[i]
+                    print(mwd, eqname[i])
                     
                     printdate = False
                            
@@ -144,7 +144,7 @@ rhyp = sqrt(repi**2 + array(eqdep)**2)
 # check fault files
 ####################################################################################
 
-print 'Getting rrup ...'
+print('Getting rrup ...')
 rrup = []
 rjb = []
 
@@ -154,7 +154,7 @@ for ds, mlo, mla in zip(eqdtstr, mmilon, mmilat):
     fpath = path.join('faults', ds+'_fault.txt')
     try:
         faultdat = parse_faultdat(fpath)
-        fx, fy, fz = make_fault_mesh(fpath, 0.5)
+        fx, fy, fz = make_fault_mesh(fpath, 0.25)
         
         # get distance
         tmprjb = []
@@ -173,7 +173,7 @@ for ds, mlo, mla in zip(eqdtstr, mmilon, mmilat):
     	
     i += 1
 
-print '\n'
+print('\n')
 ####################################################################################
 # delete nan values
 ####################################################################################
@@ -219,6 +219,7 @@ eqdtstr = delete(array(eqdtstr), didx)
 ####################################################################################
 
 mmidat = 'YYYYMMDDHHMN,MW,EVLO,EVLA,OBLO,OBLA,MMI,REPI,RHYP,RRUP,RJB,DEP,EVENT,CLASS\n'
+lonlat = ''
 for i in range(0, len(mmi)):
     line = ','.join((eqdt[i].strftime('%Y%m%d%H%M'), str('%0.2f' % mmimw[i]), \
                      str('%0.3f' % eqlon[i]), str('%0.3f' % eqlat[i]), \
@@ -229,6 +230,12 @@ for i in range(0, len(mmi)):
     
     mmidat += line
     
-f = open('mmidat_export.csv', 'wb')
+    lonlat += ','.join((str('%0.3f' % eqlon[i]), str('%0.3f' % eqlat[i]))) + '\n'
+    
+f = open('data/mmidat_export.csv', 'w')
 f.write(mmidat)
+f.close()
+
+f = open('data/lonlat.csv', 'w')
+f.write(lonlat)
 f.close()

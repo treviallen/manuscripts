@@ -176,8 +176,16 @@ h5 = plt.semilogx(rjb, A19_deep, syms[4], color=cl[4], ls='-', ms=7, mec=cl[4], 
 ##################################################################################
 
 # get binned stats
-bins = arange(0.05, log10(maxrrup)+0.05, 0.1)
+bins = arange(0.05, log10(maxrrup)+0.05, 0.05)
 meanres, stdres, medx, outbins, nperbin = get_binned_stats_mean(bins, log10(dyfirepi), dyfimmi)
+
+# write bin & std
+txt = 'DIST,STD,NPERBIN\n'
+for d, s, n in zip(outbins, stdres, nperbin):
+   txt += ','.join((str(10**d), str(s), str(n))) + '\n'
+f = open('mmi_std_bins.csv', 'w')
+f.write(txt)
+f.close()
 
 d4 = plt.errorbar(10**medx, meanres, yerr=stdres, fmt='ks', ms=7, elinewidth=1.5, capsize=5, zorder=30000) 
 
