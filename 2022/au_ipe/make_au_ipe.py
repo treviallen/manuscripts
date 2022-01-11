@@ -7,8 +7,12 @@ from numpy import arange, array, delete, ones_like, nan, where, isnan, sqrt, mea
                   interp, nanmedian, nanstd, zeros_like, ones_like, isinf
 from scipy.stats import linregress
 import scipy.odr.odrpack as odrpack
+import matplotlib as mpl
+mpl.style.use('classic')
+import warnings
+warnings.filterwarnings("ignore")
 
-print 'FIX MOE SITE CLASS KLUGE'
+print('FIX MOE SITE CLASS KLUGE')
 
 ####################################################################################
 # parse max dist lookup - file made below!
@@ -28,7 +32,7 @@ rh_lu = contlookup[:,1]
 
 # parse file here
 #lines = open('mmidat_export.csv').readlines()[1:]
-lines = open('mmi_grad.csv').readlines()[1:]
+lines = open('data/mmi_grad.csv').readlines()[1:]
 	
 repi = []
 rhyp = []
@@ -64,6 +68,7 @@ mw = array(mw)
 siteclass = array(siteclass)
 grad = array(grad)
 eqdep = array(eqdep)
+eqname = array(eqname)
 
 ####################################################################################
 # remove data based on distance cut-off
@@ -86,6 +91,7 @@ mw = delete(mw, idx)
 siteclass = delete(siteclass, idx)
 grad = delete(grad, idx)
 eqdep = delete(eqdep, idx)
+eqname = delete(eqname, idx)
 
 #rrup = rhyp
 
@@ -101,7 +107,7 @@ fig = plt.figure(1, figsize=(14, 10))
 
 ueqname = unique(array(eqname))
 mbins = arange(3.5, 6.8, 0.25) 
-halfbin = 0.25
+halfbin = 0.25/2
 logxmax = 2.
 
 slopes = []
@@ -116,13 +122,15 @@ for i, mb in enumerate(mbins):
 
     medbin, stdbin, medx, binstrp, nperbin = get_binned_stats_mean(bins, log10(rrup[idx]), mmi[idx])
     
+    
+    
     # strip bins with LT 2 obs
     delidx = where(nperbin < 2)[0]
     medbin = delete(medbin, delidx)
     binstrp = delete(binstrp, delidx)
     stdbin = delete(stdbin, delidx)
     
-    if len(binstrp) > 2:
+    if len(binstrp) > 2 and mb != 4.25:
         # now regress bins
         c = linregress(binstrp, medbin)
         
@@ -140,6 +148,7 @@ for i, mb in enumerate(mbins):
         plt.ylim([2, 9])
         
         plt.title(mb)
+        print('PLOT MAG: ' + str(mb))
         
         slopes.append(c[0])
         meanmws.append(mean(mw[idx]))
@@ -147,14 +156,20 @@ for i, mb in enumerate(mbins):
     else:
         slopes.append(nan)
         meanmws.append(nan)
-        
+    
+    '''
+    if mb == 4.25:
+        print(len(mmi[idx]))
+        print(array(eqname)[idx])
+        crash
+    '''
+            
 plt.suptitle('Variable (MW-dependent) slope')
 meanslope = nanmedian(slopes)
-print 'getting median slope'
-print 'cut data GT MMI3 contour'
+print('getting median slope')
+print('cut data GT MMI3 contour')
 
-plt.savefig('ipe_var_slope_GR.png', fmt='png', bbox_inches='tight') 
-
+plt.savefig('figs/ipe_var_slope_GR.png', fmt='png', bbox_inches='tight') 
 
 plt.show()
 
@@ -178,7 +193,7 @@ plt.show()
 
 
 ####################################################################################
-# fix mean slope & get intercept
+# fix mean near-source slope & get intercept
 ####################################################################################
 
 def linear_fixed_slope(c, x):
@@ -190,7 +205,7 @@ def near_src_trunc_fixed_slope(c, x):
     xx = sqrt(rref*2 + x**2)
     
     #mb = x
-    #print mb
+    #print(mb
     # mb = bin mag
     #if mb < 3.75:
     #    mb = 3.75
@@ -208,7 +223,7 @@ intercepts = []
 meanmagbin = []
 meanmws = []
 
-mbins = arange(3., 6.8, 0.25) # use smaller mag to constrain m-scaling
+mbins = arange(3.5, 6.8, 0.25) # use smaller mag to constrain m-scaling
 xmax = 350.
 for i, mb in enumerate(mbins):
     
@@ -219,27 +234,43 @@ for i, mb in enumerate(mbins):
 
     medbin, stdbin, medx, binstrp, nperbin = get_binned_stats_mean(bins, log10(rrup[idx]), mmi[idx])
     
+    print(mb, len(mmi[idx]))
+    
     # strip bins with LT 2 obs
     delidx = where(nperbin < 2)[0]
     medbin = delete(medbin, delidx)
     binstrp = delete(binstrp, delidx)
     stdbin = delete(stdbin, delidx)
     
-    # get intercept
-    data = odrpack.RealData(binstrp, medbin)
-    intfit = odrpack.Model(linear_fixed_slope)
-    odr = odrpack.ODR(data, intfit, beta0=[5.0])
     
-    #data = odrpack.RealData(10**binstrp, medbin, meta={'mag':mb})
-    #intfit = odrpack.Model(near_src_trunc_fixed_slope)
-    #odr = odrpack.ODR(data, intfit, beta0=[5.0])
-    
-    odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
-    out = odr.run()
-    intercept = out.beta
-    intercepts.append(intercept[0])
-    meanmagbin.append(mean(mmi[idx]))
-    meanmws.append(mean(mw[idx]))
+    '''
+    if mb == 4.25:
+        print(len(mmi[idx]))
+        print(log10(rrup[idx]))
+        print(medbin, binstrp)
+        print(eqname[idx])
+        crash
+    '''
+    if len(medbin < 2) and mb != 4.25:    
+        # get intercept
+        data = odrpack.RealData(binstrp, medbin)
+        intfit = odrpack.Model(linear_fixed_slope)
+        odr = odrpack.ODR(data, intfit, beta0=[5.0])
+        
+        #data = odrpack.RealData(10**binstrp, medbin, meta={'mag':mb})
+        #intfit = odrpack.Model(near_src_trunc_fixed_slope)
+        #odr = odrpack.ODR(data, intfit, beta0=[5.0])
+        
+        odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
+        out = odr.run()
+        intercept = out.beta
+        intercepts.append(intercept[0])
+        meanmagbin.append(mean(mmi[idx]))
+        meanmws.append(mean(mw[idx]))
+    else:
+        intercepts.append(nan)
+        meanmagbin.append(nan)
+        meanmws.append(nan)
     
     if len(binstrp) > 0:
         # now regress bins
@@ -268,7 +299,7 @@ for i, mb in enumerate(mbins):
         plt.title(mb)
         plt.suptitle('Fixed Slope')
         
-plt.savefig('ipe_fixed_slope_GR.png', fmt='png', bbox_inches='tight') 
+plt.savefig('figs/ipe_fixed_slope_GR.png', fmt='png', bbox_inches='tight') 
 plt.show()
 
 ####################################################################################
@@ -287,11 +318,11 @@ plt.ylabel('MMI Intercept')
 # regress mags
 #m = linregress(meanmws[:-2], intercepts[:-2])
 m = linregress(array(meanmws)[idx], array(intercepts)[idx])
-xfit = array([2.5, 6.7])
+xfit = array([3., 6.7])
 yfit = m[0] * xfit + m[1]
 plt.plot(xfit, yfit, 'k-', lw=2.0)
 
-plt.savefig('ipe_mag_scaling.png', fmt='png', bbox_inches='tight') 
+plt.savefig('figs/ipe_mag_scaling.png', fmt='png', bbox_inches='tight') 
 plt.show()
 
 ####################################################################################
@@ -307,7 +338,7 @@ for i in range(0, len(mw)):
     magslope[i] = ms[0] * max([mw[i], 3.75]) + ms[1]
 
 # get prelim distance scaling 
-print 'Using MEAN slope...'
+print('Using MEAN slope...')
 rf = meanslope * log10(sqrt(rrup**2 + rref**2))
 #rf = magslope * log10(sqrt(rrup**2 + rref**2))
 
@@ -378,10 +409,10 @@ pltstr = 'Med = ' + str('%0.2f' % median(rmmi[didx])) + '\n' \
          'Std = ' + str('%0.2f' % std(rmmi[didx]))
 plt.text(280, -2.35, pltstr, fontsize=14, va='center')
 
-plt.savefig('prelim_mmi_residuals.png', fmt='png', bbox_inches='tight')  
+plt.savefig('figs/prelim_mmi_residuals.png', fmt='png', bbox_inches='tight')  
 
 y_at_xhinge = 0
-xhinge = 105.
+xhinge = 45.
 def fit_fixed_intercept(c, x):
     '''
     x = array fo x values
@@ -398,7 +429,7 @@ def fit_fixed_intercept(c, x):
 # fit distance atten
 ridx = where((binstrp >= xhinge) & (binstrp < xmax))[0]
 data = odrpack.RealData(binstrp[ridx], medbin[ridx])
-print binstrp[ridx]
+print(binstrp[ridx])
 truncdist = odrpack.Model(fit_fixed_intercept)
 odr = odrpack.ODR(data, truncdist, beta0=[0.])
 odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, ODR = 0
@@ -453,7 +484,7 @@ pltstr = 'Med = ' + str('%0.2f' % median(rmmi2[didx])) + '\n' \
          'Std = ' + str('%0.2f' % std(rmmi2[didx]))
 plt.text(280, -2.35, pltstr, fontsize=14, va='center')
 
-plt.savefig('prelim_mmi_distcorr_residuals.png', fmt='png', bbox_inches='tight')    
+plt.savefig('figs/prelim_mmi_distcorr_residuals.png', fmt='png', bbox_inches='tight')    
 plt.show()
   
 ####################################################################################
@@ -519,7 +550,7 @@ pltstr = 'Med = ' + str('%0.2f' % median(rmmi3[didx])) + '\n' \
          'Std = ' + str('%0.2f' % std(rmmi3[didx]))
 plt.text(17, -2.35, pltstr, fontsize=14, va='center')
 
-plt.savefig('au_ipe_depth_res.png', fmt='png', bbox_inches='tight')
+plt.savefig('figs/au_ipe_depth_res.png', fmt='png', bbox_inches='tight')
 
 plt.show()
 
@@ -528,19 +559,19 @@ plt.show()
 # export IPE coefs
 ####################################################################################
 # c2 = ms[0] * mw + ms[1]
-coefs  = 'mmi = c0 * mw + c1 + c2 * log10(sqrt(rrup**2 + rref**2)) { + c3 * (rhyp[ridx] - xh)} + h1*erf((rhyp-vert)/(h2*sqrt(2))) + h3\n'
+coefs  = 'mmi = c0 * mw + c1 + c2 * log10(sqrt(rrup**2 + rref**2)) { + c3 * (rrup - xh)} + h1*erf((rrup-vert)/(h2*sqrt(2))) + h3\n'
 coefs += 'c0 ' + str(m[0]) + '\n'
 coefs += 'c1 ' + str(m[1]) + '\n'
 coefs += 'c2 ' + str(ms[0]) + '\n'
 coefs += 'c2 ' + str(ms[1]) + '\n'
 coefs += 'c3 ' + str(c) + '\n'
-coefs += 'rref ' + str(5.0) + '\n'
-coefs += 'xh ' + str(50.0) + '\n'
+coefs += 'rref ' + str(rref) + '\n'
+coefs += 'xh ' + str(xhinge) + '\n'
 coefs += 'h1 ' + str(ef[0]) + '\n'
 coefs += 'h2 ' + str(ef[1]) + '\n'
 coefs += 'h3 ' + str(ef[2])
 
-f = open('au_ipe_coefs.dat', 'wb')
+f = open('au_ipe_coefs_pre-internet.dat', 'w')
 f.write(coefs)
 f.close()
 
@@ -560,18 +591,18 @@ plt.title('Prelim Mag Res')
 #plt.xlabel('Rrup')
 plt.ylabel('MMI Residual')
 
-plt.xlim([2., 7])
+plt.xlim([2.5, 7])
 plt.ylim([-3, 3])
 
 # get stats
-bins = arange(2.5, 6.8, 0.5)
+bins = arange(3.5, 6.8, 0.5)
 
 medbin, stdbin, medx, binstrp, npb = get_binned_stats(bins, mw[didx], rmmi3[didx])
 
 # plot errors
 plt.errorbar(binstrp, medbin, yerr=stdbin, fmt='rs', lw=1.5)
 
-plt.savefig('prelim_mmi_mw_residuals.png', fmt='png', bbox_inches='tight')    
+plt.savefig('figs/prelim_mmi_mw_residuals.png', fmt='png', bbox_inches='tight')    
 plt.show()
 
 # plt residuals with mag
@@ -580,13 +611,13 @@ idx = where(array(rrup) <= 100.)[0]
 
 # look at stats
 plt.plot(mw[idx], rmmi3[idx], '+', c='0.5')
-plt.plot([2., 7],[0, 0], 'k--')
+plt.plot([2.5, 7],[0, 0], 'k--')
 
-plt.title('Prelim Mag Res')
+plt.title('Prelim Mag Res LT 100 km')
 #plt.xlabel('Rrup')
 plt.ylabel('MMI Residual')
 
-plt.xlim([2., 7])
+plt.xlim([2.5, 7])
 plt.ylim([-3, 3])
 
 # get stats
@@ -597,7 +628,7 @@ medbin, stdbin, medx, binstrp, npb = get_binned_stats(bins, mw[idx], rmmi3[idx])
 # plot errors
 plt.errorbar(binstrp, medbin, yerr=stdbin, fmt='rs', lw=1.5)
 
-plt.savefig('prelim_mmi_mw_LT100_residuals.png', fmt='png', bbox_inches='tight')    
+plt.savefig('figs/prelim_mmi_mw_LT100_residuals.png', fmt='png', bbox_inches='tight')    
 plt.show()
 
 ####################################################################################
@@ -615,9 +646,9 @@ xmax = 300
 
 for i, sc in enumerate(unqclass):
     
-    idx = where((siteclass == sc) & (rhyp <= xmax))[0]
+    idx = where((siteclass == sc) & (rrup <= xmax))[0]
     n_class.append(len(idx))
-    print sc, len(idx)
+    print(sc, len(idx))
     med_class.append(nanmedian(rmmi3[idx]))
     std_class.append(nanstd(rmmi3[idx]))
     x_plt[idx] = x_plt[idx] * (i+1)
@@ -640,7 +671,7 @@ ax.set_xticklabels(unqclass)
 plt.ylabel('MMI Residual')
 plt.xlabel('Modified Site Class')
 
-plt.savefig('site_class_res.png', fmt='png', bbox_inches='tight')
+plt.savefig('figs/site_class_res.png', fmt='png', bbox_inches='tight')
 
 plt.show()
 
@@ -656,7 +687,7 @@ for i, sc in enumerate(unqclass):
     med_class = []
     std_class = []
     
-    idx = where((siteclass == sc) & (rhyp <= xmax))[0]
+    idx = where((siteclass == sc) & (rrup <= xmax))[0]
     
     plt.plot([2, 9], [0, 0], 'k--')
     plt.plot(pmmi3[idx], rmmi3[idx], '+', c='0.5')
@@ -677,7 +708,7 @@ for i, sc in enumerate(unqclass):
     if i == 6:
         plt.xlabel('Predicted MMI')
     
-plt.savefig('site_class_with_MMI.png', fmt='png', bbox_inches='tight')
+plt.savefig('figs/site_class_with_MMI.png', fmt='png', bbox_inches='tight')
     
 plt.show()
 
@@ -697,7 +728,7 @@ for i, sc in enumerate(unqclass):
     
     idx = where((siteclass == sc) & (rhyp <= xmax))[0]
     n_class.append(len(idx))
-    print sc, len(idx)
+    print(sc, len(idx)
     med_class.append(nanmedian(rmmi2[idx]))
     std_class.append(nanstd(rmmi2[idx]))
     x_plt[idx] = x_plt[idx] * (i+1)
@@ -738,7 +769,7 @@ pmmi4 = mf + rf + dc + hc + gc
 # get mmi residual
 rmmi4 = mmi - pmmi4
 
-didx = where((array(rhyp) <= 300) & (~isinf(rmmi4)))[0] # comparable with other mod cmp
+didx = where((array(rrup) <= 300) & (~isinf(rmmi4)))[0] # comparable with other mod cmp
 pltstr = 'Med = ' + str('%0.2f' % nanmedian(rmmi4[didx])) + '\n' \
          'Std = ' + str('%0.2f' % nanstd(rmmi4[didx]))
 plt.text(0.1, -2., pltstr, fontsize=14, va='center')
@@ -747,7 +778,7 @@ plt.text(0.1, -2., pltstr, fontsize=14, va='center')
 plt.ylabel('MMI Residual')
 plt.xlabel('Gradient (m/m)')
 
-plt.savefig('au_ipe_grad_res.png', fmt='png', bbox_inches='tight')
+plt.savefig('figs/au_ipe_grad_res.png', fmt='png', bbox_inches='tight')
 
 plt.show()
 

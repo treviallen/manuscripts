@@ -5,6 +5,10 @@ from shakemap_tools import parse_faultdat, make_fault_mesh
 from misc_tools import get_binned_stats
 import matplotlib.pyplot as plt
 import datetime as dt
+import matplotlib as mpl
+mpl.style.use('classic')
+import warnings
+warnings.filterwarnings("ignore")
 from numpy import arange, array, delete, ones_like, nan, where, isnan, sqrt, mean, median, std, \
                   loadtxt, log, exp, interp, unique
 from mmi_tools import allen_etal_2012_rrup_ipe, allen_etal_2012_rhypo_ipe, \
@@ -25,7 +29,7 @@ rh_lu = contlookup[:,1]
 # YYYYMMDDHHMN,MW,EVLO,EVLA,OBLO,OBLA,MMI,REPI,RHYP,DEP,EVENT,CLASS
 # parse file here
 #lines = open('mmidat_export.csv').readlines()[1:]
-lines = open('mmidat_export_moe_clean.csv').readlines()[1:]
+lines = open('data/mmidat_export.csv').readlines()[1:]
 
 repi = []
 rhyp = []
@@ -53,7 +57,7 @@ for line in lines:
 ####################################################################################
 # remove data based on distance cut-off
 ####################################################################################
-fig = plt.figure(10, figsize=(8, 8))
+#fig = plt.figure(10, figsize=(8, 8))
 rcutoff = exp(interp(mmimw, mw_lu, log(rh_lu)))
 #idx = where(rhyp > rcutoff)[0]
 
@@ -148,6 +152,8 @@ for i, mr in enumerate(modres):
     plt.title(titles[i])
     #plt.xlabel('Rrup')
     plt.ylabel('MMI Residual')
+    if i == 4 or i == 5:
+        plt.xlabel('Rrup (km)')
     
     plt.xlim([0, xmax])
     plt.ylim([-3, 3])
@@ -161,7 +167,7 @@ for i, mr in enumerate(modres):
     plt.errorbar(medx, medbin, yerr=stdbin, fmt='rs', lw=1.5)
 
 
-plt.savefig('mmi_dist_residuals.png', fmt='png', bbox_inches='tight')    
+plt.savefig('figs/existing_mmi_dist_residuals.png', fmt='png', bbox_inches='tight')    
 plt.show()
     
 # plt residuals with mag
@@ -177,6 +183,8 @@ for i, mr in enumerate(modres):
     plt.title(titles[i])
     #plt.xlabel('Rrup')
     plt.ylabel('MMI Residual')
+    if i == 4 or i == 5:
+        plt.xlabel('Moment Magnitude (MW)')
     
     plt.xlim([2., 7])
     plt.ylim([-3, 3])
@@ -189,7 +197,7 @@ for i, mr in enumerate(modres):
     # plot errors
     plt.errorbar(medx, medbin, yerr=stdbin, fmt='rs', lw=1.5)
 
-plt.savefig('mmi_mw_residuals.png', fmt='png', bbox_inches='tight')    
+plt.savefig('figs/existing_mmi_mw_residuals.png', fmt='png', bbox_inches='tight')    
 plt.show()
 
 # plt residuals with mag < 100 km
@@ -206,6 +214,8 @@ for i, mr in enumerate(modres):
     plt.title(titles[i])
     #plt.xlabel('Rrup')
     plt.ylabel('MMI Residual (LT 100 km)')
+    if i == 4 or i == 5:
+        plt.xlabel('Moment Magnitude (MW)')
     
     plt.xlim([2., 7])
     plt.ylim([-3, 3])
@@ -218,7 +228,7 @@ for i, mr in enumerate(modres):
     # plot errors
     plt.errorbar(medx, medbin, yerr=stdbin, fmt='rs', lw=1.5)
 
-plt.savefig('mmi_mw_LT100_residuals.png', fmt='png', bbox_inches='tight')    
+plt.savefig('figs/existing_mmi_mw_LT100_residuals.png', fmt='png', bbox_inches='tight')    
 plt.show()
 
 ####################################################################################
@@ -248,6 +258,6 @@ plt.ylabel('Number of Observations')
 plt.xlabel('Modified Site Class')
 
 
-plt.savefig('site_class_bar.png', fmt='png', bbox_inches='tight')
+plt.savefig('figs/site_class_bar.png', fmt='png', bbox_inches='tight')
 
 plt.show()
