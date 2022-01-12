@@ -224,7 +224,7 @@ meanmagbin = []
 meanmws = []
 
 mbins = arange(3.5, 6.8, 0.25) # use smaller mag to constrain m-scaling
-xmax = 350.
+xmax = 200.
 for i, mb in enumerate(mbins):
     
     idx = where((mw >= (mb - halfbin)) & (mw < (mb + halfbin)) & (rrup < xmax))[0]
@@ -382,7 +382,7 @@ mrng = mrng.reshape(len(mrng), 1)
 
 # plt residuals with distance
 fig = plt.figure(3, figsize=(10, 4))
-xmax = 350
+#xmax = 300
 # look at stats
 
 plt.plot(rrup, rmmi, '+', c='0.5')
@@ -404,21 +404,19 @@ medbin, stdbin, medx, binstrp, npb = get_binned_stats(bins, rrup, rmmi)
 plt.errorbar(binstrp, medbin, yerr=stdbin, fmt='rs', lw=1.5)
 
 # annotate
-didx = where(array(rrup) <= 300)[0] # comparable with other mod cmp
+didx = where(array(rrup) <= xmax)[0] # comparable with other mod cmp
 pltstr = 'Med = ' + str('%0.2f' % median(rmmi[didx])) + '\n' \
          'Std = ' + str('%0.2f' % std(rmmi[didx]))
 plt.text(280, -2.35, pltstr, fontsize=14, va='center')
 
-plt.savefig('figs/prelim_mmi_residuals.png', fmt='png', bbox_inches='tight')  
-
 y_at_xhinge = 0
-xhinge = 45.
+xhinge = 100.
 def fit_fixed_intercept(c, x):
     '''
     x = array fo x values
     y_at_xmax = y value at xmax
     '''
-    
+    print(xhinge)
     xmax = 10**logxmax # hardwired in distance atten
     
     ans = c * (x - xhinge) + y_at_xhinge
@@ -437,6 +435,13 @@ out = odr.run()
 
 c = out.beta[0] # slope of dist atten
 
+# plot correction
+xplt = array([xhinge, xmax])
+yplt = c * (xplt - xhinge)
+plt.plot(xplt, yplt, 'k-', lw=2)
+plt.savefig('figs/prelim_mmi_residuals.png', fmt='png', bbox_inches='tight')  
+
+
 ####################################################################################
 # try calculating residual with distcne correction
 ####################################################################################
@@ -444,6 +449,8 @@ c = out.beta[0] # slope of dist atten
 ridx = where(rrup >= xhinge)
 dc = zeros_like(rrup)
 dc[ridx] = c * (rrup[ridx] - xhinge)
+print('ff')
+print(c)
 
 # get pred mmi
 pmmi2 = mf + rf + dc
@@ -479,7 +486,7 @@ medbin, stdbin, medx, binstrp, npb = get_binned_stats(bins, rrup, rmmi2)
 plt.errorbar(binstrp, medbin, yerr=stdbin, fmt='rs', lw=1.5)
 
 # annotate
-didx = where(array(rrup) <= 300)[0] # comparable with other mod cmp
+didx = where(array(rrup) <= xmax)[0] # comparable with other mod cmp
 pltstr = 'Med = ' + str('%0.2f' % median(rmmi2[didx])) + '\n' \
          'Std = ' + str('%0.2f' % std(rmmi2[didx]))
 plt.text(280, -2.35, pltstr, fontsize=14, va='center')
@@ -494,7 +501,7 @@ plt.show()
 fig = plt.figure(31, figsize=(10,5))
 ax = plt.subplot(111)
 
-didx = where(array(rrup) <= 300)[0]
+didx = where(array(rrup) <= xmax)[0]
 
 plt.plot(eqdep[didx], rmmi2[didx], '+', c='0.5')
 plt.plot([0, 20], [0, 0], 'k--')
@@ -545,7 +552,7 @@ pmmi3 = mf + rf + dc + hc
 rmmi3 = mmi - pmmi3
 
 # annotate
-didx = where(array(rrup) <= 300)[0] # comparable with other mod cmp
+didx = where(array(rrup) <= xmax)[0] # comparable with other mod cmp
 pltstr = 'Med = ' + str('%0.2f' % median(rmmi3[didx])) + '\n' \
          'Std = ' + str('%0.2f' % std(rmmi3[didx]))
 plt.text(17, -2.35, pltstr, fontsize=14, va='center')
@@ -559,11 +566,10 @@ plt.show()
 # export IPE coefs
 ####################################################################################
 # c2 = ms[0] * mw + ms[1]
-coefs  = 'mmi = c0 * mw + c1 + c2 * log10(sqrt(rrup**2 + rref**2)) { + c3 * (rrup - xh)} + h1*erf((rrup-vert)/(h2*sqrt(2))) + h3\n'
+coefs  = 'mmi = c0 * mw + c1 + c2 * log10(sqrt(rrup**2 + rref**2)) { + c3 * (rrup - xh)} + h1*erf((dep-vert)/(h2*sqrt(2))) + h3\n'
 coefs += 'c0 ' + str(m[0]) + '\n'
 coefs += 'c1 ' + str(m[1]) + '\n'
-coefs += 'c2 ' + str(ms[0]) + '\n'
-coefs += 'c2 ' + str(ms[1]) + '\n'
+coefs += 'c2 ' + str(meanslope) + '\n'
 coefs += 'c3 ' + str(c) + '\n'
 coefs += 'rref ' + str(rref) + '\n'
 coefs += 'xh ' + str(xhinge) + '\n'
