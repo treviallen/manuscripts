@@ -80,7 +80,7 @@ oh3 = float(lines[9].strip().split()[-1])
 # calc IPEs
 ####################################################################################
 
-m = 5.9
+m = 5.4
 
 for rrd, rrs, rh, re in zip(rrupd, rrups, rhypd, repi):
     if m > 0:
@@ -113,7 +113,7 @@ for rrd, rrs, rh, re in zip(rrupd, rrups, rhypd, repi):
         L15.append(L15mmi)
         
         # Allen 2021 shallow
-        #c3 = 0. # data biased at large distances
+        c3 = 0. # data biased at large distances
         if rrs > xh:
             A22_shallow.append(c0 * m + c1 + c2 * log10(sqrt(rrs**2 + rref**2)) + (c3 * (rrs - xh)) + (h1*erf((deps-vert)/(h2*sqrt(2))) + h3))
         else:

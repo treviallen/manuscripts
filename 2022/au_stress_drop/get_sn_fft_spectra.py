@@ -80,6 +80,8 @@ def response_corrected_fft(tr, pickDat):
     use_stationlist = False
     if tr.stats.network == 'AU' and tr.stats.channel.startswith('HH'):
         use_stationlist = True
+    elif tr.stats.network == 'AU' and tr.stats.start_time.year >= 2017:
+        use_stationlist = True
     elif tr.stats.network == 'OA' and tr.stats.channel.startswith('HH'):
         use_stationlist = True
     elif tr.stats.network == '2O' and tr.stats.channel.startswith('HH'):
