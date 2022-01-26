@@ -160,7 +160,9 @@ def plt_trace(tr, plt, ax, reftime):
     ylims = ax.get_ylim()
     
     # set x lims based on distance
-    if rngkm < 20.:
+    if rngkm < 10.:
+        plt.xlim([pTravelTime-10, pTravelTime+30])
+    elif rngkm < 20.:
         plt.xlim([pTravelTime-10, pTravelTime+60])
     elif rngkm >= 20. and rngkm < 100.:
         plt.xlim([pTravelTime-20, pTravelTime+150])
@@ -176,6 +178,9 @@ def plt_trace(tr, plt, ax, reftime):
         plt.xlim([pTravelTime-60, pTravelTime+1200])
     else:
         plt.xlim([pTravelTime-60, pTravelTime+1500])
+        
+    if tr.stats.station == 'PIG4':
+        plt.xlim([pTravelTime-80, pTravelTime+180])
     
     # plt theoretical arrivals
     plt.plot([pTravelTime, pTravelTime], ylims, 'r--', label='P Phase')
@@ -216,8 +221,8 @@ outtxt = ''
 """records = 'preferred_records_edit.csv'
 mseedfiles = open(records).readlines(dat[9])[0:]"""
 
-#mseedfiles = listdir_extension('mseed_dump', 'mseed')
 mseedfiles = listdir_extension('iris_dump', 'mseed')
+#mseedfiles = listdir_extension('mseed_test', 'mseed')
 
 m = 1
 for mseedfile in mseedfiles:
@@ -246,8 +251,8 @@ for mseedfile in mseedfiles:
         evFound = False
         for evnum, ev in enumerate(evdict): 
 
-            if st[0].stats.starttime > UTCDateTime(ev['datetime']-timedelta(seconds=901)) \
-               and st[0].stats.starttime < UTCDateTime(ev['datetime']+timedelta(seconds=120)):
+            if st[0].stats.starttime > UTCDateTime(ev['datetime']-timedelta(seconds=301)) \
+               and st[0].stats.starttime < UTCDateTime(ev['datetime']+timedelta(seconds=240)):
                 evFound = True
                 eqlo = ev['lon']
                 eqla = ev['lat']

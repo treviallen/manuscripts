@@ -13,6 +13,21 @@ warnings.filterwarnings("ignore")
 #import matplotlib as mpl
 #mpl.style.use('classic')
 
+# script to remove non trillium chans
+def remove_htt(st):
+    cnt = 0
+    
+    for tr in st:
+        if tr.stats.channel == 'BHZ':
+            cnt += 1
+        
+    # remove nontrillium 
+    if cnt == 2:
+        for tr in st:
+           if not tr.stats.location == '10':
+               st.remove(tr)
+               
+    return st
 
 #plt.ion()
 def parse_pickfile(pickfile):
@@ -169,7 +184,7 @@ def retry_stationlist_fft(tr, pickDat):
     start_time = tr.stats.starttime
     
     recdate = pickDat['origintime']
-    #print(seedid, channel, start_time)
+    #print(seedid, channel, start_time, recdate.datetime)
     nat_freq, inst_ty, damping, sen, recsen, gain, pazfile, stlo, stla, netid \
           = get_response_info(tr.stats.station, recdate.datetime, tr.stats.channel)
     
@@ -242,7 +257,7 @@ for p, pf in enumerate(pickfiles[0:]):
     
     pickDat = parse_pickfile(pf)
     
-    if isnan(pickDat['mag']) == False:
+    if isnan(pickDat['mag']) == False: # and pf == '2010-06-05T21.47.00.AD.YE6.picks':
         
         channels = []
         if not pickDat['ch1'] == '':
@@ -274,6 +289,9 @@ for p, pf in enumerate(pickfiles[0:]):
             
             # remove low sample rate data
             new_st = remove_low_sample_data(st)
+            
+            # remove HTT stations
+            new_st = remove_htt(new_st)
             
             # remove acceleration data
             new_st = remove_acceleration_data(new_st)

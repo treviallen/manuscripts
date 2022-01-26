@@ -28,28 +28,30 @@ gadat = parse_ga_event_query('au_ge_4.4_earthquakes_export_recent.csv')
 ##############################################################################
 
 if getcwd().startswith('/nas'):
+    '''
     iris_sta_list = parse_iris_stationlist('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/AU/gmap-stations-noarray.txt')
     network = 'AU'
     '''
     iris_sta_list = parse_iris_stationlist('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/IU/iu-gmap-stations-autrim.txt')
     network = 'IU'
+    '''
     iris_sta_list = parse_iris_stationlist('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/II/ii-gmap-stations-autrim.txt')
     network = 'II'
     '''
 else:
-    
+    '''
     iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AU/gmap-stations-noarray.txt')
     network = 'AU'
-    '''
+    
     iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/IU/iu-gmap-stations-autrim.txt')
     network = 'IU'
     
     iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/II/ii-gmap-stations-autrim.txt')
     network = 'II'
-    
+    '''
     iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AU/2o-gmap-stations.txt')
     network = '2O'
-    '''
+    
 ##############################################################################
 # loop through events
 ##############################################################################
@@ -73,5 +75,5 @@ for ev in gadat: #[40:]:
             # check if in distance range
             repi = distance(ev['lat'], ev['lon'], isl['lat'], isl['lon'])[0]
             
-            if repi >= mindist and repi <= maxdist and isl['sta'].startswith('KIM'):
+            if repi >= mindist and repi <= maxdist: # and isl['sta'].startswith('KIM'):
                 st = get_iris_data(dateTuple, isl['sta'], network, durn=1800)

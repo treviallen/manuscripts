@@ -88,10 +88,11 @@ recs = pickle.load(open('fft_data.pkl', 'rb' ))
 ####################################################################################
 # start main
 ####################################################################################
-fig = plt.figure(1, figsize=(18,11))
+#fig = plt.figure(1, figsize=(18,11))
 
 events = unique(dictlist2array(recs, 'ev'))
 mags = dictlist2array(recs, 'mag')
+rhyp = dictlist2array(recs, 'rhyp')
 stations = unique(dictlist2array(recs, 'sta'))
 
 mrng = arange(4.4, 6.9, 0.1)
@@ -104,10 +105,17 @@ bins = arange(log10(minDist), log10(maxDist), 0.1)
     
 log_norm_amps = []
 
+# set freq index
+# idx 35 = 0.74989421 Hz
+fidx = 35
+chan = recs[0]['channels'][0]
+freq = recs[0][chan]['freqs'][fidx]
+print("Reg Freq = " +str('%0.3f' % freq))
+
 i = 1
 for m in mrng:
     cnt = 0
-    ax = plt.subplot(4,5,i)
+    #ax = plt.subplot(4,5,i)
     
     mrhyps = []
     mamps  = []
@@ -117,7 +125,6 @@ for m in mrng:
         if len(rec['channels']) > 0 and rec['mag'] >= m-0.05 and rec['mag'] < m+0.05:
             
             # idx 35 = 0.74989421 Hz
-            fidx = 35
             channel = rec['channels'][0]
             
             if rec[channel]['sn_ratio'][fidx] >= 4.:
@@ -128,15 +135,16 @@ for m in mrng:
     mamps = array(mamps)
     
     if len(mrhyps) > 0:
+        '''
         plt.loglog(mrhyps, mamps, '+', c='0.6', lw=0.5, ms=5)
         plt.xlim([100, 2250])
         plt.ylim([1E-8, 1E-3])
         plt.ylabel(str(round(m,1)))
         i += 1
-        
+        '''
         # get binned data
         logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(mrhyps), log10(mamps))
-        plt.loglog(10**medx, 10**logmedamp, 'rs', ms=6.5)
+        #plt.loglog(10**medx, 10**logmedamp, 'rs', ms=6.5)
         
         # normalise data @ 630 km
         nidx = where((binstrp > 2.79) & (binstrp < 2.81))[0]
@@ -157,16 +165,16 @@ for m in mrng:
         print(10**binstrp)
         '''
         # regress mag-dependent data and get intercept
-        didx = where((medx >= 2) & (medx <= 3.05))[0]
+        didx = where((medx >= 2) & (medx <= 3.35))[0]
         gr_fit = linregress(medx[didx], logmedamp[didx])
         
         xplt = array([2, 3])
         yplt = gr_fit[0] * xplt + gr_fit[1]
         
-        plt.loglog(10**xplt, 10**yplt, 'k-', lw=2)
+        #plt.loglog(10**xplt, 10**yplt, 'k-', lw=2)
             
-plt.savefig('mag_specific_geom_spread.png', fmt='png', bbox_inches='tight')
-plt.show()
+#plt.savefig('mag_specific_geom_spread.png', fmt='png', bbox_inches='tight')
+#plt.show()
 
 ###############################################################################
 # plt normalised GR
@@ -185,7 +193,7 @@ plt.xlabel('Hypocentral Distance (km)')
 logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(norm_rhyps), log_norm_amps)
 plt.loglog(10**medx, 10**logmedamp, 'rs', ms=7)
 
-didx = where((medx >= 2) & (medx <= 3.05))[0]
+didx = where((medx >= 2) & (medx <= 3.35))[0]
 gr_fit = linregress(medx[didx], logmedamp[didx])
 
 plt.savefig('norm_geom_spread.png', fmt='png', bbox_inches='tight')
@@ -199,20 +207,14 @@ def linear_fixed_slope(c, x):
         
     return meanslope * x + c[0]
 
-# set freq index
-# idx 35 = 0.74989421 Hz
-fidx = 35
-chan = rec['channels'][0]
-freq = rec[chan]['freqs'][fidx]
-print("Reg Freq = " +str('%0.3f' % freq))
             
 m_intercept = []
 m_reg = []
-fig = plt.figure(3, figsize=(18,11))
+#fig = plt.figure(3, figsize=(18,11))
 i = 1
 for m in mrng:
     cnt = 0
-    ax = plt.subplot(4,5,i)
+    #ax = plt.subplot(4,5,i)
     
     mrhyps = []
     mamps  = []
@@ -231,15 +233,16 @@ for m in mrng:
     mamps = array(mamps)
     
     if len(mrhyps) > 0:
+        '''
         plt.loglog(mrhyps, mamps, '+', c='0.6', lw=0.5, ms=5)
         plt.xlim([100, 2250])
         plt.ylim([1E-8, 1E-3])
         plt.ylabel(str(round(m,1)))
         i += 1
-        
+        '''
         # get binned data
         logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(mrhyps), log10(mamps))
-        plt.loglog(10**medx, 10**logmedamp, 'rs', ms=6.5)
+        #plt.loglog(10**medx, 10**logmedamp, 'rs', ms=6.5)
         
         # normalise data @ 630 km
         nidx = where((binstrp > 2.79) & (binstrp < 2.81))[0]
@@ -257,7 +260,7 @@ for m in mrng:
                 norm_rhyps = hstack((norm_rhyps, mrhyps))
         
         # regress mag-dependent data and get intercept
-        didx = where((medx >= 2) & (medx <= 3.05))[0]
+        didx = where((medx >= 2) & (medx <= 3.35))[0]
        
         data = odrpack.RealData(medx[didx], logmedamp[didx])
         intfit = odrpack.Model(linear_fixed_slope)
@@ -274,10 +277,10 @@ for m in mrng:
         xplt = array([2, 3])
         yplt = meanslope * xplt + intercept[0]
         
-        plt.loglog(10**xplt, 10**yplt, 'k-', lw=2)
+        #plt.loglog(10**xplt, 10**yplt, 'k-', lw=2)
             
-plt.savefig('fixed_geom_spread.png', fmt='png', bbox_inches='tight')
-plt.show()
+#plt.savefig('fixed_geom_spread.png', fmt='png', bbox_inches='tight')
+#plt.show()
 
 ###############################################################################
 # get mag scaling
@@ -301,13 +304,84 @@ plt.savefig('mag_scaling.png', fmt='png', bbox_inches='tight')
 plt.show()
 
 ###############################################################################
+# get residuals and far-field correction
+###############################################################################
+r1 = meanslope
+#y = m0 + m1 * (mags-4.)**2. + m2 * (mags-4.) + r1 * log10(rhyp)
+
+yres = [] 
+rhyps = []
+for rec in recs:
+    try:
+        channel = rec['channels'][0]
+            
+        if rec[channel]['sn_ratio'][fidx] >= 4.:
+            rhyps.append(rec['rhyp'])
+            
+            y = m0 + m1 * (rec['mag']-4.)**2. + m2 * (rec['mag']-4.) + r1 * log10(rec['rhyp'])
+            
+            yobs = log10(rec[channel]['swave_spec'][fidx])
+            yres.append(yobs - y)
+            
+        else:
+            yres.append(nan)
+            rhyps.append(rec['rhyp'])
+    
+    except:
+        print('No data')
+
+# get binned data   
+bins = arange(log10(minDist), log10(maxDist), 0.1)
+medbin, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(rhyps), yres)
+plt.plot(medx, medbin, 'rs', ms=6.5)
+
+y_at_xhinge = 0
+xhinge = 3.
+xmax = log10(10**3.35)
+def fit_fixed_intercept(c, x):
+    '''
+    x = array fo x values
+    y_at_xmax = y value at xmax
+    '''
+    print(xhinge)
+    #xmax = 10**logxmax # hardwired in distance atten
+    
+    ans = c * (x - xhinge) + y_at_xhinge
+    
+    return ans
+
+ridx = where((binstrp >= xhinge) & (binstrp < xmax))[0]
+data = odrpack.RealData(binstrp[ridx], medbin[ridx])
+
+truncdist = odrpack.Model(fit_fixed_intercept)
+odr = odrpack.ODR(data, truncdist, beta0=[0.])
+odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, ODR = 0
+out = odr.run()
+
+c = out.beta[0] # slope of dist atten
+          
+fig = plt.figure(1, figsize=(18,5))
+
+plt.plot(log10(rhyps), yres, '+', c='0.5')
+plt.plot(log10(array([10, 2000])), [0, 0], 'k--')
+plt.xlim(log10(array([20, 2000])))
+plt.ylim([-3, 3])
+
+# plot correction
+xplt = array([xhinge, xmax])
+yplt = c * (xplt - xhinge)
+plt.plot(xplt, yplt, 'k-', lw=2)
+plt.show()
+
+###############################################################################
 # write scaling params
 ###############################################################################
-txt = 'm0 + (m1-4) * M^2 +(m2-4) * M + r1\n'
-txt += 'm1' + '\t' + str(m0) + '\n'
+txt = 'ln Y = m0 + (m1-4) * M^2 +(m2-4) * M + r1*log10(rhyp) + r2*(log10(rhyp) - 3)\n'
+txt += 'm0' + '\t' + str(m0) + '\n'
 txt += 'm1' + '\t' + str(m1) + '\n'
 txt += 'm2' + '\t' + str(m2) + '\n'
 txt += 'r1' + '\t' + str(meanslope) + '\n'
+txt += 'r2' + '\t' + str(c) + '\n'
 
 f = open('basic_atten_coeffs.txt', 'w')
 f.write(txt)
