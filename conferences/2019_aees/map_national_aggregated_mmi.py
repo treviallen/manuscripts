@@ -32,7 +32,7 @@ from mapping_tools import get_map_polygons, mask_outside_polygons, annotate_citi
 ###############################################################################
 
 gacsv = 'earthquakes_export_edit.csv'
-gacsv = 'earthquakes_export_oct_2020_edit.csv'
+gacsv = 'earthquakes_export_feb_2022_edit.csv'
 
 events = parse_ga_event_query(gacsv)
 
@@ -40,7 +40,7 @@ events = parse_ga_event_query(gacsv)
 # grab 10-km aggregated
 ###############################################################################
 json_folder = 'all_felt_reports_aggregated'
-json_folder = '2020_bulk_felt_reports_geojson'
+json_folder = '2022_bulk_felt_reports_geojson'
 
 # getting aggregated files
 all_geojson = listdir_extension(json_folder, 'geojson')

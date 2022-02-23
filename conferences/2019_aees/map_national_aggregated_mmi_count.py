@@ -21,7 +21,7 @@ def return_dyfi_data(jsonfile):
 ###############################################################################
 
 from io_catalogues import parse_ga_event_query
-from misc_tools import listdir_extension
+from misc_tools import listdir_extension, remove_first_cmap_colour
 from numpy import array, isnan, nan, unique, mean, percentile, arange, where, hstack
 from os import path, getcwd
 from mapping_tools import make_street_map, get_map_polygons, mask_outside_polygons, annotate_cities, distance
@@ -32,7 +32,7 @@ from datetime import datetime
 ###############################################################################
 
 gacsv = 'earthquakes_export_edit.csv'
-gacsv = 'earthquakes_export_oct_2020_edit.csv'
+gacsv = 'earthquakes_export_feb_2022_edit.csv'
 
 events = parse_ga_event_query(gacsv)
 
@@ -40,7 +40,7 @@ events = parse_ga_event_query(gacsv)
 # grab 10-km aggregated
 ###############################################################################
 json_folder = '2019_all_felt_reports_aggregated'
-json_folder = '2020_bulk_felt_reports_geojson'
+json_folder = '2022_bulk_felt_reports_geojson'
 
 # getting aggregated files
 all_geojson = listdir_extension(json_folder, 'geojson')
@@ -175,20 +175,26 @@ mpl.style.use('classic')
 # get cmap
 ##########################################################################################
 # get colormap
-'''
+ncols = 7
 if getcwd().startswith('/nas'):
     cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/qual-dark-06.cpt'
     cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/WhiteBlueGreenYellowRed.cpt'
 else:
     cptfile = '//Users//trev//Documents//DATA//GMT//cpt//qual-dark-06.cpt'
-    cptfile = '//Users//trev//Documents//DATA//GMT//cpt//WhiteBlueGreenYellowRed.cpt'
-    perc2 9lev
-cmap, zvals = cpt2colormap(cptfile, ncols+1, rev=False)
-cmap = remove_last_cmap_colour(cmap)
+    cptfile = '//Users//trev//Documents//DATA//GMT//cpt//amwg.cpt'
+    cptfile = '//Users//trev//Documents//DATA//GMT//cpt//keshet.cpt'
+    #perc2 9lev
+cmap, zvals = cpt2colormap(cptfile, ncols+1, rev=True)
+#cmap = remove_last_cmap_colour(cmap)
+cmap = remove_first_cmap_colour(cmap)
+cmap = remove_first_cmap_colour(cmap)
+#cmap = remove_first_cmap_colour(cmap)
 '''
-ncols = 6
-cmap = plt.get_cmap('viridis_r', ncols)
+
+cmap = plt.get_cmap('Paired', ncols)
+'''
 cs = (cmap(arange(ncols)))
+#cs = cs[::-1]
 
 ##########################################################################################
 # make map
@@ -316,7 +322,10 @@ for geom, gcnt in zip(grd_geom, grd_count):
         x, y = m(pltx, plty) 
         
         cidx = where(bounds <= gcnt)[0][-1] # take last idx
-        c= tuple(cs[cidx][:-1])
+        if gcnt > bounds[cidx]:
+            c= tuple(cs[cidx+1][:-1])
+        else:
+            c= tuple(cs[cidx][:-1])
         plt.fill(x, y, fc=c, ec='0.45', lw=0.25, zorder=100)
         
        # plt.plot(x, y, '-', c='0.5', lw=0.5)   
