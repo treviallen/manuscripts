@@ -1,5 +1,5 @@
 import pickle
-from numpy import unique, array, arange, log, log10, exp, mean, nanmean, ndarray, \
+from numpy import unique, array, arange, log, log10, logspace, exp, mean, nanmean, ndarray, \
                   nanmedian, hstack, pi, nan, isnan, interp, where, zeros_like, polyfit
 from misc_tools import get_binned_stats, dictlist2array, get_mpl2_colourlist
 #from js_codes import get_average_Q_list, extract_Q_freq
@@ -112,6 +112,8 @@ chan = recs[0]['channels'][0]
 freq = recs[0][chan]['freqs'][fidx]
 print("Reg Freq = " +str('%0.3f' % freq))
 
+reg_freqs = logspace(-1,1,31)
+
 i = 1
 for m in mrng:
     cnt = 0
@@ -124,7 +126,6 @@ for m in mrng:
     for rec in recs:
         if len(rec['channels']) > 0 and rec['mag'] >= m-0.05 and rec['mag'] < m+0.05:
             
-            # idx 35 = 0.74989421 Hz
             channel = rec['channels'][0]
             
             if rec[channel]['sn_ratio'][fidx] >= 4.:
@@ -148,10 +149,9 @@ for m in mrng:
         
         # normalise data @ 630 km
         nidx = where((binstrp > 2.79) & (binstrp < 2.81))[0]
-        print(nidx)
         
         if len(nidx) > 0:
-            
+            print (m, nidx)
             namps = log10(mamps) - logmedamp[nidx]
             
             if len(log_norm_amps) == 0:
@@ -166,12 +166,13 @@ for m in mrng:
         '''
         # regress mag-dependent data and get intercept
         didx = where((medx >= 2) & (medx <= 3.35))[0]
-        gr_fit = linregress(medx[didx], logmedamp[didx])
-        
-        xplt = array([2, 3])
-        yplt = gr_fit[0] * xplt + gr_fit[1]
-        
-        #plt.loglog(10**xplt, 10**yplt, 'k-', lw=2)
+        if len(didx) > 1:
+            gr_fit = linregress(medx[didx], logmedamp[didx])
+            
+            xplt = array([2, 3])
+            yplt = gr_fit[0] * xplt + gr_fit[1]
+            
+            #plt.loglog(10**xplt, 10**yplt, 'k-', lw=2)
             
 #plt.savefig('mag_specific_geom_spread.png', fmt='png', bbox_inches='tight')
 #plt.show()
@@ -270,7 +271,7 @@ for m in mrng:
         out = odr.run()
         intercept = out.beta
         
-        if round(m,1) != 4.9 or round(m,1) > 6.4:
+        if round(m,1) != 4.9 and round(m,1) != 5.5: #or round(m,1) > 6.6
             m_intercept.append(intercept[0])
             m_reg.append(m)
         
@@ -364,7 +365,7 @@ fig = plt.figure(1, figsize=(18,5))
 
 plt.plot(log10(rhyps), yres, '+', c='0.5')
 plt.plot(log10(array([10, 2000])), [0, 0], 'k--')
-plt.xlim(log10(array([20, 2000])))
+plt.xlim(log10(array([10, 2000])))
 plt.ylim([-3, 3])
 
 # plot correction

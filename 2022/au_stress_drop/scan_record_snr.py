@@ -10,7 +10,7 @@ from mapping_tools import distance, km2deg
 from io_catalogues import parse_ga_event_query
 #from response import get_response_info
 from misc_tools import listdir_extension
-from data_fmt_tools import return_sta_data
+from data_fmt_tools import return_sta_data, fix_stream_channels
 from datetime import datetime, timedelta
 from os import path, getcwd, remove
 from numpy import asarray
@@ -179,8 +179,8 @@ def plt_trace(tr, plt, ax, reftime):
     else:
         plt.xlim([pTravelTime-60, pTravelTime+1500])
         
-    if tr.stats.station == 'PIG4':
-        plt.xlim([pTravelTime-80, pTravelTime+180])
+    if tr.stats.station == 'PIG4' or tr.stats.station == 'CVQOZ':
+        plt.xlim([pTravelTime-120, pTravelTime+180])
     
     # plt theoretical arrivals
     plt.plot([pTravelTime, pTravelTime], ylims, 'r--', label='P Phase')
@@ -227,7 +227,6 @@ mseedfiles = listdir_extension('iris_dump', 'mseed')
 m = 1
 for mseedfile in mseedfiles:
     
-    
 ###############################################################################
 # first check to see if the pick file exists
 ###############################################################################
@@ -237,12 +236,19 @@ for mseedfile in mseedfiles:
     # check if pick file exists
     if not path.isfile(pick_path):
         
+        # fix stream channels
+        fix_stream_channels(path.join('iris_dump', mseedfile))
+    
         # read mseed
         #st = read(path.join('mseed_dump', mseedfile))
         st = read(path.join('iris_dump', mseedfile))
         
         # remove junk channels
-        st = remove_low_sample_data(st)
+        cannotMerge = False
+        try:
+            st = remove_low_sample_data(st)
+        except:
+            cannotMerge = True
         
         ###############################################################################
         # associate event and get distance
@@ -260,7 +266,7 @@ for mseedfile in mseedfiles:
                 eqdp = ev['dep']
                 eqdt = ev['datetime']
         
-        if evFound == True:
+        if evFound == True and cannotMerge == False:
             # get station details
             print('Getting picks for', mseedfile)
             
@@ -339,7 +345,7 @@ for mseedfile in mseedfiles:
                     f.close()
                     
             else:
-                print('    R > 1800 km')    
+                print('    R > 2500 km')    
             
         elif evFound == False:
            print('Cannot associate event for:', mseedfile)

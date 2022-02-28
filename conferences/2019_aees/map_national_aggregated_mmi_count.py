@@ -258,7 +258,7 @@ for polygon in m.lakepolygons:
 # make 50-km grid the ugly way
 ###############################################################################
 
-cell_size = 35.
+cell_size = 30.
 min_nresp = 2
 
 grd_lons = []
@@ -286,11 +286,11 @@ while lon_grd < maxlon:
        
        idx2 = where((cent_lonlist >= lon_grd) & (cent_lonlist < nxt_lon) & \
                     (cent_latlist >= lat_grd) & (cent_latlist < nxt_lat) & \
-                    (mmi_dist <= 35) & (cent_mmi < 4.5) & (cent_nresp >= 1))[0]
+                    (mmi_dist <= cell_size) & (cent_mmi < 4.5) & (cent_nresp >= 1))[0]
        
        idx3 = where((cent_lonlist >= lon_grd) & (cent_lonlist < nxt_lon) & \
                     (cent_latlist >= lat_grd) & (cent_latlist < nxt_lat) & \
-                    (mmi_dist <= 35) & (eqmag > 4.) & (cent_nresp >= 1))[0]
+                    (mmi_dist <= cell_size) & (eqmag > 4.) & (cent_nresp >= 1))[0]
        
        idx2 = hstack((idx2, idx3))
        

@@ -4,7 +4,7 @@ from data_fmt_tools import remove_low_sample_data, return_sta_data, remove_accel
 from response import get_response_info, paz_response, deconvolve_instrument
 from misc_tools import listdir_extension, savitzky_golay
 from os import path, chmod, stat, getcwd
-from numpy import arange, sqrt, pi, exp, log, logspace, interp, nan, where, isnan
+from numpy import arange, sqrt, pi, exp, log, logspace, interp, nan, where, isnan, nanmean
 from datetime import datetime
 import pickle
 import warnings
@@ -103,10 +103,12 @@ def response_corrected_fft(tr, pickDat):
         use_stationlist = True
     elif tr.stats.network == 'AU' and tr.stats.channel.startswith('EH'):
         use_stationlist = True
-    elif tr.stats.channel.startswith('SH'):
+    elif tr.stats.network == 'AU' and tr.stats.channel.startswith('SH'):
         use_stationlist = True
     elif tr.stats.network == '' and tr.stats.channel.startswith('EN'): # for DRS
-        use_stationlist = True                         
+        use_stationlist = True  
+    elif tr.stats.network == '7M':
+        use_stationlist = True                       
     elif tr.stats.station == 'AS32' or tr.stats.station == 'ARPS' or tr.stats.station == 'ARPS' or tr.stats.network == 'MEL': 
         use_stationlist = True
     #print('use_stationlist', use_stationlist) 
@@ -158,10 +160,64 @@ def response_corrected_fft(tr, pickDat):
         elif tr.stats.network == 'S1':
             paz = s1_parser.get_paz(seedid,start_time)
             staloc = s1_parser.get_coordinates(seedid,start_time)
-        #print(tr.stats.station+'2')
+        elif tr.stats.network == '1K':
+            paz = d1k_parser.get_paz(seedid,start_time)
+            staloc = d1k_parser.get_coordinates(seedid,start_time)
+        elif tr.stats.network == '1H':
+            paz = d1h_parser.get_paz(seedid,start_time)
+            staloc = d1h_parser.get_coordinates(seedid,start_time)
+        elif tr.stats.network == '1P':
+            paz = d1p_parser.get_paz(seedid,start_time)
+            staloc = d1p_parser.get_coordinates(seedid,start_time)
+        elif tr.stats.network == '1Q':
+            paz = d1q_parser.get_paz(seedid,start_time)
+            staloc = d1q_parser.get_coordinates(seedid,start_time)
+        elif tr.stats.network == '6F':
+            paz = d6f_parser.get_paz(seedid,start_time)
+            staloc = d6f_parser.get_coordinates(seedid,start_time)
+        elif tr.stats.network == '7B':
+            paz = d7b_parser.get_paz(seedid,start_time)
+            staloc = d7b_parser.get_coordinates(seedid,start_time)
+        elif tr.stats.network == '7D':
+            paz = d7d_parser.get_paz(seedid,start_time)
+            staloc = d7d_parser.get_coordinates(seedid,start_time)
+        elif tr.stats.network == '7G':
+            paz = d7g_parser.get_paz(seedid,start_time)
+            staloc = d7g_parser.get_coordinates(seedid,start_time)
+        elif tr.stats.network == '7H':
+            paz = d7h_parser.get_paz(seedid,start_time)
+            staloc = d7h_parser.get_coordinates(seedid,start_time)
+        elif tr.stats.network == '7I':
+            paz = d7i_parser.get_paz(seedid,start_time)
+            staloc = d7i_parser.get_coordinates(seedid,start_time)
+        elif tr.stats.network == '7J':
+            paz = d7j_parser.get_paz(seedid,start_time)
+            staloc = d7j_parser.get_coordinates(seedid,start_time)
+        elif tr.stats.network == '7K':
+            paz = d7k_parser.get_paz(seedid,start_time)
+            staloc = d7k_parser.get_coordinates(seedid,start_time)
+        elif tr.stats.network == '7M':
+            try:
+                paz = d7m_parser.get_paz(seedid,start_time)
+                staloc = d7m_parser.get_coordinates(seedid,start_time)
+            except:
+                paz = d7n_parser.get_paz(seedid,start_time)
+                staloc = d7n_parser.get_coordinates(seedid,start_time)
+        elif tr.stats.network == '7S':
+            paz = d7s_parser.get_paz(seedid,start_time)
+            staloc = d7s_parser.get_coordinates(seedid,start_time)
+        elif tr.stats.network == '7T':
+            paz = d7t_parser.get_paz(seedid,start_time)
+            staloc = d7t_parser.get_coordinates(seedid,start_time)
+        elif tr.stats.network == '8K':
+            paz = d8k_parser.get_paz(seedid,start_time)
+            staloc = d8k_parser.get_coordinates(seedid,start_time)
         
         # simulate response
-        tr = tr.simulate(paz_remove=paz)
+        if tr.stats.channel.endswith('SHZ') or tr.stats.channel.endswith('EHZ'):
+            tr = tr.simulate(paz_remove=paz, water_level=10) #  testing water level for SP instruments
+        else:
+            tr = tr.simulate(paz_remove=paz)
         
         # get fft
         freq, wavfft = calc_fft(tr.data, tr.stats.sampling_rate)
@@ -245,6 +301,23 @@ else:
     iu_parser = Parser('/Users/trev/Documents/Networks/IU/IU.IRIS.dataless')
     #ge_parser = Parser('/Users/trev/Documents/Networks/GE/GE.IRIS.dataless')
     ii_parser = Parser('/Users/trev/Documents/Networks/II/II.IRIS.dataless')
+    d1h_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/1H_EAL2_2010.dataless')
+    d1k_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/1K_ALFREX_2013.dataless')
+    d1p_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/1P_BASS_2011.dataless')
+    d1q_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/1Q_AQT_2016.dataless')
+    d6f_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/6F_BILBY_2008.dataless')
+    d7b_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/7B_SKIPPY_1993.dataless')
+    d7d_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/7D_KIMBA97_1997.dataless')
+    d7g_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/7G_WACRATON_2000.dataless')
+    d7h_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/7H_TIGGERBB_2001.dataless')
+    d7i_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/7I_TASMAL_2003.dataless')
+    d7j_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/7J_CAPRAL_2005.dataless')
+    d7k_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/7K_SOC_2007.dataless')
+    d7m_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/7M_COPA_2014.dataless')
+    d7n_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/7M_MALTLACHLAN_1998.dataless')
+    d7s_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/7S_SETA_2006.dataless')
+    d7t_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/7T_SEAL2_2007.dataless')
+    d8k_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/8K_CAPRICORNHPS_2014.dataless')
 
 ################################################################################
 # loop through pick files
@@ -253,11 +326,12 @@ records = []
 f = 0                 
 for p, pf in enumerate(pickfiles[0:]):
     skipRec = False
+    tr = nan
     recDat = {}
     
     pickDat = parse_pickfile(pf)
     
-    if isnan(pickDat['mag']) == False: # and pf == '2010-06-05T21.47.00.AD.YE6.picks':
+    if isnan(pickDat['mag']) == False: # and pf == '1997-03-05T06.15.00.AD.WHY.picks':
         
         channels = []
         if not pickDat['ch1'] == '':
@@ -294,7 +368,7 @@ for p, pf in enumerate(pickfiles[0:]):
             new_st = remove_htt(new_st)
             
             # remove acceleration data
-            new_st = remove_acceleration_data(new_st)
+            #new_st = remove_acceleration_data(new_st)
             
             # purge unused traces
             for tr in new_st:
@@ -357,17 +431,18 @@ for p, pf in enumerate(pickfiles[0:]):
                     # get noise fft of trace
                     '''
                     f += 1
-                    sttr = tr.stats.starttime + 10. # should add 1-2 secs instead of proportion 
-                    ettr = tr.stats.starttime + pickDat['pidx'] * tr.stats.delta - 10. # allow buffer
+                    sttr = tr.stats.starttime + 2. # should add 1-2 secs instead of proportion 
+                    ettr = tr.stats.starttime + pickDat['pidx'] * tr.stats.delta - 5. # allow buffer
                     
-                    if sttr > ettr:
-                        sttr = tr.stats.starttime + 2. # should add 1-2 secs instead of proportion 
+                    if sttr > ettr or ettr-sttr < 10.:
+                        sttr = tr.stats.starttime + 1. # should add 1-2 secs instead of proportion 
                         ettr = tr.stats.starttime + pickDat['pidx'] * tr.stats.delta - 2. # allow buffer
                         
-                    if sttr > ettr:
-                        sttr = tr.stats.starttime + 1. # should add 1-2 secs instead of proportion 
+                    if sttr > ettr or ettr-sttr < 10.:
+                        sttr = tr.stats.starttime + 0.5 # should add 1-2 secs instead of proportion 
                         ettr = tr.stats.starttime + pickDat['pidx'] * tr.stats.delta - 1. # allow buffer
                     
+                    noise_window = ettr-sttr
                     ntr_trim = tr_proc.copy()
                     ntr_trim.trim(sttr, ettr)
                     ntr_trim.taper(0.02, type='hann', max_length=None, side='both')
@@ -412,8 +487,8 @@ for p, pf in enumerate(pickfiles[0:]):
                     # get s-wave fft of trace
                     '''
                     
-                    sttr = tr.stats.starttime + pickDat['sidx'] * tr.stats.delta - 10. # allow buffer
-                    ettr = tr.stats.starttime + pickDat['eidx'] * tr.stats.delta + 10. # allow buffer
+                    sttr = tr.stats.starttime + pickDat['sidx'] * tr.stats.delta - 5. # allow buffer
+                    ettr = tr.stats.starttime + pickDat['eidx'] * tr.stats.delta + 5. # allow buffer
                     
                     str_trim = tr_proc.copy()
                     str_trim.trim(sttr, ettr)
@@ -436,15 +511,29 @@ for p, pf in enumerate(pickfiles[0:]):
                     '''
                     # get SN-Ratio
                     '''
-                    traceDat['sn_ratio'] = traceDat['swave_spec'] / traceDat['noise_spec']
+                    sn_ratio = traceDat['swave_spec'] / traceDat['noise_spec']
                     
                     # now set frequency limits - use 1 Hz as centre
                     sn_thresh = 5.
                     
                     # find nan ratios
-                    nanidx = where(isnan(traceDat['sn_ratio']))[0]
-                    sn_ratio = traceDat['sn_ratio']
-                    sn_ratio[nanidx] = 0.
+                    nanidx = where(isnan(sn_ratio))[0]
+                    
+                    # if limited noise window - set default value
+                    #get mean ratio
+                    mean_sn_ratio = nanmean(sn_ratio)
+                    if mean_sn_ratio >= 100. or noise_window < 4.:
+                        fidx = where((interp_freqs[nanidx] >= 0.25) & (interp_freqs[nanidx] < 5.))[0]
+                        sn_ratio[fidx] = 9999.
+                        fidx = where(interp_freqs[nanidx] < 0.25)[0]
+                        sn_ratio[fidx] = 0.
+                        nanidx = where(isnan(sn_ratio))[0]
+                        sn_ratio[nanidx] = 0.
+                        
+                    else:
+                        sn_ratio[nanidx] = 0.
+                    
+                    traceDat['sn_ratio'] = sn_ratio
                     
                     # set hi freq limit
                     fidx = where((interp_freqs >= 1) & (sn_ratio < sn_thresh))[0]
@@ -484,6 +573,7 @@ for p, pf in enumerate(pickfiles[0:]):
             recDat['channels'] = chandict
             #recDat['sta'] = tr.stats.station.encode('ascii','ignore')
             recDat['sta'] = tr.stats.station
+            recDat['location'] = tr.stats.location
             recDat['ev'] = pickDat['ev']
             recDat['eqlo'] = pickDat['eqlo']
             recDat['eqla'] = pickDat['eqla']
