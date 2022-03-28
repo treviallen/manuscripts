@@ -29,13 +29,13 @@ gadat = parse_ga_event_query(recent_csv)
 ##############################################################################
 
 if getcwd().startswith('/nas'):
-    '''
+    
     iris_sta_list = parse_iris_stationlist('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/AU/gmap-stations-noarray.txt')
     network = 'AU'
     '''
     iris_sta_list = parse_iris_stationlist('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/IU/iu-gmap-stations-autrim.txt')
     network = 'IU'
-    '''
+    
     iris_sta_list = parse_iris_stationlist('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/II/ii-gmap-stations-autrim.txt')
     network = 'II'
     '''
@@ -49,13 +49,13 @@ else:
     
     iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/IU/iu-gmap-stations-autrim.txt')
     network = 'IU'
-    '''
+    
     iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/II/ii-gmap-stations-autrim.txt')
     network = 'II'
     '''
     iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AU/2o-gmap-stations.txt')
     network = '2O'
-    '''
+    
 ##############################################################################
 # loop through events
 ##############################################################################

@@ -203,11 +203,15 @@ for ii, hazfile in enumerate(hazfiles):
         
         # set map
         # Projection used for National Mapping
+        '''
         m = Basemap(llcrnrlon=llcrnrlon,llcrnrlat=llcrnrlat, \
                     urcrnrlon=urcrnrlon,urcrnrlat=urcrnrlat,
                     projection='lcc',lat_1=lat_1,lat_2=lat_2,lon_0=lon_0,
                     resolution=res,area_thresh=500.)
-                    
+        '''
+        m = Basemap(projection='merc',llcrnrlat=llcrnrlat,urcrnrlat=urcrnrlat,\
+                    llcrnrlon=llcrnrlon,urcrnrlon=urcrnrlon,lat_ts=-42,\
+                    resolution=res,area_thresh=500.)            
         #m.drawmapboundary(fill_color='lightgray')
         #m.fillcontinents(color='white',lake_color='lightgray',zorder=0)
         m.drawcoastlines(linewidth=0.5,color='k')
@@ -353,7 +357,8 @@ for ii, hazfile in enumerate(hazfiles):
                 #ncolours = 9
                 #norm = colors.Normalize(vmin=0,vmax=10)
             else:
-                bounds = array([0, 0.005, 0.01, 0.015, 0.02, 0.03, 0.04, 0.05, 0.06, 0.08, 0.12, 0.16, 0.24])
+                #bounds = array([0, 0.005, 0.01, 0.015, 0.02, 0.03, 0.04, 0.05, 0.06, 0.08, 0.12, 0.16, 0.24])
+                bounds = array([0, 0.002, 0.005, 0.01, 0.015, 0.02, 0.025, 0.03, 0.035, 0.04, 0.05, 0.07, 0.1])
                 ncolours = 12
                 norm = colors.BoundaryNorm(boundaries=bounds, ncolors=ncolours)
         else:
@@ -367,7 +372,8 @@ for ii, hazfile in enumerate(hazfiles):
         ##########################################################################################
         # get land & lake polygons for masking
         ##########################################################################################
-        """
+        
+        '''
         # mask non-AU polygons
         nonmask = [0, 1, 2, 3, 4, 6, 7, 11, 13, 16, 17] # polygon number
         nonmask = [0, 9, 14, 17, 18, 19] # polygon number
@@ -380,7 +386,7 @@ for ii, hazfile in enumerate(hazfiles):
             if maskPoly == True:
                 poly = polygon.get_coords()
                 plt.fill(poly[:,0], poly[:,1], 'w')
-            
+        '''    
         #mask_outside_polygon(polys[1][::-1], ax=None)
         polys = get_map_polygons(m)
         mask_outside_polygons(polys, '0.9', plt)
@@ -391,7 +397,7 @@ for ii, hazfile in enumerate(hazfiles):
             poly = polygon.get_coords()
             plt.fill(poly[:,0], poly[:,1], '0.9')
             polygons.append(poly)
-        """
+        
         ##########################################################################################
         # format main axis
         ##########################################################################################
@@ -444,8 +450,8 @@ make colourbar
 '''    
 
 # set colourbar
-#splt.gcf().subplots_adjust(bottom=0.1)
-cax = figure.add_axes([0.225,0.14,0.55,0.05]) # setup colorbar axes.
+plt.gcf().subplots_adjust(bottom=0.12)
+cax = figure.add_axes([0.225,0.05,0.55,0.05]) # setup colorbar axes.
 #norm = colors.Normalize(vmin=vmin, vmax=vmax)
 cb = colorbar.ColorbarBase(cax, cmap=cmap, norm=norm, orientation='horizontal')
 
@@ -454,16 +460,17 @@ cb.set_ticks(bounds2)
 labels = ['0'+str('%0.3f' % x).strip('0') for x in bounds2]
 labels[0] = '0.0'
 cb.set_ticklabels(labels)
-cb.ax.tick_params(labelsize=16)
+cb.ax.tick_params(labelsize=15)
 
 # set title
 titlestr = ' '.join((T, probability, 'in 50-Year Mean Hazard (g)'))
-cb.set_label(titlestr, fontsize=20)
+cb.set_label(titlestr, fontsize=18)
 '''
 # check to see if maps exists
 if path.isdir('maps') == False:
     mkdir('maps')
-'''    
+'''   
+ 
 # now save png file
 plt.savefig(path.join('multi_hazard_maps_'+outfile.replace(' ','_')+'.'+probFraction+'.png'), \
             dpi=300, format='png', bbox_inches='tight')
@@ -474,6 +481,6 @@ plt.savefig(path.join('maps', 'hazard_map_'+modelName.replace(' ','_')+'.'+key+'
             dpi=300, format='pdf', bbox_inches='tight')
 '''
 plt.show()
-#plt.close('all')
+plt.close('all')
 
 #

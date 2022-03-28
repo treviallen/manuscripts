@@ -384,7 +384,8 @@ txt += 'm2' + '\t' + str(m2) + '\n'
 txt += 'r1' + '\t' + str(meanslope) + '\n'
 txt += 'r2' + '\t' + str(c) + '\n'
 
-f = open('basic_atten_coeffs.txt', 'w')
+print('!!!!!!!! REMEMEBR TO UPDATE OUTPUT !!!!!!!!')
+f = open('basic_atten_coeffs_tmp.txt', 'w')
 f.write(txt)
 f.close()
 

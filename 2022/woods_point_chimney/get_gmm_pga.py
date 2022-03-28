@@ -29,7 +29,7 @@ rake = 0. # GA CMT
 dip  = 83.
 mag = 5.9
 dep = 10.
-vs30 = 450.
+vs30 = 400.
 
 # parse chimney file
 csvfile = 'Chimney_RJB_GMPE.csv'
@@ -42,7 +42,7 @@ txt = '#CHIMNEY,RJB,Gea90SEA,Gea90WA,AB06,Sea09NC,Sea09YC,A12,Bea14,Tea19,NGA-E\
 for chim, rjb in zip(n_chim, rjbs):
     print(chim)
     rrup = sqrt(rjb**2 + ztor**2)
-    rhyp = rrup # assume for now as need site locations
+    rhyp = rrup = sqrt(rjb**2 + dep**2) # assume for now as need site locations
 
     Tea02imt, C03imt, AB06imt, AB11imt, Sea09imt_SS14, Sea09YCimt_SS14, Pea11imt, A12imt, A12imt_SS14, Bea14imt \
              = scr_gsims(mag, dep, ztor, dip, rake, rrup, rjb, vs30)

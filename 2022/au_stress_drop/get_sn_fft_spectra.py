@@ -95,6 +95,8 @@ def response_corrected_fft(tr, pickDat):
     use_stationlist = False
     if tr.stats.network == 'AU' and tr.stats.channel.startswith('HH'):
         use_stationlist = True
+    elif tr.stats.network == 'AU' and tr.stats.channel.startswith('BH'):
+        use_stationlist = True
     elif tr.stats.network == 'AU' and tr.stats.start_time.year >= 2017:
         use_stationlist = True
     elif tr.stats.network == 'OA' and tr.stats.channel.startswith('HH'):
@@ -573,6 +575,7 @@ for p, pf in enumerate(pickfiles[0:]):
             recDat['channels'] = chandict
             #recDat['sta'] = tr.stats.station.encode('ascii','ignore')
             recDat['sta'] = tr.stats.station
+            recDat['net'] = tr.stats.network
             recDat['location'] = tr.stats.location
             recDat['ev'] = pickDat['ev']
             recDat['eqlo'] = pickDat['eqlo']

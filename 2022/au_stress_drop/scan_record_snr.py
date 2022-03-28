@@ -251,14 +251,14 @@ for mseedfile in mseedfiles:
             cannotMerge = True
         
         ###############################################################################
-        # associate event and get distance
+        # associate event and get fe
         ###############################################################################
     
         evFound = False
         for evnum, ev in enumerate(evdict): 
-
-            if st[0].stats.starttime > UTCDateTime(ev['datetime']-timedelta(seconds=301)) \
-               and st[0].stats.starttime < UTCDateTime(ev['datetime']+timedelta(seconds=240)):
+            #ev['datetime'] = UTCDateTime(1996,9,25,7,49,56)
+            if st[0].stats.starttime > UTCDateTime(ev['datetime']-timedelta(seconds=601)) \
+               and st[0].stats.starttime < UTCDateTime(ev['datetime']+timedelta(seconds=300)):
                 evFound = True
                 eqlo = ev['lon']
                 eqla = ev['lat']
@@ -274,7 +274,7 @@ for mseedfile in mseedfiles:
             rngkm, azim, baz = distance(eqla, eqlo, sta_data['stla'], sta_data['stlo'])
             rngdeg = km2deg(rngkm)
             
-            if rngkm < 2500.:
+            if rngkm < 2250.:
             
                 # get arrivals
                 if eqdp < 0:
