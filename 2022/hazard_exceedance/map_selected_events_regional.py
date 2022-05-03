@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 from mpl_toolkits.basemap import Basemap
 from matplotlib.colors import LightSource, ListedColormap
-from numpy import arange, mean, percentile, array, unique, where, argsort, floor, sqrt, delete
+from numpy import arange, mean, percentile, array, unique, where, argsort, floor, sqrt, delete, argsort
 from netCDF4 import Dataset as NetCDFFile
 from gmt_tools import cpt2colormap
 from os import path, walk, system
@@ -13,7 +13,7 @@ from shapely.geometry import Polygon, Point
 import pickle
 #from obspy.imaging.beachball import Beach
 #from hmtk.parsers.catalogue.csv_catalogue_parser import CsvCatalogueParser, CsvCatalogueWriter
-from misc_tools import remove_last_cmap_colour, listdir_extension
+from misc_tools import remove_last_cmap_colour, listdir_extension, remove_first_cmap_colour
 from mapping_tools import drawshapepoly, get_field_data, drawoneshapepoly, distance, reckon, map_fault_dip_dirn
 import shapefile
 
@@ -22,6 +22,7 @@ mpl.style.use('classic')
 ##########################################################################################
 #108/152/-44/-8
 urcrnrlat = -1.0
+urcrnrlat = -6.0
 llcrnrlat = -45.
 urcrnrlon = 153.
 llcrnrlon = 106
@@ -103,7 +104,7 @@ im = m.imshow(rgb, alpha=1.0)
 ##########################################################################################
 import matplotlib.patheffects as PathEffects
 path_effects=[PathEffects.withStroke(linewidth=2.5, foreground="w")]
-
+"""
 cptfile = '//Users//trev//Documents//DATA//GMT//cpt//keshet.cpt' # qual-dark-06.cpt keshet.cpt #aurora.cpt #cosam.cpt #Set1_06.cpt
 ncols = 7
 cmap, zvals = cpt2colormap(cptfile, ncols+1)
@@ -152,7 +153,7 @@ for c, utrt, label in zip(cs, utrts, labels):
                     labeLegend = False
                 else:
                     plt.fill(xx,yy, facecolor=c, edgecolor='none', linewidth=0.75, alpha=0.3) 
-
+"""
 ##########################################################################################
 # plot faults
 ##########################################################################################
@@ -229,7 +230,7 @@ for fault, adirn , acol, in zip(faults2plot, arrowDirn, arraowCol):
     
         xx, yy = m(triLons, triLats)
         #plt.plot(xx, yy, 'o', c='r', lw=2, )
-        plt.fill(xx,yy, facecolor=acol, edgecolor='k', linewidth=0.5, alpha=1)
+        plt.fill(xx,yy, facecolor=acol, edgecolor='k', linewidth=0.5, alpha=1, zorder=10000)
     
 # add Flores-Wetar
 shpfile = '../../2019/nac_attenuation/fault_geometries/flores-wetar.shp'
@@ -244,7 +245,7 @@ map_fault_dip_dirn(m, plt, lons, lats, discLen, triLen, fc='0.5', ec='k', lw=0.5
 ##########################################################################################
 import matplotlib.patheffects as PathEffects
 path_effects=[PathEffects.withStroke(linewidth=3, foreground="w")]
-
+"""
 # label polygons
 x, y = m(135, -18)
 plt.text(x, y, 'North Australian\nCraton', size=11, c='maroon', ha='center', va='top', weight='normal', style='italic', path_effects=path_effects)
@@ -294,26 +295,92 @@ plt.text(x, y, 'Flores-Wetar\nThrust', size=10, c='k', va='center', ha='center',
 x, y = m(141, -4.)
 plt.text(x, y, 'New Guinea\nHighlands', size=10, c='k', va='center', ha='center', weight='normal', \
          rotation=-0 , path_effects=path_effects)
-         
-'''
-# add Darwin
-x,y = m(130.83,-12.45)
-plt.plot(x, y, 's', markerfacecolor='maroon', markeredgecolor='w', markeredgewidth=1, markersize=8)
-x, y = m(131.1,-12.65)
-path_effects=[PathEffects.withStroke(linewidth=2, foreground="w")]
-#plt.text(x, y, 'Darwin', size=12, c='k', va='top', ha='left', weight='light', \
-#         style='italic', rotation=0 , path_effects=path_effects)
-'''
-'''
-# label polygons
-x, y = m(146, -40.1)
-plt.text(x, y, 'Bass\nBasin', size=12, c='r', ha='center', va='top', weight='normal', style='italic', path_effects=path_effects)
+"""         
+#plt.legend(loc=3, fontsize=12)
+##########################################################################################
+# set colours
+##########################################################################################
 
-x, y = m(148.5, -39.)
-plt.text(x, y, 'Gippsland\nBasin', size=12, c='r', ha='center', weight='normal', style='italic', path_effects=path_effects)
-'''
-plt.legend(loc=3, fontsize=12)
+ncols = 11
 
-plt.savefig('figures/tectonic_setting.jpg',fmt='jpg',dpi=300,bbox_inches='tight')
+# get year range
+minyear = 1970
+maxyear = 2025
+yearrng = float(round(maxyear - minyear))
+
+cptfile = '/Users/trev/Documents/DATA/GMT/cpt/temperature.cpt'
+cptfile = '//Users//trev//Documents//DATA//GMT//cpt//keshet.cpt'
+cmap, zvals = cpt2colormap(cptfile, ncols+1, rev=True)
+cmap = remove_first_cmap_colour(cmap)
+
+cs = (cmap(arange(ncols)))
+
+##########################################################################################
+# add earthquakes
+##########################################################################################
+
+csvfiles = ['shakemap_event_list.csv', 'shakemap_banda_event_list.csv']
+#data = loadtxt(csvfile, delimiter=',', skiprows=1)
+
+for csvfile in csvfiles:
+    print(csvfile)
+    lines = open(csvfile).readlines()[1:]
+    lats = []
+    lons = []
+    mags = []
+    years = []
+    for line in lines:
+        dat = line.strip().split(',')
+        lons.append(float(dat[1]))
+        lats.append(float(dat[2]))
+        mags.append(float(dat[4]))
+        years.append(float(dat[0][0:4]))
+        
+    # get zorder for plotting
+    sortidx = argsort(argsort(mags))
+    for i in range(0, len(mags)): #[0:100])):
+        #get colour idx
+        colidx = int(floor((ncols) * (years[i]-minyear+0.1) / yearrng))
+        x, y = m(lons[i], lats[i])
+        zo = sortidx[i] + 20
+        plt.plot(x, y, 'o', mfc=list(cs[colidx][0:3]), markeredgecolor='k', markeredgewidth=0.25, \
+                 markersize=(5. * mags[i] - 12), zorder=zo, alpha=0.8)
+  
+# make legend
+legmag = [4.5, 5.5, 6.5, 7.5]
+legh = []
+for lm in legmag:
+    x, y = m(0, 0)
+    h = m.plot(x, y, 'o', mfc='k', mec='w', mew=0.25, markersize=(5 * lm - 12), alpha=1., zorder=len(mags)+1)
+    legh.append(h[0])
+
+legtxt = ('$\mathregular{M_W}$ 4.5', '$\mathregular{M_W}$ 5.5', '$\mathregular{M_W}$ 6.5', '$\mathregular{M_W}$ 7.5')
+l = plt.legend(legh, legtxt, loc=3, numpoints=1, fontsize=10, title="Magnitude", labelspacing=0.75)
+l.set_zorder(len(mags)+5)
+
+##########################################################################################
+# add colourbar
+##########################################################################################
+
+#cb = plt.colorbar()# ticks=ticks,
+
+ticks = arange(0, ncols+1)
+years = float(minyear) + ticks*5
+labels = [str('%0.0f' % x) for x in years]
+
+# normalise
+norm = mpl.colors.Normalize(vmin=minyear, vmax=maxyear)
+
+cax = fig.add_axes([0.315,0.035,0.4,0.025]) # setup colorbar axes.
+cb = colorbar.ColorbarBase(cax, cmap=cmap, orientation='horizontal', alpha=0.8, norm=norm) # 
+cb.set_ticks(years)
+cb.set_ticklabels(labels)
+cb.set_label('Year of Earthquake', rotation=0, fontsize=15, labelpad=5) # 
+
+##########################################################################################
+# finish
+##########################################################################################
+
+plt.savefig('figures/regional_selected_events.jpg',fmt='jpg',dpi=300,bbox_inches='tight')
 #plt.savefig('figures/fig_1.eps',fmt='pdf',dpi=300,bbox_inches='tight')
 plt.show()
