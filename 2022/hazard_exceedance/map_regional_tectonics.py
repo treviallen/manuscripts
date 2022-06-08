@@ -54,7 +54,7 @@ m.drawmeridians(arange(0.,360.,6.), labels=[0,0,0,1], fontsize=13, dashes=[2, 2]
 ##########################################################################################
 # plot gebco
 ##########################################################################################
-"""
+
 print( 'Reading netCDF file...')
 try:
     nc = NetCDFFile('//Users//trev//Documents//DATA//GMT//GEBCO//au_indo_gebco_2020.nc')
@@ -97,7 +97,7 @@ norm = mpl.colors.Normalize(vmin=-2000/zscale, vmax=3500/zscale)#wiki
 
 rgb = ls.shade(topodat.data, cmap=cmap, norm=norm)
 im = m.imshow(rgb, alpha=1.0)
-"""
+
 ##########################################################################################
 # add domains
 ##########################################################################################

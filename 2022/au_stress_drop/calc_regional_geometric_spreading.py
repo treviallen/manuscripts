@@ -85,6 +85,9 @@ def bilinear_Q_regression(freqs_log, Q_list_log):
 
 recs = pickle.load(open('fft_data.pkl', 'rb' ))
 
+# remove bad recs
+keep_nets = ['AU', 'IU', 'S1', '	
+
 ####################################################################################
 # start main
 ####################################################################################

@@ -1,4 +1,4 @@
-from numpy import arange, array, random, where, reshape, log10, sqrt, mean
+from numpy import arange, around, array, random, delete, where, reshape, log10, sqrt, mean, floor
 from os import system, path
 from misc_tools import listdir_extension
 from obspy import Trace
@@ -128,45 +128,6 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 mpl.style.use('classic')
 
-fig = plt.figure(1, figsize=(7,8))
-cols = get_mpl2_colourlist()
-
-# get event set
-bval_start = 1.2
-beta = bval2beta(bval_start)
-
-N0 = 1
-mmin = 2.1
-mmax = 7.3
-binwid = 0.05
-
-# get incremental curve
-betacurve, mrng = get_oq_incrementalMFD(beta, N0, mmin, mmax, binwid)
-idx5 = 65 # M 5 index
-
-# sum rates M >= 5
-m5_plus_rate = sum(betacurve[idx5:])
-
-# get M 5 rate of 1 per 20 yrs
-n_yrs = 20
-target_m5_rate = 1 / n_yrs
-
-# normalise betacurve by M 5 rate
-target_curve = target_m5_rate * betacurve / m5_plus_rate
-
-# sample beta curve
-prob_curve = target_curve / sum(target_curve)
-
-# smaple events
-print('Check Mag Sample!!!!!!')
-mag_sample = random.choice(mrng, size=800, p=prob_curve, replace=True) 
-
-mfd_mrng = arange(2.15, 7.4, 0.1)
-b_val, sigma_b, cum_num, n_obs, bin_rates = get_bvalue(mfd_mrng, mag_sample, n_yrs)
-
-pidx = n_obs > 0
-plt.semilogy(mfd_mrng[pidx], bin_rates[pidx], 'o', c=cols[0], label='MW (b = '+str('%0.2f' % b_val)+')')
-
 # get num stations for given mag
 def get_nstas(mag):
     import pickle
@@ -195,10 +156,61 @@ def get_distances(mag, nstas):
 
     return sample_dists
 
+################################################################################
 
+fig = plt.figure(1, figsize=(7,8))
+cols = get_mpl2_colourlist()
+
+# get event set
+bval_start = 1.2
+beta = bval2beta(bval_start)
+
+N0 = 1
+mmin = 2.1
+mmax = 7.3
+binwid = 0.05
+
+# get incremental curve
+betacurve, mrng = get_oq_incrementalMFD(beta, N0, mmin, mmax, binwid)
+
+# get M5 idx
+idx5 = where(floor(mrng+0.01)==5.0)[0][0] # M 5 index
+
+# sum rates M >= 5
+m5_plus_rate = sum(betacurve[idx5:])
+
+# get M 5 rate of 1 per 20 yrs
+n_yrs = 20
+target_m5_rate = 1 / n_yrs
+
+# normalise betacurve by M 5 rate
+target_curve = target_m5_rate * betacurve / m5_plus_rate
+
+# sample beta curve
+prob_curve = target_curve / sum(target_curve)
+
+sigma_b = 1.
+b_val =  0.
+while sigma_b > 0.042:
+    # smaple events
+    print('Check Mag Sample!!!!!!')
+    mag_sample = random.choice(mrng, size=1000, p=prob_curve, replace=True) 
+    
+    mfd_mrng = arange(2.15, 7.4, 0.1)
+    b_val, sigma_b, cum_num, n_obs, bin_rates = get_bvalue(mfd_mrng, mag_sample, n_yrs)
+    
+    print(b_val, sigma_b)
+    
+pidx = n_obs > 0
+plt.semilogy(mfd_mrng[pidx], bin_rates[pidx], 'o', c=cols[0], label='MW (b = '+str('%0.2f' % b_val)+')')
+        
+        
 # do smsim magic - only continue if within reasonable range!
 events = []
-if b_val > 1.17 and b_val < 1.23:
+print('!!!!!!!!FIX ME!!!!!!!!!')
+#if b_val > 1.17 and b_val < 1.23:
+
+if b_val > 1.15 and b_val < 1.25:
 
     # loop thru mag sample
     for mag in mag_sample:
@@ -223,7 +235,7 @@ if b_val > 1.17 and b_val < 1.23:
             
             events.append({'mw':mag, 'wa_amps':wa_amps, 'dists':sample_dists})
 
-################################################################################
+################################################################################r
 # calculate mags
 for j, event in enumerate(events):
     bj84 = []

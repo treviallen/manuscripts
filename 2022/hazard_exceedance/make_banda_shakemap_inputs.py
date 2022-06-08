@@ -41,7 +41,7 @@ def check_banda_zone(eqlos, eqlas):
             
     return array(banda_region)
 ################################################################################
-# parse nsha catalogue
+# parse V8 ISC-GEM catalogue Released on 2021-04-06
 ################################################################################
 
 if getcwd().startswith('/nas'):

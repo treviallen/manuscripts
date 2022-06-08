@@ -73,7 +73,7 @@ figure = plt.figure(1,figsize=(14, 7))
 gs1 = gridspec.GridSpec(maprows, mapcols)
 #gs1.update(wspace=0.025, hspace=0.05)
 
-gs1.update(wspace=-0.25, hspace=0.) # negative looks bad in "show", but ok in pngs
+
 
 
 pltlett = ['a)', 'b)', 'c)', 'd)', 'e)']
@@ -82,7 +82,29 @@ pltlett = ['a)', 'b)', 'c)', 'd)', 'e)']
 ##############################################################################
 
 for ii, hazfile in enumerate(hazfiles):
-
+    if city == 'Hobart':
+        bbox = '147/147.6/-43.1/-42.55'
+        gs1.update(wspace=-0.25, hspace=0.) # negative looks bad in "show", but ok in pngs
+        city_loc = [147.33, -42.88]
+    elif city == 'Launceston':
+        bbox = '146.7/147.55/-41.8/-41.1'
+        gs1.update(wspace=-0.1, hspace=0.)
+        city_loc = [147.136, -41.441]
+    elif city == 'Ulverstone':
+        bbox = '146./146.35/-41.31/-41.01'
+        gs1.update(wspace=-0.1, hspace=0.)
+        city_loc = [146.178, -41.159]
+    elif city == 'Burnie':
+        bbox = '145.71/146.05/-41.25/-41.01'
+        gs1.update(wspace=0.05, hspace=0.)
+        city_loc = [[145.91, -41.05],[145.83, -41.04]]
+        city = ['Burnie', 'Somerset']
+    elif city == 'Devonport':
+        bbox = '146.25/146.45/-41.27/-41.13'
+        gs1.update(wspace=0.05, hspace=0.)
+        city_loc = [[146.35, -41.18], [146.42, -41.24]]
+        city = ['Devonport', 'Latrobe']
+    
     # set axes
     #ax = figure.add_subplot(1, 2, ii+1)
     ax = figure.add_subplot(gs1[ii])
@@ -154,10 +176,11 @@ for ii, hazfile in enumerate(hazfiles):
             probability = '9.5%'
         print('Probability', probability)
         
-        if city == 'hobart':
-            bbox = '147/147.6/-43.1/-42.55	'
         
-        bbox = bbox.split('/')
+        try:
+            bbox = bbox.split('/')
+        except:
+            print('no split bbox')
         minlon = float(bbox[0])
         maxlon = float(bbox[1])
         minlat = float(bbox[2])
@@ -401,6 +424,33 @@ for ii, hazfile in enumerate(hazfiles):
             polygons.append(poly)
         
         ##########################################################################################
+        # add city
+        ##########################################################################################
+        import matplotlib.patheffects as PathEffects
+        pe = [PathEffects.withStroke(linewidth=2.5, foreground="w")]
+        
+        city_loc = array(city_loc)
+        
+        
+        if len(city_loc.shape) > 1:
+            for cl in city_loc:
+                x,y = m(cl[0], cl[1])
+                plt.plot(x, y, 's', mfc='None', mec='k', mew=0.75, ms=10)
+        else:
+            x,y = m(city_loc[0], city_loc[1])
+            plt.plot(x, y, 's', mfc='None', mec='k', mew=0.75, ms=10)
+            
+        # plt text
+        
+        if len(city_loc.shape) > 1:
+            for cl, c in zip(city_loc, city):
+                x,y = m(cl[0]+.005, cl[1]+.005)
+                plt.text(x, y, c, ha='left', va='bottom', weight='normal', path_effects=pe)
+        else:
+            x,y = m(city_loc[0]+.005, city_loc[1]+.005)
+            plt.text(x, y, city, ha='left', va='bottom', weight='normal', path_effects=pe)
+        
+        ##########################################################################################
         # format main axis
         ##########################################################################################
         '''
@@ -474,7 +524,11 @@ if path.isdir('maps') == False:
 '''   
  
 # now save png file
-plt.savefig(path.join('multi_hazard_maps_'+city+'_'+outfile.replace(' ','_')+'.'+probFraction+'.png'), \
+if len(city_loc.shape) > 1:
+    plt.savefig(path.join('multi_hazard_maps_'+city[0]+'_'+outfile.replace(' ','_')+'.'+probFraction+'.png'), \
+            dpi=300, format='png', bbox_inches='tight')
+else: 
+    plt.savefig(path.join('multi_hazard_maps_'+city+'_'+outfile.replace(' ','_')+'.'+probFraction+'.png'), \
             dpi=300, format='png', bbox_inches='tight')
 
 # save pdf file
