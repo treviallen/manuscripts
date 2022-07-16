@@ -79,6 +79,7 @@ try:
     cptfile = '//Users//trev//Documents//DATA//GMT//cpt//wiki-2.0.cpt'
     cptfile = '//Users//trev//Documents//DATA//GMT//cpt//lightgrey.cpt'
     cptfile = '//Users//trev//Documents//DATA//GMT//cpt//grey_fade.cpt'
+    cptfile = '//Users//trev//Documents//DATA//GMT//cpt//grey_fade_2.cpt'
 except:
     cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/wiki-2.0.cpt'
 

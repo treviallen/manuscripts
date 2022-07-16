@@ -249,22 +249,26 @@ for mseedfile in mseedfiles:
             st = remove_low_sample_data(st)
         except:
             cannotMerge = True
+            
+        if len(st) == 0:
+            cannotMerge = True
         
         ###############################################################################
         # associate event and get fe
         ###############################################################################
     
         evFound = False
-        for evnum, ev in enumerate(evdict): 
-            #ev['datetime'] = UTCDateTime(1996,9,25,7,49,56)
-            if st[0].stats.starttime > UTCDateTime(ev['datetime']-timedelta(seconds=601)) \
-               and st[0].stats.starttime < UTCDateTime(ev['datetime']+timedelta(seconds=300)):
-                evFound = True
-                eqlo = ev['lon']
-                eqla = ev['lat']
-                eqmag = ev['mag']
-                eqdp = ev['dep']
-                eqdt = ev['datetime']
+        if cannotMerge == False:
+            for evnum, ev in enumerate(evdict): 
+                #ev['datetime'] = UTCDateTime(1994,8,6,11,3,51)
+                if st[0].stats.starttime > UTCDateTime(ev['datetime']-timedelta(seconds=601)) \
+                   and st[0].stats.starttime < UTCDateTime(ev['datetime']+timedelta(seconds=300)):
+                    evFound = True
+                    eqlo = ev['lon']
+                    eqla = ev['lat']
+                    eqmag = ev['mag']
+                    eqdp = ev['dep']
+                    eqdt = ev['datetime']
         
         if evFound == True and cannotMerge == False:
             # get station details

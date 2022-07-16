@@ -69,10 +69,12 @@ def get_event_data():
     smcfiles = listdir_extension('simulations', 'smc')
     
     wa_amps = []
+    dists = []
     for smcfile in smcfiles:
         # get mag-dist from filename
         m = smcfile[1:5]
         r = smcfile.split('r')[-1].split('_')[0]
+        dists.append(float(r))
         
         disp_trace = read_smc_file(path.join('simulations',smcfile)) # in m
         wa_amps.append(get_wa_amp(disp_trace))
@@ -86,7 +88,7 @@ def get_event_data():
         '''
         # now remove file
         remove(path.join('simulations',smcfile))
-    return wa_amps
+    return wa_amps, dists
     
 ################################################################################
 def get_bvalue(mfd_mrng, mag_list, n_yrs):
@@ -113,44 +115,56 @@ def get_bvalue(mfd_mrng, mag_list, n_yrs):
     #a_val = fit_a_value(cum_num, bvals, mfd_mrng, mc, m_upper)
     
     return b_val, sigma_b, cum_num, n_obs, bin_rates
-    
+
 ################################################################################
 
 import pickle
 from oq_tools import get_oq_incrementalMFD
 from hazard_tools import bval2beta
-from catalogue_tools import aki_maximum_likelihood, fit_a_value
+from catalogue_tools import aki_maximum_likelihood, fit_a_value, weichert_algorithm
 from calculate_magnitudes import calc_R35, calc_HB87, calc_MLM92, calc_BJ84
-from misc_tools import dictlist2array, get_mpl2_colourlist
-from numpy import around
+from misc_tools import dictlist2array, get_mpl2_colourlist, remove_last_cmap_colour
+from gmt_tools import cpt2colormap 
+from numpy import around, ones_like
 from scipy.stats import norm, trim_mean
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+from os import getcwd
 mpl.style.use('classic')
 
+cmap = mpl.cm.get_cmap('Paired')
+
+# set random seed
+seed = 12345
+#seed = 100
+rand_seed = random.default_rng(seed)
+
 # get num stations for given mag
-def get_nstas(mag):
+def get_nstas(mag, rand_seed):
     import pickle
     numPDF = pickle.load(open("../numPDF.pkl", "rb" ))
     
     for npdf in numPDF: 
         if npdf['mmin'] >= mag and npdf['mmax'] < mag:
-            nstas = around(norm.rvs(npdf['mu'], npdf['std'], size=1))
+            #nstas = around(norm.rvs(npdf['mu'], npdf['std'], size=1))
+            nstas = around(rand_seed.normal(npdf['mu'], npdf['std'], size=1))
 
     return nstas
     
 # get get distances for given mag and nstas
-def get_distances(mag, nstas):
+def get_distances(mag, nstas, rand_seed):
     import pickle
     distPDF = pickle.load(open("../distPDF.pkl", "rb" ))
     
     for dpdf in distPDF: 
         if dpdf['mmin'] >= mag and dpdf['mmax'] < mag:
             try:
-                sample_dists = 10**(norm.rvs(dpdf['mu'], dpdf['std'], size=int(nstas)))
+                #sample_dists = 10**(norm.rvs(dpdf['mu'], dpdf['std'], size=int(nstas)))
+                sample_dists = 10**(rand_seed.normal(dpdf['mu'], dpdf['std'], size=int(nstas)))
             except: #try again!
                 try:
-                    sample_dists = 10**(norm.rvs(dpdf['mu'], dpdf['std'], size=int(nstas)))
+                    #sample_dists = 10**(norm.rvs(dpdf['mu'], dpdf['std'], size=int(nstas)))
+                    sample_dists = 10**(rand_seed.normal(dpdf['mu'], dpdf['std'], size=int(nstas)))
                 except: #try again!
                     sample_dists = array([0])
 
@@ -159,7 +173,17 @@ def get_distances(mag, nstas):
 ################################################################################
 
 fig = plt.figure(1, figsize=(7,8))
-cols = get_mpl2_colourlist()
+#cols = get_mpl2_colourlist()
+
+if getcwd().startswith('/nas'):
+    cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/Paired_10.cpt'
+else:
+    cptfile = '//Users//trev//Documents//DATA//GMT//cpt//Paired_10.cpt'
+    
+ncolours = 11
+cmap, zvals = cpt2colormap(cptfile, ncolours)
+cmap = remove_last_cmap_colour(cmap)
+cs = (cmap(arange(ncolours-1)))
 
 # get event set
 bval_start = 1.2
@@ -190,35 +214,46 @@ target_curve = target_m5_rate * betacurve / m5_plus_rate
 prob_curve = target_curve / sum(target_curve)
 
 sigma_b = 1.
-b_val =  0.
+b_val = 0.
+binwid = 0.1
+mfd_mrng = arange(2.1, 7.4, 0.1)
+myrs = ones_like(mfd_mrng) * n_yrs
+    
 while sigma_b > 0.042:
     # smaple events
-    print('Check Mag Sample!!!!!!')
-    mag_sample = random.choice(mrng, size=1000, p=prob_curve, replace=True) 
+    mag_sample = rand_seed.choice(mrng, size=1000, p=prob_curve, replace=True) 
     
-    mfd_mrng = arange(2.15, 7.4, 0.1)
-    b_val, sigma_b, cum_num, n_obs, bin_rates = get_bvalue(mfd_mrng, mag_sample, n_yrs)
+    b_val, sigma_b, cum_num, n_obs, bin_rates = get_bvalue(mfd_mrng, mag_sample, n_yrs)  # ignore b from this  
+    b_val, sigma_b, a0, siga_m, fn0, stdfn0 = weichert_algorithm(myrs, \
+                                           mfd_mrng+binwid/2, n_obs, mrate=0.0, \
+                                           bval=1.2, itstab=1E-4, maxiter=1000)
+    
+    betacurve, mrng = get_oq_incrementalMFD(bval2beta(b_val), a0, mmin, mmax, binwid)
     
     print(b_val, sigma_b)
     
 pidx = n_obs > 0
-plt.semilogy(mfd_mrng[pidx], bin_rates[pidx], 'o', c=cols[0], label='MW (b = '+str('%0.2f' % b_val)+')')
-        
-        
+plt.semilogy(mrng, betacurve, '-', c=cs[0], lw=2.)
+plt.semilogy(mfd_mrng[pidx], bin_rates[pidx], 'o', c=cs[1], label='MW (b = '+str('%0.2f' % b_val)+')')
+
+#crash
+                
 # do smsim magic - only continue if within reasonable range!
 events = []
-print('!!!!!!!!FIX ME!!!!!!!!!')
+#print('!!!!!!!!FIX ME!!!!!!!!!')
 #if b_val > 1.17 and b_val < 1.23:
 
-if b_val > 1.15 and b_val < 1.25:
+if b_val > 1.16 and b_val < 1.24:
 
     # loop thru mag sample
     for mag in mag_sample:
         # get sample number of stations
-        nstas = get_nstas(mag)
+        nstas = 0
+        while nstas < 3:
+            nstas = get_nstas(mag, rand_seed)
         
         # get sample distances
-        sample_dists = get_distances(mag, nstas)
+        sample_dists = get_distances(mag, nstas, rand_seed)
         
         idx = sample_dists > 800.
         sample_dists = delete(sample_dists, idx)
@@ -231,12 +266,13 @@ if b_val > 1.15 and b_val < 1.25:
                 run_smsim(mag, dist)
                 
             # get event data
-            wa_amps = get_event_data()
+            wa_amps, ev_dists = get_event_data()
             
-            events.append({'mw':mag, 'wa_amps':wa_amps, 'dists':sample_dists})
+            events.append({'mw':mag, 'wa_amps':wa_amps, 'dists':ev_dists})
 
 ################################################################################r
-# calculate mags
+# calculate ML mags
+mlm92_dict = []
 for j, event in enumerate(events):
     bj84 = []
     mlm92 = []
@@ -249,48 +285,66 @@ for j, event in enumerate(events):
         bj84.append(calc_BJ84(1, log10(event['wa_amps'][i]), event['dists'][i]) + 0.18) # added 0.18 as mean H-V correction - see hv_ratio.png in dropbox
         mlm92.append(calc_MLM92(0, log10(event['wa_amps'][i]), event['dists'][i]))
     
-    events[j]['bj84'] = bj84
+    events[j]['bj84_stas'] = bj84
     events[j]['bj84_mean'] = trim_mean(bj84, 0.1)
+    events[j]['bj84_res'] = bj84 - events[j]['bj84_mean']
     
-    events[j]['mlm92'] = mlm92
+    events[j]['mlm92_stas'] = mlm92
     events[j]['mlm92_mean'] = trim_mean(mlm92, 0.1)
+    events[j]['mlm92_res'] = mlm92 - events[j]['mlm92_mean']
 
 # get arrays for b-value
 bj84_array = dictlist2array(events, 'bj84_mean')
 mlm92_array = dictlist2array(events, 'mlm92_mean') 
+ 
+# reset mag range for ML
+ml_mfd_mrng = arange(1.8, 7.4, 0.1)
+myrs = ones_like(ml_mfd_mrng) * n_yrs
+mmin = 1.8
 
-# get b-values and plot
-b_val_bj84, sigma_b, cum_num, n_obs, bin_rates = get_bvalue(mfd_mrng, bj84_array, n_yrs)
+# get b-values for BJ84 and plot
+b_val, sigma_b, cum_num, n_obs, bin_rates = get_bvalue(ml_mfd_mrng, bj84_array, n_yrs)  # ignore b from this  
+b_val_bj84, sigma_b, a0, siga_m, fn0, stdfn0 = weichert_algorithm(myrs, \
+                                               ml_mfd_mrng+binwid/2, n_obs, mrate=0.0, \
+                                               bval=1.0, itstab=1E-4, maxiter=1000)
+betacurve_bj84, mrng_bj84 = get_oq_incrementalMFD(bval2beta(b_val_bj84), a0, mmin, mmax, binwid)
 
+# plot BJ84
 pidx = n_obs > 0
-plt.semilogy(mfd_mrng[pidx], bin_rates[pidx], 'o', c=cols[1], label='ML BL84 (b = '+str('%0.2f' % b_val_bj84)+')')
+plt.semilogy(mrng_bj84, betacurve_bj84, '-', c=cs[2], lw=2.)
+plt.semilogy(ml_mfd_mrng[pidx], bin_rates[pidx], 'o', c=cs[3], label='ML BJ84 (b = '+str('%0.2f' % b_val_bj84)+')')
 
-b_val_mlm92, sigma_b, cum_num, n_obs, bin_rates = get_bvalue(mfd_mrng, mlm92_array, n_yrs)
+# get b-values for MLM92 and plot
+b_val_mlm92, sigma_b, cum_num, n_obs, bin_rates = get_bvalue(ml_mfd_mrng, mlm92_array, n_yrs)
+b_val_mlm92, sigma_b, a0, siga_m, fn0, stdfn0 = weichert_algorithm(myrs, \
+                                                ml_mfd_mrng+binwid/2, n_obs, mrate=0.0, \
+                                                bval=1.0, itstab=1E-4, maxiter=1000)
+betacurve_mlm92, mrng_mlm92 = get_oq_incrementalMFD(bval2beta(b_val_mlm92), a0, mmin, mmax, binwid)
 
+# plot
 pidx = n_obs > 0
-plt.semilogy(mfd_mrng[pidx], bin_rates[pidx], 'o', c=cols[2], label='ML MLM92 (b = '+str('%0.2f' % b_val_mlm92)+')')
+plt.semilogy(mrng_mlm92, betacurve_mlm92, '-', c=cs[6], lw=2.)
+plt.semilogy(ml_mfd_mrng[pidx], bin_rates[pidx], 'o', c=cs[7], label='ML MLM92 (b = '+str('%0.2f' % b_val_mlm92)+')')
 
+###############################################################################
+# do post-hoc rate conversion
+
+from mag_tools import nsha18_ml2mw
+
+mw_mfd_mrng = nsha18_ml2mw(mrng_bj84)
+plt.semilogy(mw_mfd_mrng, betacurve_bj84, 'k--', lw=2., label='Post hoc MW rates (BJ84)')
 
 ################################################################################
-# plot mfd
-
-
+# make pretty
 plt.xlabel('Magnitude', fontsize=16)
 plt.ylabel('Annual Rate (/yr)', fontsize=16)
 plt.grid(which='both')
 plt.legend(loc=1, numpoints=3)
-plt.xlim([1.75, 5.25])
+plt.xlim([1.75, 6.55])
+plt.ylim([1E-3, 100])
 
-plt.savefig('mag_b_value_comp.png',format='png', dpi=300, bbox_inches='tight')
+plt.savefig('mag_b_value_comp_seed_'+str(seed)+'.png',format='png', dpi=300, bbox_inches='tight')
 plt.show()
 
-'''
-mx = 1.8
-# get n stasions
-        
-# now get distances for Nstas
-
-        
-print(sample_dists)
-'''
-print('\n')
+# save pickle
+pickle.dump(events, open("simulated_ml_events.pkl", "wb"))

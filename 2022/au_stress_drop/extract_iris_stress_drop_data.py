@@ -20,7 +20,7 @@ from os import getcwd
 # parse eq list
 ##############################################################################
 #gadat = parse_ga_event_query('earthquakes_export_2012-16_250.edit.csv')
-gadat = parse_ga_event_query('au_ge_4.4_earthquakes_export_edit.csv')
+#gadat = parse_ga_event_query('au_ge_4.4_earthquakes_export_edit.csv')
 recent_csv = 'au_ge_4.4_earthquakes_export_recent.csv'
 gadat = parse_ga_event_query(recent_csv)
 
@@ -49,13 +49,16 @@ else:
     
     iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/IU/iu-gmap-stations-autrim.txt')
     network = 'IU'
-    '''
+    
     iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/II/ii-gmap-stations-autrim.txt')
     network = 'II'
+    
+    iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/G/g-gmap-stations-autrim.txt')
+    network = 'G'
     '''
     iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AU/2o-gmap-stations.txt')
     network = '2O'
-    '''
+    
 ##############################################################################
 # loop through events
 ##############################################################################
