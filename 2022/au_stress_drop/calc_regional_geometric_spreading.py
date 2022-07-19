@@ -86,7 +86,7 @@ def bilinear_Q_regression(freqs_log, Q_list_log):
 recs = pickle.load(open('fft_data.pkl', 'rb' ))
 
 # remove bad recs
-keep_nets = ['AU', 'IU', 'S1', '	
+keep_nets = set(['AU', 'IU', 'S1', 'G', 'MEL'])
 
 ####################################################################################
 # start main
@@ -104,7 +104,7 @@ maxDist = 2200
 minRegDist = 100
 maxRegDist = 1000
 
-bins = arange(log10(minDist), log10(maxDist), 0.1)                                                                              
+bins = arange(log10(minDist), log10(maxDist), 0.1)
     
 log_norm_amps = []
 
@@ -128,12 +128,12 @@ for m in mrng:
     # get all records for each sta
     for rec in recs:
         if len(rec['channels']) > 0 and rec['mag'] >= m-0.05 and rec['mag'] < m+0.05:
-            
-            channel = rec['channels'][0]
-            
-            if rec[channel]['sn_ratio'][fidx] >= 4.:
-                mrhyps.append(rec['rhyp'])
-                mamps.append(rec[channel]['swave_spec'][fidx])
+            if rec['net'] in keep_nets:
+                channel = rec['channels'][0]
+                
+                if rec[channel]['sn_ratio'][fidx] >= 4.:
+                    mrhyps.append(rec['rhyp'])
+                    mamps.append(rec[channel]['swave_spec'][fidx])
     
     mrhyps = array(mrhyps)
     mamps = array(mamps)

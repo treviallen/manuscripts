@@ -153,6 +153,7 @@ def response_corrected_fft(tr, pickDat):
         elif tr.stats.network == 'GE':
             paz = ge_parser.get_paz(seedid,start_time)
             staloc = ge_parser.get_coordinates(seedid,start_time)
+        
         elif tr.stats.network == 'IU':
             paz = iu_parser.get_paz(seedid,start_time)
             staloc = iu_parser.get_coordinates(seedid,start_time)
@@ -214,7 +215,11 @@ def response_corrected_fft(tr, pickDat):
         elif tr.stats.network == '8K':
             paz = d8k_parser.get_paz(seedid,start_time)
             staloc = d8k_parser.get_coordinates(seedid,start_time)
-        
+        '''
+        elif tr.stats.network == 'G':
+            paz = g_parser.get_paz(seedid,start_time)
+            staloc = g_parser.get_coordinates(seedid,start_time)
+        '''
         # simulate response
         if tr.stats.channel.endswith('SHZ') or tr.stats.channel.endswith('EHZ'):
             tr = tr.simulate(paz_remove=paz, water_level=10) #  testing water level for SP instruments
@@ -301,7 +306,7 @@ else:
     cwb_parser = Parser('/Users/trev/Documents/Networks/AU/AU.cwb.dataless')
     s1_parser = Parser('/Users/trev/Documents/Networks/S1/S1.IRIS.dataless')
     iu_parser = Parser('/Users/trev/Documents/Networks/IU/IU.IRIS.dataless')
-    #ge_parser = Parser('/Users/trev/Documents/Networks/GE/GE.IRIS.dataless')
+    #g_parser = Parser('/Users/trev/Documents/Networks/G/G.IRIS.dataless')
     ii_parser = Parser('/Users/trev/Documents/Networks/II/II.IRIS.dataless')
     d1h_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/1H_EAL2_2010.dataless')
     d1k_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/1K_ALFREX_2013.dataless')
@@ -325,8 +330,9 @@ else:
 # loop through pick files
 ################################################################################
 records = [] 
-f = 0                 
-for p, pf in enumerate(pickfiles[0:]):
+f = 0 
+start_idx = 1700              
+for p, pf in enumerate(pickfiles[start_idx:]):
     skipRec = False
     tr = nan
     recDat = {}
