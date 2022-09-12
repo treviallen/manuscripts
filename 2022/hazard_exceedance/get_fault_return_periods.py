@@ -1,13 +1,15 @@
-from openquake.hmtk.parsers.source_model.base import BaseSourceModelParser
+#from openquake.hmtk.parsers.source_model.base import BaseSourceModelParser
 from openquake.hmtk.parsers.source_model.nrml04_parser import nrmlSourceModelParser
-from openquake.hazardlib.nrml import to_python 
+#from openquake.hazardlib.nrml import to_python 
 from numpy import array
 from mapping_tools import distance
 
 # middle coords for Willunga Fault
 will_lat = -35.3453885334
 will_lon = 138.459539572 
-target_mag = 6.9
+ade_lon = 138.6
+ade_lat = -34.93
+target_mag = 6.85
 
 fault_nrml = '/Users/trev/Documents/Geoscience_Australia/NSHA2018/source_models/faults/National_Fault_Source_Model_2018_GR/National_Fault_Source_Model_2018_GR_source_model.xml'
 
@@ -34,7 +36,7 @@ for fs in fsm.sources:
     # extract faults within 100 km
     minDist = 9999.
     for fla, flo in zip(flats, flons):
-        rngkm = distance(fla, flo, will_lat, will_lon)[0]
+        rngkm = distance(fla, flo, ade_lat, ade_lon)[0]
         if rngkm <= 100.:
             addFault = True
     
@@ -51,7 +53,7 @@ for fs in fsm.sources:
 sum_rates = 0
 
 for fd in fault_dict:
-    idx = fd['mags'] > target_mag
+    idx = fd['mags'] >= target_mag
     sum_rates += sum(fd['rates'][idx])
 
         
