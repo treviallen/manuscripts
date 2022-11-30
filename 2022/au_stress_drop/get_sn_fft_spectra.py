@@ -215,16 +215,22 @@ def response_corrected_fft(tr, pickDat):
         elif tr.stats.network == '8K':
             paz = d8k_parser.get_paz(seedid,start_time)
             staloc = d8k_parser.get_coordinates(seedid,start_time)
+        elif tr.stats.network == '2P':
+            paz = d2p_parser.get_response(seedid,start_time)
+            staloc = d2p_parser.get_coordinates(seedid,start_time)
         '''
         elif tr.stats.network == 'G':
             paz = g_parser.get_paz(seedid,start_time)
             staloc = g_parser.get_coordinates(seedid,start_time)
         '''
         # simulate response
-        if tr.stats.channel.endswith('SHZ') or tr.stats.channel.endswith('EHZ'):
-            tr = tr.simulate(paz_remove=paz, water_level=10) #  testing water level for SP instruments
+        if tr.stats.network == '2P':
+            tr.remove_response(inventory=d2p_parser)
         else:
-            tr = tr.simulate(paz_remove=paz)
+            if tr.stats.channel.endswith('SHZ') or tr.stats.channel.endswith('EHZ'):
+                tr = tr.simulate(paz_remove=paz, water_level=10) #  testing water level for SP instruments
+            else:
+                tr = tr.simulate(paz_remove=paz)
         
         # get fft
         freq, wavfft = calc_fft(tr.data, tr.stats.sampling_rate)
@@ -276,7 +282,7 @@ def retry_stationlist_fft(tr, pickDat):
 # get pick files
 ################################################################################
 folder = 'record_picks'
-#folder = 'record_picks'
+#folder = 'new_picks' # for testing
 pickfiles = listdir_extension(folder, 'picks')
 
 ################################################################################
@@ -292,6 +298,8 @@ interp_freqs = logspace(-1,2,121)[:-12] # from 0.1-50 Hz
 # read dataless seed volumes
 print('\nReading dataless seed volumes...')
 from obspy.io.xseed import Parser
+from obspy import read_inventory
+
 if getcwd().startswith('/nas'):
     au_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/AU/AU.IRIS.dataless')
     cwb_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/AU/AU.cwb.dataless')
@@ -325,13 +333,14 @@ else:
     d7s_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/7S_SETA_2006.dataless')
     d7t_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/7T_SEAL2_2007.dataless')
     d8k_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/8K_CAPRICORNHPS_2014.dataless')
+    d2p_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/2p-inventory-edit.xml')
 
 ################################################################################
 # loop through pick files
 ################################################################################
 records = [] 
 f = 0 
-start_idx = 1700              
+start_idx = 0
 for p, pf in enumerate(pickfiles[start_idx:]):
     skipRec = False
     tr = nan

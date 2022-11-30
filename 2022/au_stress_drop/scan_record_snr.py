@@ -237,7 +237,7 @@ for mseedfile in mseedfiles:
     if not path.isfile(pick_path):
         
         # fix stream channels
-        fix_stream_channels(path.join('iris_dump', mseedfile))
+        #fix_stream_channels(path.join('iris_dump', mseedfile))
     
         # read mseed
         #st = read(path.join('mseed_dump', mseedfile))
@@ -252,7 +252,7 @@ for mseedfile in mseedfiles:
             
         if len(st) == 0:
             cannotMerge = True
-        
+        st = st.merge()
         ###############################################################################
         # associate event and get fe
         ###############################################################################
@@ -260,7 +260,7 @@ for mseedfile in mseedfiles:
         evFound = False
         if cannotMerge == False:
             for evnum, ev in enumerate(evdict): 
-                #ev['datetime'] = UTCDateTime(1994,8,6,11,3,51)
+                #ev['datetime'] = UTCDateTime(2009,3,18,5,28,17)
                 if st[0].stats.starttime > UTCDateTime(ev['datetime']-timedelta(seconds=601)) \
                    and st[0].stats.starttime < UTCDateTime(ev['datetime']+timedelta(seconds=300)):
                     evFound = True
@@ -353,6 +353,7 @@ for mseedfile in mseedfiles:
             
         elif evFound == False:
            print('Cannot associate event for:', mseedfile)
+           print(st[0])
            #remove(path.join('mseed_dump', mseedfile))
            
         m += 1

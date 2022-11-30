@@ -47,7 +47,7 @@ rev_vs30 = vs30[::-1] # reverse vs30 order for tables
 as1170_site_class = ['E', 'D', 'C', 'B', 'A']
 
 # frist get B/C pga4nl
-target_pga4nl_BC = array([0.1, 0.2, 0.3, 0.4, 0.5]) # in g
+target_pga4nl_BC = array([0.1, 0.2, 0.3, 0.4, 0.5, 1.0]) # in g
 
 # get B/C linear ground-motions that provide target_pga4nl_C values - AW rounding here led to minor differences in final factors
 refVs30 = 760.  # reset to B/C

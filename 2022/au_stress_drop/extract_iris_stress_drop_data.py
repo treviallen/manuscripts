@@ -22,6 +22,7 @@ from os import getcwd
 #gadat = parse_ga_event_query('earthquakes_export_2012-16_250.edit.csv')
 #gadat = parse_ga_event_query('au_ge_4.4_earthquakes_export_edit.csv')
 recent_csv = 'au_ge_4.4_earthquakes_export_recent.csv'
+#recent_csv = 'au_4.0-4.2_earthquakes_export_edit.csv'
 gadat = parse_ga_event_query(recent_csv)
 
 ##############################################################################
@@ -40,10 +41,10 @@ if getcwd().startswith('/nas'):
     network = 'II'
     '''
 else:
-    '''
+    
     iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AU/gmap-stations-noarray.txt')
     network = 'AU'
-    
+    '''
     iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/S1/s1-gmap-stations.txt')
     network = 'S1'
     
@@ -55,10 +56,10 @@ else:
     
     iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/G/g-gmap-stations-autrim.txt')
     network = 'G'
-    '''
+    
     iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AU/2o-gmap-stations.txt')
     network = '2O'
-    
+    '''
 ##############################################################################
 # loop through events
 ##############################################################################
@@ -66,8 +67,10 @@ else:
 mindist = 0
 if network == 'S1':
     maxdist = 1000
+    maxdist = 750
 else:
     maxdist = 2200
+    maxdist = 1500
 #maxdist = 200 # already got 200 - 2200 km
 
 # loop thru events
@@ -77,6 +80,7 @@ for ev in gadat: #[40:]:
     # allow 2 mins pre-event - subs realised "get_iris_data" already pads by 2 mins, so have 4 mins
     dateTuple = (dt.year, dt.month, dt.day, dt.hour, dt.minute-2) 
     # loop thru stations
+    #iris_sta_list = [{'CAAN']
     for isl in iris_sta_list:
         
         # check if station is open

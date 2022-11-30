@@ -358,6 +358,7 @@ legtxt = ('$\mathregular{M_W}$ 4.5', '$\mathregular{M_W}$ 5.5', '$\mathregular{M
 l = plt.legend(legh, legtxt, loc=3, numpoints=1, fontsize=10, title="Magnitude", labelspacing=0.75)
 l.set_zorder(len(mags)+5)
 
+
 ##########################################################################################
 # add colourbar
 ##########################################################################################

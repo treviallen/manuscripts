@@ -6,3 +6,6 @@
 5) run calc_site_kappa.py - estimates site kappa-zero
 6) run calc_site_kappa_dist.py - estimates distance dependent kappa
 7) run fit_brune_spectra.py
+
+Testing:
+review_event_residuals.py
