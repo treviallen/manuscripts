@@ -6,8 +6,8 @@ from gmt_tools import cpt2colormap
 from os import path, mkdir
 import matplotlib.pyplot as plt
 import warnings, sys
-reload(sys) # for unicode chars
-sys.setdefaultencoding("latin-1")
+#reload(sys) # for unicode chars
+#sys.setdefaultencoding("latin-1")
 warnings.filterwarnings("ignore")
 plt.rcParams['pdf.fonttype'] = 42
 
@@ -45,7 +45,7 @@ if path.isdir(outputdir) == False:
 # parse site file
 ###############################################################################
 
-sitelistfile = path.join('/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/shared/nsha_cities.csv')
+sitelistfile = path.join('X:\\NSHA2018\\shared\\nsha_cities.csv')
 #sitelistfile = 'nsha_cities.csv'
 lines = open(sitelistfile).readlines() 
 places = []
@@ -98,10 +98,10 @@ for line in lines:
 # parse 2018 NSHA PGA from OQ
 ###############################################################################
 #hazcurvefile = path.join('Complete_Model', 'hazard_curve-mean_1.csv')
-print '\n!!!! Final NSHA18 hazard curves !!!!\n'
-print 'tallen/NSHA2018/source_models/complete_model/final/results_fractilesUHS/hazard_curve-mean-PGA_1.csv'
+print('\n!!!! Final NSHA18 hazard curves !!!!\n')
+#print('tallen/NSHA2018/source_models/complete_model/final/results_fractilesUHS/hazard_curve-mean-PGA_1.csv')
 
-hazcurvefile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/source_models/complete_model/final/results_fractilesUHS/hazard_curve-mean-PGA_1.csv'
+hazcurvefile = 'X:\\NSHA2018\\source_models\\complete_model\\final\\results_fractilesUHS\\hazard_curve-mean-PGA_1.csv'
 
 # get annualize the curves.
 siteDict, imls, investigation_time = return_annualised_haz_curves(hazcurvefile)
@@ -122,7 +122,6 @@ def get_prob_from_pc(pc, yr):
     return 1/r, r
     
 #kpprobs = array([0.046052, 0.0277258, 0.01386, 0.01, 0.00446, 0.00211, 0.0.00103, 0.000506, 0.000404, 0.000201, 0.0001002])
-#percentages = array([90., 85., 75., 60., 50., 40., 30., 20., 10., 5., 4., 3., 2., 1., 0.5])
 # get kp probs
 #num_yrs = 50.
 #kpprobs = get_prob_from_pc(percentages, 50.)[1]
@@ -162,45 +161,46 @@ for sd2018 in siteDict:
             and round(sd2018['lat'],2) == round(plla,2):
             matchPlace = True
             curve_city = place.strip()
-            print place
+            print(place)
     
     # now check if city in list of capitals
     if matchPlace == True:
-        '''
+        
         for capital in capitals:
-            #print capital
+            #print(capital
             if capital.strip() == curve_city:
-        '''
-        # interp to as1170.4 probs
-        haz2018 = exp(interp(log(kpprobs), log(sd2018[probkey][::-1]), log(imls[::-1]))) #[::-1]
-        #haz2018 = exp(interp(log(kpprobs), log(curve2018[::-1]), log(imls[::-1])))#[::-1]
-        kpfacts = haz2018 / haz2018[9] # assumes 5000-year max
-        kpfacts = haz2018 / haz2018[11] # assumes 10,000-year max
         
-        tmp = {'place': curve_city, 'pga2018': haz2018, 'kpfact':kpfacts}
-               
-        # add loc dict
-        kpcurves.append(tmp)
-        
-        # export city kp factor
-        kptxt = ''.join(('KP FACTORS FOR ', curve_city.upper(),'\nRETURN_PERIOD,KP_FACTOR\n'))
-        for rp, kp in zip(return_periods, kpfacts):
-            kptxt += ','.join((str(rp), str('%0.2f' % kp))) + '\n'
-            
-        f = open(path.join('kp_factors', curve_city+'_kpfacts.csv'), 'wb')
-        f.write(kptxt)
-        f.close()
+                # interp to as1170.4 probs
+                haz2018 = exp(interp(log(kpprobs), log(sd2018[probkey][::-1]), log(imls[::-1]))) #[::-1]
+                #haz2018 = exp(interp(log(kpprobs), log(curve2018[::-1]), log(imls[::-1])))#[::-1]
+                kpfacts = haz2018 / haz2018[9] # assumes 5000-year max
+                kpfacts = haz2018 / haz2018[11] # assumes 10,000-year max
+                
+                tmp = {'place': curve_city, 'pga2018': haz2018, 'kpfact':kpfacts}
+                       
+                # add loc dict
+                kpcurves.append(tmp)
+                
+                # export city kp factor
+                kptxt = ''.join(('KP FACTORS FOR ', curve_city.upper(),'\nRETURN_PERIOD,KP_FACTOR\n'))
+                for rp, kp in zip(return_periods, kpfacts):
+                    kptxt += ','.join((str(rp), str('%0.2f' % kp))) + '\n'
+                    
+                f = open(path.join('kp_factors', curve_city+'_kpfacts.csv'), 'w')
+                f.write(kptxt)
+                f.close()
                   
 # begin plotting
 ncols = len(capitals)+1
-cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/gay-flag-1978.cpt'
+#cptfile = '\\prod.lan\\active\\ops\\community_safety\\ehp\\georisk_earthquake\\hazard\\DATA\\cpt\\gay-flag-1978.cpt'
+cptfile = 'Z:\\DATA\\cpt\\gay-flag-1978.cpt'
 cmap, zvals = cpt2colormap(cptfile, ncols)
 cptcmap = (cmap(arange(ncols)))
 
 kprp = 1. / kpprobs
 
 fig = plt.figure(1, figsize=(6,6))
-plt.plot([kprp[3], kprp[3]], [0, 12], '--', lw=0.75, c='0.2')
+plt.plot([2500, 2500], [0, 12], '--', lw=0.75, c='0.2')
 for kpc, c in zip(kpcurves, cptcmap):
     plt.plot(kprp, kpc['kpfact'], '-', lw=1.5, c=c, label=kpc['place'])
 
@@ -209,9 +209,9 @@ asyr = array([20, 25, 50, 100, 200, 250, 500, 800, 1000, 1500, 2000, 2500])
 askp = array([0.2, 0.25, 0.35, 0.5, 0.7, 0.75, 1., 1.25, 1.3, 1.5, 1.7, 1.8])
 plt.plot(asyr, askp, 'k--', lw=1.5, label='AS1170.4-2007')
     
-plt.legend(loc=2, fontsize=11)
-plt.xlim([0, 5000])
-plt.ylim([0, 6])
+plt.legend(loc=2, fontsize=10.5)
+plt.xlim([0, 10000])
+plt.ylim([0, 9])
 
 plt.xlabel('Return Period (Years)')
 plt.ylabel('Probability Factor '+r'$k_p$')
@@ -232,7 +232,7 @@ for sd2018 in siteDict:
  
 nat_kp_2500 = array(nat_kp_2500)
 
-print '\nMean kp factor =', mean(nat_kp_2500)
+print('\nMean kp factor =', mean(nat_kp_2500))
 plt.show()
 
 
