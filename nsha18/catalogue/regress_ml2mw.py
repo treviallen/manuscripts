@@ -84,7 +84,7 @@ def nsha18_ml2mw(ml):
 
 ####################################################################
 # parse file
-nsha_file = path.join('data','NSHA18CAT.ML-MW.csv')
+nsha_file = path.join('..','data','NSHA18CAT.ML-MW.csv')
 
 lines = open(nsha_file).readlines()[1:]
 
@@ -125,6 +125,7 @@ mw = np.delete(mw, didx)
 mwref = np.delete(mwref, didx)
 
 
+
 '''mw = np.array([x[3] for x in cat])
 ml = np.array([x[4] for x in cat])
 ml = np.array([x[5] for x in cat])
@@ -157,7 +158,7 @@ odr = odrpack.ODR(data, bilin_reg, beta0=[0.7, 1.0, 1.0, 3.5])
 
 odr.set_job(fit_type=0) #if set fit_type=2, returns the same as least squares
 out = odr.run()
-print('\nbilinear auto\n')
+print '\nbilinear auto\n'
 out.pprint()
 
 a = out.beta[0]
@@ -176,7 +177,7 @@ odr = odrpack.ODR(data, bilin_fix, beta0=[0.7, 1., 1.0])
 
 odr.set_job(fit_type=0) #if set fit_type=2, returns the same as least squares
 out = odr.run()
-print('\nbilinear fix\n')
+print '\nbilinear fix\n'
 out.pprint()
 
 af = out.beta[0]
@@ -196,7 +197,7 @@ dat = Data(ml, mw)
 co = np.polynomial.polynomial.polyfit(ml, mw,2)
 od = ODR(dat, mod, beta0=[co[2],co[1],co[0]])
 out = od.run()
-print('\npolynomial\n')
+print '\npolynomial\n'
 out.pprint()
 
 yrng_poly = out.beta[0]*xrng**2+out.beta[1]*xrng+out.beta[2]
@@ -216,7 +217,7 @@ sim_mw = a*ml**2 + b*ml + c
 sim_mw_res = mw - sim_mw
 
 # get simulated std
-print('\nSimulated Regression Sigma =', np.std(sim_mw_res),'\n')
+print '\nSimulated Regression Sigma =', np.std(sim_mw_res),'\n'
 
 # ############## polynomial + linear
 # def mix_reg_fix(c, x):
@@ -290,7 +291,7 @@ ax.scatter(ml[idx2],mw[idx2],s= 70, alpha=0.5, marker=(5,1),c='y',label='Allen (
 ax.scatter(ml[idx1],mw[idx1],s= 70, alpha=0.5, marker='o',c='b',label='Ghasemi et al. (2017)')
 ax.scatter(ml[idx4],mw[idx4],s= 70, alpha=0.5, marker='>',c='m',label='Other')
 
-#ax.plot(xrng,yrng_swiss,'r-',lw=2,label='Goertz-Allmann et al. (2011)')
+ax.plot(xrng,yrng_swiss,'r-',lw=2,label='Goertz-Allmann et al. (2011)')
 ax.plot(xrng[xrng<=4.0],yrng_ross,'-',c='orange', lw=2,label='Ross et al. (2016)')
 ax.plot(xrng,yrng,'-',c='dodgerblue',lw=2,label='Automatic Bilinear')
 ax.plot(xrng,yrngf,'-',c='seagreen',lw=2,label='Fixed Bilinear')
@@ -324,7 +325,7 @@ plt.text(tx, ty, 'a)', ha='right', va='bottom', fontsize=22)
 ##############################################################################
 
 ax = plt.subplot(413)
-#ax.plot(xrng,yrng_swiss-xrng,'r-',lw=2,label='Goertz-Allmann et al. (2011)')
+ax.plot(xrng,yrng_swiss-xrng,'r-',lw=2,label='Goertz-Allmann et al. (2011)')
 ax.plot(xrng[xrng<=4.0],yrng_ross-xrng[xrng<=4.0],'-',c='orange', lw=2,label='Ross et al. (2016)')
 ax.plot(xrng,yrng-xrng,'-',c='dodgerblue',lw=2,label='Automatic Bilinear')
 ax.plot(xrng,yrngf-xrng,'-',c='seagreen',lw=2,label='Fixed Bilinear')
