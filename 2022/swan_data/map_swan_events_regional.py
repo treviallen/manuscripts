@@ -167,7 +167,7 @@ from data_fmt_tools import parse_iris_stationlist
 
 netfiles = ['/Users/trev/Documents/Networks/AU/au-gmap-stations-no_nwoa.txt', \
             '/Users/trev/Documents/Networks/S1/s1-gmap-stations.txt', \
-            '/Users/trev/Documents/Networks/IU/iu-gmap-stations.txt', \
+            '/Users/trev/Documents/Networks/IU/iu-gmap-stations-autrim.txt', \
             '/Users/trev/Documents/Networks/SWAN/2p-gmap-stations.txt', \
             '/Users/trev/Documents/Networks/SWAN/2p-gmap-stations_ar.txt']
             
@@ -197,8 +197,9 @@ for i, netfile in enumerate(netfiles):
     # if SWAN, label
     if i == 3 or i == 2:
         for sta, stlon, stlat in zip(stas, stlons, stlats):
-            x,y = m(stlon+0.05, stlat+0.04)
-            plt.text(x, y, sta, ha='left', va='bottom', fontsize=10, style='italic', path_effects=path_effects, zorder=zorder+i)
+            if stlat < m.urcrnrlat+0.5:
+                x,y = m(stlon+0.05, stlat+0.04)
+                plt.text(x, y, sta, ha='left', va='bottom', fontsize=10, style='italic', path_effects=path_effects, zorder=zorder+i)
     
     # recolour temp AU stations
     if i == 0:
@@ -230,7 +231,7 @@ plt.text(x, y, 'Darling Fault', size=10, c='k', va='center', ha='center', weight
 ##########################################################################################
 
 # annotate cities
-numCities = 10
+numCities = 9
 annotate_cities(numCities, plt, m, markerfacecolor='none', markeredgecolor='r', \
                 marker='s', markersize=8, markeredgewidth=1.5, fs=11, weight='normal')
 
@@ -249,7 +250,20 @@ plt.text(x, y, 'SOUTHERN OCEAN', size=13, c='dodgerblue', va='center', ha='cente
 x, y = m(115.2, -32.8)
 plt.text(x, y, 'INDIAN\nOCEAN', size=13, c='dodgerblue', va='center', ha='center', weight='light', \
          style='italic', rotation=0., path_effects=path_effects, zorder=11000)
-         
+
+# add lk Muir poly
+degres = 1.
+rngkm = 20.
+lmlons = []
+lmlats = []
+for brng in arange(0, 360+degres, degres):
+    lmlon, lmlat = reckon(-34.43, 116.78, rngkm, brng)
+    lmlons.append(lmlon)
+    lmlats.append(lmlat)
+    
+x, y = m(array(lmlons), array(lmlats))
+plt.plot(x, y, 'r--', lw=2, zorder=len(mags))
+
 ##########################################################################################
 # make map inset
 ##########################################################################################
@@ -287,7 +301,7 @@ minlat = -33.41912 - buff
 xv = array([minlon, minlon, maxlon, maxlon, minlon])
 yv = array([minlat, maxlat, maxlat, minlat, minlat])
 x, y = m(xv, yv)
-plt.plot(x, y, 'r--', lw=1.5)
+plt.plot(x, y, 'w--', lw=1.5)
 
 from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes
 axins = zoomed_inset_axes(ax, 2.5, loc=1)

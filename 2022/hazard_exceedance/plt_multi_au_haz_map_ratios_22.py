@@ -53,8 +53,9 @@ modnames = ['Gaull et al (1990)', 'GSHAP (1999)', 'NSHM12', 'NSHA18']
 
 # get colormap from cpt file
 cptfile = '/Users/trev/Documents/DATA/GMT/cpt/BlueWhiteOrangeRed.cpt'
+cptfile = '/Users/trev/Documents/DATA/GMT/cpt/blue-tan-d15.cpt'
 #cptfile = '/Users/trev/Documents/DATA/GMT/es_landscape_90.cpt'
-#cptfile = '/Users/trev/Documents/DATA/GMT/cpt/cool-warm-d15.cpt'
+cptfile = '/Users/trev/Documents/DATA/GMT/cpt/cool-warm-d15.cpt'
 
 ncolours = 17
 cmap, zvals = cpt2colormap(cptfile, ncolours, rev=False)
@@ -121,6 +122,10 @@ for ii, ncf in enumerate(ncfiles):
     system('rm sm_div_haz'+str(ii)+'.grd')
 
     system('gmt5 grdmath max_pga_grid_au_banda.grd ' + ncf + ' DIV ABS au_land_mask.grd MUL = sm_div_haz'+str(ii)+'.grd') #au_land_mask.grd MUL 
+    
+    # ste small values to zero
+    system('gmt5 grdmath sm_div_haz'+str(ii)+'.grd 0.01 GE sm_div_haz'+str(ii)+'.grd MUL = sm_div_haz'+str(ii)+'.grd')
+    
     #system('gmt5 grdsample sm_div_haz.grd -Gsm_div_haz.grd -R110/156/-46/-9 -I0.05')
     #system('gmt5 grd2xyz sm_div_haz.grd | gmt5 surface -Rsm_div_haz.grd -I0.05 -Gsm_div_haz.grd')
     
@@ -143,10 +148,10 @@ for ii, ncf in enumerate(ncfiles):
     hazdat = m.transform_scalar(data,lons,lats,nx,ny)
     
     # set cmap
-    bounds = array([1/200.0, 1/2.75, 1/2.5, 1/2.25, 1/2.0, 1/1.75, 1/1.5, 1/1.25, \
+    bounds = array([1/500.0, 1/2.75, 1/2.5, 1/2.25, 1/2.0, 1/1.75, 1/1.5, 1/1.25, \
                 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 500.0]) #nsha = 1/50
 
-    cmap = plt.get_cmap('bwr', len(bounds)-1)
+    #cmap = plt.get_cmap('bwr', len(bounds)-1) # original submission used this!!!!!!!!!!!!!!!!!
     #cmap = plt.get_cmap('coolwarm', len(bounds)-1)
 
     norm = colors.BoundaryNorm(boundaries=bounds, ncolors=ncolours)
