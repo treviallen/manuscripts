@@ -98,7 +98,7 @@ def make_event_folder(dt):
         mkdir(evpath1)
         mkdir(evpath2)
         
-    return evpath2
+    return evpath1, evpath2
 
 def make_shakemap_xml(dt, lat, lon, mag, dep, evpath):
     # read template
@@ -137,6 +137,7 @@ sm_lats = []
 sm_lons = []
 sm_deps = []
 sm_mags = []
+sm_path = []
 
 # make data foler if not exist
 if not path.exists('data'):
@@ -148,7 +149,7 @@ for i in range(0, len(nsha18_dt)):
        and nsha18_mw[i] >= 4.25 and ml_region[i].startswith('Other') == False:
         
         # get event ID & make folders
-        evpath = make_event_folder(nsha18_dt[i])
+        evpath1, evpath = make_event_folder(nsha18_dt[i])
             
         # now make shakemap txt - skip small TC events
         if nsha18_lats[i] > -20.206 and nsha18_lats[i] < -19.657 \
@@ -165,13 +166,14 @@ for i in range(0, len(nsha18_dt)):
         sm_lons.append(nsha18_lons[i])
         sm_deps.append(nsha18_deps[i])
         sm_mags.append(nsha18_mw[i])
+        sm_path.append(evpath1)
                             
 # loop through new NEAC events    
 for i in range(0, len(new_dt)):
     if new_mw[i] >= 4.25:
         
         # get event ID & make folders
-        evpath = make_event_folder(new_dt[i])
+        evpath1, evpath = make_event_folder(new_dt[i])
             
         # now make shakemap txt
         if new_lats[i] > -20.206 and new_lats[i] < -19.657 \
@@ -185,9 +187,10 @@ for i in range(0, len(new_dt)):
         sm_lons.append(new_lons[i])
         sm_deps.append(new_deps[i])
         sm_mags.append(new_mw[i])
+        sm_path.append(evpath1)
         
 # write list of shakemaps
-smtxt = 'DATETIME,LON,LAT,DEP,MW\n'
+smtxt = 'DATETIME,LON,LAT,DEP,MW,PATH\n'
 for i in range(0, len(sm_dt)):
     smtxt += ','.join((sm_dt[i].strftime('%Y-%m-%dT%H:%M:%SZ'), str(sm_lons[i]), str(sm_lats[i]), \
                        str(sm_deps[i]), str(sm_mags[i]))) + '\n'
