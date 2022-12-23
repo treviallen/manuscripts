@@ -382,6 +382,6 @@ cb.set_label('Year of Earthquake', rotation=0, fontsize=15, labelpad=5) #
 # finish
 ##########################################################################################
 
-plt.savefig('figures/regional_selected_events.jpg',fmt='jpg',dpi=300,bbox_inches='tight')
+plt.savefig('figures/regional_selected_events.png',fmt='png',dpi=600,bbox_inches='tight')
 #plt.savefig('figures/fig_1.eps',fmt='pdf',dpi=300,bbox_inches='tight')
 plt.show()

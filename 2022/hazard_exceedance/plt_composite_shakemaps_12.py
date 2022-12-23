@@ -213,7 +213,7 @@ if path.isdir('maps') == False:
     mkdir('maps')
 '''    
 # now save png file
-plt.savefig(path.join('figures/composite_shakemaps.png'), dpi=300, format='png', bbox_inches='tight')
+plt.savefig(path.join('figures/composite_shakemaps.png'), dpi=600, format='png', bbox_inches='tight')
 
 plt.show()
 #plt.close('all')

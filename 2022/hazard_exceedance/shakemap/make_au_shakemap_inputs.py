@@ -190,10 +190,10 @@ for i in range(0, len(new_dt)):
         sm_path.append(evpath1)
         
 # write list of shakemaps
-smtxt = 'DATETIME,LON,LAT,DEP,MW,PATH\n'
+smtxt = 'DATETIME,LON,LAT,DEP,MW,PATH,FAULT_FILE\n'
 for i in range(0, len(sm_dt)):
     smtxt += ','.join((sm_dt[i].strftime('%Y-%m-%dT%H:%M:%SZ'), str(sm_lons[i]), str(sm_lats[i]), \
-                       str(sm_deps[i]), str(sm_mags[i]))) + '\n'
+                       str(sm_deps[i]), str(sm_mags[i]), sm_path[i])) + '\n'
                        
 # write to file
 csvfile = 'shakemap_event_list.csv'

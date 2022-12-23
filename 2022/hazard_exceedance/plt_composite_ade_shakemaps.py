@@ -55,7 +55,7 @@ gs1.update(wspace=0.025, hspace=hspace) # negative looks bad in "show", but ok i
 ncfiles = ['max_pga_grid_au_banda.grd', 'max_pga_grid_ade_banda.grd']
            
 pltlett = ['a)', 'b)', 'c)', 'd)', 'e)']
-modnames = ['Observed', 'Willunga Scenario']
+modnames = ['Observed', 'Eden-Burnside Scenario']
 ##############################################################################
 # loop thru files and parse hazard grids
 ##############################################################################
@@ -177,7 +177,7 @@ for ii, ncf in enumerate(ncfiles):
     xtxt = xlim[1] * 0.02
     ylim = ax.get_ylim()
     ytxt = ylim[1] * 0.02
-    plt.text(xtxt, ytxt, modnames[ii], fontsize=27, va='bottom', ha='left')
+    plt.text(xtxt, ytxt, modnames[ii], fontsize=22, va='bottom', ha='left')
     
     ##########################################################################################
     # annotate
@@ -223,7 +223,8 @@ if path.isdir('maps') == False:
     mkdir('maps')
 '''    
 # now save png file
-plt.savefig(path.join('composite_ade_shakemaps.png'), dpi=300, format='png', bbox_inches='tight')
+plt.savefig(path.join('composite_ade_shakemaps.png'), dpi=600, format='png', bbox_inches='tight')
+plt.savefig(path.join('composite_ade_shakemaps.eps'), dpi=600, format='eps', bbox_inches='tight')
 
 plt.show()
 #plt.close('all')

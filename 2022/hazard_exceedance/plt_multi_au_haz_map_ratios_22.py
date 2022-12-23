@@ -232,7 +232,7 @@ if path.isdir('maps') == False:
     mkdir('maps')
 '''    
 # now save png file
-plt.savefig('figures/multi_au_ratio_maps.png', dpi=300, format='png', bbox_inches='tight')
+plt.savefig('figures/multi_au_ratio_maps.png', dpi=600, format='png', bbox_inches='tight')
 
 plt.show()
 #plt.close('all')
