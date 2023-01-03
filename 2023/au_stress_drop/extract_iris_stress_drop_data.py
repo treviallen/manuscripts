@@ -50,16 +50,16 @@ else:
     
     iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/IU/iu-gmap-stations-autrim.txt')
     network = 'IU'
-    
+    '''
     iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/II/ii-gmap-stations-autrim.txt')
     network = 'II'
-    
+    '''
     iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/G/g-gmap-stations-autrim.txt')
     network = 'G'
-    '''
+    
     iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AU/2o-gmap-stations.txt')
     network = '2O'
-    
+    '''
 ##############################################################################
 # loop through events
 ##############################################################################

@@ -3,9 +3,10 @@ from spectral_analysis import calc_fft, prep_psa_simple, calc_response_spectra, 
 from data_fmt_tools import remove_low_sample_data, return_sta_data, remove_acceleration_data
 from response import get_response_info, paz_response, deconvolve_instrument
 from misc_tools import listdir_extension, savitzky_golay
+from io_catalogues import parse_ga_event_query
 from os import path, chmod, stat, getcwd
 from numpy import arange, sqrt, pi, exp, log, logspace, interp, nan, where, isnan, nanmean
-from datetime import datetime
+from datetime import datetime, timedelta
 import pickle
 import warnings
 warnings.filterwarnings("ignore")
@@ -42,9 +43,10 @@ def parse_pickfile(pickfile):
         starttime = UTCDateTime(datetime.strptime(data[0], '%Y-%m-%dT%H:%M:%S.%f'))
         origintime = UTCDateTime(datetime.strptime(data[1], '%Y-%m-%dT%H:%M:%S.%f'))
         recdate = datetime.strptime(data[0], '%Y-%m-%dT%H:%M:%S.%f')
+        evdate = datetime.strptime(data[1], '%Y-%m-%dT%H:%M:%S.%f')
         
         pickDat = {'starttime': starttime, 'origintime': origintime, \
-                   'ev':data[1][0:16].replace(':','.'),
+                   'ev':data[1][0:16].replace(':','.'), 'evdt':UTCDateTime(evdate),
                    'eqlo': float(data[2]), 'eqla': float(data[3]),
                    'eqdp': float(data[4]), 'mag': float(data[5]), 'rhyp': float(data[6]),
                    'azim': float(data[7]), 'sps': float(data[8]), \
@@ -278,6 +280,22 @@ def retry_stationlist_fft(tr, pickDat):
     	
     return freq[1:mi], dispamp[1:mi]
     	
+################################################################################
+# find eevents - should have done this in pick files
+################################################################################
+
+evdict = parse_ga_event_query('au_ge_4.4_earthquakes_export_edit.csv')
+
+def get_mag_type(fft_datetime):
+    for evnum, ev in enumerate(evdict): 
+        #ev['datetime'] = UTCDateTime(2009,3,18,5,28,17)
+        if fft_datetime > UTCDateTime(ev['datetime']-timedelta(seconds=601)) \
+           and fft_datetime < UTCDateTime(ev['datetime']+timedelta(seconds=300)):
+               magtype = ev['magType']
+               
+    return magtype
+
+
 ################################################################################
 # get pick files
 ################################################################################
@@ -566,7 +584,7 @@ for p, pf in enumerate(pickfiles[start_idx:]):
                     else:
                         traceDat['lof_limit'] = interp_freqs[fidx[-1]+1]
                     
-                    # do a manual check for good data with no noise
+                    # do a manual check for good data with no noisepickDat['evdt']
                     '''
                     if sn_ratio[15] > 100.:
                         traceDat['lof_limit'] = interp_freqs[0]
@@ -597,6 +615,7 @@ for p, pf in enumerate(pickfiles[start_idx:]):
             recDat['eqla'] = pickDat['eqla']
             recDat['eqdp'] = pickDat['eqdp']
             recDat['mag'] =  pickDat['mag']
+            recDat['magType'] =  get_mag_type(UTCDateTime(pickDat['evdt']))
             recDat['rhyp'] = pickDat['rhyp']
             recDat['eqla'] = pickDat['eqla']
             
