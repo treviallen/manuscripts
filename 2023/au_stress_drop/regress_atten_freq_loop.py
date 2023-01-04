@@ -90,8 +90,6 @@ def fit_near_source_saturation(c, x):
     ans = c[0] * log10(D) + c[1]
     
     return ans
-
-
             
 ###############################################################################
 # grunt defs
@@ -116,12 +114,13 @@ def normalise_data(p, recs):
         for rec in recs:
             if len(rec['channels']) > 0 and rec['mag'] >= m-0.05 and rec['mag'] < m+0.05:
                 if rec['net'] in keep_nets:
-                    channel = rec['channels'][0]
-                    
-                    if rec[channel]['sn_ratio'][fidx[p]] >= 5.:
-                        mrhyps.append(rec['rhyp'])
-                        mmags.append(rec['mag'])
-                        mamps.append(rec[channel]['swave_spec'][fidx[p]])
+                    if not rec['sta'] in ignore_stas:
+                        channel = rec['channels'][0]
+                        
+                        if rec[channel]['sn_ratio'][fidx[p]] >= 5.:
+                            mrhyps.append(rec['rhyp'])
+                            mmags.append(rec['mag'])
+                            mamps.append(rec[channel]['swave_spec'][fidx[p]])
         
         mrhyps = array(mrhyps)
         mamps = array(mamps)
@@ -269,8 +268,12 @@ def get_distance_residuals(nc, mc, fc):
 recs = pickle.load(open('fft_data.pkl', 'rb' ))
 
 # remove bad recs
-keep_nets = set(['AU', 'IU', 'S1', 'G', 'MEL', 'ME', '20', 'AD', 'SR', 'UM', 'OA', \
-                 '1P', 'OA', '1K', '1P', '2P', '6F', '7K', '7G', 'G', '7B', '4N'])
+keep_nets = set(['AU', 'IU', 'S1', 'G', 'MEL', 'ME', '20', 'AD', 'SR', 'UM', 'AB', \
+                 '1P', '1K', '1P', '2P', '6F', '7K', '7G', 'G', '7B', '4N', '7D'])
+
+# get stas to ignore
+ignore_stas = open('sta_ignore.txt').readlines()
+ignore_stas = set([x.strip() for x in ignore_stas])
 
 ####################################################################################
 # start main
@@ -308,8 +311,8 @@ bins = arange(log10(minDist), log10(maxDist), 0.1)
 rec = recs[0]
 chan = rec['channels'][-1]
 freqs = rec[chan]['freqs']
-fidx=arange(0,100,10)+6 # for testing
-fidx=arange(14,95,2) # for regressing all coeffs
+fidx=arange(0,100,10)+5 # for testing
+fidx=arange(0,len(freqs)-1,1) # for regressing all coeffs
 
 pltTrue = True
 if len(fidx) > 12:
@@ -436,7 +439,8 @@ for p, freq in enumerate(freqs[fidx]):
     # set mid-field
     idx = where((norm_rhyps > r1) & (norm_rhyps <= r2))[0]
     D1 = sqrt(r1**2 + nref**2)
-    predamps[idx] = nc[0] * log10(D1) + nc[1] + mc[0] * log10(norm_rhyps[idx] / r1) + mc[1] * (norm_rhyps[idx] - r1)
+    predamps[idx] = nc[0] * log10(D1) + nc[1] + mc[0] * log10(norm_rhyps[idx] / r1) \
+                    + mc[1] * (norm_rhyps[idx] - r1)
     
     # set far-field
     idx = where(norm_rhyps > r2)[0]
@@ -475,226 +479,6 @@ for p, freq in enumerate(freqs[fidx]):
                    'magc0': magc[0], 'magc1': magc[1],
                    'r1': r1, 'r2': r2, 'nref':nref, 'freq':freq})
     
-    '''
-    # fit mag-dependent offset
-     didx = where((medx >= 0.1) & (nperbin > 2))[0] #log10(r1))[0]
-    
-     data = odrpack.RealData(10**medx[didx], logmedamp[didx])
-     
-     afit = odrpack.Model(fit_mag_intercept)
-     odr = odrpack.ODR(data, afit, beta0=[1.])
-     
-     odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
-     out = odr.run()
-     mc = out.beta
-     '''
-    ###############################################################################
-    # build mag regression data
-    ###############################################################################
-    
-    """            
-    m_intercept = []
-    m_reg = []
-    #fig = plt.figure(3, figsize=(18,11))
-    i = 1
-    for m in mrng:
-        cnt = 0
-        #ax = plt.subplot(4,5,i)
-        
-        mrhyps = []
-        mamps  = []
-    
-        # get all records for each sta
-        for rec in recs:
-            if rec['net'] in keep_nets:
-                if len(rec['channels']) > 0 and rec['mag'] >= m-0.05 and rec['mag'] < m+0.05:
-                    
-                    channel = rec['channels'][0]
-                    
-                    if rec[channel]['sn_ratio'][fidx[p]] >= 4.:
-                        mrhyps.append(rec['rhyp'])
-                        mamps.append(rec[channel]['swave_spec'][fidx[p]])
-        
-        mrhyps = array(mrhyps)
-        mamps = array(mamps)
-        
-        if len(mrhyps) > 0:
-            '''
-            plt.loglog(mrhyps, mamps, '+', c='0.6', lw=0.5, ms=5)
-            plt.xlim([100, 2250])
-            plt.ylim([1E-8, 1E-3])
-            plt.ylabel(str(round(m,1)))
-            i += 1
-            '''
-            # get binned data
-            logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(mrhyps), log10(mamps))
-            #plt.loglog(10**medx, 10**logmedamp, 'rs', ms=6.5)
-            
-            # normalise to 500 km
-            #namps = log10(mamps) - logmedamp[nidx]
-            '''
-            if len(log_norm_amps) == 0:
-                log_norm_amps = namps
-                norm_rhyps = mrhyps
-            else:
-                log_norm_amps = hstack((log_norm_amps, namps))
-                norm_rhyps = hstack((norm_rhyps, mrhyps))
-            '''
-            
-            # fit mag-dependent offset
-            didx = where((medx >= 0.1) & (nperbin > 2))[0] #log10(r1))[0]
-    
-            data = odrpack.RealData(10**medx[didx], logmedamp[didx])
-            
-            afit = odrpack.Model(fit_mag_intercept)
-            odr = odrpack.ODR(data, afit, beta0=[1.])
-            
-            odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
-            out = odr.run()
-            mc = out.beta
-            
-            if round(m,1) != 5.5 and round(m,1) != 6.0 and round(m,1) != 6.2:
-                m_intercept.append(mc[0])
-                m_reg.append(m)
-            
-            #plt.loglog(10**xplt, 10**yplt, 'k-', lw=2)
-                
-    #plt.savefig('fixed_geom_spread.png', fmt='png', bbox_inches='tight')
-    #plt.show()
-    """
-    ###############################################################################
-    # get mag scaling
-    ###############################################################################
-    """
-    '''
-    fig = plt.figure(4, figsize=(8, 8))
-    
-    plt.plot(m_reg, m_intercept, 'rs')
-    '''
-    # linear
-    #mag_fit = linregress(array(m_reg), array(m_intercept))
-    #yplt = mag_fit[0] * mrng + mag_fit[1]
-    
-    # quadratic
-    m1, m2, m0 = polyfit((array(m_reg)-4.), array(m_intercept), 2)
-    yplt = m0 + m1 * (mrng-4.)**2. + m2 * (mrng-4.)
-    
-    # also fit linear
-    m2_lin, m0_lin = polyfit((array(m_reg)-4.), array(m_intercept), 1)
-    yplt_lin = m0_lin + m2_lin * (mrng-4.)
-    
-    # check concavity of slope - use quadratic
-    if yplt[0] < yplt_lin[0] and yplt[-1] < yplt_lin[-1]:                    
-        '''
-        m0_array.append(m0)
-        m1_array.append(m1)
-        m2_array.append(m2)
-        '''
-        plt.plot(mrng, yplt, 'k-', lw=2)
-    # use linear
-    else:
-        '''
-        m0_array.append(m0_lin)
-        m1_array.append(0.0)
-        m2_array.append(m2_lin)
-        '''
-        plt.plot(mrng, yplt_lin, 'k-', lw=2)
-    '''
-    plt.savefig('mag_scaling.png', fmt='png', bbox_inches='tight')
-    plt.show()
-    '''
-    """
-    ###############################################################################
-    # get residuals and far-field correction
-    ###############################################################################
-    #y = m0 + m1 * (mags-4.)**2. + m2 * (mags-4.) + r1 * log10(rhyp)
-    """
-    yres = [] 
-    rhyps = []
-    stas = []
-    evdt = []
-    for rec in recs:
-        if rec['net'] in keep_nets:
-            try:
-                channel = rec['channels'][0]
-                    
-                if rec[channel]['sn_ratio'][fidx[p]] >= 4.:
-                    rhyps.append(rec['rhyp'])
-                    
-                    #!!! use new atten coeffs !!!
-                    if rec['rhyp'] <= r1:
-                        D = sqrt(rec['rhyp']**2 + nc[2]**2)
-                        y = m0 + m1 * (rec['mag']-4.)**2. + m2 * (rec['mag']-4.) \
-                            + nc[0] * log10(D)
-                    else:
-                        D = sqrt(r1**2 + nc[2]**2)
-                        y = m0 + m1 * (rec['mag']-4.)**2. + m2 * (rec['mag']-4.) \
-                            + nc[0] * log10(D) + fc[0] * log10(rec['rhyp'] / r1) + fc[1] * (rec['rhyp'] - r1)
-                    
-                    yobs = log10(rec[channel]['swave_spec'][fidx[p]])
-                    yres.append(yobs - y)
-                    stas.append(rec['sta'])
-                    evdt.append(rec['ev'])
-                    
-                else:
-                    yres.append(nan)
-                    rhyps.append(rec['rhyp'])
-                    stas.append(rec['sta'])
-                    evdt.append(rec['ev'])
-            
-            except:
-                print('No data')
-    
-    # get binned data   
-    bins = arange(log10(minDist), log10(maxDist), 0.1)
-    medbin, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(rhyps), yres)
-    #plt.plot(medx, medbin, 'rs', ms=6.5)
-    
-    y_at_xhinge = 0
-    xhinge = 3.
-    xmax = log10(10**3.35)
-    def fit_fixed_intercept(c, x):
-        '''
-        x = array fo x values
-        y_at_xmax = y value at xmax
-        '''
-        #print(xhinge)
-        #xmax = 10**logxmax # hardwired in distance atten
-        
-        ans = c * (x - xhinge) + y_at_xhinge
-        
-        return ans
-    
-    ridx = where((binstrp >= xhinge) & (binstrp < xmax))[0]
-    data = odrpack.RealData(binstrp[ridx], medbin[ridx])
-    
-    truncdist = odrpack.Model(fit_fixed_intercept)
-    odr = odrpack.ODR(data, truncdist, beta0=[0.])
-    odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, ODR = 0
-    out = odr.run()
-    
-    c = out.beta[0] # slope of dist atten
-    '''          
-    fig = plt.figure(1, figsize=(18,5))
-    
-    plt.plot(log10(rhyps), yres, '+', c='0.5')
-    
-    # identify outliers here!!!
-    oidx = where(array(yres) > 1.25)[0]
-    for oi in oidx:
-        plt.text(log10(rhyps[oi]), yres[oi], ' '.join((evdt[oi], stas[oi])), fontsize=5)
-    oidx = where(array(yres) < -1.25)[0]
-    for oi in oidx:
-        plt.text(log10(rhyps[oi]), yres[oi], ' '.join((evdt[oi], stas[oi])), fontsize=5)
-    
-    plt.plot(log10(array([5, 2000])), [0, 0], 'k--')
-    plt.xlim(log10(array([5, 2000])))
-    plt.ylim([-3, 3])
-    
-    plt.savefig('annotated_residuals.png', fmt='png', dpi=300, bbox_inches='tight')
-    plt.show()
-    '''
-    """
 plt.show()
 ###############################################################################
 # write params

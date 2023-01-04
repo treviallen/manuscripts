@@ -2,6 +2,7 @@ import pickle
 from numpy import unique, array, arange, log, log10, exp, mean, nanmean, ndarray, sqrt, \
                   nanmedian, hstack, pi, nan, isnan, interp, where, zeros_like, polyfit
 from misc_tools import get_binned_stats, dictlist2array, get_mpl2_colourlist
+from mag_tools import nsha18_mb2mw, nsha18_ml2mw
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import matplotlib.dates as mdates
@@ -20,6 +21,23 @@ warnings.filterwarnings("ignore")
 
 recs = pickle.load(open('fft_data.pkl', 'rb' ))
 
+# convert mags to MW
+for i, rec in enumerate(recs):
+    if rec['magType'].startswith('mb'):
+        recs[i]['mag'] = nsha18_mb2mw(rec['mag'])
+    elif rec['magType'].startswith('ml'):
+        # additional fix for use of W-A 2800 magnification pre-Antelope
+        if UTCDateTime(datetimes[i]) < UTCDateTime(2008, 1, 1):
+            recs[i]['mag'] -= 0.07
+        
+        # now fix ML
+        recs[i]['mag'] = nsha18_ml2mw(rec['mag'])
+
+# load atten coeffs
+coeffs = pickle.load(open('atten_coeffs.pkl', 'rb' ))
+c = coeffs[11]
+print("Coeffs Freq = " +str('%0.3f' % c['freq']))
+
 ###############################################################################
 # set datasets
 ###############################################################################
@@ -35,25 +53,19 @@ stalist = stationlist2dict()
 stalist_start = dictlist2array(stalist, 'start')
 stalist_sta = dictlist2array(stalist, 'sta')
 
-###############################################################################
-# parse coefs and get model prediction
-###############################################################################
-
-lines = open('basic_atten_coeffs_tmp.txt').readlines()
-m0 = float(lines[2].strip().split('\t')[1])
-m1 = float(lines[3].strip().split('\t')[1])
-m2 = float(lines[4].strip().split('\t')[1])
-r1 = float(lines[5].strip().split('\t')[1])
-r2 = float(lines[6].strip().split('\t')[1])
-#r3 = float(lines[7].strip().split('\t')[1])
-r4 = float(lines[8].strip().split('\t')[1])
-r5 = float(lines[9].strip().split('\t')[1])
-rref = float(lines[10].strip().split('\t')[1])
-fidx = int(lines[12].strip().split('\t')[1])
-
+fidx = 36
 chan = recs[0]['channels'][0]
 freq = recs[0][chan]['freqs'][fidx]
 print("Reg Freq = " +str('%0.3f' % freq))
+
+if not freq == c['freq']:
+   print('\n!!!! Frequency of coefficients inconsistent with data index !!!!\n')
+   crash
+
+
+###############################################################################
+# parse coefs and get model prediction
+###############################################################################
 
 rhyps = []
 yres = []    
@@ -61,20 +73,36 @@ for i, rec in enumerate(recs):
     try:
         channel = rec['channels'][0]
             
-        if rec[channel]['sn_ratio'][fidx] >= 4.:
+        if rec[channel]['sn_ratio'][fidx] >= 5.:
             rhyps.append(rec['rhyp'])
             
-            if rec['rhyp'] <= rref:
-                D = sqrt(rec['rhyp']**2 + r2**2)
-                y = m0 + m1 * (rec['mag']-4.)**2. + m2 * (rec['mag']-4.) + r1 * log10(D)
-            else:
-                D = sqrt(rref**2 + r2**2)
-                y = m0 + m1 * (rec['mag']-4.)**2. + m2 * (rec['mag']-4.) + r1 * log10(D) \
-                    + r4 * log10(rec['rhyp'] / rref) + r5 * (rec['rhyp'] - rref)
+            # get mag term
+            magterm = c['magc0'] * rec['mag'] + c['magc1']
+            
+            # get distance term
+            D1 = sqrt(rec['rhyp']**2 + c['nref']**2)
+            if rec['rhyp'] <= c['r1']:
+                distterm = c['nc0'] * log10(D1) + c['nc1']
+            
+            # set mid-field
+            elif rec['rhyp'] > c['r1'] and rec['rhyp'] <= c['r2']:
+                D1 = sqrt(c['r1']**2 + c['nref']**2)
+                distterm = c['nc0'] * log10(D1) + c['nc1'] \
+                           + c['mc0'] * log10(rec['rhyp'] / c['r1']) + c['mc1'] * (rec['rhyp'] - c['r1'])
+            
+            # set far-field
+            elif rec['rhyp'] > c['r2']:
+                D1 = sqrt(c['r1']**2 + c['nref']**2)
+                distterm = c['nc0'] * log10(D1) + c['nc1'] \
+                           + c['mc0'] * log10(c['r2'] / c['r1']) + c['mc1'] * (c['r2'] - c['r1']) \
+                           + c['fc0'] * log10(rec['rhyp'] / c['r2']) + c['fc1'] * (rec['rhyp'] - c['r2'])
+            
+            # get mag correctio
+            ypred = magterm + distterm
             
             yobs = log10(rec[channel]['swave_spec'][fidx])
-            yres.append(yobs - y)
-            recs[i]['yres'] = yobs - y
+            yres.append(yobs - ypred)
+            recs[i]['yres'] = yobs - ypred
             
         else:
             yres.append(nan)
@@ -85,11 +113,10 @@ for i, rec in enumerate(recs):
         print('No data')
         recs[i]['yres'] = nan
 
-
 ###############################################################################
 # get stns res
 ###############################################################################
-dateRng = [UTCDateTime(1989,12,1).datetime, UTCDateTime(2022,3,1).datetime]
+dateRng = [UTCDateTime(1989,12,1).datetime, UTCDateTime(2023,1,1).datetime]
 fig = plt.figure(1, figsize=(19,11))
 i = 1
 ii = 1
@@ -107,6 +134,7 @@ for ev in events:
             rhyps.append(rec['rhyp'])
             mag = rec['mag']
             nets.append(rec['net'])
+            place = rec['place']
     
     # fill residual array
     staRes = array(staRes)
@@ -128,7 +156,8 @@ for ev in events:
         plt.plot(rhyps, staRes, 'r+', lw=1)
         plt.plot([0, 2300], [0, 0], 'k--', lw=0.75)
         plt.ylim([-2., 2.])
-        plt.title(ev)
+        plt.xlim([0, 2200])
+        plt.title(ev + ' - ' + place, fontsize=9)
         
         # now plot sta name
         for rhyp, res, sta, net in zip(rhyps, staRes, stas, nets):

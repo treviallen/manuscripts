@@ -286,14 +286,15 @@ def retry_stationlist_fft(tr, pickDat):
 
 evdict = parse_ga_event_query('au_ge_4.4_earthquakes_export_edit.csv')
 
-def get_mag_type(fft_datetime):
+def get_ev_deets(fft_datetime):
     for evnum, ev in enumerate(evdict): 
         #ev['datetime'] = UTCDateTime(2009,3,18,5,28,17)
         if fft_datetime > UTCDateTime(ev['datetime']-timedelta(seconds=601)) \
            and fft_datetime < UTCDateTime(ev['datetime']+timedelta(seconds=300)):
                magtype = ev['magType']
+               evname = ev['description']
                
-    return magtype
+    return magtype, evname
 
 
 ################################################################################
@@ -615,7 +616,9 @@ for p, pf in enumerate(pickfiles[start_idx:]):
             recDat['eqla'] = pickDat['eqla']
             recDat['eqdp'] = pickDat['eqdp']
             recDat['mag'] =  pickDat['mag']
-            recDat['magType'] =  get_mag_type(UTCDateTime(pickDat['evdt']))
+            magType, evName = get_ev_deets(UTCDateTime(pickDat['evdt']))
+            recDat['magType'] = magType
+            recDat['place'] = evName
             recDat['rhyp'] = pickDat['rhyp']
             recDat['eqla'] = pickDat['eqla']
             
