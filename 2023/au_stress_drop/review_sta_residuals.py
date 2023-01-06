@@ -16,18 +16,18 @@ import warnings
 warnings.filterwarnings("ignore")
 
 ###############################################################################
-# load pickle 
+# load datasets 
 ###############################################################################
 
 recs = pickle.load(open('fft_data.pkl', 'rb' ))
 
 # convert mags to MW
 for i, rec in enumerate(recs):
-    if rec['magType'].startswith('mb'):
+    if rec['magType'].lower().startswith('mb'):
         recs[i]['mag'] = nsha18_mb2mw(rec['mag'])
-    elif rec['magType'].startswith('ml'):
+    elif rec['magType'].lower().startswith('ml'):
         # additional fix for use of W-A 2800 magnification pre-Antelope
-        if UTCDateTime(datetimes[i]) < UTCDateTime(2008, 1, 1):
+        if UTCDateTime(rec['ev']) < UTCDateTime(2008, 1, 1):
             recs[i]['mag'] -= 0.07
         
         # now fix ML
@@ -37,6 +37,12 @@ for i, rec in enumerate(recs):
 coeffs = pickle.load(open('atten_coeffs.pkl', 'rb' ))
 c = coeffs[11]
 print("Coeffs Freq = " +str('%0.3f' % c['freq']))
+
+# load station sets
+lines = open('station_sets.csv').readlines()
+sta_sets = []
+for line in lines:
+    sta_sets.append(set(line.strip().split(',')))
 
 ###############################################################################
 # set datasets
@@ -125,11 +131,17 @@ fig = plt.figure(1, figsize=(19,11))
 i = 1
 ii = 1
 for sta in stations:
-       
+    # check station sets
+    sta_set = set([sta])
+    
+    for ss in sta_sets:
+        if sta in ss:
+            sta_set = ss
+               
     staRes = []
     staDate = []
     for rec in recs:
-        if rec['sta'] == sta:
+        if rec['sta'] in sta_set:
             staRes.append(rec['yres'])
             staDate.append(UTCDateTime(rec['ev']).datetime)
             

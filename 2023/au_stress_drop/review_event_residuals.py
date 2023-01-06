@@ -23,11 +23,11 @@ recs = pickle.load(open('fft_data.pkl', 'rb' ))
 
 # convert mags to MW
 for i, rec in enumerate(recs):
-    if rec['magType'].startswith('mb'):
+    if rec['magType'].lower().startswith('mb'):
         recs[i]['mag'] = nsha18_mb2mw(rec['mag'])
-    elif rec['magType'].startswith('ml'):
+    elif rec['magType'].lower().startswith('ml'):
         # additional fix for use of W-A 2800 magnification pre-Antelope
-        if UTCDateTime(datetimes[i]) < UTCDateTime(2008, 1, 1):
+        if UTCDateTime(rec['ev']) < UTCDateTime(2008, 1, 1):
             recs[i]['mag'] -= 0.07
         
         # now fix ML
@@ -35,7 +35,7 @@ for i, rec in enumerate(recs):
 
 # load atten coeffs
 coeffs = pickle.load(open('atten_coeffs.pkl', 'rb' ))
-c = coeffs[11]
+c = coeffs[36]
 print("Coeffs Freq = " +str('%0.3f' % c['freq']))
 
 ###############################################################################
@@ -135,6 +135,8 @@ for ev in events:
             mag = rec['mag']
             nets.append(rec['net'])
             place = rec['place']
+            if len(place) > 50:
+                place = place[0:50]
     
     # fill residual array
     staRes = array(staRes)
@@ -157,7 +159,7 @@ for ev in events:
         plt.plot([0, 2300], [0, 0], 'k--', lw=0.75)
         plt.ylim([-2., 2.])
         plt.xlim([0, 2200])
-        plt.title(ev + ' - ' + place, fontsize=9)
+        plt.title(' - '.join((ev, 'M'+str('%0.2f' % mag), place)), fontsize=10)
         
         # now plot sta name
         for rhyp, res, sta, net in zip(rhyps, staRes, stas, nets):

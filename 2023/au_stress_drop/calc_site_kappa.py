@@ -1,5 +1,5 @@
 import pickle
-from numpy import unique, array, arange, log, log10, exp, mean, nanmean, ndarray, \
+from numpy import unique, array, arange, log, log10, exp, mean, nanmean, nanmedian, ndarray, \
                   nanmedian, vstack, pi, nan, isnan, interp, where, zeros_like, sqrt
 from misc_tools import get_binned_stats, dictlist2array, get_mpl2_colourlist
 #from js_codes import get_average_Q_list, extract_Q_freq
@@ -150,12 +150,6 @@ events = unique(dictlist2array(recs, 'ev'))
 stations = unique(dictlist2array(recs, 'sta'))
 
 # load station sets
-'''
-keep_nets = set(['AU', 'IU', 'S1', 'G', 'MEL', 'ME', '20', 'AD', 'SR', 'UM', 'AB', \
-                 '1P', '1K', '1P', '2P', '6F', '7K', '7G', 'G', '7B', '4N', '7D'])
-if rec['net'] in keep_nets:
-'''
-
 lines = open('station_sets.csv').readlines()
 sta_sets = []
 for line in lines:
@@ -259,8 +253,8 @@ if pltTrue == True:
     
 
 # add mean kappa to list
-mean_kappa = nanmean(array(kappa_list))
-kappa_txt += ','.join(('MEAN_SITE', str('%0.6f' % mean_kappa), 'nan')) + '\n'
+mean_kappa = nanmedian(array(kappa_list))
+kappa_txt += ','.join(('MEDIAN_SITE', str('%0.6f' % mean_kappa), 'nan')) + '\n'
 
 # write csv
 f = open('site_kappa.csv', 'w')

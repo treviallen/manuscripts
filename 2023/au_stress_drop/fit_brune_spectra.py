@@ -1,6 +1,6 @@
 import pickle
 from numpy import unique, array, arange, log, log10, exp, mean, nanmean, ndarray, std, sqrt, \
-                  nanmedian, nanstd, vstack, pi, nan, isnan, interp, where, zeros_like, ones_like
+                  nanmedian, nanstd, vstack, pi, nan, isnan, interp, where, zeros_like, ones_like, floor, ceil
 from scipy.stats import linregress, trim_mean
 from misc_tools import get_binned_stats, dictlist2array, get_mpl2_colourlist
 from mag_tools import nsha18_mb2mw, nsha18_ml2mw
@@ -25,10 +25,11 @@ def parse_kappa_data():
     
     kapdat = []
     # read parameter file
-    lines = open('site_kappas.csv').readlines()[1:]
+    lines = open('site_kappa.csv').readlines()[1:]
     for line in lines:
         dat = line.split(',')
-        kap = {'sta':dat[0], 'kappa_0': float(dat[1]), 'kappa_r': float(dat[2])}
+        #kap = {'sta':dat[0], 'kappa_0': float(dat[1]), 'kappa_r': float(dat[2])}
+        kap = {'sta':dat[0], 'kappa0': float(dat[1]), 'cnt': float(dat[2])}
     
         kapdat.append(kap)
     
@@ -67,14 +68,19 @@ def correct_atten(rec, coeffs, kapdat):
     distterms.append(nan) # as no coeffs for last freq
     
     #	get distance dependent kappa
-    kappa = 0.006 # default kappa
+    #smedian_kappa = 0.072214 # should read this from file
+    kappa = kapdat[-1]['kappa0'] # default kappa
+    
+    # get site kappa
     for kap in kapdat:
         if kap['sta'] == rec['sta']:
-            kappa = kap['kappa_0'] + kap['kappa_r'] * rec['rhyp'] 
+            kappa = kap['kappa0'] # + kap['kappa_r'] * rec['rhyp'] 
     
     k_term = exp(-1 * pi * freqs * kappa)
     
-    cor_fds = 10**(log10(raw_fds) - distterms) # - log10(k_term))
+    cor_fds = 10**(log10(raw_fds) - distterms) # - log10(k_term)) #
+    
+    #print(k_term)
     
     # get data exceeding SN ratio
     idx = where(sn_ratio < sn_thresh)[0]
@@ -175,12 +181,22 @@ for event in events:
     handles1 = []
     labels1 = []
     
+    ceil_log_fds = -99
+    floor_log_fds = 99
+    
     i = 0
     for rec in recs:
         if len(rec['channels']) > 0:
             if rec['ev'] == event:
                 print('   '+rec['sta'])
                 cor_fds, cor_fds_nan, freqs = correct_atten(rec, coeffs, kapdat)
+                
+                # get max/min
+                if ceil(max(log10(cor_fds[30:]))) > ceil_log_fds:
+                    ceil_log_fds = ceil(max(log10(cor_fds[30:])))
+                    
+                if floor(min(log10(cor_fds[30:]))) > floor_log_fds:
+                    floor_log_fds = floor(min(log10(cor_fds[30:])))
                 
                 if i <= 9:
                     h1, = plt.loglog(freqs, cor_fds_nan,'-', c=cs[i], lw=1, label=rec['sta'])
@@ -218,8 +234,8 @@ for event in events:
         h2, = plt.loglog(freqs, mean_fds,'--', color='0.2', lw=1.5, label='Mean Source Spectrum')
     
         # fit mean curve
-        minf = 0.5
-        maxf = 10.
+        minf = 1.
+        maxf = 7.
         fidx = where((freqs >= minf) & (freqs <= maxf) & (isnan(mean_fds) == False))[0]
         #sfidx = where((freqs >= minf) & (freqs <= maxsf))[0] # for labelling curves
         
@@ -251,6 +267,7 @@ for event in events:
         plt.title('; '.join((event, 'MW '+str('%0.2f' % mw), 'SD '+str('%0.2f' % sd)+' MPa')), fontsize=10)
     plt.gca().add_artist(leg1)
     plt.xlim([0.3, 10])
+    plt.ylim([10**(ceil_log_fds-4), 10**ceil_log_fds])
     plt.grid(which='both', color='0.75')
     
     

@@ -293,8 +293,9 @@ def get_ev_deets(fft_datetime):
            and fft_datetime < UTCDateTime(ev['datetime']+timedelta(seconds=300)):
                magtype = ev['magType']
                evname = ev['description']
+               mag = ev['mag'] # pref_mag
                
-    return magtype, evname
+    return mag, magtype, evname
 
 
 ################################################################################
@@ -615,8 +616,8 @@ for p, pf in enumerate(pickfiles[start_idx:]):
             recDat['eqlo'] = pickDat['eqlo']
             recDat['eqla'] = pickDat['eqla']
             recDat['eqdp'] = pickDat['eqdp']
-            recDat['mag'] =  pickDat['mag']
-            magType, evName = get_ev_deets(UTCDateTime(pickDat['evdt']))
+            mag, magType, evName = get_ev_deets(UTCDateTime(pickDat['evdt']))
+            recDat['mag'] = mag
             recDat['magType'] = magType
             recDat['place'] = evName
             recDat['rhyp'] = pickDat['rhyp']
