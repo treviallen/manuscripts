@@ -53,7 +53,7 @@ else:
     network = 'IU'
     
     iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/II/ii-gmap-stations-autrim.txt')
-    network = 'II'
+    network = 'II'		
     
     iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/G/g-gmap-stations-autrim.txt')
     network = 'G'
@@ -89,7 +89,7 @@ for ev in gadat: #[40:]:
     for isl in iris_sta_list:
         
         # check if station is open
-        if isl['starttime'] <= dt and isl['stoptime'] >= dt and dt.year >= 2016 and dt.year < 2017:
+        if isl['starttime'] <= dt and isl['stoptime'] >= dt: # and dt.year >= 2016 and dt.year < 2017:
             
             # check if in distance range
             repi = distance(ev['lat'], ev['lon'], isl['lat'], isl['lon'])[0]
