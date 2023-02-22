@@ -59,6 +59,14 @@ def parse_pickfile(pickfile):
         
     return pickDat
 
+def calc_disp_spectra(tr, corfftr, corffti, freq):
+    if tr.stats.channel[1] == 'N':
+        dispamp = sqrt((tr.stats.delta)**2 * (corfftr**2 + corffti**2)) / ((2 * pi * freq)**2)
+    else:
+        dispamp = sqrt((tr.stats.delta)**2 * (corfftr**2 + corffti**2)) / (2 * pi * freq)
+        
+    return dispamp
+
 def get_smoothed_fft_spectra(freqs, disp_amps):
     
     # smooth spectra
@@ -122,7 +130,7 @@ def response_corrected_fft(tr, pickDat):
         recdate = pickDat['origintime']
         #print(seedid, channel)
         nat_freq, inst_ty, damping, sen, recsen, gain, pazfile, stlo, stla, netid \
-              = get_response_info(tr.stats.station, recdate.datetime, tr.stats.channel)
+              = get_response_info(tr.stats.station, recdate.datetime, tr.stats.channel, tr.stats.network)
         
         # get fft of trace
         freq, wavfft = calc_fft(tr.data, tr.stats.sampling_rate)
@@ -136,10 +144,15 @@ def response_corrected_fft(tr, pickDat):
         # deconvolve response
         corfftr, corffti = deconvolve_instrument(real_resp, imag_resp, wavfft)
         
-        if inst_ty == 'N':
-            dispamp = sqrt((tr.stats.delta)**2 * (corfftr**2 + corffti**2)) / ((2 * pi * freq)**2)
-        else:
-            dispamp = sqrt((tr.stats.delta)**2 * (corfftr**2 + corffti**2)) / (2 * pi * freq)
+        '''
+        # from gmprocess
+        dt = trace.stats.delta
+        spec = abs(np.fft.rfft(trace.data, n=nfft)) * dt
+        freqs = np.fft.rfftfreq(nfft, dt)
+        return spec, freqs
+        '''
+        
+        dispamp = calc_disp_spectra(tr, corfftr, corffti, freq)
         
         staloc = {'latitude':stla, 'longitude':stlo}
         
@@ -242,10 +255,7 @@ def response_corrected_fft(tr, pickDat):
         corfftr = wavfft.real
         corffti = wavfft.imag
                 
-        if tr.stats.channel[1] == 'N':
-            dispamp = sqrt((tr.stats.delta)**2 * (corfftr**2 + corffti**2)) / ((2 * pi * freq)**2)
-        else:
-            dispamp = sqrt((tr.stats.delta)**2 * (corfftr**2 + corffti**2)) / (2 * pi * freq)
+        dispamp = calc_disp_spectra(tr, corfftr, corffti, freq)
                 
     return freq[1:mi], dispamp[1:mi]
 
@@ -255,9 +265,9 @@ def retry_stationlist_fft(tr, pickDat):
     start_time = tr.stats.starttime
     
     recdate = pickDat['origintime']
-    #print(seedid, channel, start_time, recdate.datetime)
+    
     nat_freq, inst_ty, damping, sen, recsen, gain, pazfile, stlo, stla, netid \
-          = get_response_info(tr.stats.station, recdate.datetime, tr.stats.channel)
+          = get_response_info(tr.stats.station, recdate.datetime, tr.stats.channel, tr.stats.network)
     
     # get fft of trace
     freq, wavfft = calc_fft(tr.data, tr.stats.sampling_rate)
@@ -271,10 +281,7 @@ def retry_stationlist_fft(tr, pickDat):
     # deconvolve response
     corfftr, corffti = deconvolve_instrument(real_resp, imag_resp, wavfft)
     
-    if inst_ty == 'N':
-        dispamp = sqrt((tr.stats.delta)**2 * (corfftr**2 + corffti**2)) / ((2 * pi * freq)**2)
-    else:
-        dispamp = sqrt((tr.stats.delta)**2 * (corfftr**2 + corffti**2)) / (2 * pi * freq)
+    dispamp = calc_disp_spectra(tr, corfftr, corffti, freq)
     
     staloc = {'latitude':stla, 'longitude':stlo}
     	
@@ -309,7 +316,7 @@ pickfiles = listdir_extension(folder, 'picks')
 # set some defaults
 ################################################################################
 
-interp_freqs = logspace(-1,2,121)[:-12] # from 0.1-50 Hz
+interp_freqs =  logspace(-1,2,241)[32:-24] # from 0.25-50 Hz
 
 ################################################################################
 # parse AU dataless
@@ -361,6 +368,7 @@ else:
 records = [] 
 f = 0 
 start_idx = 0
+#pickfiles = ['2023-01-05T05.08.AU.ONGER.picks']
 for p, pf in enumerate(pickfiles[start_idx:]):
     skipRec = False
     tr = nan
@@ -402,7 +410,8 @@ for p, pf in enumerate(pickfiles[start_idx:]):
             new_st = remove_low_sample_data(st)
             
             # remove HTT stations
-            new_st = remove_htt(new_st)
+            if new_st[0].stats.starttime > UTCDateTime(2018,12,12):
+                new_st = remove_htt(new_st)
             
             # remove acceleration data
             #new_st = remove_acceleration_data(new_st)
@@ -612,6 +621,7 @@ for p, pf in enumerate(pickfiles[start_idx:]):
             recDat['sta'] = tr.stats.station
             recDat['net'] = tr.stats.network
             recDat['location'] = tr.stats.location
+            recDat['sampling_rate'] = tr.stats.sampling_rate
             recDat['ev'] = pickDat['ev']
             recDat['eqlo'] = pickDat['eqlo']
             recDat['eqla'] = pickDat['eqla']

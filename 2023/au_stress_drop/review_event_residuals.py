@@ -35,7 +35,7 @@ for i, rec in enumerate(recs):
 
 # load atten coeffs
 coeffs = pickle.load(open('atten_coeffs.pkl', 'rb' ))
-c = coeffs[36]
+c = coeffs[72]
 print("Coeffs Freq = " +str('%0.3f' % c['freq']))
 
 ###############################################################################
@@ -53,7 +53,7 @@ stalist = stationlist2dict()
 stalist_start = dictlist2array(stalist, 'start')
 stalist_sta = dictlist2array(stalist, 'sta')
 
-fidx = 36
+fidx = 72
 chan = recs[0]['channels'][0]
 freq = recs[0][chan]['freqs'][fidx]
 print("Reg Freq = " +str('%0.3f' % freq))

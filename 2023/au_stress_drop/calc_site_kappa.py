@@ -25,7 +25,7 @@ def correct_atten(rec, coeffs):
     sn_ratio = rec[channel]['sn_ratio']
     freqs = rec[channel]['freqs']
     
-    sn_thresh = 5.
+    sn_thresh = 4.
     
     # loop thru freqs
     distterms = []
@@ -61,12 +61,12 @@ def correct_atten(rec, coeffs):
             
     return cor_fds, cor_fds_nan, freqs
  
-def regress_kappa(freqs, mean_fas):
+def regress_kappa(freqs, mean_fas, maxf):
     from numpy import log, isnan, nan, pi
     from scipy.stats import linregress
     
     # regress record kappa
-    ridx = where((freqs >= 5.) & (freqs <= 12.) & (isnan(mean_fas) == False))[0] # assume 5Hz past corner
+    ridx = where((freqs >= 5.) & (freqs <= maxf) & (isnan(mean_fas) == False))[0] # assume 5Hz past corner
     if len(ridx) <= 5: # need at least 5 data points
         lamda = nan
         kappa = nan
@@ -162,6 +162,8 @@ i = 1
 ii = 1
 for sta in stations:
     cnt = 0
+    maxf = 12.
+            
     ax = plt.subplot(3,3,i)
     
     log_stack_logfas = []
@@ -207,6 +209,11 @@ for sta in stations:
             
             if isinstance(norm_fas, ndarray):
                 cnt += 1
+                
+            # get max regression freq
+            channel = rec['channels'][0]
+            if 0.45 * rec[channel]['sample_rate'] < maxf:
+                maxf = 0.45 * rec[channel]['sample_rate']
     
     # get mean spectra
     mean_fas = exp(nanmean(log_stack_logfas, axis=0))
@@ -225,7 +232,7 @@ for sta in stations:
     nidx = where(isnan(mean_fas) == False)[0]
     # calculate kappa
     if len(nidx) >= 5:
-        kappa, kappa_intercept, ridx = regress_kappa(freqs, mean_fas)
+        kappa, kappa_intercept, ridx = regress_kappa(freqs, mean_fas, maxf)
         kappa_txt += ','.join((sta, str('%0.6f' % kappa), str(cnt))) + '\n'
         kappa_list.append(kappa)
         print('kappa = ' + str('%0.4f' % kappa))

@@ -35,7 +35,7 @@ for i, rec in enumerate(recs):
 
 # load atten coeffs
 coeffs = pickle.load(open('atten_coeffs.pkl', 'rb' ))
-c = coeffs[11]
+c = coeffs[72]
 print("Coeffs Freq = " +str('%0.3f' % c['freq']))
 
 # load station sets
@@ -52,7 +52,7 @@ events = unique(dictlist2array(recs, 'ev'))
 mags = dictlist2array(recs, 'mag')
 stations = unique(dictlist2array(recs, 'sta'))
 
-fidx = 36
+fidx = 72
 chan = recs[0]['channels'][0]
 freq = recs[0][chan]['freqs'][fidx]
 print("Reg Freq = " +str('%0.3f' % freq))
@@ -126,7 +126,7 @@ plt.show()
 ###############################################################################
 # get stns res
 ###############################################################################
-dateRng = [UTCDateTime(1989,12,1).datetime, UTCDateTime(2023,1,1).datetime]
+dateRng = [UTCDateTime(1989,12,1).datetime, UTCDateTime(2023,2,1).datetime]
 fig = plt.figure(1, figsize=(19,11))
 i = 1
 ii = 1
