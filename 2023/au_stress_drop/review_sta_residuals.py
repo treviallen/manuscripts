@@ -35,7 +35,7 @@ for i, rec in enumerate(recs):
 
 # load atten coeffs
 coeffs = pickle.load(open('atten_coeffs.pkl', 'rb' ))
-c = coeffs[72]
+c = coeffs[38]
 print("Coeffs Freq = " +str('%0.3f' % c['freq']))
 
 # load station sets
@@ -52,7 +52,7 @@ events = unique(dictlist2array(recs, 'ev'))
 mags = dictlist2array(recs, 'mag')
 stations = unique(dictlist2array(recs, 'sta'))
 
-fidx = 72
+fidx = 38
 chan = recs[0]['channels'][0]
 freq = recs[0][chan]['freqs'][fidx]
 print("Reg Freq = " +str('%0.3f' % freq))
@@ -83,22 +83,22 @@ for i, rec in enumerate(recs):
             # get distance term
             D1 = sqrt(rec['rhyp']**2 + c['nref']**2)
             if rec['rhyp'] <= c['r1']:
-                distterm = c['nc0'] * log10(D1) + c['nc1']
+                distterm = c['nc0s'] * log10(D1) + c['nc1s']
             
             # set mid-field
             elif rec['rhyp'] > c['r1'] and rec['rhyp'] <= c['r2']:
                 D1 = sqrt(c['r1']**2 + c['nref']**2)
-                distterm = c['nc0'] * log10(D1) + c['nc1'] \
+                distterm = c['nc0s'] * log10(D1) + c['nc1s'] \
                            + c['mc0'] * log10(rec['rhyp'] / c['r1']) + c['mc1'] * (rec['rhyp'] - c['r1'])
             
             # set far-field
             elif rec['rhyp'] > c['r2']:
                 D1 = sqrt(c['r1']**2 + c['nref']**2)
-                distterm = c['nc0'] * log10(D1) + c['nc1'] \
+                distterm = c['nc0s'] * log10(D1) + c['nc1s'] \
                            + c['mc0'] * log10(c['r2'] / c['r1']) + c['mc1'] * (c['r2'] - c['r1']) \
                            + c['fc0'] * log10(rec['rhyp'] / c['r2']) + c['fc1'] * (rec['rhyp'] - c['r2'])
-            
-            # get mag correctio
+             
+            # get total correction
             ypred = magterm + distterm
             
             yobs = log10(rec[channel]['swave_spec'][fidx])
@@ -113,7 +113,7 @@ for i, rec in enumerate(recs):
     except:
         print('No data')
         recs[i]['yres'] = nan
-
+    
 fig = plt.figure(1, figsize=(18,5))
 
 plt.semilogx(rhyps, yres, '+', c='0.5')

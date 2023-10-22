@@ -206,6 +206,10 @@ def makesubplt(i, fig, plt, sta, sps, mag, dep, ztor, dip, rake, rhyp, vs30, dat
         plt.loglog(Kea20imt['per'], exp(Kea20imt['sa']),'-.' , lw=2., color=cs[1])
         plt.loglog(A19imt_BS['per'], exp(A19imt_BS['sa']),'-' , lw=1.5, color=cs[2])
         
+    
+    if sta == 'DRS':
+        print(Kea20imt)
+        print(A19imt_BS)
         
     # get recorded process_waves.py psa data
     T, geomean, pga, rhyp = get_site_geomean(sta, folder)

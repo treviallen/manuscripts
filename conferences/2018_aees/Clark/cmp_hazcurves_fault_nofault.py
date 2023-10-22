@@ -19,8 +19,8 @@ plt_places = ['Adelaide', 'Canberra', 'Melbourne', 'Perth']
 if getcwd().startswith('/nas'):
     cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/DATA/cpt/Paired_08.cpt'
 else:
-    cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//Paired_08.cpt'
-#cptfile = '//Users//tallen//Documents//DATA//GMT//cpt//qual-dark-06.cpt'
+    cptfile = '//Users//trev//Documents//DATA//GMT//cpt//Paired_08.cpt'
+
 ncolours = 9
 cmap, zvals = cpt2colormap(cptfile, ncolours)
 cmap = remove_last_cmap_colour(cmap)

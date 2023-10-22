@@ -50,9 +50,9 @@ def parse_filtering_data():
     
 def correct_atten(rec, coeffs, kapdat):
     channel = rec['channels'][0]
-    raw_fds = rec[channel]['swave_spec']
-    sn_ratio = rec[channel]['sn_ratio']
-    freqs = rec[channel]['freqs']
+    raw_fds = rec[channel]['swave_spec'][:-8]
+    sn_ratio = rec[channel]['sn_ratio'][:-8]
+    freqs = rec[channel]['freqs'][:-8]
     
     sn_thresh = 5. # used 4 in model regression
     

@@ -1,4 +1,5 @@
-from numpy import arange, around, array, random, delete, where, reshape, log10, sqrt, mean, floor
+from numpy import arange, around, array, random, delete, where, reshape, log10, \
+                  sqrt, mean, floor, random
 from os import system, path
 from misc_tools import listdir_extension
 from obspy import Trace
@@ -163,6 +164,10 @@ def get_nstas(mag, rand_seed):
     import pickle
     numPDF = pickle.load(open("../numPDF.pkl", "rb" ))
     
+    # want to go up to 6.5, but PDFs have a max of 6.0, so:
+    if mag >= 6.0:
+        mag = 5.99
+    
     for npdf in numPDF: 
         if npdf['mmin'] >= mag and npdf['mmax'] < mag:
             #nstas = around(norm.rvs(npdf['mu'], npdf['std'], size=1))
@@ -175,6 +180,10 @@ def get_distances(mag, nstas, rand_seed):
     import pickle
     distPDF = pickle.load(open("../distPDF.pkl", "rb" ))
     
+    # want to go up to 6.5, but PDFs have a max of 6.0, so:
+    if mag >= 6.0:
+        mag = 5.99
+    	
     for dpdf in distPDF: 
         if dpdf['mmin'] >= mag and dpdf['mmax'] < mag:
             try:
@@ -204,91 +213,35 @@ cmap, zvals = cpt2colormap(cptfile, ncolours)
 cmap = remove_last_cmap_colour(cmap)
 cs = (cmap(arange(ncolours-1)))
 
-# get event set
-bval_start = 1.2
-beta = bval2beta(bval_start)
 
-N0 = 1
-mmin = 2.1
-mmax = 7.3
-binwid = 0.05
+# set mag_sample
+mag_sample = random.uniform(low=2., high=6.5, size=(500,))
 
-# get incremental curve
-betacurve, mrng = get_oq_incrementalMFD(beta, N0, mmin, mmax, binwid)
-
-# get M5 idx
-idx5 = where(floor(mrng+0.01)==5.0)[0][0] # M 5 index
-
-# sum rates M >= 5
-m5_plus_rate = sum(betacurve[idx5:])
-
-# get M 5 rate of 1 per 20 yrs
-n_yrs = 20
-target_m5_rate = 1 / n_yrs
-
-# normalise betacurve by M 5 rate
-target_curve = target_m5_rate * betacurve / m5_plus_rate
-
-# sample beta curve
-prob_curve = target_curve / sum(target_curve)
-
-sigma_b = 1.
-b_val = 0.
-#binwid = 0.1
-mfd_mrng = arange(2.1, 7.4, 0.1)
-myrs = ones_like(mfd_mrng) * n_yrs
-    
-while sigma_b > 0.06: #0.042:
-    # smaple events
-    mag_sample = rand_seed.choice(mrng, size=500, p=prob_curve, replace=True) 
-    
-    b_val, sigma_b, cum_num, n_obs, bin_rates = get_bvalue(mfd_mrng, mag_sample, n_yrs)  # ignore b from this  
-    b_val, sigma_b, a0, siga_m, fn0, stdfn0 = weichert_algorithm(myrs, \
-                                           mfd_mrng+binwid/2, n_obs, mrate=0.0, \
-                                           bval=1.2, itstab=1E-4, maxiter=1000)
-    
-    betacurve, mrng = get_oq_incrementalMFD(bval2beta(b_val), a0, mmin, mmax, binwid)
-    
-    print(b_val, sigma_b)
-    
-pidx = n_obs > 0
-'''
-plt.semilogy(mrng, betacurve, '-', c=cs[0], lw=2.)
-plt.semilogy(mfd_mrng[pidx], bin_rates[pidx], 'o', c=cs[1], label='MW (b = '+str('%0.2f' % b_val)+')')
-'''
-#crash
-                
-# do smsim magic - only continue if within reasonable range!
+# loop thru mag sample
 events = []
-#print('!!!!!!!!FIX ME!!!!!!!!!')
-#if b_val > 1.17 and b_val < 1.23:
-
-if b_val > 1.16 and b_val < 1.24:
-
-    # loop thru mag sample
-    for mag in mag_sample:
-        # get sample number of stations
-        nstas = 0
-        while nstas < 3:
-            nstas = get_nstas(mag, rand_seed)
-        
-        # get sample distances
-        sample_dists = get_distances(mag, nstas, rand_seed)
-        
-        idx = sample_dists > 800.
-        sample_dists = delete(sample_dists, idx)
-        idx = sample_dists < 10.
-        sample_dists = delete(sample_dists, idx)
-        
-        # run smsim
-        if len(sample_dists) > 0:
-            for dist in sample_dists:
-                run_smsim(mag, dist)
-                
-            # get event data
-            wa_amps_2800, wa_amps_2080, ev_dists = get_event_data()
+for mag in mag_sample:
+    # get sample number of stations
+    nstas = 0
+    while nstas < 3:
+        nstas = get_nstas(mag, rand_seed)
+    
+    # get sample distances
+    sample_dists = get_distances(mag, nstas, rand_seed)
+    
+    idx = sample_dists > 800.
+    sample_dists = delete(sample_dists, idx)
+    idx = sample_dists < 10.
+    sample_dists = delete(sample_dists, idx)
+    
+    # run smsim
+    if len(sample_dists) > 0:
+        for dist in sample_dists:
+            run_smsim(mag, dist)
             
-            events.append({'mw':mag, 'wa_amps_2800':wa_amps_2800, 'wa_amps_2080':wa_amps_2080, 'dists':ev_dists})
+        # get event data
+        wa_amps_2800, wa_amps_2080, ev_dists = get_event_data()
+        
+        events.append({'mw':mag, 'wa_amps_2800':wa_amps_2800, 'wa_amps_2080':wa_amps_2080, 'dists':ev_dists})
 
 ################################################################################r
 # calculate ML mags

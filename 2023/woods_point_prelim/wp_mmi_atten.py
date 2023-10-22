@@ -75,7 +75,8 @@ d3 = plt.semilogx(dyfirepi, dyfimmi, '+', lw=2., color='0.6', ms=6)
 ####################################################################################
 # parse AU ipe
 ####################################################################################
-lines = open('../au_ipe/au_ipe_coefs.dat').readlines()
+'''
+lines = open('../../2022/au_ipe/au_ipe_coefs_all.dat').readlines()
 
 vert = 7.
 c0 = float(lines[1].strip().split()[-1]) 
@@ -90,7 +91,7 @@ h3 = float(lines[9].strip().split()[-1])
 
 # Allen 2019 deep
 A19_deep = c0 * mag + c1 + c2 * log10(sqrt(rrup**2 + rref**2)) + (h1*erf((eqdep-vert)/(h2*sqrt(2))) + h3)
-
+'''
 ####################################################################################
 # plot models   
 
@@ -169,7 +170,7 @@ h1 = plt.semilogx(rjb, Aea12rup, syms[0], color=cl[0], ls='-', ms=7, mec=cl[0], 
 h2 = plt.semilogx(rjb, AWW14ceus,syms[1], color=cl[1], ls='-', ms=7, mec=cl[1], markevery=5)
 h3 = plt.semilogx(rjb, AWW14cal, syms[2], color=cl[2], ls='-', ms=7, mec=cl[2], markevery=5)
 h4 = plt.semilogx(rjb, L15,      syms[3], color=cl[3], ls='-', ms=7, mec=cl[3], markevery=5)
-h5 = plt.semilogx(rjb, A19_deep, syms[4], color=cl[4], ls='-', ms=7, mec=cl[4], markevery=5)
+#h5 = plt.semilogx(rjb, A19_deep, syms[4], color=cl[4], ls='-', ms=7, mec=cl[4], markevery=5)
 
 #h4 = plt.semilogx(rjb, B14W12mmiPGA, '-s', color=cl[3], lw=1.5, ms=7, mec=cl[3], markevery=5)
 
@@ -189,8 +190,8 @@ f.close()
 
 d4 = plt.errorbar(10**medx, meanres, yerr=stdres, fmt='ks', ms=7, elinewidth=1.5, capsize=5, zorder=30000) 
 
-leg1 = plt.legend([h1[0], h2[0], h3[0], h4[0], h5[0], d3[0], d4[0]], \
-           ['AWW12 ATR', 'AWW14 CEUS', 'AWW14 CA', 'L15 AU', 'A21 AU', 'Raw DYFI', 'Binned MMI'], fontsize=12, loc=3, numpoints=1)
+leg1 = plt.legend([h1[0], h2[0], h3[0], h4[0],  d3[0], d4[0]], \
+           ['AWW12 ATR', 'AWW14 CEUS', 'AWW14 CA', 'L15 AU', 'Raw DYFI', 'Binned MMI'], fontsize=12, loc=3, numpoints=1)
 
 plt.grid(which='both', color='0.5')
 plt.xlim([8, maxrrup])

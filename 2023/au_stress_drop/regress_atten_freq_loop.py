@@ -11,10 +11,14 @@ import matplotlib as mpl
 from scipy.stats import linregress
 import scipy.odr.odrpack as odrpack
 from obspy import UTCDateTime
+from sys import argv
 mpl.style.use('classic')
 plt.rcParams['pdf.fonttype'] = 42
 import warnings
 warnings.filterwarnings("ignore")
+
+# = True of plotting/testing; = False for full regression
+pltTrue = argv[1]
 
 """
 def highside(x, hx):
@@ -149,10 +153,11 @@ def normalise_data(p, recs):
             
             # get binned data
             logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(mrhyps), log10(mamps))
-            #print (m, 10**binstrp)
+            
             # normalise data @ 500 km
-            nidx = where((binstrp > 2.69) & (binstrp < 2.71))[0]
-            nidx = where((binstrp > 2.49) & (binstrp < 2.51))[0]
+            nidx = where((binstrp > 2.69) & (binstrp < 2.71))[0] # 500 km
+            nidx = where((binstrp > 2.49) & (binstrp < 2.51))[0] # 250 km
+            nidx = where((binstrp > 1.99) & (binstrp < 2.01))[0] # 100 km
             
             if len(nidx) > 0:
                 #print (m, nidx)
@@ -180,11 +185,13 @@ def fit_near_source_atten(plt, norm_rhyps, log_norm_amps, r1):
     # get binned data
     log_norm_rhyps = log10(norm_rhyps)
     logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log_norm_rhyps, log_norm_amps)
+    '''
     if pltTrue == True:
         plt.loglog(10**medx, 10**logmedamp, 'rs', ms=7)
-
+    '''
+    
     # fit all data - keep me!
-    didx = where((medx >= log10(minr)) & (medx < log10(r1)) & (nperbin > 2))[0] 
+    didx = where((medx >= log10(minr)) & (medx < log10(r1)) & (nperbin > 2) & (isnan(medx) == False))[0] 
     data = odrpack.RealData(medx[didx], logmedamp[didx])
     
     #didx = where((log_norm_rhyps >= log10(minr)) & (log_norm_rhyps <= log10(r1)))[0]
@@ -218,7 +225,7 @@ def refit_near_source_atten(plt, norm_rhyps, log_norm_amps, r1, n0):
         return ans
         
     # fit all data - keep me!
-    didx = where((medx >= log10(minr)) & (medx < log10(r1)) & (nperbin > 2))[0] 
+    didx = where((medx >= log10(minr)) & (medx < log10(r1)) & (nperbin > 2) & (isnan(medx) == False))[0] 
     data = odrpack.RealData(medx[didx], logmedamp[didx])
     
     #didx = where((log_norm_rhyps >= log10(minr)) & (log_norm_rhyps <= log10(r1)))[0]
@@ -242,7 +249,7 @@ def fit_mid_field_atten(plt, norm_rhyps, log_norm_amps, n0, n1):
     logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log_norm_rhyps, log_norm_amps)
     
     # fit all data - keep me!
-    didx = where((medx >= log10(r1)) & (medx < log10(r2)) & (nperbin > 2))[0]
+    didx = where((medx >= log10(r1)) & (medx < log10(r2)) & (nperbin > 2) & (isnan(medx) == False))[0]
     data = odrpack.RealData(medx[didx], logmedamp[didx])
     
     #didx = where((log_norm_rhyps >= log10(minr)) & (log_norm_rhyps < log10(minr)))[0] # & (nperbin > 2))[0] #log10(r1))[0]
@@ -273,7 +280,7 @@ def fit_far_field_atten(plt, mc, norm_rhyps, log_norm_amps, n0, n1):
     logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log_norm_rhyps, log_norm_amps)
     
     # fit all data - keep me!
-    didx = where((medx >= log10(r2)) & (medx < log10(r3)) & (nperbin > 2))[0] 
+    didx = where((medx >= log10(r2)) & (medx < log10(r3)) & (nperbin > 2) & (isnan(medx) == False))[0] 
     data = odrpack.RealData(medx[didx], logmedamp[didx])
     
     #didx = where((log_norm_rhyps >= log10(minr)) & (log_norm_rhyps < log10(minr)))[0] # & (nperbin > 2))[0] #log10(r1))[0]
@@ -362,15 +369,16 @@ bins = arange(log10(minDist), log10(maxDist), 0.1)
 rec = recs[0]
 chan = rec['channels'][-1]
 freqs = rec[chan]['freqs']
-fidx=arange(0,150,17)+3 # for testing
-fidx=arange(0,len(freqs)-1,1) # for regressing all coeffs
 
-pltTrue = True
-if len(fidx) > 12:
+if pltTrue == 'False':
+    fidx=arange(0,len(freqs[:-8])-1,1) # for regressing all coeffs
     pltTrue = False
 
-if pltTrue == True:
+else:
     fig = plt.figure(1, figsize=(18,11))
+    fidx=arange(0,150,17)+4 # for testing
+    pltTrue = True
+
     
 coeffs = []
 nc0_array = []
@@ -409,10 +417,11 @@ for p, freq in enumerate(freqs[fidx]):
 ###############################################################################
 if pltTrue == True:
     sg_window = 3
+    sg_poly = 1
 else:
     sg_window = 41
+    sg_poly = 3
     
-sg_poly = 2
 smooth_nc0 = savitzky_golay(array(nc0_array[3:]), sg_window, sg_poly) # slope
 
 for i, c in enumerate(coeffs):
@@ -436,6 +445,9 @@ for p, freq in enumerate(freqs[fidx]):
     
     #plt.ylabel('Normalised Spectral Amplitude')
     #plt.xlabel('Hypocentral Distance (km)')
+    if pltTrue == True:
+        fig = plt.figure(1, figsize=(18,11))
+        plt.subplot(3,4,p+1)
     
     n1 = refit_near_source_atten(plt, norm_rhyps, log_norm_amps, r1, n0)[0]
     print(n1)
@@ -509,7 +521,7 @@ for p, freq in enumerate(freqs[fidx]):
     # instrument response
     ###############################################################################
     
-    fig = plt.figure(2, figsize=(18,11))
+    fig = plt.figure(2, figsize=(10,10))
     def fit_mag_intercept(c, x):
         from numpy import sqrt, log10
         
@@ -573,6 +585,7 @@ for p, freq in enumerate(freqs[fidx]):
     coeffs[p]['fc1'] = fc[1]
     coeffs[p]['magc0'] = magc[0]
     coeffs[p]['magc1'] = magc[1]
+    coeffs[p]['freq'] = freq
     
 
 

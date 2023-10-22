@@ -35,7 +35,7 @@ for i, rec in enumerate(recs):
 
 # load atten coeffs
 coeffs = pickle.load(open('atten_coeffs.pkl', 'rb' ))
-c = coeffs[72]
+c = coeffs[38]
 print("Coeffs Freq = " +str('%0.3f' % c['freq']))
 
 ###############################################################################
@@ -53,7 +53,7 @@ stalist = stationlist2dict()
 stalist_start = dictlist2array(stalist, 'start')
 stalist_sta = dictlist2array(stalist, 'sta')
 
-fidx = 72
+fidx = 38
 chan = recs[0]['channels'][0]
 freq = recs[0][chan]['freqs'][fidx]
 print("Reg Freq = " +str('%0.3f' % freq))
@@ -61,7 +61,6 @@ print("Reg Freq = " +str('%0.3f' % freq))
 if not freq == c['freq']:
    print('\n!!!! Frequency of coefficients inconsistent with data index !!!!\n')
    crash
-
 
 ###############################################################################
 # parse coefs and get model prediction
@@ -82,18 +81,18 @@ for i, rec in enumerate(recs):
             # get distance term
             D1 = sqrt(rec['rhyp']**2 + c['nref']**2)
             if rec['rhyp'] <= c['r1']:
-                distterm = c['nc0'] * log10(D1) + c['nc1']
+                distterm = c['nc0s'] * log10(D1) + c['nc1s']
             
             # set mid-field
             elif rec['rhyp'] > c['r1'] and rec['rhyp'] <= c['r2']:
                 D1 = sqrt(c['r1']**2 + c['nref']**2)
-                distterm = c['nc0'] * log10(D1) + c['nc1'] \
+                distterm = c['nc0s'] * log10(D1) + c['nc1s'] \
                            + c['mc0'] * log10(rec['rhyp'] / c['r1']) + c['mc1'] * (rec['rhyp'] - c['r1'])
             
             # set far-field
             elif rec['rhyp'] > c['r2']:
                 D1 = sqrt(c['r1']**2 + c['nref']**2)
-                distterm = c['nc0'] * log10(D1) + c['nc1'] \
+                distterm = c['nc0s'] * log10(D1) + c['nc1s'] \
                            + c['mc0'] * log10(c['r2'] / c['r1']) + c['mc1'] * (c['r2'] - c['r1']) \
                            + c['fc0'] * log10(rec['rhyp'] / c['r2']) + c['fc1'] * (rec['rhyp'] - c['r2'])
             

@@ -332,7 +332,7 @@ plt.semilogy(ml_mfd_mrng[pidx], bin_rates[pidx], 'o', c=cs[7], label='ML MLM92 (
 from mag_tools import nsha18_ml2mw
 
 mw_mfd_mrng = nsha18_ml2mw(mrng_bj84)
-plt.semilogy(mw_mfd_mrng, betacurve_bj84, 'k--', lw=2., label='Post hoc MW rates (BJ84)')
+#plt.semilogy(mw_mfd_mrng, betacurve_bj84, 'k--', lw=2., label='Post hoc MW rates (BJ84)')
 
 ################################################################################
 # make pretty

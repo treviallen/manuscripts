@@ -158,87 +158,6 @@ for c, utrt, label in zip(cs, utrts, labels):
 # plot faults
 ##########################################################################################
 
-def plt_faults(m, plt, ffile, c='k', lw=2):
-    lines = open(ffile).readlines()[1:]
-    lats = []
-    lons = []
-    for line in lines:
-        dat = line.strip().split()
-        lons.append(float(dat[0]))
-        lats.append(float(dat[1]))
-        
-    xx, yy = m(array(lons),array(lats))
-    plt.plot(xx, yy, '-', c=c, lw=lw)
-'''
-ffile = 'fault_geometries/BANDA_model/block_boundaries/TIMO'
-plt_faults(m, plt, ffile, c='k', lw=2)
-ffile = 'fault_geometries/BANDA_model/block_boundaries/SERA'
-plt_faults(m, plt, ffile, c='r', lw=2)
-'''
-#parse shapefile
-shpfile = '../../2019/nac_attenuation/fault_geometries/PB_2002_boundaries_edit.shp'
-sf = shapefile.Reader(shpfile)
-
-faults2plot = ['SU/AU', 'TI-AU', 'BH\BS', 'BS-AU']
-arrowDirn = [1, 1, -1, 1, -1]
-arraowCol = ['k', '0.5', 'k', '0.5']
-
-discLen = 150. # km
-triLen = 40.
-halfTriLen = triLen / 2.
-for fault, adirn , acol, in zip(faults2plot, arrowDirn, arraowCol):
-    flolas = drawoneshapepoly(m, plt, sf, 'Name', fault, lw=1.5, polyline=True)
-    
-    discLon = []
-    discLat = []
-    discAzm = []
-    remainder = discLen #+ discLen/2.
-    for poly in flolas:
-        for i in range(1, len(poly[0])):
-            # get dist from point 1 to point 2
-            rng, az, baz = distance(poly[1][i-1], poly[0][i-1], poly[1][i], poly[0][i])
-            
-            lens = arange(discLen-remainder, rng, discLen)
-            
-            # get xy locs for lens
-            if len(lens) > 0:
-                for l in lens:
-                    discPos = reckon(poly[1][i-1], poly[0][i-1], l, az)
-                    discLon.append(discPos[0])
-                    discLat.append(discPos[1])
-                    discAzm.append(az)
-                    
-                remainder = rng - lens[-1]
-            else:
-                remainder += rng
-
-    # now, at each point, make dip triangle
-    for dlo, dla, daz in zip(discLon, discLat, discAzm):
-        # pt1
-        triLons = [reckon(dla, dlo, halfTriLen, daz)[0]]
-        triLats = [reckon(dla, dlo, halfTriLen, daz)[1]]
-        
-        # pt2
-        triLons.append(reckon(dla, dlo, halfTriLen, daz+180)[0])
-        triLats.append(reckon(dla, dlo, halfTriLen, daz+180)[1])
-        
-        # pt3 - assum equilateral triange
-        triHeight = sqrt(triLen**2 - halfTriLen**2)
-        arrowAng = adirn * 90.
-        triLons.append(reckon(dla, dlo, triHeight, daz-arrowAng)[0])
-        triLats.append(reckon(dla, dlo, triHeight, daz-arrowAng)[1])
-    
-        xx, yy = m(triLons, triLats)
-        #plt.plot(xx, yy, 'o', c='r', lw=2, )
-        plt.fill(xx,yy, facecolor=acol, edgecolor='k', linewidth=0.5, alpha=1, zorder=10000)
-    
-# add Flores-Wetar
-shpfile = '../../2019/nac_attenuation/fault_geometries/flores-wetar.shp'
-sf = shapefile.Reader(shpfile)
-flolas = drawshapepoly(m, plt, sf, lw=1.5, polyline=True)
-lons = flolas[0][0]
-lats = flolas[0][1]
-map_fault_dip_dirn(m, plt, lons, lats, discLen, triLen, fc='0.5', ec='k', lw=0.5, invArrow=True)
 
 ##########################################################################################
 # annotate text
@@ -304,7 +223,7 @@ plt.text(x, y, 'New Guinea\nHighlands', size=10, c='k', va='center', ha='center'
 ncols = 11
 
 # get year range
-minyear = 1970
+minyear = 1900
 maxyear = 2025
 yearrng = float(round(maxyear - minyear))
 
