@@ -1,0 +1,5 @@
+outfile      = nsha23_regional_uhs.png
+infile       = /Users/trev/Documents/Geoscience_Australia/NSHA2023/source_models/complete_model/2023_final/results_uhs_fractiles/hazard_uhs-mean_1.csv
+outputdir    = uhs_plots
+sitelistfile = ../../shared/nsha_cities.csv
+pltplaces    = Northam;Kalgoorlie;Broome;Yulara;Hawker;Jindabyne;Morwell

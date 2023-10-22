@@ -1,0 +1,5 @@
+NSHA23_smoothed_seismicity_models
+Geoscience Australia (Fixed);/Users/trev/Documents/Geoscience_Australia/NSHA2023/source_models/smoothed_seismicity/GA_fixed_smoothing_50_3_collapsed_single_corner_completeness/results_maps_PGA/hazard_map-mean_1.csv
+Geoscience Australia (Adaptive);/Users/trev/Documents/Geoscience_Australia/NSHA2023/source_models/smoothed_seismicity/GA_adaptive_smoothing_collapsed_K3_single_corner_completeness/results_maps_PGA/hazard_map-mean_1.csv
+Risk Frontiers;/Users/trev/Documents/Geoscience_Australia/NSHA2023/source_models/smoothed_seismicity/Hall2007_2023/results_maps_PGA/hazard_map-mean_1.csv
+Risk Frontiers (Truncated);/Users/trev/Documents/Geoscience_Australia/NSHA2023/source_models/smoothed_seismicity/Hall2007_2023/results_maps_PGA_trunc/hazard_map-mean_1.csv
