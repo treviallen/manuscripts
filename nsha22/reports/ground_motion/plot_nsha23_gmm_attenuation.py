@@ -88,6 +88,15 @@ for j, t in enumerate(Tplot):
         
         syms = ['s', 'x', '+', '1', '2', 'o']
         
+        # build D15 table for Russ
+        if i == 0:
+            # make header
+            D15periods = ','.join(['T='+str(x) for x in array(D15imt['per'])])
+            tabtxt = 'mag,dep,rrup,rjb,vs30,' + D15periods + '\n'
+         	
+        D15sa = ','.join([str('%0.5f' % x) for x in array(D15imt['sa'])])
+        tabtxt += ','.join((str(mag), str(dep), str('%0.2f' % rrup[i]), str('%0.2f' % rjb[i]), str(vs30))) + ',' + D15sa + '\n'
+            
         if t == 0.0:
             AB06r.append(AB06imt['pga'][0])
             Sea09_NCr.append(Sea09imt['pga'][0])
@@ -144,6 +153,11 @@ for j, t in enumerate(Tplot):
                    ['AB06','Sea09(NC)','Sea09(YC)', 'A12', 'D15', 'NGA-E', 'ESHM20'],loc=3,numpoints=1,fontsize=11)
                    
 #                   'AB06','Sea09(NC)','Sea09(YC)', 'A12', 'D15', 'NGA-E', 'ESHM20'
+
+# export table for russ
+f = open('D15_gmm_table.csv', 'w')
+f.write(tabtxt)
+f.close()
       
 plt.savefig(prefix+'_atten.png', format='png', dpi=300, bbox_inches='tight')
 plt.show()
