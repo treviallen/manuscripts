@@ -45,9 +45,9 @@ vs30 = 760.
 
 rjb = 20 # km - hardwired
 rrup = sqrt(rjb**2 + dep**2) # assume point source; i.e. repi = rjb
-mags = arange(4.5, 7.6, 0.5)
+mags = arange(4.5, 7.6, 0.2)
 
-fig = plt.figure(1, figsize=(11, 13))
+fig = plt.figure(1, figsize=(11, 11))
 
 ncols = 7
 cptfile = '/Users/trev/Documents/DATA/GMT/cpt/gay-flag-1978.cpt'
@@ -72,7 +72,7 @@ Tplot = [0.0, 0.2, 1.0, 2.0]
 #Tplot = [0.0]
 # loop thru periods
 for j, t in enumerate(Tplot):
-    ax = plt.subplot(3, 2, j+1)
+    ax = plt.subplot(2, 2, j+1)
     AB06r = []
     Sea09_NCr = []
     Sea09_YCr = []
@@ -112,31 +112,32 @@ for j, t in enumerate(Tplot):
             ESHM20r.append(interp(t, ESHM20Cimt['per'], ESHM20Cimt['sa']))
             
     if colTrue == 'True':
-        h1 = plt.loglog(rjb, exp(AB06r),  ls='-', lw=1., color=cs[0])
-        h2 = plt.loglog(rjb, exp(Sea09_NCr), ls='-', lw=1., color=cs[1])
-        h3 = plt.loglog(rjb, exp(Sea09_YCr), ls='-', lw=1., color=cs[2])
-        h4 = plt.loglog(rjb, exp(A12r),   ls='-', lw=1., color=cs[3])
-        h5 = plt.loglog(rjb, exp(D15r), ls='-', lw=1., color=cs[4])
-        h6 = plt.loglog(rjb, exp(NGAEr),  ls='-', lw=1., color=cs[5])
-        h7 = plt.loglog(rjb, exp(ESHM20r), ls='-', lw=1., color=cs[6])
+        h1 = plt.semilogy(mags, exp(AB06r),  ls='-', lw=1., color=cs[0])
+        h2 = plt.semilogy(mags, exp(Sea09_NCr), ls='-', lw=1., color=cs[1])
+        h3 = plt.semilogy(mags, exp(Sea09_YCr), ls='-', lw=1., color=cs[2])
+        h4 = plt.semilogy(mags, exp(A12r),   ls='-', lw=1., color=cs[3])
+        h5 = plt.semilogy(mags, exp(D15r), ls='-', lw=1., color=cs[4])
+        h6 = plt.semilogy(mags, exp(NGAEr),  ls='-', lw=1., color=cs[5])
+        h7 = plt.semilogy(mags, exp(ESHM20r), ls='-', lw=1., color=cs[6])
         
         
     if j >= 2:
-        plt.xlabel('$\mathregular{R_{JB}}$ (km)', fontsize=16)
+        plt.xlabel('Moment Magnitude', fontsize=16)
     
     if j == 0 or j == 2 or j == 4:
         plt.ylabel('Spectral Acceleration (g)', fontsize=16)
         
-    plt.xlim([8, 600])
-    plt.ylim([5E-4, 2])
+    #plt.xlim([8, 600])
+    #plt.ylim([5E-4, 2])
        
     #plt.title(titles[j])
-    xtxt = get_log_xy_locs(ax.get_xlim(), 0.95)
-    ytxt = get_log_xy_locs(ax.get_ylim(), 0.95)
-    plt.text(xtxt, ytxt, titles[j], size=17, horizontalalignment='right', verticalalignment='top', weight='normal', bbox=props)
+    xtxt = 4.5 + (7.5-4.5)*0.95
+    ytxt = get_log_xy_locs(ax.get_ylim(), 0.05)
+    plt.text(xtxt, ytxt, titles[j], size=17, horizontalalignment='right', verticalalignment='bottom', weight='normal', bbox=props)
     plt.grid(which='both', color='0.5')
+    
     ylims = ax.get_ylim()
-    plt.text(7., ylims[1]*1.25, letters[j], va='bottom', ha ='right', fontsize=16)
+    plt.text(4.3, ylims[1]*1.25, letters[j], va='bottom', ha ='right', fontsize=16)
 
     if j == 0:
         '''
@@ -144,7 +145,7 @@ for j, t in enumerate(Tplot):
                    ['AB06','Sea09(NC)','Sea09(YC)*', 'A12', 'D15', 'NGA-E', 'ESHM20*'],loc=3,numpoints=1,fontsize=11)
         '''           
         plt.legend((h1[0], h2[0], h3[0], h4[0], h5[0], h6[0], h7[0]), \
-                   ['AB06','Sea09(NC)','Sea09(YC)', 'A12', 'D15', 'NGA-E', 'ESHM20'],loc=3,numpoints=1,fontsize=11)
+                   ['AB06','Sea09(NC)','Sea09(YC)*', 'A12', 'D15', 'NGA-E', 'ESHM20*'],loc=2,numpoints=1,fontsize=11)
                    
 #                   'AB06','Sea09(NC)','Sea09(YC)', 'A12', 'D15', 'NGA-E', 'ESHM20'
 

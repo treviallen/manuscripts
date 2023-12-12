@@ -46,7 +46,7 @@ vs30 = 760.
 rjb = logspace(log10(8.),log10(600.), 50)
 rrup = sqrt(rjb**2 + dep**2) # assume point source; i.e. repi = rjb
 
-fig = plt.figure(1, figsize=(11, 13))
+fig = plt.figure(1, figsize=(11, 11))
 
 ncols = 7
 cptfile = '/Users/trev/Documents/DATA/GMT/cpt/gay-flag-1978.cpt'
@@ -71,7 +71,7 @@ Tplot = [0.0, 0.2, 1.0, 2.0]
 #Tplot = [0.0]
 # loop thru periods
 for j, t in enumerate(Tplot):
-    ax = plt.subplot(3, 2, j+1)
+    ax = plt.subplot(2, 2, j+1)
     AB06r = []
     Sea09_NCr = []
     Sea09_YCr = []
@@ -150,7 +150,7 @@ for j, t in enumerate(Tplot):
                    ['AB06','Sea09(NC)','Sea09(YC)', 'A12', 'D15', 'NGA-E', 'ESHM20'],loc=3,numpoints=1,fontsize=11)
         '''           
         plt.legend((h1[0], h2[0], h3[0], h4[0], h5[0], h6[0], h7[0]), \
-                   ['AB06','Sea09(NC)','Sea09(YC)', 'A12', 'D15', 'NGA-E', 'ESHM20'],loc=3,numpoints=1,fontsize=11)
+                   ['AB06','Sea09(NC)','Sea09(YC)*', 'A12', 'D15', 'NGA-E', 'ESHM20*'],loc=3,numpoints=1,fontsize=11)
                    
 #                   'AB06','Sea09(NC)','Sea09(YC)', 'A12', 'D15', 'NGA-E', 'ESHM20'
 
