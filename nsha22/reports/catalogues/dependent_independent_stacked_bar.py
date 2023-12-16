@@ -11,11 +11,11 @@ matplotlib.rc('xtick', labelsize=13)
 matplotlib.rc('ytick', labelsize=13) 
 
 
-fullcat = '/Users/trev/Documents/Geoscience_Australia/NSHA2023/catalogue/data/NSHA23CAT_V0.1_hmtk.csv'
+fullcat = '/Users/trev/Documents/Geoscience_Australia/NSHA2023/catalogue/data/NSHA23CAT_V0.1_hmtk_TC.csv'
 fulldat, fnevs = parse_hmtk_cat(fullcat)
 fullmags = dictlist2array(fulldat, 'prefmag')
 
-declcat = '/Users/trev/Documents/Geoscience_Australia/NSHA2023/catalogue/data/NSHA23CAT_V0.1_hmtk_declustered.csv'
+declcat = '/Users/trev/Documents/Geoscience_Australia/NSHA2023/catalogue/data/NSHA23CAT_V0.1_hmtk_declustered_TC.csv'
 decldat, dnevs = parse_hmtk_cat(declcat)
 declmags = dictlist2array(decldat, 'prefmag')
 
@@ -26,10 +26,10 @@ halfbin = 0.05
 fullcnt = []
 declcnt = []
 for mbin in mbins:
-    idx = where((fullmags > mbin-halfbin) & (fullmags <= mbin+halfbin))[0]
+    idx = where((fullmags >= mbin-halfbin-0.00000000001) & (fullmags < mbin+halfbin))[0]
     fullcnt.append(len(idx))
     
-    idx = where((declmags > mbin-halfbin) & (declmags <= mbin+halfbin))[0]
+    idx = where((declmags >= mbin-halfbin-0.00000000001) & (declmags < mbin+halfbin))[0]
     declcnt.append(len(idx))
     
 fullcnt = array(fullcnt) 
@@ -46,8 +46,8 @@ cntdiff = fullcnt - declcnt
 mags = [str('%0.1f' % x) for x in mbins]
 cols = ['#cb6c37', '#00718b']
 counts = {
-    "Declustered Catalogue": declcnt,
-    "Full Catalogue": cntdiff,
+    "Independent": declcnt,
+    "Dependent": cntdiff,
 }
 width = 0.07
 
@@ -66,8 +66,9 @@ plt.ylabel('Count', fontsize = 16)
 plt.xlabel('Moment Magnitude', fontsize = 16)
 #ax.set_title("Number of penguins with above average body mass")
 ax.legend(loc="upper right", fontsize = 16)
+ax.grid(axis = "y")
 plt.xlim([2.9, 6.7])
-plt.ylim([1, 3000])
+plt.ylim([0.5, 3000])
 
 plt.savefig('dependent_independent_stacked_bar.png', fmt='png', dpi=300, bbox_inches='tight')
 

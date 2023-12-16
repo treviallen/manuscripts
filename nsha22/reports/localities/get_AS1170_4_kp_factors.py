@@ -203,6 +203,7 @@ cptcmap = (cmap(arange(ncols)))
 kprp = 1. / kpprobs
 
 fig = plt.figure(1, figsize=(6,6))
+ax = plt.subplot(111)
 plt.plot([2500, 2500], [0, 12], '--', lw=0.75, c='0.2')
 for kpc, c in zip(kpcurves, cptcmap):
     plt.plot(kprp, kpc['kpfact'], '-', lw=1.5, c=c, label=kpc['place'])
@@ -216,12 +217,18 @@ plt.legend(loc=2, fontsize=10.5)
 plt.xlim([0, 5000])
 plt.ylim([0, 8])
 
-plt.xlabel('Return Period (Years)')
+# refmt x-axis to aeep
+xticks = ax.get_xticks()
+labels = ['1/'+str('%0.0f' % x) for x in xticks]
+labels[0] = r"$\infty$"
+ax.set_xticklabels(labels)
+
+plt.xlabel('Annual Exceedance Probability')
 plt.ylabel('Probability Factor '+r'$k_p$')
 plt.grid()
 #plt.ylabel(r'\textit{k_p}')
 
-plt.savefig('2018_nsha_kp_factors.png', fmt='png', bbox_inches='tight', dpi=300)
+plt.savefig('2023_nsha_kp_factors.png', fmt='png', bbox_inches='tight', dpi=300)
 
 # loop thru all sites and get average kp
 nat_kp_2500 = []

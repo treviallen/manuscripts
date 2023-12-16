@@ -26,10 +26,10 @@ halfbin = 0.05
 fullcnt = []
 declcnt = []
 for mbin in mbins:
-    idx = where((fullmags > mbin-halfbin) & (fullmags <= mbin+halfbin))[0]
+    idx = where((fullmags >= mbin-halfbin) & (fullmags < mbin+halfbin+0.00000000001))[0]
     fullcnt.append(len(idx))
     
-    idx = where((declmags > mbin-halfbin) & (declmags <= mbin+halfbin))[0]
+    idx = where((declmags >= mbin-halfbin) & (declmags < mbin+halfbin+0.00000000001))[0]
     declcnt.append(len(idx))
     
 fullcnt = array(fullcnt) 
