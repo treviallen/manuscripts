@@ -121,6 +121,8 @@ def response_corrected_fft(tr, pickDat):
         use_stationlist = True  
     elif tr.stats.network == '7M':
         use_stationlist = True                       
+    elif tr.stats.network == '5J':
+        use_stationlist = True       
     elif tr.stats.station == 'AS32' or tr.stats.station == 'ARPS' or tr.stats.station == 'ARPS' or tr.stats.network == 'MEL': 
         use_stationlist = True
     #print('use_stationlist', use_stationlist) 
@@ -316,7 +318,7 @@ pickfiles = listdir_extension(folder, 'picks')
 # set some defaults
 ################################################################################
 
-interp_freqs =  logspace(-1,2,241)[32:-24] # from 0.25-50 Hz
+interp_freqs = logspace(-1.5,2,176)[:-26] # from 0.03-30 Hz
 
 ################################################################################
 # parse AU dataless

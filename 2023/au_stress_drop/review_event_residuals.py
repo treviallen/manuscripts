@@ -81,18 +81,18 @@ for i, rec in enumerate(recs):
             # get distance term
             D1 = sqrt(rec['rhyp']**2 + c['nref']**2)
             if rec['rhyp'] <= c['r1']:
-                distterm = c['nc0s'] * log10(D1) + c['nc1s']
+                distterm = c['nc0s'] * log10(D1) #+ c['nc1s']
             
             # set mid-field
             elif rec['rhyp'] > c['r1'] and rec['rhyp'] <= c['r2']:
                 D1 = sqrt(c['r1']**2 + c['nref']**2)
-                distterm = c['nc0s'] * log10(D1) + c['nc1s'] \
+                distterm = c['nc0s'] * log10(D1)  \
                            + c['mc0'] * log10(rec['rhyp'] / c['r1']) + c['mc1'] * (rec['rhyp'] - c['r1'])
             
             # set far-field
             elif rec['rhyp'] > c['r2']:
                 D1 = sqrt(c['r1']**2 + c['nref']**2)
-                distterm = c['nc0s'] * log10(D1) + c['nc1s'] \
+                distterm = c['nc0s'] * log10(D1) \
                            + c['mc0'] * log10(c['r2'] / c['r1']) + c['mc1'] * (c['r2'] - c['r1']) \
                            + c['fc0'] * log10(rec['rhyp'] / c['r2']) + c['fc1'] * (rec['rhyp'] - c['r2'])
             

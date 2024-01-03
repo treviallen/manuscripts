@@ -126,8 +126,8 @@ f.close()
 fig = plt.figure(2, figsize=(8,8))
 ax = plt.subplot(111)
 
-plt.plot([1., 6.5], [1., 6.5], 'k--', label='1:1')
-plt.plot(mlm92_2800_array, mw_array, 'o', ms=7, c='dodgerblue', label='W-A Sensitivity = 2800')
+plt.plot([1., 7], [1., 7], 'k--', label='1:1')
+plt.plot(mlm92_2800_array, mw_array, 'o', ms=7, c='dodgerblue', label='Simulated Data (Sensitivity = 2800)')
 #plt.plot(mlm92_2080_array, mw_array, 'o', ms=7, c='orange', label='W-A Sensitivity = 2080') 
 
 ###############################################################################
@@ -153,9 +153,9 @@ c0 = out.beta[0]
 c1 = out.beta[1]
 c2 = out.beta[2]
 
-xplt = arange(1, 6.51, 0.01)
+xplt = arange(1, 6.61, 0.01)
 yplt = c0 * xplt**2 + c1 * xplt + c2
-plt.plot(xplt, yplt, 'k-', lw=2)
+plt.plot(xplt, yplt, '-', c='orangered', lw=2.5, label='Qudratic Fit')
 
 # write regression coeffs
 outtxt = '# coeffs for MW-ML for W-A sensitivity = 2800, e.g.: MW = c0 * ML2800**2 + c1 * ML2800 + c2\n'
@@ -172,7 +172,7 @@ plt.ylabel('MW', fontsize=20)
 plt.xticks(fontsize=17)
 plt.yticks(fontsize=17)
 plt.grid(which='both')
-plt.legend(loc=2, numpoints=3)
+plt.legend(loc=2, numpoints=1)
 plt.xlim([1.75, 7.0])
 plt.ylim([1.75, 7.0])
 fmt_axes_tick_decimals(ax)

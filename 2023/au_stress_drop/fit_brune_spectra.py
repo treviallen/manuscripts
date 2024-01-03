@@ -50,11 +50,11 @@ def parse_filtering_data():
     
 def correct_atten(rec, coeffs, kapdat):
     channel = rec['channels'][0]
-    raw_fds = rec[channel]['swave_spec'][:-8]
-    sn_ratio = rec[channel]['sn_ratio'][:-8]
-    freqs = rec[channel]['freqs'][:-8]
+    raw_fds = rec[channel]['swave_spec']#[:-8]
+    sn_ratio = rec[channel]['sn_ratio']#[:-8]
+    freqs = rec[channel]['freqs']#[:-8]
     
-    sn_thresh = 5. # used 4 in model regression
+    sn_thresh = 4. # used 4 in model regression
     
     # loop thru freqs
     distterms = []
@@ -77,9 +77,14 @@ def correct_atten(rec, coeffs, kapdat):
                        + c['mc0'] * log10(c['r2'] / c['r1']) + c['mc1'] * (c['r2'] - c['r1']) \
                        + c['fc0'] * log10(rec['rhyp'] / c['r2']) + c['fc1'] * (rec['rhyp'] - c['r2'])
         
+        '''
+        print(c['nc0s'] * log10(rec['rhyp']))
+        print(c['mc0'] * log10(rec['rhyp'] / c['r1']) + c['mc1'] * (rec['rhyp'] - c['r1']))
+        print(c['fc0'] * log10(rec['rhyp'] / c['r2']) + c['fc1'] * (rec['rhyp'] - c['r2']))
+        '''
         distterms.append(distterm)
     
-    distterms.append(nan) # as no coeffs for last freq
+    #distterms.append(nan) # as no coeffs for last freq
     
     #	get distance independent kappa
     #smedian_kappa = 0.072214 # should read this from file
@@ -88,10 +93,13 @@ def correct_atten(rec, coeffs, kapdat):
     # get site kappa
     for kap in kapdat:
         if kap['sta'] == rec['sta']:
-            kappa = kap['kappa0'] # + kap['kappa_r'] * rec['rhyp'] 
+            if not isnan(kap['kappa0']):
+                kappa = kap['kappa0'] # + kap['kappa_r'] * rec['rhyp'] 
+                #print(kap['kappa0'])
     
     k_term = log10(exp(-1 * pi * freqs * kappa))
-        
+    
+    # correct to source
     cor_fds = 10**(log10(raw_fds) - distterms - k_term)
     
     #print(distterms)
@@ -103,7 +111,7 @@ def correct_atten(rec, coeffs, kapdat):
     
     # if short period only use f > 0.5
     if  channel.startswith('SH') or channel.startswith('EH'):
-        idx = where(freqs < 0.8)[0]
+        idx = where(freqs < 0.5)[0]
         cor_fds_nan[idx] = nan
             
     return cor_fds, cor_fds_nan, freqs
@@ -197,6 +205,11 @@ keep_nets = set(['AU', 'IU', 'S1', 'G', 'MEL', 'ME', '2O', 'AD', 'SR', 'UM', 'AB
 ignore_stas = open('sta_ignore.txt').readlines()
 ignore_stas = set([x.strip() for x in ignore_stas])
 
+'''
+SWN20, SWNNG
+
+'''
+
 ####################################################################################
 # start main
 ####################################################################################
@@ -248,21 +261,27 @@ for event in events[::-1]: #[-2:-1]:
                         cor_fds, cor_fds_nan, freqs = correct_atten(rec, coeffs, kapdat)
                         
                         # get max/min
-                        if ceil(max(log10(cor_fds[32:-64]))) > ceil_log_fds:
-                            ceil_log_fds = ceil(max(log10(cor_fds[32:-64])))
+                        if ceil(max(log10(cor_fds[30:120]))) > ceil_log_fds:
+                            ceil_log_fds = ceil(max(log10(cor_fds[30:120])))
                             
-                        if floor(min(log10(cor_fds[32:-64]))) < floor_log_fds:
-                            floor_log_fds = floor(min(log10(cor_fds[32:-64])))
+                            if max(cor_fds[30:120]) < 2*10**(ceil_log_fds-1):
+                                ceil_log_fds = log10(2*10**(ceil_log_fds-1))
+                                
+                            elif max(cor_fds[30:120]) < 4*10**(ceil_log_fds-1):
+                                ceil_log_fds = log10(4*10**(ceil_log_fds-1))
+                            
+                        if floor(min(log10(cor_fds[30:120]))) < floor_log_fds:
+                            floor_log_fds = floor(min(log10(cor_fds[30:120])))
                         
                         if i <= 9:
-                            h1, = plt.loglog(freqs, cor_fds_nan,'-', c=cs[i], lw=1, label=rec['sta'])
+                            h1, = plt.loglog(freqs, cor_fds_nan,'-', c=cs[i], lw=1, label='-'.join((rec['sta'],str('%0.0f' % rec['rhyp']))))
                         elif i <= 19:
-                            h1, = plt.loglog(freqs, cor_fds_nan,'--', c=cs[i-10], lw=1, label=rec['sta'])
+                            h1, = plt.loglog(freqs, cor_fds_nan,'--', c=cs[i-10], lw=1, label='-'.join((rec['sta'],str('%0.0f' % rec['rhyp']))))
                         elif i <= 29:
-                            h1, = plt.loglog(freqs, cor_fds_nan,'-.', c=cs[i-20], lw=1, label=rec['sta'])
+                            h1, = plt.loglog(freqs, cor_fds_nan,'-.', c=cs[i-20], lw=1, label='-'.join((rec['sta'],str('%0.0f' % rec['rhyp']))))
                         elif i <= 39:
                             linestyle = (0, (3, 5, 1, 5, 1, 5))
-                            h1, = plt.loglog(freqs, cor_fds_nan, linestyle=linestyle, c=cs[i-30], lw=1, label=rec['sta'])
+                            h1, = plt.loglog(freqs, cor_fds_nan, linestyle=linestyle, c=cs[i-30], lw=1, label='-'.join((rec['sta'],str('%0.0f' % rec['rhyp']))))
                         else:
                             linestyle = (0, (3, 5, 1, 5))
                             h1, = plt.loglog(freqs, cor_fds_nan, linestyle=linestyle, c=cs[i-40], lw=1) # don't write sta
@@ -291,9 +310,13 @@ for event in events[::-1]: #[-2:-1]:
                         	plt.loglog(freqs, raw_fds,'b-')
                         	plt.subplot(2,3,sp)
                         '''	
+                        
+                        # set evmag
+                        evmag = rec['mag']
+                        evmagtype = rec['magType']
     
     leg1 = plt.legend(handles=handles1, loc=3, fontsize=6, ncol=4)
-
+	
     # get mean spectra
     if log_stack_logfds != []:
         if len(log_stack_logfds.shape) == 1:
@@ -304,10 +327,14 @@ for event in events[::-1]: #[-2:-1]:
         h2, = plt.loglog(freqs, mean_fds,'--', color='0.2', lw=1.5, label='Mean Source Spectrum')
     
         # get upper & lower f for filtering
+        minf = 0.8
+        maxf = 12
         for fdat in filtdat:
             if fdat['ev'] == event:
                 minf = fdat['minf']
                 maxf = fdat['maxf']
+        
+        print(','.join((event,str(minf),str(maxf))))
         
         # fit mean curve
         fidx = where((freqs >= minf) & (freqs <= maxf) & (isnan(mean_fds) == False))[0]
@@ -338,7 +365,7 @@ for event in events[::-1]: #[-2:-1]:
         fitted_curve = omega0 / (1 + (freqs / f0)**2)
         h3, = plt.loglog(freqs, fitted_curve, 'k-', lw=1.5, label='Fitted Brune Model')
         plt.legend(handles=[h2, h3], loc=1, fontsize=8)
-        plt.title('; '.join((event, 'MW '+str('%0.2f' % mw), 'SD '+str('%0.2f' % sd)+' MPa')), fontsize=10)
+        plt.title('; '.join((evmagtype+str('%0.1f' % evmag), event, 'MW '+str('%0.2f' % mw), 'SD '+str('%0.2f' % sd)+' MPa')), fontsize=10)
         
         if sp == 1 or sp == 4:
            plt.ylabel('Fourier Displacement Spectra (m-s)')
@@ -347,10 +374,10 @@ for event in events[::-1]: #[-2:-1]:
         #plt.title(' - '.join((ev, 'M'+str('%0.2f' % mag), place)), fontsize=10)
     
     plt.gca().add_artist(leg1)
-    if f0 < 0.7:
-        plt.xlim([0.1, 20])
+    if f0 < 1.0:
+        plt.xlim([0.03, 20])
     else:
-        plt.xlim([0.3, 20])
+        plt.xlim([0.1, 20])
         
     plt.ylim([10**(ceil_log_fds-4), 10**ceil_log_fds])
     plt.grid(which='both', color='0.75')

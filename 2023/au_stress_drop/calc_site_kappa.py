@@ -21,11 +21,11 @@ from sys import argv
 
 def correct_atten(rec, coeffs):
     channel = rec['channels'][0]
-    raw_fds = rec[channel]['swave_spec']
-    sn_ratio = rec[channel]['sn_ratio']
-    freqs = rec[channel]['freqs']
+    raw_fds = rec[channel]['swave_spec'][:-8]
+    sn_ratio = rec[channel]['sn_ratio'][:-8]
+    freqs = rec[channel]['freqs'][:-8]
     
-    sn_thresh = 4.
+    sn_thresh = 5. # used 4 in model regression
     
     # loop thru freqs
     distterms = []
@@ -33,18 +33,18 @@ def correct_atten(rec, coeffs):
         # get geometric spreading
         D1 = sqrt(rec['rhyp']**2 + c['nref']**2)
         if rec['rhyp'] <= c['r1']:
-            distterm = c['nc0'] * log10(D1) + c['nc1']
+            distterm = c['nc0s'] * log10(rec['rhyp']) #+ c['nc1s']
         
         # set mid-field
         elif rec['rhyp'] > c['r1'] and rec['rhyp'] <= c['r2']:
             D1 = sqrt(c['r1']**2 + c['nref']**2)
-            distterm = c['nc0'] * log10(D1) + c['nc1'] \
+            distterm = c['nc0s'] * log10(D1) \
                        + c['mc0'] * log10(rec['rhyp'] / c['r1']) + c['mc1'] * (rec['rhyp'] - c['r1'])
         
         # set far-field
         elif rec['rhyp'] > c['r2']:
             D1 = sqrt(c['r1']**2 + c['nref']**2)
-            distterm = c['nc0'] * log10(D1) + c['nc1'] \
+            distterm = c['nc0s'] * log10(D1) \
                        + c['mc0'] * log10(c['r2'] / c['r1']) + c['mc1'] * (c['r2'] - c['r1']) \
                        + c['fc0'] * log10(rec['rhyp'] / c['r2']) + c['fc1'] * (rec['rhyp'] - c['r2'])
         
@@ -212,8 +212,8 @@ for sta in stations:
                 
             # get max regression freq
             channel = rec['channels'][0]
-            if 0.45 * rec[channel]['sample_rate'] < maxf:
-                maxf = 0.45 * rec[channel]['sample_rate']
+            if 0.4 * rec[channel]['sample_rate'] < maxf:
+                maxf = 0.4 * rec[channel]['sample_rate']
     
     # get mean spectra
     mean_fas = exp(nanmean(log_stack_logfas, axis=0))

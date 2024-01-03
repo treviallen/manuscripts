@@ -21,7 +21,7 @@ for line in lines:
 # get distance distributions
 ##############################################################################
 fig = plt.figure(1, figsize=(15,10))
-plt.suptitle('log Distance Distribution')
+#plt.suptitle('log Distance Distribution')
 
 mrng = [1.5, 2.25, 2.75, 3.25, 3.75, 4.25, 6.]
 bins = arange(0.45, 3, 0.1)
@@ -52,10 +52,12 @@ for i in range(0, len(mrng)-1):
     x = linspace(xmin, xmax, 100)
     p = norm.pdf(x, mu, std)
     plt.plot(x, p, 'k', linewidth=2)
-    title = 'M'+str(mrng[i])+'-'+str(mrng[i+1])+": mu = %.2f,  std = %.2f" % (mu, std)
+    title = 'M'+str(mrng[i])+'-'+str(mrng[i+1])+": $\\mu$ = %.2f,  $\\sigma$ = %.2f" % (mu, std)
     plt.title(title)
-    plt.xlabel('log Ryhp (km)')
-    plt.ylabel('PDF')
+    if i >= 3:
+       plt.xlabel('log Ryhp (km)', fontsize=16)
+    if i == 0 or i == 3:
+        plt.ylabel('PDF', fontsize=16)
     
     txt += ','.join((str(mrng[i]), str(mu), str(std))) + '\n'
     
@@ -110,12 +112,15 @@ for i in range(0, len(mrng)-1):
     x = linspace(xmin, xmax, 100)
     p = norm.pdf(x, mu, std)
     plt.plot(x, p, 'k', linewidth=2)
-    title = 'M'+str(mrng[i])+'-'+str(mrng[i+1])+": mu = %.2f,  std = %.2f" % (mu, std)
+    title = 'M'+str(mrng[i])+'-'+str(mrng[i+1])+": $\\mu$ = %.2f,  $\\sigma$ = %.2f" % (mu, std)
     plt.title(title)
-    plt.xlabel('# Stations')
-    plt.ylabel('PDF')
+    plt.xlabel('')
+    if i >= 3:
+       plt.xlabel('Number of Stations', fontsize=16)
+    if i == 0 or i == 3:
+        plt.ylabel('PDF', fontsize=16)
     
-    plt.suptitle('N Stas')
+    #plt.suptitle('N Stas')
     
     txt += ','.join((str(mrng[i]), str(mu), str(std))) + '\n'
     
