@@ -111,7 +111,7 @@ def correct_atten(rec, coeffs, kapdat):
     
     # if short period only use f > 0.5
     if  channel.startswith('SH') or channel.startswith('EH'):
-        idx = where(freqs < 0.5)[0]
+        idx = where(freqs < 0.4)[0]
         cor_fds_nan[idx] = nan
             
     return cor_fds, cor_fds_nan, freqs
@@ -238,9 +238,11 @@ kapdat = parse_kappa_data()
 # get event filters
 filtdat = parse_filtering_data()
 
+events_dict = []
+
 sp = 0
 ii = 1	
-for event in events[::-1]: #[-2:-1]:
+for e, event in enumerate(events): #[::-1]: #[-2:-1]:
     print(event)
     sp += 1
     plt.subplot(2,3,sp)
@@ -314,6 +316,9 @@ for event in events[::-1]: #[-2:-1]:
                         # set evmag
                         evmag = rec['mag']
                         evmagtype = rec['magType']
+                        evlon = rec['eqlo']
+                        evlat = rec['eqla']
+                        evdep = rec['eqdp']
     
     leg1 = plt.legend(handles=handles1, loc=3, fontsize=6, ncol=4)
 	
@@ -360,6 +365,22 @@ for event in events[::-1]: #[-2:-1]:
         sd = 7. * m0 / (16. * r0**3) / 10**6 # in MPa
         print('SD', sd, 'MPa')
         print('f0', f0, 'Hz\n' )
+        
+        # add to events
+        edict = {}
+        edict['evstr'] = event
+        edict['lon'] = evlon
+        edict['lat'] = evlat
+        edict['dep'] = evdep
+        edict['omag'] = evmag
+        edict['omag_type'] = evmagtype
+        edict['brune_mw'] = mw
+        edict['brune_sd'] = sd
+        edict['brune_f0'] = f0
+        edict['minf'] = minf
+        edict['maxf'] = maxf
+        
+        events_dict.append(edict)
     
         # plot fitted curve
         fitted_curve = omega0 / (1 + (freqs / f0)**2)
@@ -374,10 +395,13 @@ for event in events[::-1]: #[-2:-1]:
         #plt.title(' - '.join((ev, 'M'+str('%0.2f' % mag), place)), fontsize=10)
     
     plt.gca().add_artist(leg1)
-    if f0 < 1.0:
+    if f0 < 1.5:
         plt.xlim([0.03, 20])
     else:
         plt.xlim([0.1, 20])
+    
+    # set ylims based on omega0
+    ceil_log_fds = log10(omega0) + 1.1
         
     plt.ylim([10**(ceil_log_fds-4), 10**ceil_log_fds])
     plt.grid(which='both', color='0.75')
@@ -388,9 +412,30 @@ for event in events[::-1]: #[-2:-1]:
         sp = 0
         ii += 1
         fig = plt.figure(ii, figsize=(18,11))
-        
-plt.savefig('brune_fit/brune_fit_'+str(ii)+'.png', fmt='png', dpi=150, bbox_inches='tight')
-plt.show()    
 
+plt.savefig('brune_fit/brune_fit_'+str(ii)+'.png', fmt='png', dpi=150, bbox_inches='tight')
+
+
+##########################################################################################
+
+# export Brune data
+pklfile = open('brune_data.pkl', 'wb')
+pickle.dump(events, pklfile, protocol=-1)
+pklfile.close()
+
+# write csv
+txt = 'EVENT,LON,LAT,DEP,OMAG,OMAG_TYPE,BRUNE_MAG,STRESS_DROP,CORN_FREQ,FMIN,FMAX\n'
+
+for ev in events_dict:
+    txt += ','.join((ev['evstr'],str(ev['lon']),str(ev['lat']),str(ev['dep']),str(ev['omag']),ev['omag_type'], \
+                     str(ev['brune_mw']),str(ev['brune_sd']),str(ev['brune_f0']),str(ev['minf']),str(ev['maxf']))) + '\n'
+
+# write to file
+f = open('brune_stats.csv', 'w')
+f.write(txt)
+f.close()
+
+# now show figs        
+plt.show()    
 
     
