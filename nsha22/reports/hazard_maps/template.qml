@@ -1,18 +1,18 @@
 <!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
-<qgis styleCategories="AllStyleCategories" version="3.28.5-Firenze" hasScaleBasedVisibilityFlag="0" minScale="1e+08" maxScale="0">
+<qgis minScale="1e+08" hasScaleBasedVisibilityFlag="0" maxScale="0" version="3.28.5-Firenze" styleCategories="AllStyleCategories">
   <flags>
     <Identifiable>1</Identifiable>
     <Removable>1</Removable>
     <Searchable>1</Searchable>
     <Private>0</Private>
   </flags>
-  <temporal mode="0" fetchMode="0" enabled="0">
+  <temporal enabled="0" mode="0" fetchMode="0">
     <fixedRange>
       <start></start>
       <end></end>
     </fixedRange>
   </temporal>
-  <elevation zoffset="0" zscale="1" symbology="Line" band="1" enabled="0">
+  <elevation symbology="Line" enabled="0" band="1" zoffset="0" zscale="1">
     <data-defined-properties>
       <Option type="Map">
         <Option value="" name="name" type="QString"/>
@@ -21,7 +21,7 @@
       </Option>
     </data-defined-properties>
     <profileLineSymbol>
-      <symbol is_animated="0" frame_rate="10" name="" type="line" force_rhr="0" alpha="1" clip_to_extent="1">
+      <symbol is_animated="0" name="" type="line" alpha="1" force_rhr="0" frame_rate="10" clip_to_extent="1">
         <data_defined_properties>
           <Option type="Map">
             <Option value="" name="name" type="QString"/>
@@ -29,7 +29,7 @@
             <Option value="collection" name="type" type="QString"/>
           </Option>
         </data_defined_properties>
-        <layer pass="0" class="SimpleLine" locked="0" enabled="1">
+        <layer class="SimpleLine" enabled="1" locked="0" pass="0">
           <Option type="Map">
             <Option value="0" name="align_dash_pattern" type="QString"/>
             <Option value="square" name="capstyle" type="QString"/>
@@ -70,7 +70,7 @@
       </symbol>
     </profileLineSymbol>
     <profileFillSymbol>
-      <symbol is_animated="0" frame_rate="10" name="" type="fill" force_rhr="0" alpha="1" clip_to_extent="1">
+      <symbol is_animated="0" name="" type="fill" alpha="1" force_rhr="0" frame_rate="10" clip_to_extent="1">
         <data_defined_properties>
           <Option type="Map">
             <Option value="" name="name" type="QString"/>
@@ -78,7 +78,7 @@
             <Option value="collection" name="type" type="QString"/>
           </Option>
         </data_defined_properties>
-        <layer pass="0" class="SimpleFill" locked="0" enabled="1">
+        <layer class="SimpleFill" enabled="1" locked="0" pass="0">
           <Option type="Map">
             <Option value="3x:0,0,0,0,0,0" name="border_width_map_unit_scale" type="QString"/>
             <Option value="231,113,72,255" name="color" type="QString"/>
@@ -117,12 +117,12 @@
   </pipe-data-defined-properties>
   <pipe>
     <provider>
-      <resampling maxOversampling="2" zoomedInResamplingMethod="nearestNeighbour" zoomedOutResamplingMethod="nearestNeighbour" enabled="false"/>
+      <resampling enabled="false" zoomedInResamplingMethod="bilinear" zoomedOutResamplingMethod="bilinear" maxOversampling="2"/>
     </provider>
-    <rasterrenderer opacity="1" nodataColor="" alphaBand="-1" classificationMax="0.24" band="1" type="singlebandpseudocolor" classificationMin="0.005">
+    <rasterrenderer type="singlebandpseudocolor" band="1" opacity="1" alphaBand="-1" nodataColor="" classificationMin="-0.0101645" classificationMax="0.7676768">
       <rasterTransparency/>
       <minMaxOrigin>
-        <limits>None</limits>
+        <limits>MinMax</limits>
         <extent>WholeRaster</extent>
         <statAccuracy>Estimated</statAccuracy>
         <cumulativeCutLower>0.02</cumulativeCutLower>
@@ -130,7 +130,7 @@
         <stdDevFactor>2</stdDevFactor>
       </minMaxOrigin>
       <rastershader>
-        <colorrampshader maximumValue="0.23999999999999999" clip="0" classificationMode="1" minimumValue="0.0050000000000000001" labelPrecision="4" colorRampType="DISCRETE">
+        <colorrampshader minimumValue="-0.0101645" colorRampType="DISCRETE" labelPrecision="4" classificationMode="1" clip="0" maximumValue="0.76767680000000005">
           <colorramp name="[source]" type="gradient">
             <Option type="Map">
               <Option value="169,200,228,255" name="color1" type="QString"/>
@@ -139,22 +139,22 @@
               <Option value="0" name="discrete" type="QString"/>
               <Option value="gradient" name="rampType" type="QString"/>
               <Option value="rgb" name="spec" type="QString"/>
-              <Option value="0.0212766;141,170,198,255;rgb;ccw:0.0425532;114,140,170,255;rgb;ccw:0.0638298;79,101,129,255;rgb;ccw:0.106383;141,153,113,255;rgb;ccw:0.148936;197,195,86,255;rgb;ccw:0.191489;251,238,59,255;rgb;ccw:0.234043;241,186,59,255;rgb;ccw:0.319149;232,133,60,255;rgb;ccw:0.489362;222,81,60,255;rgb;ccw:0.659574;180,75,63,255;rgb;ccw" name="stops" type="QString"/>
+              <Option value="0.0387798;169,200,228,255;rgb;ccw:0.0516359;141,170,198,255;rgb;ccw:0.0644919;114,140,170,255;rgb;ccw:0.077348;79,101,129,255;rgb;ccw:0.0902041;141,153,113,255;rgb;ccw:0.115916;197,195,86,255;rgb;ccw:0.167341;251,238,59,255;rgb;ccw:0.218765;241,186,59,255;rgb;ccw:0.321614;232,133,60,255;rgb;ccw:0.450175;222,81,60,255;rgb;ccw:0.604448;180,75,63,255;rgb;ccw" name="stops" type="QString"/>
             </Option>
           </colorramp>
-          <item value="0.005" label="&lt;= 0.0050" color="#a9c8e4" alpha="255"/>
-          <item value="0.01" label="0.0050 - 0.0100" color="#8daac6" alpha="255"/>
-          <item value="0.015" label="0.0100 - 0.0150" color="#728caa" alpha="255"/>
-          <item value="0.02" label="0.0150 - 0.0200" color="#4f6581" alpha="255"/>
-          <item value="0.03" label="0.0200 - 0.0300" color="#8d9971" alpha="255"/>
-          <item value="0.04" label="0.0300 - 0.0400" color="#c5c356" alpha="255"/>
-          <item value="0.05" label="0.0400 - 0.0500" color="#fbee3b" alpha="255"/>
-          <item value="0.06" label="0.0500 - 0.0600" color="#f1ba3b" alpha="255"/>
-          <item value="0.08" label="0.0600 - 0.0800" color="#e8853c" alpha="255"/>
-          <item value="0.12" label="0.0800 - 0.1200" color="#de513c" alpha="255"/>
-          <item value="0.16" label="0.1200 - 0.1600" color="#b44b3f" alpha="255"/>
-          <item value="0.24" label="0.1600 - 0.2400" color="#8a4343" alpha="255"/>
-          <rampLegendSettings direction="0" maximumLabel="" prefix="" suffix="" minimumLabel="" useContinuousLegend="1" orientation="2">
+          <item value="0.02" alpha="255" color="#a9c8e4" label="&lt;= 0.0200"/>
+          <item value="0.03" alpha="255" color="#8daac6" label="0.0200 - 0.0300"/>
+          <item value="0.04" alpha="255" color="#728caa" label="0.0300 - 0.0400"/>
+          <item value="0.05" alpha="255" color="#4f6581" label="0.0400 - 0.0500"/>
+          <item value="0.06" alpha="255" color="#8d9971" label="0.0500 - 0.0600"/>
+          <item value="0.08" alpha="255" color="#c5c356" label="0.0600 - 0.0800"/>
+          <item value="0.12" alpha="255" color="#fbee3b" label="0.0800 - 0.1200"/>
+          <item value="0.16" alpha="255" color="#f1ba3b" label="0.1200 - 0.1600"/>
+          <item value="0.24" alpha="255" color="#e8853c" label="0.1600 - 0.2400"/>
+          <item value="0.34" alpha="255" color="#de513c" label="0.2400 - 0.3400"/>
+          <item value="0.46" alpha="255" color="#b44b3f" label="0.3400 - 0.4600"/>
+          <item value="inf" alpha="255" color="#8a4343" label="> 0.4600"/>
+          <rampLegendSettings useContinuousLegend="1" minimumLabel="" maximumLabel="" orientation="2" suffix="" prefix="" direction="0">
             <numericFormat id="basic">
               <Option type="Map">
                 <Option name="decimal_separator" type="invalid"/>
@@ -170,9 +170,9 @@
         </colorrampshader>
       </rastershader>
     </rasterrenderer>
-    <brightnesscontrast contrast="0" gamma="1" brightness="0"/>
-    <huesaturation colorizeRed="255" saturation="0" colorizeStrength="100" colorizeBlue="128" colorizeOn="0" grayscaleMode="0" invertColors="0" colorizeGreen="128"/>
-    <rasterresampler maxOversampling="2"/>
+    <brightnesscontrast brightness="0" gamma="1" contrast="0"/>
+    <huesaturation invertColors="0" colorizeOn="0" saturation="0" grayscaleMode="0" colorizeGreen="128" colorizeStrength="100" colorizeRed="255" colorizeBlue="128"/>
+    <rasterresampler zoomedOutResampler="bilinear" zoomedInResampler="bilinear" maxOversampling="2"/>
     <resamplingStage>resamplingFilter</resamplingStage>
   </pipe>
   <blendMode>0</blendMode>

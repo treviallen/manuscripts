@@ -63,19 +63,18 @@ minlon = 180
 '''
 # THIS IS HOW TO RUN ME IN IPYTHON
 
-run csv2geoTIFF.py ../../source_models/complete_model/final/results_maps_SA10/hazard_curve-mean-SA(1.0)_1.csv
+run csv2geoTIFF.py <site class>
 '''
 siteClass = argv[1].upper()
 
 # set map file to plot
 if siteClass == 'B':
     periods = ['PGA', 'SA(0.1)', 'SA(0.15)', 'SA(0.2)', 'SA(0.3)', 'SA(0.4)', \
-               'SA(0.5)', 'SA(0.7)', 'SA(1.0)', 'SA(2.0)', 'SA(3.0)']
+               'SA(0.5)', 'SA(0.7)', 'SA(1.0)', 'SA(1.5)', 'SA(2.0)', 'SA(3.0)']
                
-    '''
-    periods = ['SA(0.1)', 'SA(0.15)', 'SA(0.2)', 'SA(0.3)', 'SA(0.4)', \
-               'SA(0.5)', 'SA(0.7)', 'SA(1.0)', 'SA(2.0)', 'SA(3.0)']
-    '''
+    
+    #periods = ['SA(1.0)', 'SA(1.5)']
+    
 else:
     periods = ['PGA']
 
@@ -101,11 +100,11 @@ for t in periods:
         # check to see if geotiff folder exists
         if path.isdir('geotiff') == False:
             mkdir('geotiff')
-            
+           
         # make out geoTIFF    
         period = hazCurveGridFile.split(sep)[-2].split('_')[-3]
         print(period)
-        """
+        """ 
         #siteClass = 'SC_' + hazCurveGridFile.split(sep)[-2].split('_')[-1]
         
         # parse grid file
@@ -126,7 +125,7 @@ for t in periods:
             poe ='poe' # short term fix
             #interpHaz = exp(interp(log(probs[::-1]), log(site[period+'_probs_annual'][::-1]), log(imls[::-1])))[::-1]
             interpHaz = exp(interp(log(probs[::-1]), log(site[poe+'_probs_annual'][::-1]), log(imls[::-1])))[::-1]
-            
+            s
             # fill a temp dictionary
             tmpdict = {'lon':site['lon'], 'lat':site['lat']}
             
@@ -150,9 +149,9 @@ for t in periods:
                 maxlat = tmpdict['lat']
             if tmpdict['lat'] < minlat:
                 minlat = tmpdict['lat']
-        
-        print('BBOX', '/'.join((str(minlon), str(maxlon), str(minlat), str(maxlat))))
         """
+        print('BBOX', '/'.join((str(minlon), str(maxlon), str(minlat), str(maxlat))))
+        
         ##############################################################################
         # make mesh
         ##############################################################################
@@ -231,55 +230,55 @@ for t in periods:
             # write the band
             dst_ds.GetRasterBand(1).WriteArray(grid_z.T)
             dst_ds = None # to close file
-            """
+            
             # testing
             #src_ds = gdal.Open(path.join('geotiff', '_'.join(('nsha18',period, p50+'.tiff'))))
-            
+            """
             ##############################################################################
             # make gdal cpt file and recolour
             ##############################################################################
-            if p50 == '0.1' or p50 == '0.033':
+            if p50 == '0.1' :
                 if period == 'PGA':
-                    if p50 == '0.033':
-                        bounds = array([0, 0.01, 0.02, 0.03, 0.04, 0.06, 0.08, 0.10, 0.14, 0.20, 0.26, 0.32, 0.4])
-                    else:
-                        bounds = array([0, 0.005, 0.01, 0.015, 0.02, 0.03, 0.04, 0.05, 0.06, 0.08, 0.12, 0.16, 0.24])
+                    bounds = array([0, 0.005, 0.01, 0.015, 0.02, 0.03, 0.04, 0.05, 0.06, 0.08, 0.12, 0.16, 0.24])
                 elif period == 'SA005' or period == 'SA01' or period == 'SA015' or period == 'SA02'  \
                    or period == 'SA03' or period == 'SA04' or period == 'SA05':
                     bounds = array([0, 0.01, 0.02, 0.03, 0.04, 0.06, 0.08, 0.10, 0.14, 0.20, 0.26, 0.32, 0.4])
                 elif period == 'SA07' or period == 'SA10' or period == 'SA15' or period == 'SA20' or period == 'SA30':
                     bounds = array([0, 0.002, 0.004, 0.006, 0.01, 0.016, 0.024, 0.03, 0.04, 0.05, 0.06, 0.08, 0.1])
-                elif period == 'SA02':
-                    if p50 == '0.033':
-                        bounds = array([0, 0.02, 0.04, 0.06, 0.08, 0.10, 0.12, 0.16, 0.20, 0.26, 0.36, 0.48, 0.6])
-                    else:
-                        bounds = array([0, 0.005, 0.01, 0.015, 0.02, 0.03, 0.04, 0.05, 0.06, 0.08, 0.12, 0.16, 0.24])
                 else:
                     bounds = array([0, 0.001, 0.002, 0.004, 0.007, 0.01, 0.015, 0.02, 0.025, 0.03, 0.035, 0.045, 0.06])
                 
-                ncolours = 13
-                #norm = colors.BoundaryNorm(boundaries=bounds, ncolors=ncolours)
-            else:
+            elif  p50 == '0.033':
+                if period == 'PGA':
+                    bounds = array([0, 0.01, 0.02, 0.03, 0.04, 0.06, 0.08, 0.10, 0.14, 0.20, 0.26, 0.32, 0.4])
+                elif period == 'SA005' or period == 'SA01' or period == 'SA015' or period == 'SA02'  \
+                   or period == 'SA03' or period == 'SA04' or period == 'SA05':
+                    bounds = array([0, 0.02, 0.03, 0.04, 0.05, 0.06, 0.08, 0.12, 0.16, 0.24, 0.34, 0.46, 0.6])
+                elif period == 'SA07' or period == 'SA10' or period == 'SA15' or period == 'SA20' or period == 'SA30':
+                    bounds = array([0, 0.005, 0.01, 0.015, 0.02, 0.025, 0.03, 0.04, 0.05, 0.06, 0.08, 0.10, 0.14])
+                
+                else:
+                    bounds = array([0, 0.001, 0.002, 0.004, 0.007, 0.01, 0.015, 0.02, 0.025, 0.03, 0.035, 0.045, 0.06])
+                
+            elif  p50 == '0.02':
+                
                 if period == 'PGA':
                     bounds = array([0, 0.02, 0.03, 0.04, 0.05, 0.06, 0.08, 0.12, 0.16, 0.24, 0.34, 0.46, 0.6])
                 elif period == 'SA02' or period == 'SA03' or period == 'SA04' or period == 'SA05' \
                      or period == 'SA01' or period == 'SA015':
                     bounds = array([0, 0.04, 0.06, 0.08, 0.10, 0.14, 0.20, 0.28, 0.38, 0.50, 0.64, 0.8, 1.])
-                    '''
-                    elif period == 'SA07':
-                        bounds = array([0, 0.01, 0.015, 0.02, 0.03, 0.04, 0.05, 0.06, 0.08, 0.12, 0.16, 0.24, 0.36])
-                    '''
                 elif period == 'SA15' or period == 'SA10' or period == 'SA20' or period == 'SA30' or period == 'SA07':
-                    bounds = array([0, 0.01, 0.015, 0.02, 0.025, 0.03, 0.04, 0.06, 0.08, 0.10, 0.14, 0.20, 0.26, 0.34])
+                    bounds = array([0, 0.01, 0.015, 0.02, 0.03, 0.04, 0.05, 0.06, 0.08, 0.10, 0.16, 0.24, 0.34])
                 else:
                     bounds = array([0, 0.001, 0.002, 0.003, 0.004, 0.005, 0.007, 0.015, 0.03, 0.04, 0.05, 0.06, 0.1, 0.16])
-                ncolours = 13                   
-                               
 
+            """
             if getcwd().startswith('/nas'):
                 cptfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/postprocessing/maps/cw1-013_mod.cpt'
             else:
                 cptfile = '/Users/trev/Documents/Geoscience_Australia/NSHA2023/postprocessing/maps/cw1-013_mod.cpt'
+            
+            ncolours = 12
             cmap, zvals = cpt2colormap(cptfile, ncolours, rev=True)
             rgbTable = cmap2rgb(cmap, ncolours)[0] * 255
             
@@ -297,7 +296,7 @@ for t in periods:
             f = open('gdal_cpt.dat', 'w')
             f.write(cpttxt)
             f.close()
-            
+            """
             # recolour geoTiff
             intiff = path.join('geotiff', '_'.join(('nsha23',period, siteClass, p50+'.tiff')))
             outtiff = intiff[0:-5]+'_colour.tiff'
@@ -315,6 +314,8 @@ for t in periods:
             ##############################################################################
             
             qmlfile = 'template.qml'
+            qmlfile = 'template_COLOURBLIND.qml'
+            
             qlines = open(qmlfile).readlines()
             
             newqml = ''
@@ -332,36 +333,39 @@ for t in periods:
                    newqml += newline
                elif ql.strip().startswith('</colorramp>'):
                    newqml += '          </colorramp>\n'
-                   '''
-                   newqml += '"'.join(('          <item color="#a9c8e4" alpha="255" value=', str(bounds[1]), ' label=', str('%0.4f' % bounds[1]), '/>'))+'\n'
-                   newqml += '"'.join(('          <item color="#8daac6" alpha="255" value=', str(bounds[2]), ' label=', str('%0.4f' % bounds[2]), '/>'))+'\n'
-                   newqml += '"'.join(('          <item color="#728caa" alpha="255" value=', str(bounds[3]), ' label=', str('%0.4f' % bounds[3]), '/>'))+'\n'
-                   newqml += '"'.join(('          <item color="#4f6581" alpha="255" value=', str(bounds[4]), ' label=', str('%0.4f' % bounds[4]), '/>'))+'\n'
-                   newqml += '"'.join(('          <item color="#8d9971" alpha="255" value=', str(bounds[5]), ' label=', str('%0.4f' % bounds[5]), '/>'))+'\n'
-                   newqml += '"'.join(('          <item color="#c5c356" alpha="255" value=', str(bounds[6]), ' label=', str('%0.4f' % bounds[6]), '/>'))+'\n'
-                   newqml += '"'.join(('          <item color="#fbee3b" alpha="255" value=', str(bounds[7]), ' label=', str('%0.4f' % bounds[7]), '/>'))+'\n'
-                   newqml += '"'.join(('          <item color="#f1ba3b" alpha="255" value=', str(bounds[8]), ' label=', str('%0.4f' % bounds[8]), '/>'))+'\n'
-                   newqml += '"'.join(('          <item color="#e8853c" alpha="255" value=', str(bounds[9]), ' label=', str('%0.4f' % bounds[9]), '/>'))+'\n'
-                   newqml += '"'.join(('          <item color="#de513c" alpha="255" value=', str(bounds[10]), ' label=', str('%0.4f' % bounds[10]), '/>'))+'\n'
-                   newqml += '"'.join(('          <item color="#b44b3f" alpha="255" value=', str(bounds[11]), ' label=', str('%0.4f' % bounds[11]), '/>'))+'\n'
-                   newqml += '"'.join(('          <item color="#8a4343" alpha="255" value=', str(bounds[12]), ' label=', str('%0.4f' % bounds[12]), '/>'))+'\n'
-                   '''
                    
-                   #<item value="0.005" label="&lt;= 0.0050" color="#a9c8e4" alpha="255"/>
-                   #<item value="0.01" label="0.0050 - 0.0100" color="#8daac6" alpha="255"/>
-                   newqml += '"'.join(('          <item color="#a9c8e4" alpha="255" value=', str(bounds[1]), ' label=', '&lt;= '+str('%0.4f' % bounds[1]), '/>'))+'\n'
-                   newqml += '"'.join(('          <item color="#8daac6" alpha="255" value=', str(bounds[2]), ' label=', str('%0.4f' % bounds[1])+' - '+str('%0.4f' % bounds[2]),'/>'))+'\n'
-                   newqml += '"'.join(('          <item color="#728caa" alpha="255" value=', str(bounds[3]), ' label=', str('%0.4f' % bounds[2])+' - '+str('%0.4f' % bounds[3]),'/>'))+'\n'
-                   newqml += '"'.join(('          <item color="#4f6581" alpha="255" value=', str(bounds[4]), ' label=', str('%0.4f' % bounds[3])+' - '+str('%0.4f' % bounds[4]),'/>'))+'\n'
-                   newqml += '"'.join(('          <item color="#8d9971" alpha="255" value=', str(bounds[5]), ' label=', str('%0.4f' % bounds[4])+' - '+str('%0.4f' % bounds[5]),'/>'))+'\n'
-                   newqml += '"'.join(('          <item color="#c5c356" alpha="255" value=', str(bounds[6]), ' label=', str('%0.4f' % bounds[5])+' - '+str('%0.4f' % bounds[6]),'/>'))+'\n'
-                   newqml += '"'.join(('          <item color="#fbee3b" alpha="255" value=', str(bounds[7]), ' label=', str('%0.4f' % bounds[6])+' - '+str('%0.4f' % bounds[7]),'/>'))+'\n'
-                   newqml += '"'.join(('          <item color="#f1ba3b" alpha="255" value=', str(bounds[8]), ' label=', str('%0.4f' % bounds[7])+' - '+str('%0.4f' % bounds[8]),'/>'))+'\n'
-                   newqml += '"'.join(('          <item color="#e8853c" alpha="255" value=', str(bounds[9]), ' label=', str('%0.4f' % bounds[8])+' - '+str('%0.4f' % bounds[9]),'/>'))+'\n'
-                   newqml += '"'.join(('          <item color="#de513c" alpha="255" value=', str(bounds[10]), ' label=', str('%0.4f' % bounds[9])+' - '+str('%0.4f' % bounds[10]),'/>'))+'\n'
-                   newqml += '"'.join(('          <item color="#b44b3f" alpha="255" value=', str(bounds[11]), ' label=', str('%0.4f' % bounds[10])+' - '+str('%0.4f' % bounds[11]),'/>'))+'\n'
-                   newqml += '"'.join(('          <item color="#8a4343" alpha="255" value=', str(bounds[12]), ' label=', str('%0.4f' % bounds[11])+' - '+str('%0.4f' % bounds[12]),'/>'))+'\n'
-                  
+                   if qmlfile == 'template.qml':
+                       newqml += '"'.join(('          <item color="#a9c8e4" alpha="255" value=', str(bounds[1]), ' label=', '&lt;= '+str('%0.4f' % bounds[1]), '/>'))+'\n'
+                       newqml += '"'.join(('          <item color="#8daac6" alpha="255" value=', str(bounds[2]), ' label=', str('%0.4f' % bounds[1])+' - '+str('%0.4f' % bounds[2]),'/>'))+'\n'
+                       newqml += '"'.join(('          <item color="#728caa" alpha="255" value=', str(bounds[3]), ' label=', str('%0.4f' % bounds[2])+' - '+str('%0.4f' % bounds[3]),'/>'))+'\n'
+                       newqml += '"'.join(('          <item color="#4f6581" alpha="255" value=', str(bounds[4]), ' label=', str('%0.4f' % bounds[3])+' - '+str('%0.4f' % bounds[4]),'/>'))+'\n'
+                       newqml += '"'.join(('          <item color="#8d9971" alpha="255" value=', str(bounds[5]), ' label=', str('%0.4f' % bounds[4])+' - '+str('%0.4f' % bounds[5]),'/>'))+'\n'
+                       newqml += '"'.join(('          <item color="#c5c356" alpha="255" value=', str(bounds[6]), ' label=', str('%0.4f' % bounds[5])+' - '+str('%0.4f' % bounds[6]),'/>'))+'\n'
+                       newqml += '"'.join(('          <item color="#fbee3b" alpha="255" value=', str(bounds[7]), ' label=', str('%0.4f' % bounds[6])+' - '+str('%0.4f' % bounds[7]),'/>'))+'\n'
+                       newqml += '"'.join(('          <item color="#f1ba3b" alpha="255" value=', str(bounds[8]), ' label=', str('%0.4f' % bounds[7])+' - '+str('%0.4f' % bounds[8]),'/>'))+'\n'
+                       newqml += '"'.join(('          <item color="#e8853c" alpha="255" value=', str(bounds[9]), ' label=', str('%0.4f' % bounds[8])+' - '+str('%0.4f' % bounds[9]),'/>'))+'\n'
+                       newqml += '"'.join(('          <item color="#de513c" alpha="255" value=', str(bounds[10]), ' label=', str('%0.4f' % bounds[9])+' - '+str('%0.4f' % bounds[10]),'/>'))+'\n'
+                       newqml += '"'.join(('          <item color="#b44b3f" alpha="255" value=', str(bounds[11]), ' label=', str('%0.4f' % bounds[10])+' - '+str('%0.4f' % bounds[11]),'/>'))+'\n'
+                       newqml += '"'.join(('          <item color="#8a4343" alpha="255" value="inf" label=', str('%0.4f' % bounds[11])+' - '+str('%0.4f' % bounds[12])+'+','/>'))+'\n'
+                       
+                       newqmlfile = intiff[:-4] + 'qml'
+                       	
+                   else:
+                       newqml += '"'.join(('          <item color="#2b3553" alpha="255" value=', str(bounds[1]), ' label=', '&lt;= '+str('%0.4f' % bounds[1]), '/>'))+'\n'
+                       newqml += '"'.join(('          <item color="#285662" alpha="255" value=', str(bounds[2]), ' label=', str('%0.4f' % bounds[1])+' - '+str('%0.4f' % bounds[2]),'/>'))+'\n'
+                       newqml += '"'.join(('          <item color="#2f7559" alpha="255" value=', str(bounds[3]), ' label=', str('%0.4f' % bounds[2])+' - '+str('%0.4f' % bounds[3]),'/>'))+'\n'
+                       newqml += '"'.join(('          <item color="#4c8948" alpha="255" value=', str(bounds[4]), ' label=', str('%0.4f' % bounds[3])+' - '+str('%0.4f' % bounds[4]),'/>'))+'\n'
+                       newqml += '"'.join(('          <item color="#7d8e44" alpha="255" value=', str(bounds[5]), ' label=', str('%0.4f' % bounds[4])+' - '+str('%0.4f' % bounds[5]),'/>'))+'\n'
+                       newqml += '"'.join(('          <item color="#b38c5c" alpha="255" value=', str(bounds[6]), ' label=', str('%0.4f' % bounds[5])+' - '+str('%0.4f' % bounds[6]),'/>'))+'\n'
+                       newqml += '"'.join(('          <item color="#d88c8c" alpha="255" value=', str(bounds[7]), ' label=', str('%0.4f' % bounds[6])+' - '+str('%0.4f' % bounds[7]),'/>'))+'\n'
+                       newqml += '"'.join(('          <item color="#e397c4" alpha="255" value=', str(bounds[8]), ' label=', str('%0.4f' % bounds[7])+' - '+str('%0.4f' % bounds[8]),'/>'))+'\n'
+                       newqml += '"'.join(('          <item color="#d9afed" alpha="255" value=', str(bounds[9]), ' label=', str('%0.4f' % bounds[8])+' - '+str('%0.4f' % bounds[9]),'/>'))+'\n'
+                       newqml += '"'.join(('          <item color="#cccdfc" alpha="255" value=', str(bounds[10]), ' label=', str('%0.4f' % bounds[9])+' - '+str('%0.4f' % bounds[10]),'/>'))+'\n'
+                       newqml += '"'.join(('          <item color="#bcd4e2" alpha="255" value=', str(bounds[11]), ' label=', str('%0.4f' % bounds[10])+' - '+str('%0.4f' % bounds[11]),'/>'))+'\n'
+                       newqml += '"'.join(('          <item color="#cee2de" alpha="255" value="inf" label=', str('%0.4f' % bounds[11])+' - '+str('%0.4f' % bounds[12])+'+','/>'))+'\n'
+                       
+                       newqmlfile = intiff[:-5] + '_COLOURBLIND.qml'
+                       
                    # now skip lines
                    i += 12
                    
@@ -371,7 +375,7 @@ for t in periods:
                i += 1
                
             # now write to file
-            newqmlfile = intiff[:-4] + 'qml'
+            
             f = open(newqmlfile, 'w')
             f.write(newqml)
             f.close()

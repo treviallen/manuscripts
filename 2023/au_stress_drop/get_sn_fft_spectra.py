@@ -45,6 +45,9 @@ def parse_pickfile(pickfile):
         recdate = datetime.strptime(data[0], '%Y-%m-%dT%H:%M:%S.%f')
         evdate = datetime.strptime(data[1], '%Y-%m-%dT%H:%M:%S.%f')
         
+        # recalculate distance with improved locations
+        #recalc dists!
+        
         pickDat = {'starttime': starttime, 'origintime': origintime, \
                    'ev':data[1][0:16].replace(':','.'), 'evdt':UTCDateTime(evdate),
                    'eqlo': float(data[2]), 'eqla': float(data[3]),

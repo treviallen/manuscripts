@@ -7,11 +7,15 @@ example run:
     run plt_uhs_curves.py results_fractilesUHS/hazard_uhs-mean_1.csv False
 
 '''    
+
+site_class = argv[1].upper()
+
+
 ###############################################################################
 # set params
 ###############################################################################
 
-uhsfile = '/Users/trev/Documents/Geoscience_Australia/NSHA2023/source_models/complete_model/2023_final/results_uhs_fractiles_SC_B/hazard_uhs-mean_1.csv'   
+uhsfile = '/Users/trev/Documents/Geoscience_Australia/NSHA2023/source_models/complete_model/2023_final/results_uhs_fractiles_SC_'+site_class+'/hazard_uhs-mean_1.csv'   
 
 ###############################################################################
 # parse uhs file
@@ -96,11 +100,14 @@ for j, pi in enumerate(probabilities):
     # match city for plotting
     for uhs in uhsDict:
         
+        '''
         normSA = uhs[pi] / uhs[pi][0]
         
         outtxt += uhs['place'] + ',' + ','.join([str('%0.4f' % x) for x in normSA]) + '\n'
+        '''
+        outtxt += uhs['place'] + ',' + ','.join([str('%0.4f' % x) for x in uhs[pi]]) + '\n'
     
-    outfile = 'normalised_nsha23_uhs_'+pi[0:5]+'.csv'            
+    outfile = path.join('uhs_curves', 'nsha23_uhs_'+pi[0:5]+'_SC_'+site_class+'.csv')            
     f = open(outfile, 'w')
     f.write(outtxt)
     f.close()            

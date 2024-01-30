@@ -29,7 +29,7 @@ gadat = parse_ga_event_query(recent_csv)
 ##############################################################################
 # read ga sta list
 ##############################################################################
-
+"""
 if getcwd().startswith('/nas'):
     
     iris_sta_list = parse_iris_stationlist('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/AU/gmap-stations-noarray.txt')
@@ -42,72 +42,90 @@ if getcwd().startswith('/nas'):
     network = 'II'
     '''
 else:
+    '''
     
-    iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AU/gmap-stations-noarray.txt')
     #iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AU/gmap-stations-gswa.txt')
     network = 'AU'
-    '''
-    iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/S1/s1-gmap-stations.txt')
+    
+    
     network = 'S1'
     
-    iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/IU/iu-gmap-stations-autrim.txt')
+    
     network = 'IU'
     
-    iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/II/ii-gmap-stations-autrim.txt')
+    
     network = 'II'		
     
-    iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/G/g-gmap-stations-autrim.txt')
-    network = 'G'
     
-    iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AU/2o-gmap-stations.txt')
-    network = '2O'
+    network = 'G'
     '''
+    
+    network = '2O'
+"""    
+##############################################################################
+# loop through networks
+##############################################################################
+
+networks = ['AU', 'S1', 'IU', 'II', 'G', '2O']
+
+
+for network in networks:
+    if network == 'AU':
+        iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AU/gmap-stations-noarray.txt')
+    elif network == 'S1':
+        iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/S1/s1-gmap-stations.txt')
+    elif network == 'IU':
+        iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/IU/iu-gmap-stations-autrim.txt')
+    elif network == 'II':
+        iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/II/ii-gmap-stations-autrim.txt')
+    elif network == 'G':
+        iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/G/g-gmap-stations-autrim.txt')
+    elif network == '2O':
+        iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AU/2o-gmap-stations.txt')
+    
 ##############################################################################
 # loop through events
 ##############################################################################
-
-
-
-# loop thru events
-for ev in gadat: #[40:]:
-    mindist = 0
-    if network == 'S1':
-        maxdist = 1000
-        #maxdist = 750
-    else:
-        if ev['mag'] >= 4.5:
-            maxdist = 2200
+    for ev in gadat: #[40:]:
+        mindist = 0
+        if network == 'S1':
+            maxdist = 800
+            #maxdist = 750
         else:
-            maxdist = 1500
-    #maxdist = 1500
-    #maxdist = 200 # already got 200 - 2200 km
-    
-    dt = ev['datetime']
-    print(dt)
-    # allow 2 mins pre-event - subs realised "get_iris_data" already pads by 2 mins, so have 4 mins
-    dateTuple = (dt.year, dt.month, dt.day, dt.hour, dt.minute-2)
-    
-    # set string for dummy file
-    evdate = str(UTCDateTime(dt.year, dt.month, dt.day, dt.hour, dt.minute)-240)[0:16].replace(':','.')
-    
-    # loop thru stations
-    #iris_sta_list = [{'CAAN']
-    for isl in iris_sta_list:
+            if ev['mag'] >= 4.5:
+                maxdist = 2200
+            else:
+                maxdist = 800
+        #maxdist = 1500
+        #maxdist = 200 # already got 200 - 2200 km
         
-        # check if station is open
-        if isl['starttime'] <= dt and isl['stoptime'] >= dt: # and dt.year >= 2016 and dt.year < 2017:
+        dt = ev['datetime']
+        print(dt)
+        # allow 2 mins pre-event - subs realised "get_iris_data" already pads by 2 mins, so have 4 mins
+        dateTuple = (dt.year, dt.month, dt.day, dt.hour, dt.minute-2)
+        
+        # set string for dummy file
+        evdate = str(UTCDateTime(dt.year, dt.month, dt.day, dt.hour, dt.minute)-240)[0:16].replace(':','.')
+        
+        # loop thru stations
+        #iris_sta_list = [{'CAAN']
+        for isl in iris_sta_list:
             
-            # check if in distance range
-            repi = distance(ev['lat'], ev['lon'], isl['lat'], isl['lon'])[0]
-            
-            if repi >= mindist and repi <= maxdist: # and isl['sta'].startswith('KIM'):
+            # check if station is open
+            if isl['starttime'] <= dt and isl['stoptime'] >= dt: # and dt.year >= 2016 and dt.year < 2017:
                 
-                # make dummy file name and see if exists
-                mseedfile = path.join('iris_dump', \
-                           '.'.join((evdate, network, isl['sta'], 'mseed')))
+                # check if in distance range
+                repi = distance(ev['lat'], ev['lon'], isl['lat'], isl['lon'])[0]
                 
-                if not path.isfile(mseedfile):
-                    st = get_iris_data(dateTuple, isl['sta'], network, durn=1800)
+                if repi >= mindist and repi <= maxdist: # and isl['sta'].startswith('KIM'):
                     
-                else:
-                    print('Skipping: ' + mseedfile)
+                    # make dummy file name and see if exists
+                    mseedfile = path.join('iris_dump', \
+                               '.'.join((evdate, network, isl['sta'], 'mseed')))
+                    
+                    if not path.isfile(mseedfile):
+                        st = get_iris_data(dateTuple, isl['sta'], network, durn=1800)
+                        
+                    else:
+                        print('Skipping: ' + mseedfile)
+    

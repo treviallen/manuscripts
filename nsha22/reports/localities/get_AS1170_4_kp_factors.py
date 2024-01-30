@@ -186,13 +186,14 @@ for sd2018 in siteDict:
                 kptxt = ''.join(('KP FACTORS FOR ', curve_city.upper(),'\nRETURN_PERIOD,KP_FACTOR\n'))
                 for rp, kp in zip(return_periods, kpfacts):
                     kptxt += ','.join((str(rp), str('%0.2f' % kp))) + '\n'
-                    
-                f = open(path.join('kp_factors', curve_city+'_kpfacts.csv'), 'w')
+                
+                city_file = curve_city.replace(' ','_')    
+                f = open(path.join('kp_factors', city_file+'_kpfacts.csv'), 'w')
                 f.write(kptxt)
                 f.close()
                 
                 print(curve_city)
-                  
+"""                  
 # begin plotting
 ncols = len(capitals)+1
 #cptfile = '\\prod.lan\\active\\ops\\community_safety\\ehp\\georisk_earthquake\\hazard\\DATA\\cpt\\gay-flag-1978.cpt'
@@ -244,7 +245,7 @@ nat_kp_2500 = array(nat_kp_2500)
 
 print('\nMean kp factor =', mean(nat_kp_2500))
 plt.show()
-
+"""
 
 """
 # loop thru localities and calc differences from 2007

@@ -8,13 +8,14 @@ from misc_tools import remove_last_cmap_colour, get_log_xy_locs
 import matplotlib as mpl
 mpl.style.use('classic')
 
+site_class = argv[1].upper()
 
 ###############################################################################
 # set params
 ###############################################################################
 
 if getcwd().startswith('/nas'):
-    uhsfile = '/nas/active/ops/community_safety/ehp/georisk_earthquake/modelling/sandpits/tallen/NSHA2018/source_models/complete_model/final/results_fractilesUHS/hazard_uhs-mean_1.csv'
+    uhsfile = '/Users/trev/Documents/Geoscience_Australia/NSHA2023/source_models/complete_model/2023_final/results_uhs_fractiles_SC_'+site_class+'/hazard_uhs-mean_1.csv'
 
 '''
 if plt1170 == 'True':

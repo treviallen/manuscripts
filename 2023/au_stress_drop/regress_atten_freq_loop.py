@@ -393,6 +393,7 @@ for i, mt in enumerate(magTypes):
 mrng = arange(3.7, 6.9, 0.1)
 minDist = 10**0.5
 maxDist = 2200
+maxDist = 1300
 minRegDist = 100
 maxRegDist = 1000
 
@@ -420,7 +421,7 @@ nc0_array = []
 minr = 5.
 r1 = 50 # max dist for near source
 r2 = 180
-r3 = 2100
+r3 = maxDist
     
 # based on initial regression analysis, set mc0
 mc0_fix = -0.28
