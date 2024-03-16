@@ -21,11 +21,11 @@ from sys import argv
 
 def correct_atten(rec, coeffs):
     channel = rec['channels'][0]
-    raw_fds = rec[channel]['swave_spec'][:-8]
-    sn_ratio = rec[channel]['sn_ratio'][:-8]
-    freqs = rec[channel]['freqs'][:-8]
+    raw_fds = rec[channel]['swave_spec']#[:-8]
+    sn_ratio = rec[channel]['sn_ratio']#[:-8]
+    freqs = rec[channel]['freqs']#[:-8]
     
-    sn_thresh = 5. # used 4 in model regression
+    sn_thresh = 4. # used 4 in model regression
     
     # loop thru freqs
     distterms = []
@@ -39,18 +39,18 @@ def correct_atten(rec, coeffs):
         elif rec['rhyp'] > c['r1'] and rec['rhyp'] <= c['r2']:
             D1 = sqrt(c['r1']**2 + c['nref']**2)
             distterm = c['nc0s'] * log10(D1) \
-                       + c['mc0'] * log10(rec['rhyp'] / c['r1']) + c['mc1'] * (rec['rhyp'] - c['r1'])
+                       + c['mc0s'] * log10(rec['rhyp'] / c['r1']) + c['mc1'] * (rec['rhyp'] - c['r1'])
         
         # set far-field
         elif rec['rhyp'] > c['r2']:
             D1 = sqrt(c['r1']**2 + c['nref']**2)
             distterm = c['nc0s'] * log10(D1) \
-                       + c['mc0'] * log10(c['r2'] / c['r1']) + c['mc1'] * (c['r2'] - c['r1']) \
+                       + c['mc0s'] * log10(c['r2'] / c['r1']) + c['mc1'] * (c['r2'] - c['r1']) \
                        + c['fc0'] * log10(rec['rhyp'] / c['r2']) + c['fc1'] * (rec['rhyp'] - c['r2'])
         
         distterms.append(distterm)
     
-    distterms.append(nan) # as no coeffs for last freq
+    #.append(nan) # as no coeffs for last freq
     
     cor_fds = 10**(log10(raw_fds) - distterms) # - log10(k_term))
     

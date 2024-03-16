@@ -23,14 +23,16 @@ from numpy import array
 # provide warning if lon is negative
 if lon < 0:
     print('!!! CHECK LAT LON ORDER !!!')
+    
+# provide warning if lat is positive
+if lat > 0:
+    print('!!! CHECK THAT LAT IS NEGATIVE VALUE !!!')
 
 # set grid spectral periods for hazard curve
 spectral_periods_str = ['PGA', '01', '015', '02', '03', '04', '05', '07', \
                         '10', '15', '20', '30']
 
 spectral_periods = [0.0, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.7, 1.0, 1.5, 2.0, 3.0]
-
-#return_period = str(int(round(return_period)))
 
 # rename place
 place = place.replace(' ','_')

@@ -46,20 +46,10 @@ else:
     
     #iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AU/gmap-stations-gswa.txt')
     network = 'AU'
-    
-    
     network = 'S1'
-    
-    
     network = 'IU'
-    
-    
     network = 'II'		
-    
-    
     network = 'G'
-    '''
-    
     network = '2O'
 """    
 ##############################################################################
@@ -67,6 +57,7 @@ else:
 ##############################################################################
 
 networks = ['AU', 'S1', 'IU', 'II', 'G', '2O']
+#networks = ['2O']
 
 
 for network in networks:
@@ -94,6 +85,8 @@ for network in networks:
         else:
             if ev['mag'] >= 4.5:
                 maxdist = 2200
+            elif ev['mag'] >= 4.5:
+                maxdist = 1000
             else:
                 maxdist = 800
         #maxdist = 1500
@@ -112,11 +105,11 @@ for network in networks:
         for isl in iris_sta_list:
             
             # check if station is open
-            if isl['starttime'] <= dt and isl['stoptime'] >= dt: # and dt.year >= 2016 and dt.year < 2017:
+            if isl['starttime'] <= dt and isl['stoptime'] >= dt: # and dt.year >= 2020:
                 
                 # check if in distance range
                 repi = distance(ev['lat'], ev['lon'], isl['lat'], isl['lon'])[0]
-                
+                #print(repi)
                 if repi >= mindist and repi <= maxdist: # and isl['sta'].startswith('KIM'):
                     
                     # make dummy file name and see if exists

@@ -68,13 +68,13 @@ def correct_atten(rec, coeffs, kapdat):
         elif rec['rhyp'] > c['r1'] and rec['rhyp'] <= c['r2']:
             D1 = sqrt(c['r1']**2 + c['nref']**2)
             distterm = c['nc0s'] * log10(D1) \
-                       + c['mc0'] * log10(rec['rhyp'] / c['r1']) + c['mc1'] * (rec['rhyp'] - c['r1'])
+                       + c['mc0s'] * log10(rec['rhyp'] / c['r1']) + c['mc1'] * (rec['rhyp'] - c['r1'])
         
         # set far-field
         elif rec['rhyp'] > c['r2']:
             D1 = sqrt(c['r1']**2 + c['nref']**2)
             distterm = c['nc0s'] * log10(D1) \
-                       + c['mc0'] * log10(c['r2'] / c['r1']) + c['mc1'] * (c['r2'] - c['r1']) \
+                       + c['mc0s'] * log10(c['r2'] / c['r1']) + c['mc1'] * (c['r2'] - c['r1']) \
                        + c['fc0'] * log10(rec['rhyp'] / c['r2']) + c['fc1'] * (rec['rhyp'] - c['r2'])
         
         '''
@@ -111,7 +111,7 @@ def correct_atten(rec, coeffs, kapdat):
     
     # if short period only use f > 0.5
     if  channel.startswith('SH') or channel.startswith('EH'):
-        idx = where(freqs < 0.4)[0]
+        idx = where(freqs < 0.2)[0]
         cor_fds_nan[idx] = nan
             
     return cor_fds, cor_fds_nan, freqs
@@ -242,7 +242,7 @@ events_dict = []
 
 sp = 0
 ii = 1	
-for e, event in enumerate(events): #[::-1]: #[-2:-1]:
+for e, event in enumerate(events): # [::-1]): #[-2:-1]:
     print(event)
     sp += 1
     plt.subplot(2,3,sp)
