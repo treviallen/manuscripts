@@ -1,0 +1,565 @@
+|MSS01|HNZ|54.022|-132.158|-999|
+|PRP01|HNZ|54.304|-130.336|-999|
+|QCC01|HNZ|53.256|-132.084|-999|
+"|STJA|EHZ|51.9372|-131.0155|0.0418|HG|Cape St. James, BC|"
+"|TSUB|EHZ|52.7551|-132.0415|0.3140|HG|Tasu, BC|"
+"|HGPB|EHZ|53.2536|-132.1180|0.0340|HG|Parks Canada Comound,  QC City|"
+|MOBC2|EHZ|53.1442|-131.9674|0.6750|HG|Moresby Island. BC|
+|  A11|HHZ|  47.2431| -70.1968|   0.2010|    CNSN|  3ESP|     ST-ROCH-DES-AULNAIES|  QC|19871030|19941016|
+|  A16|HHZ|  47.4706| -70.0064|   0.0150|    CNSN|CMG-3R|           RIVIERE OUELLE|  QC|19871030|19941015|
+|  A21|HHZ|  47.7036| -69.6897|   0.0460|    CNSN|CMG-3R|                 ST-ANDRE|  QC|19871030|19941017|
+|  A54|HHZ|  47.4567| -70.4125|   0.3810|    CNSN|CMG-3R|                   MISERE|  QC|19871030|19941020|
+|  A61|HHZ|  47.6936| -70.0913|   0.3930|    CNSN|CMG-3R|          SAINTE MATHILDE|  QC|19871030|19941019|
+|  A64|HHZ|  47.8264| -69.8922|   0.1370|    CNSN|CMG-3R|             SAINT-SIMEON|  QC|19871030|19941019|
+|  AAM|   |  42.3012| -83.6567|   0.1720|   USNSN|      |                Ann Arbor|  MI|19940620|
+|  ABF|   |  58.3813|-134.6433|   0.0030|     AGS|      |                 AUKE BAY|  AK|19801027|
+| ACCN|   |  43.3843| -74.6678|   0.3400|    LCSN|      |ADIRONDAC COMMUNITY COLLE|  NY|19950101|
+|ACCNY|   |  43.3378| -73.7428|   0.0010|    LCSN|      |         A LAMONT STATION|  NY|19800101|
+| ACSO|   |  40.2319| -82.9820|   0.2880|   USNSN|      |    Alum Creek State Park|  OH|20000509|
+| ACTO|HHZ|  43.6087| -80.0624|   0.3600|    SOSN|  3ESP|                    ACTON|  ON|20020131|19910709|
+|  ALB|EHZ|  49.2718|-124.8277|   0.0260|    CNSN|    L4|                  ALBERNI|  BC|19510801|19960328|
+|  ALC|   |  62.6225|-141.0083|   0.5820|     AGS|      |                    ALCAN|  AK|19790925|
+|  ALE|BHZ|  82.5033| -62.3500|   0.0650|  GSN-II|   N/A|                    ALERT|  NU|19610929|  198209|
+| ALFO|HHZ|  45.6283| -74.8842|   0.0000|    SOSN|  3ESP|                   ALFRED|  ON|20031002|20031002|
+| ALGO|HHZ|  45.9544| -78.0509|   0.2350| POLARIS|CMG-3P|           ALGONQUIN PARK|  ON|20020911|20020911|
+| ALLY|BHZ|  41.6492| -80.1448|   0.3900|    LCSN| LCSN2|         Alegheny College|  PA|20020530|20020530|
+| ARNY|   |  41.3032| -74.1145|   0.4300|    LCSN|      |              ARDEN HOUSE|  NY|19930101|19930101|
+| ATHA|BHZ|  54.7137|-113.3137|   0.5510| POLARIS|tri240|                Athabasca|  AB|20121019|20121019|
+| ATKO|HHZ|  48.8231| -91.6004|   0.3827|    CNSN|  3ESP|       ATIKOKAN IRON MINE|  ON|20040609|20081101|
+|  AUG|   |  45.7361|-121.6806|   0.8650|     SEA|      |      AUGSPURGER MOUNTAIN|  OR|  198110|
+"| B009|EHZ|  48.6487|-123.4512|   0.0150|      PB|  Q330|  PGC_1, Vancouver Island|  BC|20050914|20050914|"
+"| B010|EHZ|  48.6502|-123.4513|   0.0050|      PB|  Q330|  PGC_2, Vancouver Island|  BC|20050728|20050728|"
+"| B011|EHZ|  48.6495|-123.4482|   0.0220|      PB|  Q330|  PGC_3, Vancouver Island|  BC|20050916|20050916|"
+"| B012|EHZ|  48.9246|-125.5420|   0.0130|      PB|  Q330|Ucluelet Coast Guard Sta,|  BC|20050920|20050920|"
+| B926|EHZ|  48.8202|-124.1312|   0.1916|      PB|  Q330|             Port Renfrew|  BC|20071112|20071112|
+| B927|EHZ|  49.2188|-124.8113|   0.0987|      PB|  Q330|             Port Alberni|  BC|20071207|20071207|
+| B928|EHZ|  48.8353|-125.1351|   0.0268|      PB|  Q330|         bamfld928bbc2007|  BC|20071129|20071129|
+| BALM|   |  61.0362|-142.3445|   1.3000|     AGS|      |                    BALDY|  AK|19730824|
+| BANO|HHZ|  45.0198| -77.9280|   0.3600|    SOSN|CMG-3P|                 BANCROFT|  ON|20020825|20020825|
+| BASO|HHZ|  44.0133| -81.6648|   0.2100|    SOSN|KS2000|         Ashfield Ontario|  ON|20070801|20070801|
+| BATG|HHZ|  47.2767| -66.0599|   0.3360|    CNSN|  3ESP|                 Bathurst|  NB|20051022|20081101|
+|  BBB|BHZ|  52.1847|-128.1133|   0.0140|    CNSN|CMG-3I|              BELLA BELLA|  BC|19861205|19931029|
+| BCBC|HHZ|  52.3720|-126.7550|   0.0000|    CNSN|CMG-3R|              Bella Coola|  BC|20071206|20071206|
+| BCLQ|HHZ|  46.9263| -71.1728|   0.1676|      SL|CMG-3T|               Boischatel|  QC|20071102|20071102|
+| BCPM|   |  59.9533|-139.6350|   0.3960|     AGS|      |             BANCAS POINT|  AK|19790707|
+|BDW  |   |  42.7762|-109.5683|   2.1900|    USAF|      |                  BOULDER|  WY|19770620|
+| BECQ|HHZ|  46.3449| -72.4829|   0.0240|      SL| 120PA|                Becancour|  QC|20120307|20120307|
+| BELQ|HHZ|  47.3980| -78.6874|   0.3550| POLARIS|  3ESP|               Belleterre|  QC|20070822|20070822|
+| BFSB|HHZ|  48.8336|-125.1361|   0.0230|    CNSN|CMG-3T|                 Bamfield|  BC|20131115|20131115|
+|  BFW|   |  46.4867|-123.2148|   0.9020|     SEA|      |             BAW FAW MTN.|  WA|19721025|
+|  BGR|   |  44.8288| -74.3742|   0.2970|    LCSN|      |                   BANGOR|  NY|19770714|19770714|
+|  BIB|EHZ|  49.4103|-123.3105|   0.0380|    CNSN|  S-13|             BOWEN ISLAND|  BC|19960904|19960904|
+| BINY|BHZ|  42.1993| -75.9861|   0.4980|   USNSN| STS-2|               BINGHAMTON|    |19930817|19930817|
+| BLBC|EHZ|  52.0434|-119.2411|   2.3620|    CNSN|  S-13|               BLUE RIVER|  BC|19970617|19970617|
+|  BLH|   |  47.8368|-122.0322|   0.1980|     SEA|      |                BALD HILL|  WA|  198407|
+| BMBC|BHZ|  56.0449|-122.1336|   1.0920|    CNSN|  3ESP|            BULL MOUNTAIN|  BC|19980130|19980130|
+|  BMR|   |  60.9682|-144.6030|   0.8230|     AGS|      |            BREMNER RIVER|  AK|19790912|
+| BMRO|HHZ|  44.5952| -81.2174|   0.2170|    SOSN|KS2000|           Maryville Lake|  ON|20070802|20070802|
+|  BMW|   |  46.4750|-123.2281|   0.8700|     SEA|      |       BOISTFORT MOUNTAIN|  WA|  198011|
+| BNAB|EHZ|  53.4928|-130.6376|   0.0150|    CNSN|    L4|                  BONILLA|  BC|19990416|19990416|
+|  BNB|EHZ|  52.5758|-131.7522|   0.7560|    CNSN|  S-13|              BARRY INLET|  BC|19850906|19960226|
+|BOW  |   |  46.4750|-123.2281|   0.8700|     SEA|      |           BOISTFORT MTN.|  WA|11111111|
+| BPBC|EHZ|  50.1572|-127.7708|   0.7320|    CNSN|  S-13|         BROOKS PENINSULA|  BC|19800101|19950209|
+| BPCB|HHZ|  48.9236|-123.7045|   0.0310|     ETS|CMG40T|              Bare Point |  BC|20080319|20080319|
+|  BRC|EHZ|  44.4275| -75.5830|   0.0830|    LCSN|   N/A|           BRACIE CORNERS|  NY|19760101|19760101|
+| BRCN|   |  44.4275| -75.5830|   0.0830|    LCSN|      |            BRACIE CORNER|  NY|19761101|
+| BRCO|HHZ|  44.2437| -81.4423|   0.2730|    SOSN|  3ESP|              BRUCE PENN.|  ON|20020206|19960201|
+"| BRNY|   |  41.4140| -74.0119|   0.2820|   USNSN|      |Black Rock Forest, Cornwa|  NY|20060622|"
+|  BTB|HHZ|  49.4683|-125.5214|   1.6400|    CNSN|  3ESP|              BUTTLE LAKE|  BC|19840926|19961026|
+| BUKO|HHZ|  45.4423| -79.3989|   0.3170|    SOSN|  3ESP|                BUCK LAKE|  ON|20031102|20031102|
+| BVCY|HHZ|  62.4141|-140.8606|   0.7080|    CNSN|CMG-3T|             Beaver Creek|  YT|20100814|20100814|
+|BW06 |   |  42.7778|-109.5556|   2.2000|    NEIC|      |            Boulder Array|    |19860718|
+| BWLO|HHZ|  44.1174| -81.1382|   0.2550|    SOSN|KS2000|        Walkerton Ontario|  ON|20070801|20070801|
+| CB01|SHZ|  69.1765|-105.2104|   0.0410|    USAF|23900A|            Cambridge_Bay|  NU|20070906|20070906|
+| CB02|SHZ|  69.1939|-105.1457|   0.0000|    USAF|23900A|      Cambridge Bay Array|  NU|19930812|19930812|
+|CB03 |   |  69.1620|-105.1299|   0.0000|    USAF|      |      Cambridge Bay Array|  NU|19930812|
+| CB04|   |  69.1483|-105.1999|   0.0000|    USAF|      |Cambridge Bay Array Site |  NT|19930812|
+| CB05|   |  69.1592|-105.2594|   0.0000|    USAF|      |  CambridgeBay ArraySite5|  NT|19930812|
+| CB06|   |  69.1885|-105.2779|   0.0000|    USAF|      |  CambridgeBay ArraySite6|  NT|19930812|
+| CB07|   |  69.2033|-105.2156|   0.0000|    USAF|      |  CambridgeBay ArraySite7|  NT|19930812|
+| CB08|   |  69.2228|-105.1513|   0.0000|    USAF|      |  CambridgeBay ArraySite8|  NT|19930812|
+| CB09|   |  69.2125|-105.0797|   0.0000|    USAF|      |  CambridgeBay ArraySite9|  NT|19930812|
+| CB11|   |  69.1509|-105.0547|   0.0000|    USAF|      | CambridgeBay ArraySite11|  NT|19930812|
+| CB12|   |  69.1371|-105.1172|   0.0000|    USAF|      | CambridgeBay ArraySite12|  NT|19930812|
+| CB13|   |  69.1183|-105.1862|   0.0000|    USAF|      | CambridgeBay ArraySite13|  NT|19930812|
+| CB14|   |  69.1305|-105.2570|   0.0000|    USAF|      | CambridgeBay ArraySite14|  NT|19930812|
+| CB15|   |  69.1426|-105.3316|   0.0000|    USAF|      | CambridgeBay ArraySite15|  NT|19930812|
+| CB16|   |  69.1722|-105.3412|   0.0000|    USAF|      | CambridgeBay ArraySite16|  NT|19930812|
+| CB17|   |  69.1991|-105.3583|   0.0000|    USAF|      | CambridgeBay ArraySite17|  NT|19930812|
+| CB18|   |  69.2125|-105.2905|   0.0000|    USAF|      | CambridgeBay ArraySite18|  NT|19930812|
+| CB19|   |  69.2322|-105.2324|   0.0000|    USAF|      | CambridgeBay ArraySite19|  NT|19930812|
+| CB31|BHZ|  69.1271|-105.1135|   0.0160|    USAF|KS5400|            Cambridge Bay|  BC|20070615|20070615|
+| CB32|   |  69.2420|-105.5848|   0.0000|    USAF|      | CambridgeBay ArraySite32|  NT|19930812|
+| CB33|   |  69.3894|-105.2630|   0.0000|    USAF|      | CambridgeBay ArraySite33|  NT|19930812|
+| CB34|   |  69.2688|-104.8210|   0.0000|    USAF|      | CambridgeBay ArraySite34|  NT|19930812|
+| CB35|   |  69.2628|-105.2073|   0.0000|    USAF|      | CambridgeBay ArraySite35|  NT|19930812|
+|  CBB|BHZ|  50.0316|-125.3653|   0.3190|    CNSN|  3ESP|           CAMPBELL RIVER|  BC|19940114|19961128|
+| CBSW|   |  47.8046|-120.0410|   1.0730|     SEA|      |       CHELAN BUTTE SOUTH|  WA|    1987|
+| CDFW|   |  46.1162|-122.0475|   0.7800|     SEA|      |              CEDAR FLATS|  WA|  198003|
+| CDKN|BHZ|  64.2348| -66.3440|   0.6500| POLARIS|CMG-3T|            Chidliak Camp|  NU|20090820|20090820|
+|  CFI|   |  61.1827|-147.7665|   0.0030|     AGS|      |            COLLEGE FIORD|  AK|19740731|
+| CHEG|HHZ|  46.8084| -60.6745|   0.4459|    CNSN|  3ESP|                Cheticamp|  NS|20051019|20081101|
+| CHGQ|HHZ|  49.9105| -74.3748|   0.4057| POLARIS|  3ESP|              Chibougamau|  QC|20071011|20071011|
+| CHIP|   |  44.7980| -75.1950|   0.0970|    LCSN|      |             NEAR POTSDAM|  NY|19950215|19950215|
+|  CHX|   |  60.0630|-141.1167|   1.0670|     AGS|      |              CHAIX HILLS|  AK|19740904|
+| CLRN|BHZ|  70.4743| -68.5871|   0.0090|    CNSN|  3ESP|              Clyde River|  NU|20110113|20110113|
+| CLVN|BHZ|  67.0390|-126.0779|   0.2630| POLARIS|  3ESP|            Colville Lake|  NT|20100718|20100718|
+| CLWO|HHZ|  44.4491| -80.3013|   0.4850|    SOSN|  3ESP|              COLLINGWOOD|  ON|20030725|20030725|
+| CNPM|   |  59.5258|-151.2360|   0.5640|     AGS|      |               CHINA POOT|  AK|  190101|
+|  CNQ|EHZ|  49.3020| -68.0746|   0.2000|    CNSN|  S-13|                COTE-NORD|  QC|19910108|19960201|
+| CPLB|HHZ|  48.6118|-124.7512|   0.0400|     ETS|CMG40T|Carmanah Point Lighthouse|  BC|20040421|20040421|
+|  CRF|   |  46.8252|-119.3883|   0.1900|     SEA|      |                    CORFU|  WA|  197007|
+| CRLO|EHZ|  46.0375| -77.3801|   0.1680|    CNSN|  S-13|              CHALK RIVER|  ON|19941117|19941117|
+| CRNY|   |  41.3118| -73.5482|   0.2930|    LCSN|      |              CROSS RIVER|  NY|19811201|19811201|
+| CRQM|   |  60.7567|-143.1392|   1.8530|     AGS|      |                   CIRQUE|  AK|19880701|
+|  CSG|   |  60.6610|-144.8550|   0.6780|     AGS|      |           CHILDS GLACIER|  AK|    1984|
+| CTGM|   |  60.9650|-141.3333|   1.5540|     AGS|      |           CHITNA GLACIER|  AK|19790905|
+|  CTR|   |  43.8741| -74.4600|   0.5850|    LCSN|      |              CASTLE ROCK|  NY|  197109|
+|  CVA|   |  60.5465|-145.7493|   0.0900|     AGS|      |                  CORDOVA|  AK|19710831|
+|  DAQ|EHZ|  47.9627| -71.2437|   0.9390|    CNSN|  S-13|                LAC DARAN|  QC|19881215|19951108|
+| DAWY|BHZ|  64.0655|-139.3909|   0.8080|    CNSN|CMG-3T|                   DAWSON|  YT|19920930|19920930|
+| DELO|HHZ|  44.5177| -77.6186|   0.2130|    SOSN|  3ESP|              DELORO MINE|  ON|20020827|20020827|
+| DHRN|BHZ|  67.0331|-119.5088|   0.2180| POLARIS|  3ESP|              Dharma Camp|  NT|20090715|20090715|
+|  DHW|   |  47.9605|-119.7693|   0.0000|     SEA|      |                DYER HILL|  WA|  197506|
+| DHW2|   |  47.9852|-119.7703|   0.8840|     SEA|      |                DYER HILL|  WA|  198506|
+|  DIB|HHZ|  53.2025|-132.4767|   0.0680|    CNSN|CMG-3I|             DAWSON INLET|  BC|20040315|20040315|
+| DLBC|BHZ|  58.4372|-130.0272|   0.9780|    CNSN|CMG-3I|               DEASE LAKE|  BC|19940928|19940928|
+| DMCQ|HHZ|  48.9646| -72.0680|   0.1970| POLARIS| T120P|      DOLBEAU-MISTASSINI |  QC|20090915|20090915|
+| DOWB|EHZ|  51.5183|-118.5162|   0.5940|    CNSN|  S-13|             DOWNIE SLIDE|  BC|19821201|19970613|
+|  DPQ|EHZ|  46.6804| -72.7774|   0.1670|    CNSN|  S-13|        ST-JEAN-DES-PILES|  QC|19880101|19960920|
+|DPW  |   |  47.8706|-118.2028|   0.8920|     SEA|      |                DAVENPORT|  WA|  198611|
+| DRCO|HHZ|  43.8766| -78.7023|   0.0840|    SOSN|KS2000|        St. Marys Cement |  ON|20111026|20111026|
+| DRLN|BHZ|  49.2560| -57.5042|   0.2380|    CNSN|STS-1V|                DEER LAKE|  NL|19931214|19931214|
+| DRWO|HHZ|  43.8719| -78.7300|   0.0590|    SOSN|KS2000|          Darlington West|  ON|20070620|20070620|
+|  EDB|BHZ|  49.8737|-127.1198|   0.1890|    CNSN|  3ESP|               ELIZA DOME|  BC|19820429|19960328|
+|  EDM|HHZ|  53.2217|-113.3500|   0.7300|    CNSN|  3NSN|                 EDMONTON|  AB|19630419|19920603|
+| EDZN|BHZ|  62.7272|-116.0990|   0.2440| POLARIS|  3ESP|                     Edzo|  NT|20110715|20110715|
+|  EEO|EHZ|  46.6410| -79.0735|   0.1213|    CNSN|  S-13|                    ELDEE|  ON|19840308|19931005|
+|  EFO|EHZ|  43.0917| -79.3117|   0.1680|    CNSN|  S-13|                EFFINGHAM|  ON|19790707|19950228|
+| ELFO|HHZ|  43.1930| -81.3163|   0.2980|    SOSN|  3ESP|               Elginfield|  ON|20040723|20040723|
+|ELFO1|   |  43.1909| -81.3149|   0.3060|    CNSN|      |               ElginField|  ON|20060124|20060124|
+|ELFO2|   |  43.1933| -81.3114|   0.3215|    CNSN|      |               ElginField|  ON|20060124|20060124|
+|ELFO3|   |  43.1876| -81.3119|   0.3135|    CNSN|      |               ElginField|  ON|20060124|20060124|
+|ELFO4|   |  43.1922| -81.3177|   0.3220|    CNSN|      |               ElginField|  ON|20060124|20060124|
+| ELNB|HHZ|  45.8545| -65.1513|   0.1670|      SL|  3ESP|                    Elgin|  NB|20120826|20120826|
+| EMMW|BHZ|  44.7100| -67.4583|   0.0350|      NE|  3ESP|             East Machias|  ME|20010220|20010220|
+| EPLO|HHZ|  49.6737| -93.7258|   0.4373|    CNSN|  3ESP|                EXP. LAKE|  ON|20040611|20081101|
+|  EPW|   |  47.3522|-119.5962|   0.6280|     SEA|      |                  EPHRATA|  WA|  197506|
+| ERPA|BHZ|  42.1175| -79.9891|   0.3060|   USNSN| STS-2|                     Erie|  PA|20020530|20020530|
+|  ETB|EHZ|  49.3763|-126.5380|   0.0010|    CNSN|  S-13|            ESTEVAN POINT|  BC|19820429|19960328|
+|  ETP|   |  46.4648|-119.0590|   0.2190|     SEA|      |                  ELTOPIA|  WA|  196903|
+|ETW  |   |  47.6045|-120.3310|   1.4750|     SEA|      |                   Entiat|    |  198610|
+| EUNU|BHZ|  80.0532| -86.4158|   0.6230|    CNSN|  3ESP|                   EUREKA|  NU|20000822|20080415|
+| EYMN|BHZ|  47.9462| -91.4950|   0.4750|   USNSN| STS-2|                      ELY|  MI|19940926|19940926|
+|  FCC|BHZ|  58.7616| -94.0866|   0.0390|    CNSN|  3ESP|           FORT CHURCHILL|  MB|19670624|19931001|
+|  FFC|   |  54.7250|-101.9783|   0.3380|  GSN-II|      |                FLIN FLON|  MB|19650512|19930828|
+| FHRB|HHZ|  50.0537|-127.1186|   0.0001|     ETS|  3ESP|            Fair Harbour |  BC|20090312|20090312|
+|  FID|   |  60.7288|-146.5965|   0.4880|     AGS|      |             PORT FIDALGO|  AK|19741007|
+| FINE|   |  44.2650| -75.1670|   0.3540|    LCSN|      |                     FINE|  NY|19960101|19960101|
+"| FL01|SHZ|  54.7259|-101.9933|   0.3036|    USAF|23900A|        Flin_Flon,_Canada|  MB|20050815|20050815|"
+| FL02|   |  54.7252|-101.9677|   0.0000|    USAF|      |      FlinFlon ArraySite2|  SK|19860401|
+| FL03|   |  54.7120|-101.9634|   0.0000|    USAF|      |      FlinFlon ArraySite3|  SK|19860401|
+| FL04|   |  54.7119|-101.9811|   0.0000|    USAF|      |      FlinFlon ArraySite4|  SK|19860401|
+| FL05|   |  54.7087|-102.0021|   0.0000|    USAF|      |      FlinFlon ArraySite5|  SK|19860401|
+| FL06|   |  54.7182|-102.0096|   0.0000|    USAF|      |     FlinFlon ArraySite 6|  SK|19860401|
+| FL07|   |  54.7266|-102.0168|   0.0000|    USAF|      |     FlinFlon ArraySite 7|  SK|19860401|
+| FL08|   |  54.7348|-101.9902|   0.0000|    USAF|      |     FlinFlon ArraySite 8|  SK|19860401|
+| FL09|   |  54.7544|-101.9668|   0.0000|    USAF|      |     FlinFlon ArraySite 9|  SK|19860401|
+| FL10|   |  54.7398|-101.9559|   0.0000|    USAF|      |     FlinFlon ArraySite10|  SK|19860401|
+| FL11|   |  54.7171|-101.9410|   0.0000|    USAF|      |     FlinFlon ArraySite11|  SK|19860401|
+| FL12|   |  54.6984|-101.9454|   0.0000|    USAF|      |     FlinFlon ArraySite12|  SK|19860401|
+| FL13|   |  54.6875|-101.9855|   0.0000|    USAF|      |     FlinFlon ArraySite13|  SK|19860401|
+| FL14|   |  54.6925|-102.0241|   0.0000|    USAF|      |     FlinFlon ArraySite14|  SK|19860401|
+| FL15|   |  54.7126|-102.0421|   0.0000|    USAF|      |     FlinFlon ArraySite15|  SK|19860401|
+| FL16|   |  54.7361|-102.0558|   0.0000|    USAF|      |     FlinFlon ArraySite16|  SK|19860401|
+| FL17|   |  54.7481|-102.0301|   0.0000|    USAF|      |     FlinFlon ArraySite17|  SK|19860401|
+| FL18|   |  54.7599|-101.9958|   0.0000|    USAF|      |     FlinFlon ArraySite18|  SK|19860401|
+| FL31|BHZ|  54.7190|-101.9961|   0.3094|    USAF|KS5400|                Flin_Flon|  BC|19860401|19860401|
+|  FLE|   |  44.7230| -72.9520|   0.3660|    LCSN|      |                 FLETCHER|  VT|19770808|
+| FLET|EHZ|  44.7227| -72.9517|   0.3660|    LCSN|   N/A|                 FLETCHER|  VT|19770808|19770808|
+| FNBB|BHZ|  58.8904|-123.0097|   0.6180|    CNSN|CMG-3T|              FORT NELSON|  BC|19991024|19991024|
+|  FPW|   |  47.9667|-120.2129|   0.3520|     SEA|      |             FIELDS POINT|  WA|  197506|
+|  FRB|BHZ|  63.7469| -68.5451|   0.0250|    CNSN|CMG-3T|                  IQALUIT|  NU|19721201|19920603|
+| FRNY|BHZ|  44.8350| -73.5883|   0.2230|    LCSN|      |                Flat Rock|  NY|20031113|20031113|
+|  FSB|EHZ|  54.4767|-124.3283|   0.7470|    CNSN|  S-13|           FORT ST. JAMES|  BC|19790430|20000215|
+| FSMA|HHZ|  59.9862|-111.8218|   0.1870| POLARIS|tri240|               Fort Smith|  AB|20100912|20100912|
+|  FTW|   |  47.8767|-122.2014|   0.1470|     SEA|      |                 FAIRMONT|  WA|19750924|
+|  GAC|BHZ|  45.7033| -75.4783|   0.0620|    CNSN| STS-1|              GLEN ALMOND|  QC|19791026|19920505|
+|  GAC|EHZ|  45.7033| -75.4783|   0.0620|    CNSN|   S13|              GLEN ALMOND|  QC|19791026|19920505|
+|  GBL|   |  46.5977|-119.4598|   0.3300|     SEA|      |               GABLE MTN.|  WA|  196903|
+|  GBN|HHZ|  45.4077| -61.5128|   0.0380|    CNSN|  3ESP|              GUYSBOROUGH|  NS|20051017|20051017|
+|  GDR|EHZ|  49.7810|-126.0553|   0.1000|    CNSN|  S-13|               GOLD RIVER|  BC|19961128|19961128|
+|  GGN|BHZ|  45.1184| -66.8420|   0.0300|    CNSN|CMG-3R|             SAINT GEORGE|  NB|19811028|20020130|
+| GHNB|HHZ|  49.3065|-124.2364|   0.0050|     ETS|CMG40T|       Greg House Nanoose|  BC|20030301|20030301|
+|  GHW|   |  47.0417|-122.2725|   0.2680|     SEA|      |            GARRISON HILL|  WA|19750924|
+|  GLB|   |  61.4418|-143.8105|   0.8450|     AGS|      |           GILAHINA BUTTE|  AK|19730825|
+|  GLI|   |  60.8797|-147.0942|   0.4290|     AGS|      |             GLACIER ISL.|  AK|19840918|
+|  GMW|   |  47.5479|-122.7863|   0.5060|     SEA|      |                GOLD MTN.|  WA|19700227|
+|  GNF|   |  43.9152| -74.2293|   0.0000|    LCSN|      |             GOODNOW FLOW|  NY|  198310|
+| GOBB|EHZ|  48.9493|-123.5105|   0.1610|    CNSN|  S-13|           GALIANO ISLAND|  BC|19990202|19990202|
+|  GPD|EHZ|  41.0177| -74.4608|   0.3600|    LCSN|   N/A|                GREENPOND|  NJ|  197608|  197608|
+|  GRQ|EHZ|  46.6067| -75.8600|   0.2900|    CNSN|  S-13|             GRAND-REMOUS|  QC|19810316|19960712|
+|  GSM|   |  47.2032|-121.7945|   1.3050|     SEA|      |               GRASS MTN.|  WA|19700611|
+|  GSQ|EHZ|  48.9142| -67.1106|   0.3980|    CNSN|  S-13|           GROSSES-ROCHES|  QC|19811028|19960109|
+|  GTO|EHZ|  49.7455| -86.9610|   0.3500|    CNSN|  S-13|                GERALDTON|  ON|20010104|20010104|
+|  GYO|   |  60.1463|-141.4715|   0.1830|     AGS|      |              GUYOT HILLS|  AK|19760601|
+| H56A|   |  44.5930| -76.2594|   0.1820|   USNSN|      |                    Elgin|  ON|20130101|
+|  HAL|HHZ|  44.6378| -63.5912|   0.0650|    CNSN|  3NSN|                  HALIFAX|  NS|19180501|20030113|
+| HANN|HHZ|  45.8818| -66.7677|   0.1020| POLARIS| 120PA|                  Hanwell|  NB|20130113|20130113|
+| HBVT|   |  44.3620| -73.0650|   1.1300|    LCSN|      |                HINESBURG|  VT|  198009|  198009|
+"| HC1P|HHZ|  46.4340| -63.7953|   0.0010|   HCPEI|TriCom|          Summerside, PEI|  PE|20130523|20130523|"
+| HC2P|HHZ|  46.4323| -63.7642|   0.0200|   HCPEI|TriCom|                     HC2P|  PE|20130523|20130523|
+| HC3P|HHZ|  46.4240| -63.7395|   0.0070|   HCPEI|TriCom|                     HC3P|  PE|20130523|20130523|
+| HC4P|HHZ|  46.4106| -63.6705|   0.0160|   HCPEI|TriCom|                     HC4P|  PE|20130523|20130523|
+"| HCNY|   |  42.6968| -74.3984|   0.2730|   USNSN|      | Howe Caverns, Cobleskill|  NY|20060228|"
+| HFRN|BHZ|  62.8617|-109.2777|   0.1530| POLARIS|  3ESP|          Hoarfrost River|  NT|20110712|20110712|
+| HG1B|HHZ|  52.9345|-132.1307|   0.0050|    CNSN|  3ESP|             Mitchell Dam|  BC|20121107|20121107|
+| HG3B|HHZ|  52.5766|-131.4435|   0.0100|    CNSN|  3ESP|                Hotspring|  BC|20121107|20121107|
+| HG4B|HHZ|  52.2931|-131.1975|   0.3310|    CNSN|  3ESP|                   Jedway|  BC|20121105|20121105|
+"| HILA|BHZ|  58.5561|-117.0203|   0.3290| POLARIS|tri240|          High Level, AB |  AB|20091019|20091019|"
+|  HIN|   |  60.3968|-146.5017|   0.6110|     AGS|      |        HINCHINBROOK ISL.|  AK|19741003|
+| HKNB|HHZ|  45.9783| -65.3801|   0.1640|      SL|TriCom|          Havelock Quarry|  NB|20130905|20130905|
+|  HMT|   |  60.3365|-144.2607|   0.6200|     AGS|      |                 HAMILTON|  AK|19770816|
+| HNBB|HHZ|  49.2873|-122.5729|   0.3920|    CNSN|  3ESP|                    Haney|  BC|20131118|20131118|
+| HOLB|HHZ|  50.6405|-128.1318|   0.5640|    CNSN|  3ESP|                  HOLBERG|  BC|19940901|19940901|
+| HOPB|HHZ|  49.3873|-121.4205|   0.2480|    CNSN|  3ESP|                     HOPE|  BC|20011123|20011123|
+"| HPLN|BHZ|  66.3485|-115.3232|   0.4790| POLARIS|  3ESP|       Hepburn Lake, NWT |  NT|20090716|20090716|"
+|  HQN|   |  59.4517|-138.8770|   0.3720|     AGS|      |           HARLEQUIN LAKE|  AK|19741001|
+|  HRV|   |  42.5064| -71.5583|   0.1800|  GSN-IU|      |       HARVARD--OAK RIDGE|  MA|19880101|19880101|
+|  HTW|   |  47.8035|-121.7691|   0.8290|     SEA|      |         HAYSTOCK LOOKOUT|  WA|19750611|
+|  HYT|HHZ|  60.8250|-137.5038|   1.4160|    CNSN|CMG-3T|              HAINES JCT.|  YT|19810727|19940915|
+|I10H1|BDF|  50.2015| -96.0269|   0.2462|    CNSN|MB2000|                   PINAWA|  MB|20001210|20001210|
+|I10H2|BDF|  50.2067| -96.0396|   0.2373|    CNSN|MB2000|                   PINAWA|  MB|20001210|20001210|
+|I10H3|BDF|  50.2065| -96.0117|   0.2394|    CNSN|MB2000|                   PINAWA|  MB|20001210|20001210|
+|I10H4|BDF|  50.1874| -96.0190|   0.2424|    CNSN|MB2000|                   PINAWA|  MB|20001210|20001210|
+|  ICQ|BHZ|  49.5217| -67.2719|   0.0580|    CNSN|CMG-3T|           ISLETS-CARIBOU|  QC|19910108|19960215|
+|  ILM|   |  60.1820|-152.8162|   0.5500|     AGS|      |                  ILIAMNA|  AK|19710807|
+| ILON|BHZ|  69.3712| -81.8242|   0.0510|    CNSN|  3ESP|                 Igloolik|  NU|20050824|20120901|
+|ILULI|HHZ|  69.2121| -51.1048|   0.0535|      DK| STS-2|                Ilulissat|  NA|20090714|20090714|
+|  INK|BHZ|  68.3065|-133.5254|   0.0440|    CNSN|CMG-3I|                   INUVIK|  NT|19690925|19920228|
+| J54A|   |  43.2728| -78.6392|   0.1120|   USNSN|      |                Frankford|  ON|20130101|
+| J55A|   |  43.2657| -77.8167|   0.0970|   USNSN|      |                Frankford|  ON|20130101|
+| JFWS|BHZ|  42.9142| -90.2481|   0.3350|   USNSN| STS-2|              JEWELL FARM|    |19920729|19920729|
+| KAJQ|HHZ|  58.6940| -65.9305|   0.0460| POLARIS| T120P|         Kangiqsualujjuaq|  QC|20110810|20110810|
+| KAPO|BHZ|  49.4504| -82.5079|   0.2100|    CNSN|  3ESP|              KAPUSKASING|  ON|19980114|19980114|
+| KB1O|HHZ|  45.3981| -76.1768|   0.1080| POLARIS|  3ESP|                    KB 10|  ON|20131101|20131101|
+| KB2O|HHZ|  45.3859| -76.1562|   0.0950| POLARIS|  3ESP|                    KB 20|  ON|20131101|20131101|
+| KB3O|HHZ|  45.3783| -76.1509|   0.0950| POLARIS|  3ESP|                    KB 30|  ON|20131101|20131101|
+| KB4O|HHZ|  45.3743| -76.1633|   0.1020| POLARIS|  3ESP|                    KB 40|  ON|20131101|20131101|
+| KB5O|HHZ|  45.3931| -76.1453|   0.0980| POLARIS|  3ESP|                    KB 50|  ON|20131101|20131101|
+| KB6O|HHZ|  45.3931| -76.1453|   0.0900| POLARIS|  3ESP|                    KB 60|  ON|20131101|20131101|
+| KGNO|BHZ|  44.2272| -76.4934|   0.0890|    CNSN|CMG-3R|                 KINGSTON|  ON|19991221|19991221|
+| KILO|HHZ|  48.4972| -79.7232|   0.3140|    CNSN|  3ESP|            KIRKLAND LAKE|  ON|20030622|20081101|
+| KJKQ|HHZ|  55.2769| -77.7455|   0.0150| POLARIS| T120P|             Kuujjuarapik|  QC|20110813|20110813|
+| KLBO|HHZ|  45.3566| -80.2132|   0.1770|    SOSN|  3ESP|                 KILLBEAR|  ON|20030728|20030728|
+|  KLU|   |  61.4928|-145.9202|   1.0210|     AGS|      |                  KLUTINA|  AK|19720809|
+|  KMP|   |  61.5130|-145.0182|   1.1430|     AGS|      |             KIMBALL PASS|  AK|19770804|
+| KNGQ|HHZ|  61.5849| -71.9483|   0.0540| POLARIS| T120P|             Kangiqsujuaq|  QC|20110805|20110805|
+| KNIM|   |  60.3487|-147.7360|   0.4340|     AGS|      |            KNIGHT ISLAND|  AK|19850712|
+|  KNK|   |  61.4125|-148.4557|   0.5950|     AGS|      |             KNIK GLACIER|  AK|19730811|
+| KOSW|   |  46.4613|-122.1905|   0.8280|     SEA|      |                   KOSMOS|  WA|  198105|
+| KRSQ|HHZ|  60.0220| -69.9912|   0.1320| POLARIS| T120P|                Kangirsuk|  QC|20110807|20110807|
+| KUKN|BHZ|  67.8226|-115.0899|   0.3200|    CNSN|  3ESP|                Kugluktuk|  NT|20100721|20130401|
+|KULLO|HHZ|  74.5805| -57.2201|   0.0440|      DK| STS-2|               Kullorsuaq|  NA|20090718|20090718|
+|  KUQ|EHZ|  58.1090| -68.4113|   0.0540|    CNSN|  S-13|                 KUUJJUAQ|  QC|19900111|19980204|
+|  KYK|   |  59.8683|-144.5232|   0.3750|     AGS|      |               KAYAK ISL.|  AK|19741002|
+"| LATQ|HHZ|  47.3835| -72.7819|   0.1630| POLARIS|  3ESP|         La Tuque, Quebec|  QC|20070914|20070914|"
+| LBNH|BHZ|  44.2401| -71.9259|   0.3670|   USNSN|CMG-3N|                   LISBON|    |19930814|19930814|
+| LG4Q|EHZ|  53.6269| -74.0972|   0.1680|    CNSN|  S-13|                LAGRANDE4|  QC|19970211|19970211|
+|  LIB|EHZ|  54.2558|-133.0583|   0.0350|    CNSN|   S13|           LANGARA ISLAND|  BC|19840912|20120811|
+| LLLB|BHZ|  50.6090|-121.8815|   0.7000|    CNSN|CMG-3T|                 LILLOOET|  BC|19981117|19981117|
+|  LMN|BHZ|  45.8520| -64.8060|   0.3630|    CNSN|  3ESP|           CALEDONIA MTN.|  NB|19811028|19930726|
+|  LMQ|HHZ|  47.5485| -70.3258|   0.4290|    CNSN|  3NSN|               LA MALBAIE|  QC|19761103|19920603|
+|  LMW|   |  46.6680|-122.2913|   1.1950|     SEA|      |                LADD MTN.|  WA|19750630|
+| LNOR|   |  45.8711|-118.2850|   0.7680|     SEA|      |         LINCTON MOUNTAIN|  OR|  198608|
+| LOCW|   |  46.7170|-119.4308|   0.2100|     SEA|      |             LOCKE ISLAND|  WA|  198211|
+| LONY|BHZ|  44.6197| -74.5829|   0.4400|    LCSN| STS-2|              Lake Ozonia|  NY|20051001|20051001|
+|  LOV|   |  44.6200| -74.5800|   0.4820|    LCSN|      |              LAKE OZONIA|  NY|19840101|19840101|
+|  LOZ|   |  44.6197| -74.5829|   0.4400|    LCSN|      |              LAKE OZONIA|  NY|19841101|
+| LSQQ|HHZ|  49.0580| -76.9796|   0.3080| POLARIS| T120P|      LEBEL-SUR_QUÉVILLON|  QC|20090913|20090913|
+|   LV|   |  40.8090| -74.7520|   0.2010|    LCSN|      |              LONG VALLEY|  NJ|19770608|
+| LVNJ|   |  40.8095| -74.7515|   0.2010|    LCSN|      |              LONG VALLEY|  NJ|19770608|
+|  LYW|   |  48.5353|-122.1017|   0.1070|     SEA|      |                    LYMAN|  WA|19750416|
+|  LZB|BHZ|  48.6117|-123.8236|   0.8440|    CNSN|CMG40T|             MOUNT LAZARD|  BC|20010110|20010110|
+| MALO|HHZ|  50.0244| -79.7635|   0.2710|    CNSN|  3ESP|            MCALPINE LAKE|  ON|20030620|20081101|
+| MANA|BHZ|  56.8554|-117.6367|   0.4800| POLARIS|tri240|                  Manning|  AB|20091018|20091018|
+| MANY|   |  41.2220| -73.8686|   0.1330|    LCSN|      |               MOUNT AIRY|  NY|19930101|19930101|
+| MASB|EHZ|  54.0150|-132.0230|   0.0150|    CNSN|  S-13|                   MASSET|  BC|19990415|19990415|
+| MATQ|HHZ|  49.7589| -77.6376|   0.2800| POLARIS|  3ESP|                 Matagami|  QC|20070919|20070919|
+| MAYB|EHZ|  50.4025|-127.1717|   1.4140|    CNSN|  S-13|            MOUNT MAYNARD|  BC|19941117|19941117|
+|  MDV|   |  43.9991| -73.1811|   0.1340|    LCSN|      |               MIDDLEBURY|  VT|  197003|
+|  MDW|   |  46.6133|-119.7608|   0.3720|     SEA|      |                   MIDWAY|  WA|  196903|
+"| MEDO|HHZ|  43.1646| -78.4546|   0.1905|    SOSN|  3ESP|                Medina,NY|  NY|20040507|20040507|"
+|  MFW|   |  45.9030|-118.4058|   0.3950|     SEA|      |         MILTON-FREEWATER|  OR|  197110|
+|  MGB|HHZ|  48.9999|-124.6975|   1.3000|    CNSN|  3ESP|               MOUNT GREY|  BC|19840926|19961026|
+|  MIV|EHZ|  44.0747| -73.5340|   0.3170|    LCSN|   N/A|                MINEVILLE|  NY|19840101|19840101|
+| MKVL|HHZ|  55.0923| -59.1840|   0.0790| POLARIS| T120P|                 Makkovik|  NL|20110726|20110726|
+|MLS  |   |  59.7667|-140.1500|   0.0300|     AGS|      |            MALASPINA GL.|  AK|19740904|
+|  MNB|EHZ|  52.1983|-118.3833|   2.2710|    CNSN|  S-13|            MOUNT DAINARD|  BC|19810929|19970617|
+|  MNQ|EHZ|  50.5333| -68.7744|   0.5640|    CNSN|  S-13|              MANICOUAGAN|  QC|19741127|19960201|
+| MNTQ|BHZ|  45.5003| -73.6228|   0.1120|    CNSN|  3ESP|                 Montreal|  QC|20100726|20100726|
+| MOBC|BHZ|  53.1437|-131.9663|   0.6750|    CNSN|  3ESP|                  MORSBEY|  BC|19960226|19960226|
+|  MOQ|EHZ|  45.3120| -72.2541|   0.8410|    CNSN|  S-13|              MONT-ORFORD|  QC|19910501|19960917|
+|  MPA|   |  60.4890|-149.3610|   0.1500|     AGS|      |               MOOSE PASS|  AK|19730805|
+| MRYN|BHZ|  71.3328| -79.3795|   0.1840| POLARIS|  3ESP|               Mary River|  NT|20110801|20110801|
+| MSNY|EHZ|  44.9980| -74.8620|   0.0550|    LCSN|   N/A|                  MASSENA|  NY|  197611|19770713|
+|  MSP|   |  60.4890|-149.3605|   0.1600|     AGS|      |               MOOSE PASS|  AK|19730805|
+| MTMW|   |  46.0255|-122.2117|   1.1210|     SEA|      |             MOUNT MICHEL|  WA|  198003|
+| MWAB|HHZ|  49.7411|-125.3032|   1.1760|     ETS|CMG40T|         Mount Washington|  BC|20090731|20090731|
+|  MXC|   |  46.5772|-120.2931|   0.5400|     SEA|      |               MOXIE CITY|  WA|  198410|
+| NANL|HHZ|  56.5371| -61.6884|   0.0340| POLARIS| T120P|                     Nain|  NL|20110724|20110724|
+| NATG|HHZ|  50.2872| -62.8102|  -0.0018|    CNSN|  3ESP|         Baie Johan Beetz|  QC|20051126|20081101|
+| NBC1|HHZ|  59.6559|-123.8237|   0.4210|    NEBC| triph|                     NBC1|  BC|20130311|20130311|
+| NBC2|HHZ|  59.7779|-122.4878|   0.4920|    NEBC| triph|             NorthernBC 2|  BC|20130313|20130313|
+| NBC3|HHZ|  59.6365|-120.6692|   0.4560|    NEBC| triph|             NorthernBC 3|  BC|20130314|20130314|
+| NBC4|HHZ|  55.6873|-120.6617|   0.7900|    NEBC| triph|             NorthernBC 4|  BC|20130319|20130319|
+| NBC5|HHZ|  57.5231|-122.6777|   1.1620|    NEBC| triph|             NorthernBC 5|  BC|20130316|20130316|
+| NBC6|HHZ|  58.5839|-121.3339|   0.4450|    NEBC| triph|             NorthernBC 6|  BC|20130316|20130316|
+"|  NCB|BHZ|  43.9708| -74.2236|   0.5000|    LCSN|  Q730|              NEWCOMB, NY|  NY|19991020|19921027|"
+| NCRB|EHZ|  50.4035|-126.0553|   1.2930|    CNSN|  S-13|          NEWCASTLE RIDGE|  BC|19981117|19981117|
+|  NDB|EHZ|  53.9550|-132.9417|   0.6860|    CNSN|  S-13|                    NADEN|  BC|19870915|19970101|
+|NEW  |   |  48.2633|-117.1200|   1.0000|    NEIC|      |                  NEWPORT|  WA|19931113|
+|  NKA|   |  60.7430|-151.2380|   0.1000|     AGS|      |                 NIKISKHA|  AK|19710910|
+| NLLB|BHZ|  49.2274|-123.9881|   0.1920|    CNSN|  3ESP|        NANAIMO LOST LAKE|  BC|20030101|20030101|
+|  NLW|   |  48.0783|-120.3382|   1.4900|     SEA|      |             NELSON BUTTE|  WA|  198505|
+| NMSQ|HHZ|  51.7133| -76.0237|   0.2750| POLARIS|  3ESP|         Nemaska station |  QC|20090912|20090912|
+|  NNL|   |  60.0422|-151.2963|   0.3660|     AGS|      |                NINILCHIK|  AK|19720824|
+| NOWN|BHZ|  65.2943|-126.7145|   0.1860| POLARIS|  3ESP|             Norman Wells|  NT|20120816|20120816|
+| NTKA|HHZ|  49.5924|-126.6166|   0.0120|     ETS|CMG40T|                   Nootka|  BC|20130323|20130323|
+|  NWC|   |  43.8450| -74.1500|   0.0000|    LCSN|      |            N. WOODS CLUB|  NY|  198610|
+| NWRL|HHZ|  53.5253| -60.1424|   0.0060| POLARIS| T120P|         North West River|  NL|20110721|20110721|
+|  OHW|   |  48.3233|-122.5318|   0.0540|     SEA|      |               OAK HARBOR|  WA|19750516|
+|  OMW|   |  48.4803|-119.5608|   0.4210|     SEA|      |                     OMAK|  WA|  197506|
+"| ORIO|HHZ|  45.4515| -75.5110|   0.0740| POLARIS|  3ESP|     Orleans, Innes Road,|  ON|20080619|20080619|"
+|OSR  |   |  47.5056|-123.9617|   0.8150|     SEA|      |     Olympics--Salmon Rid|    |19890913|
+|  OTH|   |  46.7390|-119.2165|   0.3840|     SEA|      |                  OTHELLO|  WA|  196903|
+|  OTT|HHZ|  45.3942| -75.7167|   0.0770|    CNSN|CMG-3R|                   OTTAWA|  ON|19060101|19920601|
+|  OZB|BHZ|  48.9603|-125.4928|   0.6710|    CNSN|  3ESP|               MT. OZZARD|  BC|19820429|19960328|
+| PA01|HHZ|  48.6526|-123.4470|   0.0030|    CNSN| T120P|         Sidney PGC North|  BC|20100722|20100722|
+| PA02|HHZ|  48.6518|-123.4489|   0.0030|    CNSN| T120P|         Sidney PGC Ocean|  BC|20100722|20100722|
+| PA03|HHZ|  48.6517|-123.4448|   0.0080|    CNSN| T120P|      Sidney PGC Flamable|  BC|20100722|20100722|
+| PA04|HHZ|  48.6510|-123.4462|   0.0080|    CNSN| T120P|          Sidney PGC Cage|  BC|20100722|20100722|
+| PA05|HHZ|  48.6497|-123.4438|   0.0080|    CNSN| T120P|    Sidney PGC Willingdon|  BC|20100722|20100722|
+| PA12|HHZ|  48.6482|-123.4496|   0.0100|    CNSN| T120P|       Sidney PGC Saanich|  BC|20100722|20100722|
+| PACB|HHZ|  50.4355|-127.4925|   0.0240|     ETS|CMG40T|               Port Alice|  BC|20100624|20100624|
+|  PAL|   |  41.0042| -73.9092|   0.0910|    LCSN|      |                PALISADES|  NY|19800101|19800101|
+|  PCA|   |  60.0967|-140.2567|   0.9750|     AGS|      |                 PINNACLE|  AK|19740905|
+|PDAR |   |  42.7667|-109.5579|   2.2140|    USAF|      |           Pinedale Array|  Wy|19910101|
+| PECO|HHZ|  43.9340| -76.9939|   0.0920|    SOSN|CMG-3P|     PRINCE EDWARD COUNTY|  ON|20020906|20020906|
+| PEMO|HHZ|  45.6773| -77.2466|   0.1800|    SOSN|CMG-3P|                 PEMBROKE|  ON|20021113|20021113|
+|  PFB|HHZ|  48.5750|-124.4444|   0.4650|    CNSN|  3ESP|             PORT RENFREW|  BC|19970315|19970315|
+|  PGC|BHZ|  48.6498|-123.4521|   0.0120|    CNSN|  3ESP|                   SIDNEY|  BC|19780318|19931105|
+|  PGY|   |  43.7077| -74.0452|   0.0000|    LCSN|      |          PETER GRAY MTN.|  NY|  198611|
+|  PHC|BHZ|  50.7067|-127.4330|   0.0320|    CNSN|CMG-3T|               PORT HARDY|  BC|19630317|19951214|
+| PKLO|HHZ|  51.4987| -90.3522|   0.3762|    CNSN|CMG-3T|              PICKLE LAKE|  ON|20040615|20081101|
+| PKME|BHZ|  45.2644| -69.2917|   0.1085|   USNSN| STS-2|   Peaks-Kenny State Park|  ME|20060706|20060706|
+| PKRO|HHZ|  43.9643| -79.0714|   0.1970|    SOSN|  3ESP|                PICKERING|  ON|20020130|19960130|
+| PLBC|HHZ|  59.4550|-136.3659|   0.2790|    CNSN|  3ESP|            PLEASANT CAMP|  BC|20050903|20050903|
+| PLIO|HHZ|  41.7505| -82.6284|   0.1430|    SOSN|CMG-3P|             PELEE ISLAND|  ON|20030822|20030822|
+| PLVO|HHZ|  45.0396| -77.0754|   0.0000|    SOSN|CMG-3P|                   PLEVNA|  ON|20040513|20040513|
+|  PNL|   |  59.6677|-139.3970|   0.5850|     AGS|      |                PENINSULA|  AK|19740902|
+| PNPO|HHZ|  48.5957| -86.2846|   0.2193|    CNSN|CMG-3T|                 PUKASKWA|  ON|20040618|20081101|
+|  PNT|BHZ|  49.3224|-119.6254|   0.5310|    CNSN|CMG-3T|                PENTICTON|  BC|19600101|19930203|
+|  PNY|   |  44.8342| -73.5550|   0.1770|    LCSN|      |               PLATTSBURG|  NY|  197108|  197108|
+|  PNZ|   |  44.8354| -73.5770|   0.2150|    LCSN|      |              Plattsburgh|  NY|19961022|
+|  PQI|BHZ|  46.6710| -68.0168|   0.1800|      NE|  3ESP|             Presque Isle|  ME|20000515|20000515|
+|  PQN|   |  41.0073| -75.0858|   0.2290|    LCSN|      |               PAHAQUARRY|  NJ|  197302|
+| PRDA|HHZ|  50.8674|-114.2918|   1.2520| POLARIS|tri240|                  Priddis|  AB|20091113|20091113|
+|  PTE|   |  60.8645|-149.0237|   0.0550|     AGS|      |                  PORTAGE|  AK|19720829|
+|  PTN|BHZ|  44.5700| -74.9819|   0.1970|    LCSN|   PTN|                  POTSDAM|  NY|19710101|19710101|
+|  PWL|   |  60.8593|-148.3348|   0.5490|     AGS|      |               PORT WELLS|  AK|19740803|
+|  QCQ|EHZ|  46.7791| -71.2760|   0.0910|    CNSN|  S-13|                   QUEBEC|  QC|19710924|19971202|
+| RAGM|   |  60.3870|-144.6752|   0.7390|     AGS|      |              RAGGED MTN.|  AK|    1984|
+|  RAM|   |  41.1010| -74.2050|   0.2470|    LCSN|      |                   RAMAPO|  NJ|  197811|
+| RAMA|   |  41.0952| -74.2140|   0.2470|    LCSN|      |                   RAMAPO|  NJ|  197811|
+| RAYA|HHZ|  49.3863|-112.6873|   1.0230| POLARIS|tri240|          Raymond Alberta|  AB|20100709|20100709|
+|RCS  |   |  46.8710|-121.7311|   2.8770|     SEA|      |      Mount Rainier--Camp|    |19890627|
+| RDEA|HHZ|  56.5513|-115.3179|   0.0000| POLARIS|TriCom|         Red Earth Creek |  AB|20110608|20110608|
+|  RDT|   |  60.5738|-152.4062|   0.9300|     AGS|      |                  REDOUBT|  AK|19710809|
+|  RES|BHZ|  74.6892| -94.8962|   0.0190|    CNSN|CMG-3I|                 RESOLUTE|  NU|19500815|19920603|
+|  RIU|   |  59.8775|-141.2300|   0.0150|     AGS|      |                     RIOU|  AK|19760803|
+|  RMW|   |  47.4597|-121.8053|   1.0240|     SEA|      |         RATTLESNAKE MTN.|  WA|19710727|
+|  RSW|   |  46.3912|-119.5887|   1.0370|     SEA|      |        RATTLESNAKE HILLS|  WA|  197007|
+| RUBB|HHZ|  54.3262|-130.2523|   0.0120|    CNSN|  3ESP|            PRINCE RUPERT|  BC|20010718|20010718|
+| SADO|BHZ|  44.7694| -79.1417|   0.2430|    CNSN|CMG-3I|                   SADOWA|  ON|19931203|19931203|
+|  SAW|   |  47.7017|-119.4010|   0.6900|     SEA|      |              ST. ANDREWS|  WA|  197506|
+| SCHQ|BHZ|  54.8324| -66.8332|   0.4975|    CNSN|CMG-3T|            SCHEFFERVILLE|  PQ|19941222|19941222|
+|  SEA|   |  47.6550|-122.3083|   0.0300|     SEA|      |                  SEATTLE|  WA|    1906|
+|  SEW|   |  60.1040|-149.4490|   0.0910|     AGS|      |                   SEWARD|  AK|19720822|
+| SFJD|BHZ|  66.9960| -50.6215|   0.3280|  GSN-IU| STS-2|          Kangerlussuaq 2|  NA|20050131|20050131|
+|  SGA|   |  60.5340|-145.2070|   0.4240|     AGS|      |          SHERMAN GLACIER|  AK|19760816|
+| SGAM|   |  60.5340|-145.2070|   0.4240|     AGS|      |          SHERMAN GLACIER|  AK|19760816|
+|  SHB|BHZ|  49.5930|-123.8805|   1.1430|    CNSN|  3ESP|                  SECHELT|  BC|19961128|19961128|
+|  SHW|   |  46.1925|-122.2367|   1.4230|     SEA|      |           MT. ST.-HELENS|  WA|19721025|
+| SILO|HHZ|  54.4792| -84.9126|   0.1950|    CNSN|  3ESP|            SUTTON INLIER|  ON|20030609|20081101|
+| SJNN|HHZ|  47.5952| -52.6781|   0.1460|    CNSN|  3NSN|               ST. JOHN'S|  NL|20051012|20051012|
+|  SKT|   |  61.9803|-151.5297|   0.5640|     AGS|      |                 SKWENTNA|  AK|19720808|
+| SLEB|BHZ|  51.1672|-118.1336|   2.0750|    CNSN|CMG-3T|            SALE MOUNTAIN|  BC|19971205|19971205|
+| SLKM|   |  60.5078|-150.2210|   0.6550|     AGS|      |              SKILAK LAKE|  AK|19840811|
+|  SLV|   |  59.4713|-151.5805|   0.0910|     AGS|      |                 SELDOVIA|  AK|19720930|
+| SMCQ|HHZ|  46.6709| -72.0551|   0.0470|      SL|CMG-3T|    St-Marc-des-Carrières|  QC|20091104|20091104|
+|  SML|   |  61.8082|-148.3330|   0.7400|     AGS|      |                  SAWMILL|  AK|19730831|
+|  SMQ|EHZ|  50.2225| -66.7025|   0.3440|    CNSN|  S-13|           STE-MARGUERITE|  QC|19910801|19960202|
+|  SNB|HHZ|  48.7751|-123.1723|   0.4020|    CNSN|  3ESP|           SATURNA ISLAND|  BC|19960904|19960904|
+|  SNH|   |  60.2050|-142.8300|   0.3050|     AGS|      |           SUNSHINE POINT|  AK|19740910|
+| SNKN|HHZ|  56.5362| -79.2315|   0.0100| POLARIS| 120PA|               Sanikiluaq|  NU|20090725|20090725|
+| SOKB|HHZ|  48.3947|-123.6731|   0.0450|     ETS|CMG40T|                    Sooke|  BC|20080317|20080317|
+| SOLO|EHZ|  50.0213| -92.0812|   0.3730|    CNSN|  S-13|            SIOUX LOOKOUT|  ON|19881024|19981104|
+| SPLB|HHZ|  49.8921|-125.6526|   0.2760|     ETS|CMG40T|    Strathcona Park Lodge|  BC|20090730|20090730|
+|  SPU|   |  61.1817|-152.0543|   0.8000|     AGS|      |              MOUNT SPURR|  AK|19710810|
+|  SPW|   |  47.5537|-122.2459|   0.0080|     SEA|      |              SEWARD PARK|  WA|19690917|
+| SRNB|HHZ|  45.8324| -65.6355|   0.2130|      SL|TriCom|    Snider Mountain Ranch|  NB|20130907|20130907|
+|  SSN|   |  61.4640|-150.7433|   1.2970|     AGS|      |              SUSITNA ONE|  AK|19720815|
+|  SSP|   |  60.2050|-142.8300|   0.3050|     AGS|      |           SUNSHINE POINT|  AK|19740910|
+| STCO|HHZ|  43.2096| -79.1705|   0.0960|    SOSN|  3ESP|           ST. CATHERINES|  ON|20011109|19910726|
+|  STD|   |  46.2378|-122.2228|   1.2680|     SEA|      |         STUDEBAKER RIDGE|  WA|  198205|
+| STFQ|HHZ|  46.5538| -71.5436|   0.1228|      SL|CMG-3T|           Saint-Flavien |  QC|20111213|20111213|
+| STUQ|HHZ|  46.3016| -73.0946|   0.0637|      SL|CMG-3T|            Sainte-Ursule|  QC|20111218|20111218|
+|  SUA|   |  61.4640|-150.7433|   1.2970|     AGS|      |              SUSITNA ONE|  AK|19720815|
+|  SUK|   |  60.0737|-143.7770|   0.4540|     AGS|      |            SUCKLING HILL|  AK|19741002|
+| SUNO|HHZ|  46.6438| -81.3442|   0.3430|    CNSN|  3ESP|          SUDBURY ONAPING|  ON|20030623|20081101|
+| SVNB|HHZ|  46.1628| -64.8750|   0.1900|      SL|TriCom|       Stilesville Quarry|  NB|20130906|20130906|
+|  SYR|   |  46.8630|-119.6178|   0.2670|     SEA|      |                   SMYRNA|  WA|  196903|
+|  TBO|EHZ|  48.6472| -89.4085|   0.4750|    CNSN|  S-13|              THUNDER BAY|  ON|19870123|19931005|
+|  TBR|EHZ|  41.1417| -74.2222|   0.2610|    LCSN|   N/A|               TABLE ROCK|  NY|  197508|  197508|
+|  TDH|   |  45.2898|-121.7903|   1.5410|     SEA|      |  TOM DICK HARRY MOUNTAIN|  OR|  198209|
+|  TDL|   |  46.3508|-122.2158|   1.4000|     SEA|      |         TRADEDOLLAR LAKE|  WA|  198311|
+"| TKWB|EHZ|  52.8597|-131.7501|   0.0100|    CNSN|   L4C|  Talunkwan, Haida Gwaii |  BC|20121216|20121216|"
+| TLCB|HHZ|  50.5460|-126.8324|  -0.0400|     ETS| T120P|           Telegraph Cove|  BC|20090312|20041220|
+| TOBO|HHZ|  45.2257| -81.5234|   0.1690|    SOSN|  3ESP|                TOBERMORY|  ON|20030729|20030729|
+| TOFB|HHZ|  49.1543|-125.9078|   0.0130|     ETS|  3ESP|                   Tofino|  BC|20090214|20090214|
+"| TORO|HHZ|  43.6136| -79.3433|   0.0800|    SOSN|CMG40T|LESLIE STREET SPIT, TORON|  ON|20040504|20040504|"
+|  TRQ|EHZ|  46.2175| -74.5514|   0.8638|    CNSN|  S-13|           MONT-TREMBLANT|  QC|19810316|19960712|
+| TSIM|   |  61.2260|-145.3370|   1.1130|     AGS|      |                    TSINA|  AK|19770810|
+|TULEG|HHZ|  76.5374| -68.8237|   0.0380|      DK|   STS|                     TULE|  GR|20000926|20100504|
+|  TUM|   |  47.0150|-122.9083|   0.0200|     SEA|      |                 TUMWATER|  WA|  195805|
+|TWW  |   |  47.1381|-120.8679|   1.0460|     SEA|      |                 Teanaway|    |  198610|
+|  TXB|EHZ|  49.6969|-124.4360|   0.5150|    CNSN|  S-13|            TEXADA ISLAND|  BC|19840114|19970911|
+| TYNO|HHZ|  43.0950| -79.8702|   0.2050|    SOSN|  3ESP|                 TYNESIDE|  ON|20010807|19910718|
+| UBRB|HHZ|  52.8918|-124.0832|   1.2410|    CNSN|  3ESP|     Upper Baezaeko River|  BC|20071016|20081101|
+| UCCT|   |  41.7943| -72.2255|   0.2230|   USNSN|      |University of Connecticut|  NY|20050113|
+|  ULM|BHZ|  50.2503| -95.8750|   0.2509|    CNSN|CMG-3T|            LAC DU BONNET|  MB|19840904|19941207|
+| VABQ|HHZ|  45.9047| -75.6079|   0.2100|    CNSN|  3ESP|             Val Des Bois|  QC|20101129|20101129|
+|  VDB|EHZ|  49.0261|-122.1028|   0.4040|    CNSN|  S-13|          VEDDER MOUNTAIN|  BC|19830103|19970308|
+|  VGZ|HHZ|  48.4139|-123.3244|   0.0670|    CNSN|  3ESP|        Victoria Gonzales|  BC|19940721|19940721|
+|  VIB|HHZ|  53.2522|-132.5406|   1.0080|    CNSN|CMG-3I|                VAN INLET|  BC|19850906|19960704|
+| VIMO|HHZ|  52.8173| -83.7449|   0.0780|    CNSN|  3ESP|              VICTOR MINE|  ON|20030611|20081101|
+| VLDQ|BHZ|  48.1901| -77.7573|   0.0930|    CNSN|CMG-3R|                   VALDOR|  QC|20020107|20020107|
+|  VLZ|   |  61.1322|-146.3338|   0.0170|     AGS|      |                   VALDEZ|  AK|19710902|
+|  VTG|   |  46.9580|-119.9873|   0.2080|     SEA|      |                  VANTAGE|  WA|  197007|
+|  VZW|   |  61.0590|-146.5540|   0.7960|     AGS|      |              VALDEZ WEST|  AK|19720717|
+| WALA|BHZ|  49.0586|-113.9115|   1.4000|    CNSN|  3ESP|            WATERTON LAKE|  AB|19920601|19920601|
+| WAPA|BHZ|  55.1833|-119.2536|   0.7840| POLARIS|tri240|             Wapiti River|  AB|20091020|20091020|
+|  WAX|   |  60.4483|-142.8517|   0.9750|     AGS|      |             WAXELL RIDGE|  AK|19750822|
+| WBHL|HHZ|  52.9030| -66.8663|   0.5950| POLARIS| T120P|                   Wabush|  NL|20110718|20110718|
+|  WBO|EHZ|  45.0003| -75.2750|   0.0850|    CNSN|  S-13|             WILLIAMSBURG|  ON|19801209|19931216|
+|  WBW|   |  48.0180|-119.1370|   0.8260|     SEA|      |             WILSON BUTTE|  WA|  197506|
+| WCNB|HHZ|  45.6459| -65.5097|   0.1280|      SL|TriCom|              Wards Creek|  NB|20130906|20130906|
+| WEMQ|BHZ|  53.0535| -77.9737|   0.1720| POLARIS|CMG-3P|                Wemindji |  QC|20050623|20050623|
+|  WGW|   |  46.0450|-118.9330|   0.1620|     SEA|      |              WALLILA GAP|  WA|  197110|
+|  WHY|BHZ|  60.6597|-134.8806|   1.2920|    CNSN|  3ESP|               WHITEHORSE|  YT|19930827|19930827|
+|  WIW|   |  46.4302|-119.2871|   0.1220|     SEA|      |            WOODED ISLAND|  WA|  197007|
+| WLVO|HHZ|  43.9236| -78.3970|   0.0700|    SOSN|  3ESP|              WESLEYVILLE|  ON|20020129|19901106|
+|  WND|   |  42.3375| -74.1525|   0.6020|    LCSN|      |                  WINDHAM|  NY|19761008|
+|  WNY|   |  44.3910| -73.8585|   0.5980|    LCSN|      |               WILMINGTON|  NY|  197110|
+| WOSB|EHZ|  50.1607|-126.5704|   0.9550|    CNSN|  S-13|                     WOSS|  BC|19981117|19981117|
+|  WPB|EHZ|  49.6478|-123.2094|   0.2600|    CNSN|  S-13|              WATTS POINT|  BC|19960904|19960904|
+|  WRD|   |  46.9698|-119.1433|   0.3790|     SEA|      |                   WARDEN|  WA|  197007|
+|  WRG|   |  60.0378|-142.0317|   0.5500|     AGS|      |          WHITE RIVER GL.|  AK|19740910|
+| WSLR|BHZ|  50.1265|-122.9212|   0.9060|    CNSN|  3ESP|                 WHISTLER|  BC|20030602|20030602|
+|  WVL|BHZ|  44.5648| -69.6575|   0.0850|      NE|  3ESP|               WATERVILLE|  ME|19961016|19990825|
+|  YAH|   |  60.3585|-141.7450|   2.1350|     AGS|      |                   YAHTSE|  AK|19740905|
+|YKAB0|SHZ|  62.6059|-114.6060|   0.1960|    CNSN|   S13|      Yellowknife Blue 10|  NT|20130626|20130626|
+|YKAB1|SHZ|  62.4023|-114.6063|   0.1460|    CNSN|   S13|       Yellowknife Blue 1|  NT|20130626|20130626|
+|YKAB2|SHZ|  62.4247|-114.6064|   0.1518|    CNSN|   S13|       Yellowknife Blue 2|  NT|20130626|20130626|
+|YKAB3|SHZ|  62.4485|-114.6061|   0.1595|    CNSN|   S13|       Yellowknife Blue 3|  NT|20130626|20130626|
+|YKAB4|SHZ|  62.4709|-114.6057|   0.1650|    CNSN|   S13|       Yellowknife Blue 4|  NT|20130626|20130626|
+|YKAB6|SHZ|  62.5164|-114.6057|   0.1746|    CNSN|   S13|       Yellowknife Blue 6|  NT|20130626|20130626|
+|YKAB7|SHZ|  62.5389|-114.6061|   0.1780|    CNSN|   S13|       Yellowknife Blue 7|  NT|20130626|20130626|
+|YKAB8|SHZ|  62.5614|-114.6054|   0.1715|    CNSN|   S13|       Yellowknife Blue 8|  NT|20130626|20130626|
+|YKAB9|SHZ|  62.5829|-114.6047|   0.1883|    CNSN|   S13|       Yellowknife Blue 9|  NT|20130626|20130626|
+|YKAI1|BDF|  62.4858|-114.5856|   0.1932|    CNSN|cha50a|Yellowknife Infrasound El|  NT|20131006|20131006|
+|YKAI2|BDF|  62.4849|-114.5852|   0.1895|    CNSN|cha50a|Yellowknife Infrasound El|  NT|20131006|20131006|
+|YKAI3|BDF|  62.4847|-114.5869|   0.1892|    CNSN|cha50a|Yellowknife Infrasound El|  NT|20131006|20131006|
+|YKAI4|BDF|  62.4854|-114.5874|   0.1874|    CNSN|cha50a|Yellowknife Infrasound El|  NT|20131006|20131006|
+|YKAI5|BDF|  62.4925|-114.5570|   0.1950|    CNSN|cha50a|Yellowknife Infrasound El|  NT|20131007|20131007|
+|YKAI6|BDF|  62.4707|-114.6061|   0.2036|    CNSN|cha50a|Yellowknife Infrasound El|  NT|20131008|20131008|
+|YKAI7|BDF|  62.4934|-114.6051|   0.2192|    CNSN|cha50a|Yellowknife Infrasound El|  NT|20131008|20131008|
+|YKAR1|SHZ|  62.4928|-114.9445|   0.1420|    CNSN|   S13|             New YK Array|  NT|20130626|20130626|
+|YKAR2|SHZ|  62.4928|-114.8959|   0.1462|    CNSN|   S13|        Yellowknife Red 2|  NT|20130626|20130626|
+|YKAR3|SHZ|  62.4929|-114.8477|   0.1476|    CNSN|   S13|        Yellowknife Red 3|  NT|20130626|20130626|
+|YKAR4|SHZ|  62.4927|-114.7998|   0.1501|    CNSN|   S13|        Yellowknife Red 4|  NT|20130626|20130626|
+|YKAR5|SHZ|  62.4931|-114.7504|   0.1553|    CNSN|   S13|        Yellowknife Red 5|  NT|20130626|20130626|
+|YKAR6|SHZ|  62.4932|-114.7019|   0.1620|    CNSN|   S13|        Yellowknife Red 6|  NT|20130626|20130626|
+|YKAR7|SHZ|  62.4932|-114.6544|   0.1685|    CNSN|   S13|        Yellowknife Red 7|  NT|20130626|20130626|
+|YKAR8|SHZ|  62.4931|-114.6061|   0.1680|    CNSN|   S13|        Yellowknife Red 8|  NT|20130626|20130626|
+|YKAR9|SHZ|  62.4930|-114.5564|   0.1726|    CNSN|   S13|        Yellowknife Red 9|  NT|20130626|20130626|
+| YKB0|SHZ|  62.6059|-114.6060|   0.1942|    CNSN|  S-13|              Yellowknife|  NT|19890125|19890125|
+| YKB1|SHZ|  62.4023|-114.6063|   0.1451|    CNSN|  S-13|              Yellowknife|  NT|19890125|19890125|
+| YKB2|SHZ|  62.4247|-114.6063|   0.1503|    CNSN|  S-13|              Yellowknife|  NT|19890125|19890125|
+| YKB3|SHZ|  62.4485|-114.6061|   0.1582|    CNSN|  S-13|              Yellowknife|  NT|19890125|19890125|
+| YKB4|SHZ|  62.4709|-114.6058|   0.1638|    CNSN|  S-13|              Yellowknife|  NT|19890125|19890125|
+| YKB6|SHZ|  62.5164|-114.6057|   0.1736|    CNSN|  S-13|              Yellowknife|  NT|19890125|19890125|
+| YKB7|SHZ|  62.5389|-114.6061|   0.1766|    CNSN|  S-13|              Yellowknife|  NT|19890125|19890125|
+| YKB8|SHZ|  62.5615|-114.6055|   0.1710|    CNSN|  S-13|              Yellowknife|  NT|19890125|19890125|
+| YKB9|SHZ|  62.5830|-114.6039|   0.2131|    CNSN|  S-13|              Yellowknife|  NT|19890125|19890125|
+| YKR1|SHZ|  62.4928|-114.9445|   0.1411|    CNSN|  S-13|              Yellowknife|  NT|19890125|19890125|
+| YKR2|SHZ|  62.4928|-114.8959|   0.1450|    CNSN|  S-13|              Yellowknife|  NT|19890125|19890125|
+| YKR3|SHZ|  62.4929|-114.8476|   0.1462|    CNSN|  S-13|              Yellowknife|  NT|19890125|19890125|
+| YKR4|SHZ|  62.4927|-114.7998|   0.1489|    CNSN|  S-13|              Yellowknife|  NT|19890125|19890125|
+| YKR5|SHZ|  62.4932|-114.7504|   0.1542|    CNSN|  S-13|              Yellowknife|  NT|19890125|19890125|
+| YKR6|SHZ|  62.4932|-114.7020|   0.1610|    CNSN|  S-13|              Yellowknife|  NT|19890125|19890125|
+| YKR7|SHZ|  62.4932|-114.6544|   0.1675|    CNSN|  S-13|              Yellowknife|  NT|19890125|19890125|
+| YKR8|SHZ|  62.4931|-114.6062|   0.1667|    CNSN|  S-13|              Yellowknife|  NT|19890125|19890125|
+| YKR9|SHZ|  62.4930|-114.5565|   0.1717|    CNSN|  S-13|              Yellowknife|  NT|19890125|19890125|
+| YKW1|BHZ|  62.4822|-114.4843|   0.1707|    CNSN|STS-1V|              Yellowknife|  NT|19890125|19890125|
+| YKW1|HHZ|  62.4822|-114.4843|   0.1707|    CNSN|CMG-3T|              Yellowknife|  NT|19890125|19890125|
+| YKW2|BHZ|  62.4337|-114.6038|   0.1438|    CNSN|STS-1V|              Yellowknife|  NT|19890125|19890125|
+| YKW3|BHZ|  62.5616|-114.6099|   0.1703|    CNSN|STS-1V|              Yellowknife|  NT|19890125|19890125|
+| YKW3|EHZ|  62.5616|-114.6099|   0.1703|    CNSN|  S-13|              Yellowknife|  NT|19890125|19890125|
+| YKW4|BHZ|  62.4925|-114.7432|   0.1606|    CNSN|STS-1V|              Yellowknife|  NT|19890125|19890125|
+| YOSQ|HHZ|  52.8666| -72.1998|   0.6490| POLARIS|  3ESP|         Second James Bay|  QC|20050626|20050626|
+"| YOUB|HHZ|  48.9010|-124.2618|   0.7710|    CNSN|  3ESP|    Youbou, Lake Cowichan|  BC|20030228|20071031|"
+| YUK1|HHZ|  62.1533|-140.5287|   1.5570|    CNSN|CMG-3T|           Sand Pete Hill|  YT|20100825|20100825|
+| YUK2|HHZ|  61.7668|-140.8426|   1.2290|    CNSN|CMG-3T|              white river|  YT|20100828|20100828|
+| YUK3|HHZ|  61.7755|-140.4595|   2.1000|    CNSN|CMG-3T|              Moose Creek|  YT|20100825|20100825|
+| YUK4|HHZ|  61.4348|-138.5463|   2.0090|    CNSN|3ESP-6|               Talbot Arm|  YT|20100829|20100829|
+| YUK5|HHZ|  61.1315|-137.8593|   1.6190|    CNSN|CMG-3T|            Granite Creek|  YT|20100823|20100823|
+| YUK6|HHZ|  60.9432|-138.3626|   2.2330|    CNSN|CMG-3T|         Outpost Mountain|  YT|20100829|20100829|
+| YUK7|HHZ|  60.5307|-138.1399|   1.9920|    CNSN|CMG-3T|            Dusty Glacier|  YT|20100824|20100824|
+| YUK8|HHZ|  61.2844|-139.7646|   2.4560|    CNSN|CMG-3P|           Steele Glacier|  YT|20120907|20120907|
+
+ CNSN total:   207
+        HH*:    61
+        BH*:    39
+        SH*:    36
+        EH*:    43
+       VBB*:     5
+
+ REGI total:     0
+
+ SOSN total:    25
+
+ Polaris total:  43
+           BC:    0
+           ON:    8
+           QC:   13
+          NWT:    7
+           NU:    2
+           YT:    0
+           AB:    8
+           MB:    0
+           SK:    0
+           NB:    1
+           NL:    4
+           NS:    0
+           PE:    0
+           US:    0
+
+ IRIS total:      4
+
+ Other total:     0
+
+ -------------------- 
+
+ total in Canada: 279
