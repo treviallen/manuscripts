@@ -18,6 +18,80 @@ plt.rcParams['pdf.fonttype'] = 42
 import warnings
 warnings.filterwarnings("ignore")
 
+print('!!!!!!! ASSIGN BRUNE MW FOR MAG SCALING !!!!!!!')
+
+
+def fit_smoothed_mc0(freqs, mc0s):
+    from scipy.stats import linregress
+    from scipy.odr import Data, Model, ODR, models
+    import scipy.odr.odrpack as odrpack
+
+    # fit to 3.5 hz
+    f0 = min(freqs)
+    f1 = 4
+    f2 = 8.
+    f3 = 20
+    idx = where((freqs >= f0) & (freqs <= f1))[0]
+
+    reg1 = linregress(log10(freqs[idx]), mc0s[idx])
+    
+    # fit mid
+    def fit_mid_mc0(c, x):
+        from numpy import sqrt, log10
+
+        # set low-f
+        ans = reg1.intercept + reg1.slope*log10(x)
+
+        # set mid-f
+        idx = where((x > f1) & (x <= f2))[0]  
+        ans[idx] = reg1.intercept + reg1.slope*log10(f1) + c[0] * (log10(x[idx]) - log10(f1)) \
+
+        return ans
+
+    data = odrpack.RealData(freqs, mc0s)
+
+    afit = odrpack.Model(fit_mid_mc0)
+    odr = odrpack.ODR(data, afit, beta0=[-2])
+
+    odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
+    out = odr.run()
+    fcm = out.beta
+
+    # fit high
+    def fit_far_mc0(c, x):
+        from numpy import sqrt, log10
+
+        # set far-f
+        ans = reg1.intercept + reg1.slope*log10(f1) + fcm[0] * (log10(f2) - log10(f1)) \
+                + c[0] * (log10(x) - log10(f2))
+
+        return ans
+
+    idx = where((freqs > f2) & (freqs <= f3))[0]  
+    data = odrpack.RealData(freqs[idx], mc0s[idx])
+
+    afit = odrpack.Model(fit_far_mc0)
+    odr = odrpack.ODR(data, afit, beta0=[0.5])
+
+    odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
+    out = odr.run()
+    fcf = out.beta
+    
+    # now get fitted mc0
+    trilin_mc0 = []
+    for f in freqs:
+        if f <= f1:
+            mc0t = reg1.intercept + reg1.slope*log10(f)
+        elif f > f1 and f <= f2:
+            mc0t = reg1.intercept + reg1.slope*log10(f) + fcm[0] * (log10(f) - log10(f1))
+        elif f > f2:
+            mc0t = reg1.intercept + reg1.slope*log10(f) + fcm[0] * (log10(f2) - log10(f1)) \
+                   + fcf[0] * (log10(f) - log10(f2))
+                
+        trilin_mc0.append(mc0t)
+    
+    return trilin_mc0
+
 # = True of plotting/testing; = False for full regression
 pltTrue = argv[1]
 
@@ -37,7 +111,7 @@ def fit_near_source_saturation(c, x):
 ###############################################################################
 # grunt defs
 ###############################################################################
-print('\n ASSIGN MW AND RE-RUN \n')
+#print('\n ASSIGN MW AND RE-RUN \n')
 def normalise_data(p, recs, sn_ratio, events):
     
     #print('!!!!!!! UNCOMMENT FILTER BY SAMPLE RATE !!!!!!!')
@@ -209,8 +283,8 @@ def fit_mid_field_atten(plt, norm_rhyps, log_norm_amps, n0, r1, r2, freq):
     
     # if few datapoints, use full dataset
     #if len(didx) <= 2:
-    #didx = where((log_norm_rhyps >= log10(r1)) & (log_norm_rhyps < log10(r2)))[0] # & (nperbin > 2))[0] #log10(r1))[0]
-    #data = odrpack.RealData(log_norm_rhyps[didx], log_norm_amps[didx])
+    didx = where((log_norm_rhyps >= log10(r1)) & (log_norm_rhyps < log10(r2)))[0] # & (nperbin > 2))[0] #log10(r1))[0]
+    data = odrpack.RealData(log_norm_rhyps[didx], log_norm_amps[didx])
 
     # fit all as free params
     afit = odrpack.Model(fit_mid_field_first)
@@ -333,7 +407,7 @@ def refit_mid_field_atten(plt, norm_rhyps, log_norm_amps, n0, m0s, r1, r2, freq)
     
     return mc, n1
     
-def refit_mid_field_atten(plt, norm_rhyps, log_norm_amps, n0, m0s, r1, r2, freq):
+def refit_mid_field_atten_2(plt, norm_rhyps, log_norm_amps, n0, m0s, m1s, r1, r2, freq):
     
     log_norm_rhyps = log10(norm_rhyps)
     
@@ -349,8 +423,8 @@ def refit_mid_field_atten(plt, norm_rhyps, log_norm_amps, n0, m0s, r1, r2, freq)
     data = odrpack.RealData(log_norm_rhyps[didx], log_norm_amps[didx])
 
     # fit all as free params
-    afit = odrpack.Model(fit_mid_field_first_mc0_fix)
-    odr = odrpack.ODR(data, afit, beta0=[-0.001, 0.2])
+    afit = odrpack.Model(fit_mid_field_first_mc0_mc1_fix)
+    odr = odrpack.ODR(data, afit, beta0=[0.2])
     
     odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
     out = odr.run()
@@ -359,12 +433,9 @@ def refit_mid_field_atten(plt, norm_rhyps, log_norm_amps, n0, m0s, r1, r2, freq)
     print('mcf refit ',mcf)
     
     mc[0] = m0s # smoothed m0
-    mc[1] = mcf[0]
-    mc[2] = mcf[1]
+    mc[1] = m1s
+    mc[2] = mcf[0]
     
-    # recalculate n1
-    #n1 = mc[0] * log10(r1 / r1) + mc[1] * (r1 - r1) + mc[2] - n0 * log10(Dy)
-        
     xtest=arange(r1,r2,1)
     ytest = mc[0] * log10(xtest / r1) + mc[1] * (xtest - r1)
     
@@ -396,7 +467,7 @@ def refit_mid_field_atten(plt, norm_rhyps, log_norm_amps, n0, m0s, r1, r2, freq)
     yrng_mf = n0 * log10(D1) + n1 + mc[0] * log10(10**xrng_mf / r1) + mc[1] * (10**xrng_mf - r1)
         
     if pltTrue == True:
-       plt.loglog(10**xrng_mf, 10**yrng_mf, 'g-', lw=2)
+       plt.loglog(10**xrng_mf, 10**yrng_mf, 'c-', lw=2)
     
     return mc, n1
     
@@ -477,7 +548,7 @@ recs = pickle.load(open('fft_data.pkl', 'rb' ))
 
 # remove bad recs
 keep_nets = set(['AU', 'IU', 'S1', 'G', 'MEL', 'ME', '20', 'AD', 'SR', 'UM', 'AB', 'VI', 'GM' \
-                 '1P', '1P', '2P', '6F', '7K', '7G', 'G', '7B', '4N', '7D', '', 'OZ'])
+                 '1P', '1P', '2P', '6F', '7K', '7G', 'G', '7B', '4N', '7D', '', 'OZ', 'OA', 'WG','XX'])
 
 # get stas to ignore
 ignore_stas = open('sta_ignore.txt').readlines()
@@ -498,6 +569,7 @@ for line in lines:
     brune_ev.append(dat[0])
     brune_mw.append(dat[6])
     brune_flag.append(0) # for now!
+
 ####################################################################################
 # start main
 ####################################################################################
@@ -550,7 +622,7 @@ if pltTrue == 'False':
 
 else:
     fig = plt.figure(1, figsize=(18,11))
-    fidx=arange(0,140,12)+2 # for testing
+    fidx=arange(0,140,12)+6 # for testing
     #fidx=arange(0,12,1)+0 # for testing
     pltTrue = True
 
@@ -560,9 +632,9 @@ nc0_array = []
 
 minr = 5.
 r1 = 40 # max dist for near source
-r2 = 200
+r2 = 250
 r3 = maxDist
-n0 = -1.2
+n0 = -1.3
 sn_ratio = 4
     
 # based on initial regression analysis, set mc0
@@ -628,7 +700,7 @@ for p, freq in enumerate(freqs[fidx]):
         plt.ylabel(str(freq), fontsize=7)
     
     # set defaults
-    coeffs.append({'nc0': nc, 'nc0s': nc, 'r1': r1, 'r2': r2, 'nref':nref, 'freq':freq})
+    coeffs.append({'nc0': n0, 'nc0s': n0, 'r1': r1, 'r2': r2, 'nref':nref, 'freq':freq})
     
     # set n0 - use smoothed vals
     n0 = coeffs[p]['nc0s']
@@ -710,9 +782,16 @@ smooth_mc0 = savitzky_golay(mc0_array[idx], sg_window, sg_poly) # mid-slope
 #interpolate to missing frequencies
 interp_mc0 = interp(freqs[fidx], freqs[fidx][idx], smooth_mc0)
 
+# now fit with trilinear
+if pltTrue == False:
+    trilin_mc0 = fit_smoothed_mc0(freqs, interp_mc0)
+else:
+    trilin_mc0 = interp_mc0
+
 # set to coeffs
 for i, c in enumerate(coeffs):
     coeffs[i]['mc0s'] = interp_mc0[i]
+    coeffs[i]['mc0t'] = trilin_mc0[i]
     coeffs[i]['mc0'] = mc0_array[i]
 
 # using smoothed m0 values, refit
@@ -730,7 +809,7 @@ for p, freq in enumerate(freqs[fidx]):
     ###############################################################################
     # re-fit mid-field with fixed freq-dependent mc0
     ###############################################################################
-    mc0_fix = coeffs[p]['mc0s'] 
+    mc0_fix = coeffs[p]['mc0t'] 
     def fit_mid_field_first_mc0_fix(c, x):
         from numpy import sqrt, log10
         ans = mc0_fix * log10(10**x / r1) + c[0] * (10**x - r1) + c[1]
@@ -743,18 +822,25 @@ for p, freq in enumerate(freqs[fidx]):
         return ans
         
     mc, n1 = refit_mid_field_atten(plt, norm_rhyps, log_norm_amps, n0, mc0_fix, r1, r2, freq)
-    mc1_array.append(mc[1])
+    '''if freq < 0.2:
+        mc1_array.append(0.0)
+    '''
+    if mc[1] < -0.002:
+        mc1_array.append(-0.002)
+    else:
+        mc1_array.append(mc[1])
     
 ###############################################################################
 # smooth mc1 and re-fit for n1  
 ###############################################################################
 
+
 mc1_array = array(mc1_array)
-idx = where(mc0_array < -0.0)[0]
+idx = where(mc0_array <= 0.000)[0]
 smooth_mc1 = savitzky_golay(mc1_array[idx], sg_window, sg_poly) # mid-slope
 
 #interpolate to missing frequencies
-interp_mc1 = interp(freqs[fidx], freqs[fidx][idx], smooth_mc)
+interp_mc1 = interp(freqs[fidx], freqs[fidx][idx], smooth_mc1)
 
 # set to coeffs
 for i, c in enumerate(coeffs):
@@ -766,6 +852,7 @@ for i, c in enumerate(coeffs):
 ###############################################################################
 for p, freq in enumerate(freqs[fidx]):
     if pltTrue == True:
+        fig = plt.figure(1, figsize=(18,11))
         plt.subplot(3,4,p+1)
         
     ###############################################################################
@@ -783,7 +870,7 @@ for p, freq in enumerate(freqs[fidx]):
     ###############################################################################
     # 2nd re-fit mid-field with fixed freq-dependent mc0, mc1
     ###############################################################################
-    mc0_fix = coeffs[p]['mc0s']
+    mc0_fix = coeffs[p]['mc0t']
     mc1_fix = coeffs[p]['mc1s']
     
     def fit_mid_field_first_mc0_mc1_fix(c, x):
@@ -792,7 +879,7 @@ for p, freq in enumerate(freqs[fidx]):
         return ans
         
     mc, n1 = refit_mid_field_atten_2(plt, norm_rhyps, log_norm_amps, n0, mc0_fix, mc1_fix, r1, r2, freq)
-    mc1_array.append(mc[1])
+    #mc1_array.append(mc[1])
     
     xrng_nf = log10(arange(1, r1+1))
     
@@ -891,11 +978,19 @@ for p, freq in enumerate(freqs[fidx]):
         
         ans = n0 * log10(D1) + n0
         
-        idx = x >= r1
-        D1 = sqrt(r1**2 + nc[2]**2) # were c1 ~= 5-10?
-        #D = sqrt(r1**2 + nref**2)
+        # set near-field
+        D1 = sqrt((10**x)**2 + nref**2)
+        ans = n0 * log10(D1) + n1
         
-        ans[idx] = n0 * log10(D1) + c[0] + fc[0] * log10(x[idx] / r1) + fc[1] * (x[idx] - r1)
+        # set mid-field
+        idx = where((10**x > r1) & (10**x <= r2))[0]
+        D1 = sqrt(r1**2 + nref**2)
+        ans[idx] = n0 * log10(D1) + n1 + mc[0] * log10(10**x[idx] / r1) + mc[1] * (10**x[idx] - r1)
+        
+        idx = where(10**x > r2)[0]
+        ans[idx] = n0 * log10(D1) + n1 \
+                   + mc[0] * log10(r2 / r1) + mc[1] * (r2 - r1)  \
+                   + c[0] * log10(10**x[idx] / r2) + c[1] * (10**x[idx] - r2)
         
         return ans
     
@@ -920,6 +1015,7 @@ for p, freq in enumerate(freqs[fidx]):
     
     
     if pltTrue == True:
+        fig = plt.figure(2, figsize=(18,11))
         plt.subplot(3,4,p+1)
         plt.plot(mags, logres, '+', c='0.6', lw=0.5, ms=6)
         plt.ylabel(str(freq), fontsize=8)
@@ -931,7 +1027,7 @@ for p, freq in enumerate(freqs[fidx]):
     # fit mag linear
     magc = polyfit(medx, logmedamp, 1)
     
-    '''
+    
     if pltTrue == True:
         plt.plot(medx, logmedamp, 'rs', ms=6.5)
 
@@ -939,14 +1035,14 @@ for p, freq in enumerate(freqs[fidx]):
     if pltTrue == True:
         yrng = magc[0] * mrng + magc[1]
         plt.plot(mrng, yrng, 'k-', lw=2)
-    '''
+    
     ###############################################################################
     # make coeffs dict
     ###############################################################################
     
     coeffs[p]['nc1s'] = n1
     #coeffs[p]['mc0'] = mc[0]
-    coeffs[p]['mc1'] = mc[1]
+    #coeffs[p]['mc1'] = mc[1]
     coeffs[p]['fc0'] = fc[0]
     coeffs[p]['fc1'] = fc[1]
     coeffs[p]['magc0'] = magc[0]
@@ -954,9 +1050,13 @@ for p, freq in enumerate(freqs[fidx]):
     coeffs[p]['freq'] = freq
     
 if pltTrue == True:
+    fig = plt.figure(1, figsize=(18,11))
     plt.savefig('norm_geom_spread.png', fmt='png', dpi=150, bbox_inches='tight')
+    #plt.show()
+    
+    fig = plt.figure(2, figsize=(18,11))
+    plt.savefig('mag_scaling.png', fmt='png', dpi=150, bbox_inches='tight')
     plt.show()
-        
 
 ###############################################################################
 # given coeff bugs, set f < 0.1 Hz to 0.1

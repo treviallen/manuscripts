@@ -260,8 +260,14 @@ for mseedfile in mseedfiles:
         evFound = False
         if cannotMerge == False:
             for evnum, ev in enumerate(evdict): 
-                #ev['datetime'] = UTCDateTime(2009,3,18,5,28,17)
-                if st[0].stats.starttime > UTCDateTime(ev['datetime']-timedelta(seconds=601)) \
+                if ev['datetime'] > UTCDateTime(2019,7,14,5,38) and ev['datetime'] < UTCDateTime(2019,7,14,5,40):
+                    print('Broome')
+                    toff = 2500
+                else:
+                    toff = 601
+            
+            for evnum, ev in enumerate(evdict):         
+                if st[0].stats.starttime > UTCDateTime(ev['datetime']-timedelta(seconds=toff)) \
                    and st[0].stats.starttime < UTCDateTime(ev['datetime']+timedelta(seconds=300)):
                     evFound = True
                     eqlo = ev['lon']

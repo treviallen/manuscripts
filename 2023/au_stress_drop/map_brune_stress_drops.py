@@ -104,7 +104,7 @@ im = m.imshow(rgb, alpha=1.0)
 ##########################################################################################
 import matplotlib.patheffects as PathEffects
 path_effects=[PathEffects.withStroke(linewidth=2.5, foreground="w")]
-"""
+
 cptfile = '//Users//trev//Documents//DATA//GMT//cpt//keshet.cpt' # qual-dark-06.cpt keshet.cpt #aurora.cpt #cosam.cpt #Set1_06.cpt
 ncols = 7
 cmap, zvals = cpt2colormap(cptfile, ncols+1)
@@ -149,11 +149,11 @@ for c, utrt, label in zip(cs, utrts, labels):
                 xx, yy = m(x,y)
                 #print(edgecolor)
                 if labeLegend == True:
-                    plt.fill(xx,yy, facecolor=c, edgecolor='none', linewidth=0.75, alpha=0.3, label=label)
+                    plt.fill(xx,yy, facecolor=c, edgecolor='none', linewidth=0.75, alpha=0.1, label=label)
                     labeLegend = False
                 else:
-                    plt.fill(xx,yy, facecolor=c, edgecolor='none', linewidth=0.75, alpha=0.3) 
-"""
+                    plt.fill(xx,yy, facecolor=c, edgecolor='none', linewidth=0.75, alpha=0.1) 
+
 ##########################################################################################
 # plot faults
 ##########################################################################################
@@ -221,7 +221,7 @@ plt.text(x, y, 'New Guinea\nHighlands', size=10, c='k', va='center', ha='center'
 ##########################################################################################
 
 # get stress range
-logstressbins = arange(-.4, 2.3, 0.2)
+logstressbins = arange(-.4, 1.9, 0.2)
 logstressrng = logstressbins[-1] - logstressbins[0]
 
 ncols = len(logstressbins) - 1
@@ -244,7 +244,7 @@ cs = (cmap(arange(len(logstressbins))))
 # add earthquakes
 ##########################################################################################
 
-csvfile = 'brune_stats_quality.csv'
+csvfile = 'brune_stats.csv'
 #data = loadtxt(csvfile, delimiter=',', skiprows=1)
 
 print(csvfile)
@@ -252,12 +252,15 @@ lines = open(csvfile).readlines()[1:]
 lats = []
 lons = []
 mags = []
+qual = []
 stressdrops = []
+
 for line in lines:
     dat = line.strip().split(',')
     lons.append(float(dat[1]))
     lats.append(float(dat[2]))
     mags.append(float(dat[6]))
+    qual.append(float(dat[-1]))
     stressdrops.append(float(dat[7]))
 
 logstress = log10(array(stressdrops))
@@ -265,17 +268,18 @@ logstress = log10(array(stressdrops))
 # get zorder for plotting
 sortidx = argsort(argsort(mags))
 for i in range(0, len(mags)): #[0:100])):
-    #get colour idx
-    colidx = int(floor((ncols) * (logstress[i]-logstressbins[0]) / logstressrng))
-    if colidx < 0:
-        colidx = 0
-    if colidx > ncols-1:
-        colidx = ncols-1
-        
-    x, y = m(lons[i], lats[i])
-    zo = sortidx[i] + 20
-    plt.plot(x, y, 'o', mfc=list(cs[colidx][0:3]), markeredgecolor='k', markeredgewidth=0.25, \
-             markersize=(5. * mags[i] - 12), zorder=zo, alpha=0.8)
+    if qual[i] == 1:
+        #get colour idx
+        colidx = int(floor((ncols) * (logstress[i]-logstressbins[0]) / logstressrng))
+        if colidx < 0:
+            colidx = 0
+        if colidx > ncols-1:
+            colidx = ncols-1
+
+        x, y = m(lons[i], lats[i])
+        zo = sortidx[i] + 20
+        plt.plot(x, y, 'o', mfc=list(cs[colidx][0:3]), markeredgecolor='k', markeredgewidth=0.25, \
+                 markersize=(5. * mags[i] - 12), zorder=zo, alpha=0.8)
   
 # make legend
 legmag = [3.5, 4.5, 5.5, 6.5]

@@ -3,6 +3,7 @@ from spectral_analysis import calc_fft, prep_psa_simple, calc_response_spectra, 
 from data_fmt_tools import remove_low_sample_data, return_sta_data, remove_acceleration_data
 from response import get_response_info, paz_response, deconvolve_instrument
 from misc_tools import listdir_extension, savitzky_golay
+from mapping_tools import distance
 from io_catalogues import parse_ga_event_query
 from os import path, chmod, stat, getcwd
 from numpy import arange, sqrt, pi, exp, log, logspace, interp, nan, where, isnan, nanmean
@@ -303,11 +304,11 @@ def get_ev_deets(fft_datetime):
         #ev['datetime'] = UTCDateTime(2009,3,18,5,28,17)
         if fft_datetime > UTCDateTime(ev['datetime']-timedelta(seconds=601)) \
            and fft_datetime < UTCDateTime(ev['datetime']+timedelta(seconds=300)):
-               magtype = ev['magType']
-               evname = ev['description']
-               mag = ev['mag'] # pref_mag
+            
+               evdat = {'mag': ev['mag'], 'magtype': ev['magType'], 'place': ev['description'],
+                        'eqla': ev['lat'], 'eqlo': ev['lon'], 'eqdep': ev['dep']}
                
-    return mag, magtype, evname
+    return evdat
 
 
 ################################################################################
@@ -342,6 +343,7 @@ if getcwd().startswith('/nas'):
     ii_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/II/II.IRIS.dataless')
     
 else:
+    print('test parsers')
     au_parser = Parser('/Users/trev/Documents/Networks/AU/AU.IRIS.dataless')
     cwb_parser = Parser('/Users/trev/Documents/Networks/AU/AU.cwb.dataless')
     s1_parser = Parser('/Users/trev/Documents/Networks/S1/S1.IRIS.dataless')
@@ -415,7 +417,7 @@ for p, pf in enumerate(pickfiles[start_idx:]):
             new_st = remove_low_sample_data(st)
             
             # remove HTT stations
-            if new_st[0].stats.starttime > UTCDateTime(2018,12,12):
+            if new_st[0].stats.starttime > UTCDateTime(2018,12,12) and new_st[0].stats.starttime < UTCDateTime(2023,4,30):
                 new_st = remove_htt(new_st)
             
             # remove acceleration data
@@ -462,10 +464,10 @@ for p, pf in enumerate(pickfiles[start_idx:]):
                     # EN? dodgy stn channel from parsing JUMP data
                     if tr.stats.channel.startswith('BH') or tr.stats.channel.startswith('HH') \
                        or tr.stats.channel[1] == 'N':
-                        lofreq = 0.075
+                        lofreq = 0.01
                     else:
                         lofreq = 0.2
-                    lofreq=0.2
+                    #lofreq=0.2
                     hifreq = 0.475 * tr.stats.sampling_rate
                     
                     # get picks
@@ -492,6 +494,10 @@ for p, pf in enumerate(pickfiles[start_idx:]):
                     if sttr > ettr or ettr-sttr < 10.:
                         sttr = tr.stats.starttime + 0.5 # should add 1-2 secs instead of proportion 
                         ettr = tr.stats.starttime + pickDat['pidx'] * tr.stats.delta - 1. # allow buffer
+                        
+                    if ettr-sttr < 0.:
+                        sttr = tr.stats.starttime # should add 1-2 secs instead of proportion 
+                        ettr = tr.stats.starttime + pickDat['pidx'] * tr.stats.delta - 0.2 # allow small buffer
                     
                     noise_window = ettr-sttr
                     ntr_trim = tr_proc.copy()
@@ -628,20 +634,23 @@ for p, pf in enumerate(pickfiles[start_idx:]):
             recDat['location'] = tr.stats.location
             recDat['sampling_rate'] = tr.stats.sampling_rate
             recDat['ev'] = pickDat['ev']
-            recDat['eqlo'] = pickDat['eqlo']
-            recDat['eqla'] = pickDat['eqla']
-            recDat['eqdp'] = pickDat['eqdp']
-            mag, magType, evName = get_ev_deets(UTCDateTime(pickDat['evdt']))
-            recDat['mag'] = mag
-            recDat['magType'] = magType
-            recDat['place'] = evName
-            recDat['rhyp'] = pickDat['rhyp']
-            recDat['eqla'] = pickDat['eqla']
+            evdat = get_ev_deets(UTCDateTime(pickDat['evdt']))
+            recDat['mag'] = evdat['mag']
+            recDat['magType'] = evdat['magtype']
+            recDat['eqlo'] = evdat['eqlo']
+            recDat['eqla'] = evdat['eqla']
+            recDat['eqdp'] = evdat['eqdep']
+            recDat['place'] = evdat['place']
+            recDat['evdt'] = pickDat['evdt']
             
             # get sta data
             staDat = return_sta_data(tr.stats.station)
             recDat['stlo'] = staDat['stlo']
             recDat['stla'] = staDat['stla']
+            
+            # calc new distance from event list
+            recDat['repi'] = distance(evdat['eqla'], evdat['eqlo'], staDat['stla'], staDat['stlo'])[0]
+            recDat['rhyp'] = sqrt(recDat['repi']**2 + recDat['eqdp']**2)
             
             recDat['mseed_path'] = pickDat['mseed_path']
             records.append(recDat)

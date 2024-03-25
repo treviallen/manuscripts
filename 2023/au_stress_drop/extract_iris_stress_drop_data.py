@@ -21,8 +21,8 @@ from obspy import UTCDateTime
 # parse eq list
 ##############################################################################
 #gadat = parse_ga_event_query('earthquakes_export_2012-16_250.edit.csv')
-#recent_csv = 'au_ge_4.4_earthquakes_export_edit.csv'
-recent_csv = 'au_ge_4.4_earthquakes_export_recent.csv'
+recent_csv = 'au_ge_4.4_earthquakes_export_edit.csv'
+#recent_csv = 'au_ge_4.4_earthquakes_export_recent.csv'
 #recent_csv = 'au_ge_4.4_earthquakes_export_bboo.csv'
 gadat = parse_ga_event_query(recent_csv)
 
@@ -57,12 +57,13 @@ else:
 ##############################################################################
 
 networks = ['AU', 'S1', 'IU', 'II', 'G', '2O']
-#networks = ['2O']
+networks = ['AU']
 
 
 for network in networks:
     if network == 'AU':
         iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AU/gmap-stations-noarray.txt')
+        #iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AU/gmap-stations-noarray-stopdate.txt')
     elif network == 'S1':
         iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/S1/s1-gmap-stations.txt')
     elif network == 'IU':
@@ -106,6 +107,7 @@ for network in networks:
             
             # check if station is open
             if isl['starttime'] <= dt and isl['stoptime'] >= dt: # and dt.year >= 2020:
+                #if isl['starttime'] <= dt and isl['stoptime'] < dt: # and dt.year >= 2020:
                 
                 # check if in distance range
                 repi = distance(ev['lat'], ev['lon'], isl['lat'], isl['lon'])[0]

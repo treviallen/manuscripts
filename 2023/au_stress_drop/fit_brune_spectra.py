@@ -1,6 +1,7 @@
 import pickle
 from numpy import unique, array, arange, log, log10, exp, mean, nanmean, ndarray, std, sqrt, \
-                  nanmedian, nanstd, vstack, pi, nan, isnan, interp, where, zeros_like, ones_like, floor, ceil
+                  nanmedian, nanstd, vstack, pi, nan, isnan, interp, where, zeros_like, ones_like, floor, ceil, \
+                  argsort
 from scipy.stats import linregress, trim_mean
 from misc_tools import get_binned_stats, dictlist2array, get_mpl2_colourlist
 from mag_tools import nsha18_mb2mw, nsha18_ml2mw
@@ -16,6 +17,22 @@ mpl.style.use('classic')
 plt.rcParams['pdf.fonttype'] = 42
 import warnings
 warnings.filterwarnings("ignore")
+
+import shapefile
+from shapely.geometry import Point, Polygon
+from mapping_tools import get_field_data
+
+shpfile = '/Users/trev/Documents/Geoscience_Australia/NSHA2023/source_models/zones/shapefiles/NSHA13_Background/NSHA13_BACKGROUND_NSHA18_May2016.shp'
+
+sf = shapefile.Reader(shpfile)
+shapes = sf.shapes()
+polygons = []
+for poly in shapes:
+    polygons.append(Polygon(poly.points))
+
+zone_code = get_field_data(sf, 'CODE', 'str')
+zone_trt = get_field_data(sf, 'TRT', 'str')
+used_zones = set(['EBGZ', 'CBGZ', 'NCCZ'])
 
 ####################################################################################
 # correct attenuation
@@ -42,7 +59,7 @@ def parse_filtering_data():
     lines = open('event_filtering_lookup.csv').readlines()[1:]
     for line in lines:
         dat = line.split(',')
-        filt = {'ev':dat[0], 'minf': float(dat[1]), 'maxf': float(dat[2])}
+        filt = {'ev':dat[0], 'minf': float(dat[1]), 'maxf': float(dat[2]), 'qual':float(dat[3])}
     
         filtdat.append(filt)
     
@@ -68,20 +85,31 @@ def correct_atten(rec, coeffs, kapdat):
         elif rec['rhyp'] > c['r1'] and rec['rhyp'] <= c['r2']:
             D1 = sqrt(c['r1']**2 + c['nref']**2)
             distterm = c['nc0s'] * log10(D1) \
-                       + c['mc0s'] * log10(rec['rhyp'] / c['r1']) + c['mc1'] * (rec['rhyp'] - c['r1'])
+                       + c['mc0t'] * log10(rec['rhyp'] / c['r1']) + c['mc1s'] * (rec['rhyp'] - c['r1'])
         
         # set far-field
         elif rec['rhyp'] > c['r2']:
             D1 = sqrt(c['r1']**2 + c['nref']**2)
             distterm = c['nc0s'] * log10(D1) \
-                       + c['mc0s'] * log10(c['r2'] / c['r1']) + c['mc1'] * (c['r2'] - c['r1']) \
+                       + c['mc0t'] * log10(c['r2'] / c['r1']) + c['mc1s'] * (c['r2'] - c['r1']) \
                        + c['fc0'] * log10(rec['rhyp'] / c['r2']) + c['fc1'] * (rec['rhyp'] - c['r2'])
         
-        '''
-        print(c['nc0s'] * log10(rec['rhyp']))
-        print(c['mc0'] * log10(rec['rhyp'] / c['r1']) + c['mc1'] * (rec['rhyp'] - c['r1']))
-        print(c['fc0'] * log10(rec['rhyp'] / c['r2']) + c['fc1'] * (rec['rhyp'] - c['r2']))
-        '''
+        """
+        # get regional correction for epicentre
+        for zc, zt, poly in zip(zone_code, zone_trt, polygons):
+            eqpt = Point(rec['eqlo'], rec['eqla'])
+            #stpt = Point(stlo[i], eqla[i])
+            if eqpt.within(poly):
+                eqtrt = zt
+                eqcode = zc
+        
+        if eqtrt == 'Non_cratonic':
+            eqcode = 'NCCZ'
+        
+        # now get regional coeff
+        if rec['rhyp'] > c['regr']:
+            distterm += c[eqcode+'_rc'] * (log10(rec['rhyp']) - log10(c['regr']))
+        """    
         distterms.append(distterm)
     
     #distterms.append(nan) # as no coeffs for last freq
@@ -111,7 +139,7 @@ def correct_atten(rec, coeffs, kapdat):
     
     # if short period only use f > 0.5
     if  channel.startswith('SH') or channel.startswith('EH'):
-        idx = where(freqs < 0.2)[0]
+        idx = where(freqs < 0.4)[0]
         cor_fds_nan[idx] = nan
             
     return cor_fds, cor_fds_nan, freqs
@@ -185,7 +213,7 @@ for i, rec in enumerate(recs):
     elif rec['magType'].startswith('ml'):
         # additional fix for use of W-A 2800 magnification pre-Antelope
         if UTCDateTime(datetimes[i]) < UTCDateTime(2008, 1, 1):
-            recs[i]['mag'] -= 0.07
+            recs[i]['mag'] -= 0.05
         
         # now fix ML
         recs[i]['mag'] = nsha18_ml2mw(rec['mag'])
@@ -198,9 +226,8 @@ coeffs = pickle.load(open('atten_coeffs.pkl', 'rb' ))
 ###############################################################################
 
 # remove bad recs
-keep_nets = set(['AU', 'IU', 'S1', 'G', 'MEL', 'ME', '2O', 'AD', 'SR', 'UM', 'AB', 'VI', 'GM' \
-                 '1P', '1P', '2P', '6F', '7K', '7G', 'G', '7B', '4N', '7D', '', 'OZ'])
-
+keep_nets = set(['AU', 'IU', 'S1', 'II', 'G', 'MEL', 'ME', '2O', 'AD', 'SR', 'UM', 'AB', 'VI', 'GM' \
+                 '1P', '1P', '2P', '6F', '7K', '7G', 'G', '7B', '4N', '7D', '', 'OZ', 'OA', 'WG', 'XX'])
 # get stas to ignore
 ignore_stas = open('sta_ignore.txt').readlines()
 ignore_stas = set([x.strip() for x in ignore_stas])
@@ -219,6 +246,10 @@ fig = plt.figure(1, figsize=(18,11))
 cs = get_mpl2_colourlist()
 events = unique(dictlist2array(recs, 'ev'))
 stations = unique(dictlist2array(recs, 'sta'))
+rhyps = dictlist2array(recs, 'rhyp')
+
+# sort by rhyps
+rhyp_sort_idx = argsort(rhyps)
 
 '''
 # make event list - needed once only
@@ -244,6 +275,19 @@ sp = 0
 ii = 1	
 for e, event in enumerate(events): # [::-1]): #[-2:-1]:
     print(event)
+    
+    # get upper & lower f for filtering
+    minf = 0.8
+    maxf = 12
+    qual = 1
+    for fdat in filtdat:
+        if fdat['ev'] == event:
+            minf = fdat['minf']
+            maxf = fdat['maxf']
+            qual = fdat['qual']
+
+    #print(','.join((event,str(minf),str(maxf))))
+
     sp += 1
     plt.subplot(2,3,sp)
     log_stack_logfds = []
@@ -254,11 +298,14 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
     floor_log_fds = 99
     
     i = 0
-    for rec in recs:
+    pltboxes = True
+    for rsi in rhyp_sort_idx:
+        rec = recs[rsi]
+        #for rec in recs:
         if rec['net'] in keep_nets:
             if not rec['sta'] in ignore_stas:
                 if len(rec['channels']) > 0:
-                    if rec['ev'] == event:
+                    if rec['ev'] == event: # will need to cahnge to rec['datetime']
                         print('   '+rec['sta'])
                         cor_fds, cor_fds_nan, freqs = correct_atten(rec, coeffs, kapdat)
                         
@@ -274,7 +321,7 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
                             
                         if floor(min(log10(cor_fds[30:120]))) < floor_log_fds:
                             floor_log_fds = floor(min(log10(cor_fds[30:120])))
-                        
+                            
                         if i <= 9:
                             h1, = plt.loglog(freqs, cor_fds_nan,'-', c=cs[i], lw=1, label='-'.join((rec['sta'],str('%0.0f' % rec['rhyp']))))
                         elif i <= 19:
@@ -319,6 +366,7 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
                         evlon = rec['eqlo']
                         evlat = rec['eqla']
                         evdep = rec['eqdp']
+                        evdt = rec['evdt']
     
     leg1 = plt.legend(handles=handles1, loc=3, fontsize=6, ncol=4)
 	
@@ -331,16 +379,6 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
             
         h2, = plt.loglog(freqs, mean_fds,'--', color='0.2', lw=1.5, label='Mean Source Spectrum')
     
-        # get upper & lower f for filtering
-        minf = 0.8
-        maxf = 12
-        for fdat in filtdat:
-            if fdat['ev'] == event:
-                minf = fdat['minf']
-                maxf = fdat['maxf']
-        
-        print(','.join((event,str(minf),str(maxf))))
-        
         # fit mean curve
         fidx = where((freqs >= minf) & (freqs <= maxf) & (isnan(mean_fds) == False))[0]
         #sfidx = where((freqs >= minf) & (freqs <= maxsf))[0] # for labelling curves
@@ -369,6 +407,7 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
         # add to events
         edict = {}
         edict['evstr'] = event
+        edict['evdt'] = evdt
         edict['lon'] = evlon
         edict['lat'] = evlat
         edict['dep'] = evdep
@@ -379,6 +418,7 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
         edict['brune_f0'] = f0
         edict['minf'] = minf
         edict['maxf'] = maxf
+        edict['qual'] = qual
         
         events_dict.append(edict)
     
@@ -386,7 +426,11 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
         fitted_curve = omega0 / (1 + (freqs / f0)**2)
         h3, = plt.loglog(freqs, fitted_curve, 'k-', lw=1.5, label='Fitted Brune Model')
         plt.legend(handles=[h2, h3], loc=1, fontsize=8)
-        plt.title('; '.join((evmagtype+str('%0.1f' % evmag), event, 'MW '+str('%0.2f' % mw), 'SD '+str('%0.2f' % sd)+' MPa')), fontsize=10)
+        
+        if qual == 0:
+            plt.title('; '.join((evmagtype+str('%0.1f' % evmag), event, 'MW '+str('%0.2f' % mw), 'SD '+str('%0.2f' % sd)+' MPa')), fontsize=10, color='red')
+        else:
+            plt.title('; '.join((evmagtype+str('%0.1f' % evmag), event, 'MW '+str('%0.2f' % mw), 'SD '+str('%0.2f' % sd)+' MPa')), fontsize=10, color='k')
         
         if sp == 1 or sp == 4:
            plt.ylabel('Fourier Displacement Spectra (m-s)')
@@ -402,11 +446,16 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
     
     # set ylims based on omega0
     ceil_log_fds = log10(omega0) + 1.1
+    ymin = 10**(ceil_log_fds-4)  
+    ymax = 10**ceil_log_fds
+    plt.ylim([ymin, ymax])
+    
+    # plot ignored freqs
+    plt.fill([0.01, 0.01, minf, minf, 0.01], [ymin, ymax, ymax, ymin, ymin], '0.9', ec='0.9', zorder=0)
+    plt.fill([maxf, maxf, 20, 20, maxf], [ymin, ymax, ymax, ymin, ymin], '0.9', ec='0.9', zorder=1)
+                            
+    plt.grid(which='both', color='0.7')
         
-    plt.ylim([10**(ceil_log_fds-4), 10**ceil_log_fds])
-    plt.grid(which='both', color='0.75')
-    
-    
     if sp == 6:
         plt.savefig('brune_fit/brune_fit_'+str(ii)+'.png', fmt='png', bbox_inches='tight')
         sp = 0
@@ -424,11 +473,11 @@ pickle.dump(events, pklfile, protocol=-1)
 pklfile.close()
 
 # write csv
-txt = 'EVENT,LON,LAT,DEP,OMAG,OMAG_TYPE,BRUNE_MAG,STRESS_DROP,CORN_FREQ,FMIN,FMAX\n'
+txt = 'EVENT,LON,LAT,DEP,OMAG,OMAG_TYPE,BRUNE_MAG,STRESS_DROP,CORN_FREQ,FMIN,FMAX,QUALITY\n'
 
 for ev in events_dict:
-    txt += ','.join((ev['evstr'],str(ev['lon']),str(ev['lat']),str(ev['dep']),str(ev['omag']),ev['omag_type'], \
-                     str(ev['brune_mw']),str(ev['brune_sd']),str(ev['brune_f0']),str(ev['minf']),str(ev['maxf']))) + '\n'
+    txt += ','.join((str(ev['evdt']),str(ev['lon']),str(ev['lat']),str(ev['dep']),str(ev['omag']),ev['omag_type'], \
+                     str(ev['brune_mw']),str(ev['brune_sd']),str(ev['brune_f0']),str(ev['minf']),str(ev['maxf']),str(ev['qual']))) + '\n'
 
 # write to file
 f = open('brune_stats.csv', 'w')
