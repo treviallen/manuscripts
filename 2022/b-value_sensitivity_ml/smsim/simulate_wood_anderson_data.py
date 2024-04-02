@@ -236,6 +236,17 @@ pidx = n_obs > 0
 plt.semilogy(mrng, betacurve, '-', c=cs[0], lw=2.)
 plt.semilogy(mfd_mrng[pidx], bin_rates[pidx], 'o', c=cs[1], label='MW (b = '+str('%0.2f' % b_val)+')')
 
+# make pretty
+plt.xlabel('Magnitude', fontsize=16)
+plt.ylabel('Annual Rate (/yr)', fontsize=16)
+plt.grid(which='both')
+plt.legend(loc=1, numpoints=3)
+plt.xlim([1.75, 6.55])
+plt.ylim([1E-3, 100])
+
+plt.savefig('mag_b_value_comp_seed_'+str(seed)+'_1.png',format='png', dpi=300, bbox_inches='tight')
+
+
 #crash
                 
 # do smsim magic - only continue if within reasonable range!
@@ -302,18 +313,6 @@ ml_mfd_mrng = arange(1.8, 7.4, 0.1)
 myrs = ones_like(ml_mfd_mrng) * n_yrs
 mmin = 1.8
 
-# get b-values for BJ84 and plot
-b_val, sigma_b, cum_num, n_obs, bin_rates = get_bvalue(ml_mfd_mrng, bj84_array, n_yrs)  # ignore b from this  
-b_val_bj84, sigma_b, a0, siga_m, fn0, stdfn0 = weichert_algorithm(myrs, \
-                                               ml_mfd_mrng+binwid/2, n_obs, mrate=0.0, \
-                                               bval=1.0, itstab=1E-4, maxiter=1000)
-betacurve_bj84, mrng_bj84 = get_oq_incrementalMFD(bval2beta(b_val_bj84), a0, mmin, mmax, binwid)
-
-# plot BJ84
-pidx = n_obs > 0
-plt.semilogy(mrng_bj84, betacurve_bj84, '-', c=cs[2], lw=2.)
-plt.semilogy(ml_mfd_mrng[pidx], bin_rates[pidx], 'o', c=cs[3], label='ML BJ84 (b = '+str('%0.2f' % b_val_bj84)+')')
-
 # get b-values for MLM92 and plot
 b_val_mlm92, sigma_b, cum_num, n_obs, bin_rates = get_bvalue(ml_mfd_mrng, mlm92_array, n_yrs)
 b_val_mlm92, sigma_b, a0, siga_m, fn0, stdfn0 = weichert_algorithm(myrs, \
@@ -325,6 +324,24 @@ betacurve_mlm92, mrng_mlm92 = get_oq_incrementalMFD(bval2beta(b_val_mlm92), a0, 
 pidx = n_obs > 0
 plt.semilogy(mrng_mlm92, betacurve_mlm92, '-', c=cs[6], lw=2.)
 plt.semilogy(ml_mfd_mrng[pidx], bin_rates[pidx], 'o', c=cs[7], label='ML MLM92 (b = '+str('%0.2f' % b_val_mlm92)+')')
+plt.legend(loc=1, numpoints=3)
+plt.savefig('mag_b_value_comp_seed_'+str(seed)+'_2.png',format='png', dpi=300, bbox_inches='tight')
+
+
+# get b-values for BJ84 and plot
+b_val, sigma_b, cum_num, n_obs, bin_rates = get_bvalue(ml_mfd_mrng, bj84_array, n_yrs)  # ignore b from this  
+b_val_bj84, sigma_b, a0, siga_m, fn0, stdfn0 = weichert_algorithm(myrs, \
+                                               ml_mfd_mrng+binwid/2, n_obs, mrate=0.0, \
+                                               bval=1.0, itstab=1E-4, maxiter=1000)
+betacurve_bj84, mrng_bj84 = get_oq_incrementalMFD(bval2beta(b_val_bj84), a0, mmin, mmax, binwid)
+
+# plot BJ84
+pidx = n_obs > 0
+plt.semilogy(mrng_bj84, betacurve_bj84, '-', c=cs[2], lw=2.)
+plt.semilogy(ml_mfd_mrng[pidx], bin_rates[pidx], 'o', c=cs[3], label='ML BJ84 (b = '+str('%0.2f' % b_val_bj84)+')')
+plt.legend(loc=1, numpoints=3)
+plt.savefig('mag_b_value_comp_seed_'+str(seed)+'_3.png',format='png', dpi=300, bbox_inches='tight')
+
 
 ###############################################################################
 # do post-hoc rate conversion
@@ -335,15 +352,6 @@ mw_mfd_mrng = nsha18_ml2mw(mrng_bj84)
 #plt.semilogy(mw_mfd_mrng, betacurve_bj84, 'k--', lw=2., label='Post hoc MW rates (BJ84)')
 
 ################################################################################
-# make pretty
-plt.xlabel('Magnitude', fontsize=16)
-plt.ylabel('Annual Rate (/yr)', fontsize=16)
-plt.grid(which='both')
-plt.legend(loc=1, numpoints=3)
-plt.xlim([1.75, 6.55])
-plt.ylim([1E-3, 100])
-
-plt.savefig('mag_b_value_comp_seed_'+str(seed)+'.png',format='png', dpi=300, bbox_inches='tight')
 plt.show()
 
 # save pickle
