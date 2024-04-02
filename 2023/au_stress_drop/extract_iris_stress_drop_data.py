@@ -9,7 +9,7 @@ from io_catalogues import parse_ga_event_query
 import matplotlib.pyplot as plt
 from misc_tools import dictlist2array
 from mapping_tools import distance
-from data_fmt_tools import return_sta_data, parse_iris_stationlist, get_iris_data
+from data_fmt_tools import return_sta_data, parse_iris_stationlist, get_iris_data, get_auspass_data
 import datetime as dt
 from numpy import arange, array, where, zeros_like, histogram
 #from gmt_tools import cpt2colormap 
@@ -56,8 +56,8 @@ else:
 # loop through networks
 ##############################################################################
 
-networks = ['AU', 'S1', 'IU', 'II', 'G', '2O']
-networks = ['AU']
+networks = ['AU', 'S1', 'IU', 'II', 'G', '2O', 'M8']
+networks = ['M8']
 
 
 for network in networks:
@@ -74,7 +74,8 @@ for network in networks:
         iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/G/g-gmap-stations-autrim.txt')
     elif network == '2O':
         iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AU/2o-gmap-stations.txt')
-    
+    elif network == 'M8':
+        iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AUSPASS/m8-gmap-stations.txt')
 ##############################################################################
 # loop through events
 ##############################################################################
@@ -103,6 +104,7 @@ for network in networks:
         
         # loop thru stations
         #iris_sta_list = [{'CAAN']
+        getauspass = True
         for isl in iris_sta_list:
             
             # check if station is open
@@ -119,7 +121,11 @@ for network in networks:
                                '.'.join((evdate, network, isl['sta'], 'mseed')))
                     
                     if not path.isfile(mseedfile):
-                        st = get_iris_data(dateTuple, isl['sta'], network, durn=1800)
+                        if network == 'M8' and getauspass == True:
+                            get_auspass_data(dateTuple, durn=1800, network='M8')
+                            getauspass = False
+                        else:
+                            st = get_iris_data(dateTuple, isl['sta'], network, durn=1800)
                         
                     else:
                         print('Skipping: ' + mseedfile)

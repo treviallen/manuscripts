@@ -114,10 +114,10 @@ def dict2netcdf(gridDict, outGrid, zKey):
 # make grids
 ##############################################################################
 
-pltProbability = '10'
+pltProbability = '2'
 if pltProbability == '10':
     grid1 = 'nsha23_0.1_pga.grd'
-    grid2 = 'nsha18_0.1_pga.grd'
+    grid2 = 'nsha18_0.1_pga.grd'	
     pltkey = 'PGA-0.1'
 else:
     grid1 = 'nsha23_0.02_pga.grd'
@@ -126,6 +126,7 @@ else:
 
 # read file 1
 #hazfile1 = '/Users/trev/Documents/Geoscience_Australia/NSHA2023/source_models/complete_model/2023_final/results_maps_PGA_ta_pref/hazard_map-mean_1.csv'
+
 hazfile1 = '/Users/trev/Documents/Geoscience_Australia/NSHA2023/source_models/complete_model/2023_final/results_maps_PGA_SC_B/hazard_map-mean_1.csv'
 nsha23_grddict = parse_oq_hazard_grid(hazfile1, pltProbability)
 dict2netcdf(nsha23_grddict, grid1, pltkey)
@@ -148,12 +149,15 @@ system('gmt5 grdmath map_ratio.grd 0.01 GE map_ratio.grd MUL = map_ratio.grd')
 cptfile = '/Users/trev/Documents/DATA/GMT/cpt/BlueWhiteOrangeRed.cpt'
 cptfile = '/Users/trev/Documents/DATA/GMT/cpt/blue-tan-d15.cpt'
 #cptfile = '/Users/trev/Documents/DATA/GMT/es_landscape_90.cpt'
-cptfile = '/Users/trev/Documents/DATA/GMT/cpt/cool-warm-d15.cpt'
+cptfile = '/Users/trev/Documents/DATA/GMT/cpt/cool-warm-edit.cpt'
+#cptfile = '/Users/trev/Documents/DATA/GMT/cpt/cw1-002.cpt'
 
-ncolours = 17
+ncolours = 25
 cmap, zvals = cpt2colormap(cptfile, ncolours, rev=False)
 cmap = remove_last_cmap_colour(cmap)
 
+bounds = array([1/500.0, 1/3.75, 1/3.5, 1/3.25, 1/3.0, 1/2.75, 1/2.5, 1/2.25, 1/2.0, 1/1.75, 1/1.5, 1/1.25, \
+                1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0, 3.25, 3.5, 3.75, 500.0]) #nsha = 1/50            
 
 print('Making map...')
 
@@ -207,9 +211,6 @@ m.drawmeridians(arange(0.,360.,6), labels=[0,0,0,1], fontsize=14, dashes=[2, 2],
 ##############################################################################    
 # read netcdf
 ##############################################################################
-bounds = array([1/500.0, 1/2.75, 1/2.5, 1/2.25, 1/2.0, 1/1.75, 1/1.5, 1/1.25, \
-            1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 500.0]) #nsha = 1/50
-            
 norm = colors.BoundaryNorm(boundaries=bounds, ncolors=ncolours)
 
 
@@ -302,15 +303,19 @@ cax = figure.add_axes([0.2,0.11,0.6,0.03]) # setup colorbar axes.
 #norm = colors.Normalize(vmin=vmin, vmax=vmax)
 cb = colorbar.ColorbarBase(cax, cmap=cmap, norm=norm, orientation='horizontal') #, extend='both')
 
-cb.set_ticks(bounds[::2])
-labels = [str('%0.2f' % x) for x in bounds[::2]]
-labels[0] = '0.33'
-labels[-1] = '3.00'
+cb.set_ticks(bounds[::4])
+labels = [str('%0.2f' % x) for x in bounds[::4]]
+labels[0] = '0.25'
+labels[-1] = '4.00'
 cb.set_ticklabels(labels)
 cb.ax.tick_params(labelsize=14)
 
 # set title
-titlestr = 'Hazard Ratio (NSHA23 / NSHA18)'
+if pltkey == 'PGA-0.02':
+    titlestr = '2% in 50-Year Hazard Ratio (NSHA23 / NSHA18)'
+elif pltkey == 'PGA-0.1':
+   titlestr = '10% in 50-Year Hazard Ratio (NSHA23 / NSHA18)'
+
 cb.set_label(titlestr, fontsize=16)
 '''
 # check to see if maps exists
