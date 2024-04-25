@@ -13,6 +13,7 @@ import scipy.odr.odrpack as odrpack
 from ltsfit import lts_linefit
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+from obspy import UTCDateTime
 mpl.style.use('classic')
 plt.rcParams['pdf.fonttype'] = 42
 import warnings
@@ -60,7 +61,7 @@ def parse_filtering_data():
     	
     for line in lines:
         dat = line.split(',')
-        filt = {'ev':dat[0], 'minf': float(dat[1]), 'maxf': float(dat[2]), 'qual':float(dat[3])}
+        filt = {'ev':UTCDateTime(dat[0]), 'minf': float(dat[1]), 'maxf': float(dat[2]), 'qual':float(dat[3])}
     
         filtdat.append(filt)
     
@@ -80,7 +81,7 @@ def correct_atten(rec, coeffs, kapdat):
         # get geometric spreading
         D1 = sqrt(rec['rhyp']**2 + c['nref']**2)
         if rec['rhyp'] <= c['r1']:
-            distterm = c['nc0s'] * log10(rec['rhyp']) #+ c['nc1s']
+            distterm = c['nc0s'] * log10(D1) #+ c['nc1s']
         
         # set mid-field
         elif rec['rhyp'] > c['r1'] and rec['rhyp'] <= c['r2']:
@@ -93,7 +94,8 @@ def correct_atten(rec, coeffs, kapdat):
             D1 = sqrt(c['r1']**2 + c['nref']**2)
             distterm = c['nc0s'] * log10(D1) \
                        + c['mc0t'] * log10(c['r2'] / c['r1']) + c['mc1s'] * (c['r2'] - c['r1']) \
-                       + c['fc0'] * log10(rec['rhyp'] / c['r2']) + c['fc1'] * (rec['rhyp'] - c['r2'])
+                       + c['fc0'] * log10(rec['rhyp'] / c['r2']) + c['fc1'] * (rec['rhyp'] - c['r2']) \
+                       + c['fc2'] * (log10(rec['rhyp']) - log10(c['r2']))
         
         """
         # get regional correction for epicentre
@@ -228,7 +230,7 @@ coeffs = pickle.load(open('atten_coeffs.pkl', 'rb' ))
 
 # remove bad recs
 keep_nets = set(['AU', 'IU', 'S1', 'II', 'G', 'MEL', 'ME', '2O', 'AD', 'SR', 'UM', 'AB', 'VI', 'GM' \
-                 '1P', '1P', '2P', '6F', '7K', '7G', 'G', '7B', '4N', '7D', '', 'OZ', 'OA', 'WG', 'XX'])
+                 '1P', '1P', '2P', '6F', '7K', '7G', 'G', '7B', '4N', '7D', '', 'OZ', 'OA', 'WG']) #, 'XX'])
 # get stas to ignore
 ignore_stas = open('sta_ignore.txt').readlines()
 ignore_stas = set([x.strip() for x in ignore_stas])
@@ -245,7 +247,7 @@ fig = plt.figure(1, figsize=(12,12))
 
 # loop through & plot station  data
 cs = get_mpl2_colourlist()
-events = unique(dictlist2array(recs, 'ev'))
+events = unique(dictlist2array(recs, 'evdt'))
 stations = unique(dictlist2array(recs, 'sta'))
 rhyps = dictlist2array(recs, 'rhyp')
 
@@ -307,7 +309,7 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
             if rec['net'] in keep_nets:
                 if not rec['sta'] in ignore_stas:
                     if len(rec['channels']) > 0:
-                        if rec['ev'] == event: # will need to cahnge to rec['datetime']
+                        if rec['evdt'] == event: # will need to cahnge to rec['datetime']
                             print('   '+rec['sta'])
                             cor_fds, cor_fds_nan, freqs = correct_atten(rec, coeffs, kapdat)
                             
@@ -430,9 +432,9 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
             plt.legend(handles=[h2, h3], loc=1, fontsize=8)
             
             if qual == 0:
-                plt.title('; '.join((event, 'MW '+str('%0.2f' % mw), 'SD '+str('%0.2f' % sd)+' MPa')), fontsize=10, color='red')
+                plt.title('; '.join((str(event)[0:16], 'MW '+str('%0.2f' % mw), 'SD '+str('%0.2f' % sd)+' MPa')), fontsize=10, color='red')
             else:
-                plt.title('; '.join((event, 'MW '+str('%0.2f' % mw), 'SD '+str('%0.2f' % sd)+' MPa')), fontsize=10, color='k')
+                plt.title('; '.join((str(event)[0:16], 'MW '+str('%0.2f' % mw), 'SD '+str('%0.2f' % sd)+' MPa')), fontsize=10, color='k')
             
             if sp == 1 or sp == 4 or sp == 7:
                plt.ylabel('Fourier Displacement Spectra (m-s)')
@@ -459,12 +461,12 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
         plt.grid(which='both', color='0.7')
         
     if sp == 9:
-        plt.savefig('brune_fit/brune_fit_paper_'+str(ii)+'.png', fmt='png', bbox_inches='tight')
+        plt.savefig('brune_fit/brune_fit_paper_'+str(ii)+'.png', fmt='png', dpi=300, bbox_inches='tight')
         sp = 0
         ii += 1
         fig = plt.figure(ii, figsize=(12,12))
 
-plt.savefig('brune_fit/brune_fit_paper_'+str(ii)+'.png', fmt='png', dpi=150, bbox_inches='tight')
+plt.savefig('brune_fit/brune_fit_paper_'+str(ii)+'.png', fmt='png', dpi=300, bbox_inches='tight')
 
 
 ##########################################################################################

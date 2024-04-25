@@ -77,6 +77,7 @@ plt.ylabel('Count', fontsize=18)
 plt.grid(which='both')
 plt.xlim([0.02,40])
 plt.ylim([800,5000])
+print('Max Cnt: '+str(max(fcnt)))
 
 xticks = [0.1, 1.0, 10]
 xlabels = [str('%0.1f' % x) for x in xticks]

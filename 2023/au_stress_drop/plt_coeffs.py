@@ -14,15 +14,15 @@ nc0 = dictlist2array(coeffs, 'nc0')
 nc0s = dictlist2array(coeffs, 'nc0s')
 nc1 = dictlist2array(coeffs, 'nc1s')
 
-fig = plt.figure(1, figsize=(12, 8))
+fig = plt.figure(1, figsize=(14, 10))
 
-plt.subplot(411)
+plt.subplot(421)
 plt.semilogx(freqs, nc0, 'ro')
 plt.semilogx(freqs, nc0s, 'bo')
 plt.ylim([-2,0])
 plt.ylabel('nc0')
 
-plt.subplot(412)
+plt.subplot(422)
 plt.semilogx(freqs, nc1, 'ro')
 plt.ylabel('nc1')
 
@@ -30,7 +30,7 @@ plt.ylabel('nc1')
 mc0 = dictlist2array(coeffs, 'mc0')
 mc0s = dictlist2array(coeffs, 'mc0s')
 mc0t = dictlist2array(coeffs, 'mc0t')
-plt.subplot(413)
+plt.subplot(423)
 plt.semilogx(freqs, mc0, 'ro')
 plt.semilogx(freqs, mc0s, 'bo')
 plt.semilogx(freqs, mc0t, 'co')
@@ -45,7 +45,7 @@ import scipy.odr.odrpack as odrpack
 
 # fit to 3.5 hz
 f0 = 0.03
-f1 = 4
+f1 = 15
 f2 = 8.
 f3 = 20
 idx = where((freqs > f0) & (freqs <= f1))[0]
@@ -68,6 +68,7 @@ def fit_mid_mc0(c, x):
 
     return ans
 
+'''
 data = odrpack.RealData(freqs, mc0s)
     
 afit = odrpack.Model(fit_mid_mc0)
@@ -80,9 +81,9 @@ fcm = out.beta
 xplt = array([f1, f2])
 yplt = reg1.intercept + reg1.slope*log10(f1) + fcm[0] * (log10(xplt) - log10(f1))
 plt.plot(xplt, yplt, 'g')
-
+'''
 # fit high
-def fit_far_mc0(c, x):
+def fit_high_mc0(c, x):
     from numpy import sqrt, log10
 
     # set far-f
@@ -91,6 +92,7 @@ def fit_far_mc0(c, x):
 
     return ans
 
+'''
 idx = where((freqs > f2) & (freqs <= f3))[0]  
 data = odrpack.RealData(freqs[idx], mc0s[idx])
     
@@ -105,17 +107,38 @@ xplt = array([f2, max(freqs)])
 yplt = reg1.intercept + reg1.slope*log10(f1) + fcm[0] * (log10(f2) - log10(f1)) \
        + fcf[0] * (log10(xplt) - log10(f2))
 plt.plot(xplt, yplt, 'g')
-
+'''
 
 # plt mc1
 mc1 = dictlist2array(coeffs, 'mc1')
 mc1s = dictlist2array(coeffs, 'mc1s')
-plt.subplot(414)
+plt.subplot(424)
 plt.semilogx(freqs, mc1, 'ro')
 plt.semilogx(freqs, mc1s, 'bo')
 plt.ylabel('mc1')
 
-fig = plt.figure(1, figsize=(12, 10))
+plt.subplot(425)
+fc0 = dictlist2array(coeffs, 'fc0')
+plt.semilogx(freqs, fc0, 'ro')
+#plt.semilogx(freqs, nc0s, 'bo')
+#plt.ylim([-2,0])
+plt.ylabel('fc0')
+
+plt.subplot(426)
+fc1 = dictlist2array(coeffs, 'fc1')
+plt.semilogx(freqs, fc1, 'ro')
+#plt.semilogx(freqs, nc0s, 'bo')
+#plt.ylim([-2,0])
+plt.ylabel('fc1')
+
+plt.subplot(427)
+fc2 = dictlist2array(coeffs, 'fc2')
+plt.semilogx(freqs, fc2, 'ro')
+#plt.semilogx(freqs, nc0s, 'bo')
+#plt.ylim([-2,0])
+plt.ylabel('fc2')
+
+#fig = plt.figure(1, figsize=(12, 10))
 
 '''
 #plt.semilogx(freqs, nc0s, 'bo')

@@ -13,6 +13,7 @@ import scipy.odr.odrpack as odrpack
 from ltsfit import lts_linefit
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+from obspy import UTCDateTime
 mpl.style.use('classic')
 plt.rcParams['pdf.fonttype'] = 42
 import warnings
@@ -59,7 +60,7 @@ def parse_filtering_data():
     lines = open('event_filtering_lookup.csv').readlines()[1:]
     for line in lines:
         dat = line.split(',')
-        filt = {'ev':dat[0], 'minf': float(dat[1]), 'maxf': float(dat[2]), 'qual':float(dat[3])}
+        filt = {'ev':UTCDateTime(dat[0]), 'minf': float(dat[1]), 'maxf': float(dat[2]), 'qual':float(dat[3])}
     
         filtdat.append(filt)
     
@@ -79,7 +80,7 @@ def correct_atten(rec, coeffs, kapdat):
         # get geometric spreading
         D1 = sqrt(rec['rhyp']**2 + c['nref']**2)
         if rec['rhyp'] <= c['r1']:
-            distterm = c['nc0s'] * log10(rec['rhyp']) #+ c['nc1s']
+            distterm = c['nc0s'] * log10(D1) #+ c['nc1s']
         
         # set mid-field
         elif rec['rhyp'] > c['r1'] and rec['rhyp'] <= c['r2']:
@@ -92,7 +93,8 @@ def correct_atten(rec, coeffs, kapdat):
             D1 = sqrt(c['r1']**2 + c['nref']**2)
             distterm = c['nc0s'] * log10(D1) \
                        + c['mc0t'] * log10(c['r2'] / c['r1']) + c['mc1s'] * (c['r2'] - c['r1']) \
-                       + c['fc0'] * log10(rec['rhyp'] / c['r2']) + c['fc1'] * (rec['rhyp'] - c['r2'])
+                       + c['fc0'] * log10(rec['rhyp'] / c['r2']) + c['fc1'] * (rec['rhyp'] - c['r2']) \
+                       + c['fc2'] * (log10(rec['rhyp']) - log10(c['r2']))
         
         """
         # get regional correction for epicentre
@@ -140,6 +142,11 @@ def correct_atten(rec, coeffs, kapdat):
     # if short period only use f > 0.5
     if  channel.startswith('SH') or channel.startswith('EH'):
         idx = where(freqs < 0.4)[0]
+        cor_fds_nan[idx] = nan
+        
+    # ignore dodgy CMSA data
+    if rec['sta'] == 'CMSA': 
+        idx = where(freqs < 0.5)[0]
         cor_fds_nan[idx] = nan
             
     return cor_fds, cor_fds_nan, freqs
@@ -244,7 +251,7 @@ fig = plt.figure(1, figsize=(18,11))
 
 # loop through & plot station  data
 cs = get_mpl2_colourlist()
-events = unique(dictlist2array(recs, 'ev'))
+events = unique(dictlist2array(recs, 'evdt'))
 stations = unique(dictlist2array(recs, 'sta'))
 rhyps = dictlist2array(recs, 'rhyp')
 
@@ -305,7 +312,7 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
         if rec['net'] in keep_nets:
             if not rec['sta'] in ignore_stas:
                 if len(rec['channels']) > 0:
-                    if rec['ev'] == event: # will need to cahnge to rec['datetime']
+                    if rec['evdt'] == event: # will need to cahnge to rec['datetime']
                         print('   '+rec['sta'])
                         cor_fds, cor_fds_nan, freqs = correct_atten(rec, coeffs, kapdat)
                         
@@ -361,8 +368,8 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
                         '''	
                         
                         # set evmag
-                        evmag = rec['mag']
-                        evmagtype = rec['magType']
+                        evmag = rec['omag']
+                        evmagtype = rec['oMagType']
                         evlon = rec['eqlo']
                         evlat = rec['eqla']
                         evdep = rec['eqdp']
@@ -428,9 +435,9 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
         plt.legend(handles=[h2, h3], loc=1, fontsize=8)
         
         if qual == 0:
-            plt.title('; '.join((evmagtype+str('%0.1f' % evmag), event, 'MW '+str('%0.2f' % mw), 'SD '+str('%0.2f' % sd)+' MPa')), fontsize=10, color='red')
+            plt.title('; '.join((evmagtype+str('%0.1f' % evmag), str(event)[0:16], 'MW '+str('%0.2f' % mw), 'SD '+str('%0.2f' % sd)+' MPa')), fontsize=10, color='red')
         else:
-            plt.title('; '.join((evmagtype+str('%0.1f' % evmag), event, 'MW '+str('%0.2f' % mw), 'SD '+str('%0.2f' % sd)+' MPa')), fontsize=10, color='k')
+            plt.title('; '.join((evmagtype+str('%0.1f' % evmag), str(event)[0:16], 'MW '+str('%0.2f' % mw), 'SD '+str('%0.2f' % sd)+' MPa')), fontsize=10, color='k')
         
         if sp == 1 or sp == 4:
            plt.ylabel('Fourier Displacement Spectra (m-s)')
@@ -439,7 +446,7 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
         #plt.title(' - '.join((ev, 'M'+str('%0.2f' % mag), place)), fontsize=10)
     
     plt.gca().add_artist(leg1)
-    if f0 < 1.5:
+    if f0 < 1.:
         plt.xlim([0.03, 20])
     else:
         plt.xlim([0.1, 20])

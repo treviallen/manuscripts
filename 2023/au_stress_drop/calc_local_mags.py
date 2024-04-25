@@ -99,6 +99,8 @@ events_dict = []
 sp = 0
 ii = 1	
 magcsv = 'EVENT,ML_2800,ML_2080,MW,SD\n'
+stacsv = 'EVENT,STA,RHYP,ML_2800,ML_2080,MW\n'
+
 print('need to get mag region')
 
 ml_array = []
@@ -161,15 +163,21 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
                                 wa2800 = rec['wa_data']['wa_amp_2800_0.2']
                                 wa2080 = rec['wa_data']['wa_amp_2080_0.2']
                             
-                        bj84_2800.append(calc_BJ84(1, log10(wa2800), rec['rhyp']) + 0.18) # added 0.18 as mean H-V correction - see hv_ratio.png in dropbox
-                        mlm92_2800.append(calc_MLM92(0, log10(wa2800), rec['rhyp']))
+                        #bj84_2800.append(calc_BJ84(1, log10(wa2800), rec['rhyp']) + 0.18) # added 0.18 as mean H-V correction - see hv_ratio.png in dropbox
+                        m92_2800 = calc_MLM92(0, log10(wa2800), rec['rhyp'])
+                        mlm92_2800.append(m92_2800)
                         
-                        bj84_2080.append(calc_BJ84(1, log10(wa2080), rec['rhyp']) + 0.18) # added 0.18 as mean H-V correction - see hv_ratio.png in dropbox
-                        mlm92_2080.append(calc_MLM92(0, log10(wa2080), rec['rhyp']))
+                        #bj84_2080.append(calc_BJ84(1, log10(wa2080), rec['rhyp']) + 0.18) # added 0.18 as mean H-V correction - see hv_ratio.png in dropbox
+                        m92_2080 = calc_MLM92(0, log10(wa2080), rec['rhyp'])
+                        mlm92_2080.append(m92_2080)
                         
                         evstas.append(rec['sta'])
+                        
+                        stacsv += ','.join((str(event), rec['sta'], str('%0.1f' % rec['rhyp']), \
+                                            str('%0.2f' % m92_2800), str('%0.2f' % m92_2080), \
+                                            str('%0.2f' % mw))) + '\n'
 
-    if len(bj84_2800) >= 3:
+    if len(mlm92_2080) >= 3:
         ml_2800 = trim_mean(array(mlm92_2800), 0.1)
         ml_2080 = trim_mean(array(mlm92_2080), 0.1)
     else:
@@ -251,6 +259,12 @@ for ev in events_dict:
 f = open('ml_mw_stats.csv', 'w')
 f.write(magcsv)
 f.close()
+
+# write to file
+f = open('ml_sta_stats.csv', 'w')
+f.write(stacsv)
+f.close()
+
 
 # now show figs 
 plt.savefig('ml_vs_mw_brune.png', fmt='png', dpi=300, bbox_inches='tight')       

@@ -15,6 +15,8 @@ plt.rcParams['pdf.fonttype'] = 42
 import warnings
 warnings.filterwarnings("ignore")
 
+fidx = 75
+#fidx = 20
 ###############################################################################
 # load datasets 
 ###############################################################################
@@ -35,8 +37,6 @@ for i, rec in enumerate(recs):
 
 # load atten coeffs
 coeffs = pickle.load(open('atten_coeffs.pkl', 'rb' ))
-
-fidx = 27
 
 c = coeffs[fidx]
 print("Coeffs Freq = " +str('%0.3f' % c['freq']))
@@ -83,22 +83,24 @@ for i, rec in enumerate(recs):
             magterm = c['magc0'] * rec['mag'] + c['magc1']
             
             # get distance term
+            # get distance term
             D1 = sqrt(rec['rhyp']**2 + c['nref']**2)
             if rec['rhyp'] <= c['r1']:
-                distterm = c['nc0s'] * log10(D1) + c['nc1s']
+                distterm = c['nc0s'] * log10(D1) #+ c['nc1s']
             
             # set mid-field
             elif rec['rhyp'] > c['r1'] and rec['rhyp'] <= c['r2']:
                 D1 = sqrt(c['r1']**2 + c['nref']**2)
-                distterm = c['nc0s'] * log10(D1) + c['nc1s'] \
-                           + c['mc0'] * log10(rec['rhyp'] / c['r1']) + c['mc1'] * (rec['rhyp'] - c['r1'])
+                distterm = c['nc0s'] * log10(D1) \
+                           + c['mc0t'] * log10(rec['rhyp'] / c['r1']) + c['mc1s'] * (rec['rhyp'] - c['r1'])
             
             # set far-field
             elif rec['rhyp'] > c['r2']:
                 D1 = sqrt(c['r1']**2 + c['nref']**2)
-                distterm = c['nc0s'] * log10(D1) + c['nc1s'] \
-                           + c['mc0'] * log10(c['r2'] / c['r1']) + c['mc1'] * (c['r2'] - c['r1']) \
-                           + c['fc0'] * log10(rec['rhyp'] / c['r2']) + c['fc1'] * (rec['rhyp'] - c['r2'])
+                distterm = c['nc0s'] * log10(D1) \
+                           + c['mc0t'] * log10(c['r2'] / c['r1']) + c['mc1s'] * (c['r2'] - c['r1']) \
+                           + c['fc0'] * log10(rec['rhyp'] / c['r2']) + c['fc1'] * (rec['rhyp'] - c['r2']) \
+                           + c['fc2'] * (log10(rec['rhyp']) - log10(c['r2']))
              
             # get total correction
             ypred = magterm + distterm
@@ -119,8 +121,8 @@ for i, rec in enumerate(recs):
 fig = plt.figure(1, figsize=(18,5))
 
 plt.semilogx(rhyps, yres, '+', c='0.5')
-plt.semilogx([10, 2000], [0, 0], 'k--')
-plt.xlim([20, 2000])
+plt.semilogx([5, 2200], [0, 0], 'k--')
+plt.xlim([5, 2200])
 plt.ylim([-3, 3])
 
 plt.show()
@@ -128,7 +130,7 @@ plt.show()
 ###############################################################################
 # get stns res
 ###############################################################################
-dateRng = [UTCDateTime(1989,12,1).datetime, UTCDateTime(2023,2,1).datetime]
+dateRng = [UTCDateTime(1989,12,1).datetime, UTCDateTime(2024,6,30).datetime]
 fig = plt.figure(1, figsize=(19,11))
 i = 1
 ii = 1
@@ -152,6 +154,7 @@ for sta in stations:
         plt.plot(staDate, staRes, 'r+', lw=1)
         plt.plot(dateRng, [0, 0], 'k--', lw=0.75)
         plt.ylim([-2, 2])
+        plt.xlim(dateRng)
         plt.title(sta)
         
         # now plot instrument changes

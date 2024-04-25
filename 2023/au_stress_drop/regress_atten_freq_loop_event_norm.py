@@ -148,6 +148,10 @@ def normalise_data(p, recs, sn_ratio, events):
                         # filer by sample-rate
                         if rec[channel]['freqs'][fidx[p]] > 0.45 * rec[channel]['sample_rate']:
                             addData = False
+                        
+                        # ignore dodgy CMSA data
+                        if rec['sta'] == 'CMSA' and rec[channel]['freqs'][fidx[p]] < 0.5:
+                            addData = False
                             
                         if rec[channel]['sn_ratio'][fidx[p]] >= sn_ratio and addData == True:
                             mrhyps.append(rec['rhyp'])
@@ -602,7 +606,7 @@ for i, mt in enumerate(magTypes):
         # now fix ML
         mags[i] = nsha18_ml2mw(mags[i])
 
-mrng = arange(3.7, 6.9, 0.1)
+mrng = arange(3.5, 6.9, 0.1)
 minDist = 10**0.5
 maxDist = 2000
 #maxDist = 1300
@@ -618,6 +622,7 @@ freqs = rec[chan]['freqs']
 
 if pltTrue == 'False':
     fidx=arange(0,len(freqs),1) # for regressing all coeffs
+    fidx = fidx[::3]
     pltTrue = False
 
 else:
@@ -783,10 +788,15 @@ smooth_mc0 = savitzky_golay(mc0_array[idx], sg_window, sg_poly) # mid-slope
 interp_mc0 = interp(freqs[fidx], freqs[fidx][idx], smooth_mc0)
 
 # now fit with trilinear
+'''
 if pltTrue == False:
     trilin_mc0 = fit_smoothed_mc0(freqs, interp_mc0)
 else:
     trilin_mc0 = interp_mc0
+'''    
+# fit with linear
+reg1 = linregress(log10(freqs[fidx]), interp_mc0)
+trilin_mc0 = reg1.intercept + reg1.slope*log10(freqs) # subbing from above
 
 # set to coeffs
 for i, c in enumerate(coeffs):
@@ -834,13 +844,15 @@ for p, freq in enumerate(freqs[fidx]):
 # smooth mc1 and re-fit for n1  
 ###############################################################################
 
-
 mc1_array = array(mc1_array)
 idx = where(mc0_array <= 0.000)[0]
 smooth_mc1 = savitzky_golay(mc1_array[idx], sg_window, sg_poly) # mid-slope
 
 #interpolate to missing frequencies
 interp_mc1 = interp(freqs[fidx], freqs[fidx][idx], smooth_mc1)
+
+
+#set quadlin mc1 here
 
 # set to coeffs
 for i, c in enumerate(coeffs):
@@ -959,17 +971,14 @@ for p, freq in enumerate(freqs[fidx]):
         return ans
         
     fc = fit_far_field_atten(plt, mc, norm_rhyps, log_norm_amps, n0, n1, r1, r2, r3, freq)
+    
     #print(fc)
-    
-    '''
-    
-    '''
     
     ###############################################################################
     # fit mag intercept - mag scaling only needs to be rough as is for testing 
     # instrument response
     ###############################################################################
-    
+    '''
     #fig = plt.figure(2, figsize=(10,10))
     def fit_mag_intercept(c, x):
         from numpy import sqrt, log10
@@ -993,27 +1002,26 @@ for p, freq in enumerate(freqs[fidx]):
                    + c[0] * log10(10**x[idx] / r2) + c[1] * (10**x[idx] - r2)
         
         return ans
-    
-    # get residual
+    '''
+    # get residual for mag regression
     D1 = sqrt(norm_rhyps**2 + nref**2)
-    predamps = n0 * log10(D1) + n1
+    distterm = n0 * log10(D1)
     
     # set mid-field
     idx = where((norm_rhyps > r1) & (norm_rhyps <= r2))[0]
     D1 = sqrt(r1**2 + nref**2)
-    predamps[idx] = n0 * log10(D1) + n1 + mc[0] * log10(norm_rhyps[idx] / r1) \
-                    + mc[1] * (norm_rhyps[idx] - r1)
+    distterm[idx] = n0 * log10(D1) \
+                    + mc0_fix * log10(norm_rhyps[idx] / r1) + mc1_fix * (norm_rhyps[idx] - r1)
     
     # set far-field
     idx = where(norm_rhyps > r2)[0]
-    predamps[idx] = n0 * log10(D1) + n1 \
-                    + mc[0] * log10(r2 / r1) + mc[1] * (r2 - r1) \
+    distterm[idx] = n0 * log10(D1) \
+                    + mc0_fix * log10(r2 / r1) + mc1_fix * (r2 - r1) \
                     + fc[0] * log10(norm_rhyps[idx] / r2) + fc[1] * (norm_rhyps[idx] - r2)
-    
+        
     # get residuals
-    logres = logamps - predamps
-    
-    
+    logres = logamps - distterm
+        
     if pltTrue == True:
         fig = plt.figure(2, figsize=(18,11))
         plt.subplot(3,4,p+1)
@@ -1027,7 +1035,6 @@ for p, freq in enumerate(freqs[fidx]):
     # fit mag linear
     magc = polyfit(medx, logmedamp, 1)
     
-    
     if pltTrue == True:
         plt.plot(medx, logmedamp, 'rs', ms=6.5)
 
@@ -1035,6 +1042,43 @@ for p, freq in enumerate(freqs[fidx]):
     if pltTrue == True:
         yrng = magc[0] * mrng + magc[1]
         plt.plot(mrng, yrng, 'k-', lw=2)
+
+    
+    # get mag term
+    magterm = magc[0] * mags + magc[1]
+    
+    # get total prediction
+    ypred = magterm + distterm
+    
+    # get mag & dist corrected residual
+    yres = logamps - ypred
+    
+    # get final far-field fix 
+    bins = arange(log10(1), log10(2200), 0.1)
+    logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(norm_rhyps), yres)
+ 
+    # fit 100 km+
+    def correct_far_field(c, x):
+        from numpy import sqrt, log10
+
+        log_cor_dist = log10(r2)
+
+        ans = c[0] * (x - log_cor_dist)
+
+        return ans
+    
+    # get data > r2 and < 1500 km
+    idx = where((10**medx >= r2) & (10**medx <= 1500))[0]
+    data = odrpack.RealData(medx[idx], logmedamp[idx])
+
+    # fit all as free params
+    afit = odrpack.Model(correct_far_field)
+    odr = odrpack.ODR(data, afit, beta0=[0.0])
+
+    odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
+    out = odr.run()
+    ffc = out.beta
+    
     
     ###############################################################################
     # make coeffs dict
@@ -1045,6 +1089,7 @@ for p, freq in enumerate(freqs[fidx]):
     #coeffs[p]['mc1'] = mc[1]
     coeffs[p]['fc0'] = fc[0]
     coeffs[p]['fc1'] = fc[1]
+    coeffs[p]['fc2'] = ffc[0] # ff correction
     coeffs[p]['magc0'] = magc[0]
     coeffs[p]['magc1'] = magc[1]
     coeffs[p]['freq'] = freq
@@ -1065,16 +1110,6 @@ if pltTrue == True:
 coeff_f = dictlist2array(coeffs, 'freq')
 idx = where(coeff_f <= 0.1)[0]
 
-'''
-fidx = idx[-1]
-for i in range(0, len(coeffs)):
-    if coeffs[i]['freq'] < coeff_f[fidx]:
-        coeffs[i]['nc1s'] = coeffs[fidx]['nc1s']
-        coeffs[i]['mc0'] = coeffs[fidx]['mc0']
-        coeffs[i]['mc1'] = coeffs[fidx]['mc1']
-        coeffs[i]['fc0'] = coeffs[fidx]['fc0']
-        coeffs[i]['fc1'] = coeffs[fidx]['fc1']
-'''        
 
 ###############################################################################
 # write params

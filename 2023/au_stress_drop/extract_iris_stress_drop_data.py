@@ -23,7 +23,7 @@ from obspy import UTCDateTime
 #gadat = parse_ga_event_query('earthquakes_export_2012-16_250.edit.csv')
 recent_csv = 'au_ge_4.4_earthquakes_export_edit.csv'
 #recent_csv = 'au_ge_4.4_earthquakes_export_recent.csv'
-#recent_csv = 'au_ge_4.4_earthquakes_export_bboo.csv'
+#recent_csv = 'au_ge_4.4_earthquakes_export_bboo.csv'	
 gadat = parse_ga_event_query(recent_csv)
 
 ##############################################################################
@@ -57,13 +57,13 @@ else:
 ##############################################################################
 
 networks = ['AU', 'S1', 'IU', 'II', 'G', '2O', 'M8']
-networks = ['M8']
-
+networks = ['AU']
+#networks = ['S1', 'IU', 'II', 'G', '2O', 'M8']
 
 for network in networks:
     if network == 'AU':
         iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AU/gmap-stations-noarray.txt')
-        #iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AU/gmap-stations-noarray-stopdate.txt')
+        iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AU/as17-gmap-stations.txt')
     elif network == 'S1':
         iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/S1/s1-gmap-stations.txt')
     elif network == 'IU':
@@ -81,7 +81,7 @@ for network in networks:
 ##############################################################################
     for ev in gadat: #[40:]:
         mindist = 0
-        if network == 'S1':
+        if network == 'S1' or network == 'M8':
             maxdist = 800
             #maxdist = 750
         else:

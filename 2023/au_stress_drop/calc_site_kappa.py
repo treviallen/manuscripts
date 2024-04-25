@@ -33,20 +33,21 @@ def correct_atten(rec, coeffs):
         # get geometric spreading
         D1 = sqrt(rec['rhyp']**2 + c['nref']**2)
         if rec['rhyp'] <= c['r1']:
-            distterm = c['nc0s'] * log10(rec['rhyp']) #+ c['nc1s']
+            distterm = c['nc0s'] * log10(D1) #+ c['nc1s']
         
         # set mid-field
         elif rec['rhyp'] > c['r1'] and rec['rhyp'] <= c['r2']:
             D1 = sqrt(c['r1']**2 + c['nref']**2)
             distterm = c['nc0s'] * log10(D1) \
-                       + c['mc0s'] * log10(rec['rhyp'] / c['r1']) + c['mc1'] * (rec['rhyp'] - c['r1'])
+                       + c['mc0t'] * log10(rec['rhyp'] / c['r1']) + c['mc1s'] * (rec['rhyp'] - c['r1'])
         
         # set far-field
         elif rec['rhyp'] > c['r2']:
             D1 = sqrt(c['r1']**2 + c['nref']**2)
             distterm = c['nc0s'] * log10(D1) \
-                       + c['mc0s'] * log10(c['r2'] / c['r1']) + c['mc1'] * (c['r2'] - c['r1']) \
-                       + c['fc0'] * log10(rec['rhyp'] / c['r2']) + c['fc1'] * (rec['rhyp'] - c['r2'])
+                       + c['mc0t'] * log10(c['r2'] / c['r1']) + c['mc1s'] * (c['r2'] - c['r1']) \
+                       + c['fc0'] * log10(rec['rhyp'] / c['r2']) + c['fc1'] * (rec['rhyp'] - c['r2']) \
+                       + c['fc2'] * (log10(rec['rhyp']) - log10(c['r2']))
         
         distterms.append(distterm)
     
@@ -61,12 +62,12 @@ def correct_atten(rec, coeffs):
             
     return cor_fds, cor_fds_nan, freqs
  
-def regress_kappa(freqs, mean_fas, maxf):
+def regress_kappa(freqs, mean_fas, max_reg_f):
     from numpy import log, isnan, nan, pi
     from scipy.stats import linregress
     
     # regress record kappa
-    ridx = where((freqs >= 5.) & (freqs <= maxf) & (isnan(mean_fas) == False))[0] # assume 5Hz past corner
+    ridx = where((freqs >= 4.) & (freqs <= max_reg_f) & (isnan(mean_fas) == False))[0] # assume 5Hz past corner
     if len(ridx) <= 5: # need at least 5 data points
         lamda = nan
         kappa = nan
@@ -106,7 +107,7 @@ minmag = 3.8
 minf = 12
 maxf = 22
 '''
-
+max_reg_f = 12.
 ###############################################################################
 # load pickle 
 ###############################################################################
@@ -162,7 +163,7 @@ i = 1
 ii = 1
 for sta in stations:
     cnt = 0
-    maxf = 12.
+    max_reg_f = 14.
             
     ax = plt.subplot(3,3,i)
     
@@ -187,13 +188,32 @@ for sta in stations:
             cor_fas = 2 * pi * freqs * cor_fds
             cor_fas_nan = cor_fds_nan * (2 * pi * freqs)**2
             
+            # remove low sample-rate data
+            channel = rec['channels'][0]
+            maxf = 0.4 * rec[channel]['sample_rate']
+            idx = where(freqs > maxf)[0]
+            cor_fas[idx] = nan
+            cor_fas_nan[idx] = nan
+            
+            # some specific site fixes
+            if rec['sta'] == 'TV1H' or rec['sta'] == 'SYDH' or rec['sta'] == 'SYDS' or rec['sta'] == 'PTPS' \
+               or rec['sta'] == 'PHB' or rec['sta'] == 'NTLH' or rec['sta'] == 'MTKN' or rec['sta'] == 'WHY' \
+               or rec['sta'] == 'GD1S' or rec['sta'] == 'CORO' or rec['sta'] == 'CN1H' or rec['sta'] == 'CN2S' \
+               or rec['sta'] == 'BW1H' or rec['sta'] == 'BW2S' or rec['sta'] == 'AUMAR' or rec['sta'] == 'AUKHS' \
+               or rec['sta'] == 'AULRC' or rec['sta'] == 'AUJCS' or rec['sta'] == 'AUMAR' or rec['sta'] == 'AUKHS':
+                maxf = 0.4 * 20.
+                idx = where(freqs > maxf)[0]
+                cor_fas[idx] = nan
+                cor_fas_nan[idx] = nan
+            
             # normalise at 6.3 Hz
-            if isnan(cor_fas_nan[72]):
+            fidx = 75
+            if isnan(cor_fas_nan[fidx]):
                 norm_fas = zeros_like(cor_fas_nan) * nan
             else:
-                norm_fas = cor_fas_nan / cor_fas_nan[72]
+                norm_fas = cor_fas_nan / cor_fas_nan[fidx]
                 
-            norm_fas_show = cor_fas / cor_fas[72] # for data that does not meet S/N thresh
+            norm_fas_show = cor_fas / cor_fas[fidx] # for data that does not meet S/N thresh
                 
             # stack
             if log_stack_logfas == []:
@@ -210,10 +230,7 @@ for sta in stations:
             if isinstance(norm_fas, ndarray):
                 cnt += 1
                 
-            # get max regression freq
-            channel = rec['channels'][0]
-            if 0.4 * rec[channel]['sample_rate'] < maxf:
-                maxf = 0.4 * rec[channel]['sample_rate']
+            
     
     # get mean spectra
     mean_fas = exp(nanmean(log_stack_logfas, axis=0))
@@ -232,7 +249,7 @@ for sta in stations:
     nidx = where(isnan(mean_fas) == False)[0]
     # calculate kappa
     if len(nidx) >= 5:
-        kappa, kappa_intercept, ridx = regress_kappa(freqs, mean_fas, maxf)
+        kappa, kappa_intercept, ridx = regress_kappa(freqs, mean_fas, max_reg_f)
         kappa_txt += ','.join((sta, str('%0.6f' % kappa), str(cnt))) + '\n'
         kappa_list.append(kappa)
         print('kappa = ' + str('%0.4f' % kappa))

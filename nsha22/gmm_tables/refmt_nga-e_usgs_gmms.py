@@ -9,7 +9,7 @@ from nga_east_amplification_2020 import nga_east_siteamp
 vsAdjust = True # adjust from 3000 - vs30
 weightTab = True # output weighted tables
 altSigma = False # do TA alternative sigma - see ngae_working/ngae_test_sigma.png
-targetVS = 1100
+targetVS = 115
 
 
 '''

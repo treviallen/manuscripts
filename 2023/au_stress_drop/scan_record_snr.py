@@ -165,7 +165,7 @@ def plt_trace(tr, plt, ax, reftime):
     elif rngkm < 20.:
         plt.xlim([pTravelTime-10, pTravelTime+60])
     elif rngkm >= 20. and rngkm < 100.:
-        plt.xlim([pTravelTime-20, pTravelTime+150])
+        plt.xlim([pTravelTime-40, pTravelTime+150])
     elif rngkm >= 100. and rngkm < 200:
         plt.xlim([pTravelTime-20, pTravelTime+250])
     elif rngkm >= 200. and rngkm < 400:
@@ -260,11 +260,18 @@ for mseedfile in mseedfiles:
         evFound = False
         if cannotMerge == False:
             for evnum, ev in enumerate(evdict): 
+                """
                 if ev['datetime'] > UTCDateTime(2019,7,14,5,38) and ev['datetime'] < UTCDateTime(2019,7,14,5,40):
                     print('Broome')
                     toff = 2500
+                    '''
+                    elif ev['datetime'] > UTCDateTime(2019,7,14,5,54) and ev['datetime'] < UTCDateTime(2019,7,14,5,56):
+                        print('Broome AS')
+                        toff = 3360
+                    '''
                 else:
-                    toff = 601
+                """
+                toff = 601
             
             for evnum, ev in enumerate(evdict):         
                 if st[0].stats.starttime > UTCDateTime(ev['datetime']-timedelta(seconds=toff)) \
@@ -355,11 +362,13 @@ for mseedfile in mseedfiles:
                     f.close()
                     
             else:
+                if st[0].stats.network == 'M8':
+                    print(rngkm)
                 print('    R > 2500 km')    
             
         elif evFound == False:
-           print('Cannot associate event for:', mseedfile)
-           print(st[0])
+           print('Cannot fassociate event for:', mseedfile)
+           #print(st[0])
            #remove(path.join('mseed_dump', mseedfile))
            
         m += 1

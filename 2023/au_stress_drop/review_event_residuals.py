@@ -15,6 +15,7 @@ plt.rcParams['pdf.fonttype'] = 42
 import warnings
 warnings.filterwarnings("ignore")
 
+fidx = 75
 ###############################################################################
 # load pickle 
 ###############################################################################
@@ -35,7 +36,7 @@ for i, rec in enumerate(recs):
 
 # load atten coeffs
 coeffs = pickle.load(open('atten_coeffs.pkl', 'rb' ))
-c = coeffs[38]
+c = coeffs[fidx]
 print("Coeffs Freq = " +str('%0.3f' % c['freq']))
 
 ###############################################################################
@@ -53,7 +54,7 @@ stalist = stationlist2dict()
 stalist_start = dictlist2array(stalist, 'start')
 stalist_sta = dictlist2array(stalist, 'sta')
 
-fidx = 38
+#fidx = 75
 chan = recs[0]['channels'][0]
 freq = recs[0][chan]['freqs'][fidx]
 print("Reg Freq = " +str('%0.3f' % freq))
@@ -86,15 +87,16 @@ for i, rec in enumerate(recs):
             # set mid-field
             elif rec['rhyp'] > c['r1'] and rec['rhyp'] <= c['r2']:
                 D1 = sqrt(c['r1']**2 + c['nref']**2)
-                distterm = c['nc0s'] * log10(D1)  \
-                           + c['mc0'] * log10(rec['rhyp'] / c['r1']) + c['mc1'] * (rec['rhyp'] - c['r1'])
+                distterm = c['nc0s'] * log10(D1) \
+                           + c['mc0t'] * log10(rec['rhyp'] / c['r1']) + c['mc1s'] * (rec['rhyp'] - c['r1'])
             
             # set far-field
             elif rec['rhyp'] > c['r2']:
                 D1 = sqrt(c['r1']**2 + c['nref']**2)
                 distterm = c['nc0s'] * log10(D1) \
-                           + c['mc0'] * log10(c['r2'] / c['r1']) + c['mc1'] * (c['r2'] - c['r1']) \
-                           + c['fc0'] * log10(rec['rhyp'] / c['r2']) + c['fc1'] * (rec['rhyp'] - c['r2'])
+                           + c['mc0t'] * log10(c['r2'] / c['r1']) + c['mc1s'] * (c['r2'] - c['r1']) \
+                           + c['fc0'] * log10(rec['rhyp'] / c['r2']) + c['fc1'] * (rec['rhyp'] - c['r2']) \
+                           + c['fc2'] * (log10(rec['rhyp']) - log10(c['r2']))
             
             # get mag correctio
             ypred = magterm + distterm

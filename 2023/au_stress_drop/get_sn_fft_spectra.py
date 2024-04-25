@@ -1,6 +1,6 @@
 from obspy import read, UTCDateTime
 from spectral_analysis import calc_fft, prep_psa_simple, calc_response_spectra, get_cor_velocity
-from data_fmt_tools import remove_low_sample_data, return_sta_data, remove_acceleration_data
+from data_fmt_tools import remove_low_sample_data, return_sta_data, remove_acceleration_data, fix_stream_channels_bb2sp
 from response import get_response_info, paz_response, deconvolve_instrument
 from misc_tools import listdir_extension, savitzky_golay
 from mapping_tools import distance
@@ -127,7 +127,8 @@ def response_corrected_fft(tr, pickDat):
         use_stationlist = True                       
     elif tr.stats.network == '5J':
         use_stationlist = True       
-    elif tr.stats.station == 'AS32' or tr.stats.station == 'ARPS' or tr.stats.station == 'ARPS' or tr.stats.network == 'MEL': 
+    elif tr.stats.station == 'AS32' or tr.stats.station == 'ARPS' or tr.stats.station == 'ARPS' \
+         or tr.stats.network == 'MEL' or tr.stats.network == 'OZ': 
         use_stationlist = True
     #print('use_stationlist', use_stationlist) 
        
@@ -135,9 +136,26 @@ def response_corrected_fft(tr, pickDat):
         #recdate = datetime.strptime(ev['timestr'], "%Y-%m-%dT%H:%M:%S.%fZ")
         recdate = pickDat['origintime']
         #print(seedid, channel)
+        #print(tr.stats.station, recdate.datetime, tr.stats.channel, tr.stats.network)        
         nat_freq, inst_ty, damping, sen, recsen, gain, pazfile, stlo, stla, netid \
               = get_response_info(tr.stats.station, recdate.datetime, tr.stats.channel, tr.stats.network)
         
+        # change channel to EHZ - bit of a kluge     
+        if pazfile == 'NULL' and netid == 'OZ' and tr.stats.channel == 'HHZ':
+            #fix_stream_channels_bb2sp('iris_dump/'+mseedfile)
+            print('    Changing channel code ...')
+            nat_freq, inst_ty, damping, sen, recsen, gain, pazfile, stlo, stla, netid \
+                 = get_response_info(tr.stats.station, recdate.datetime, 'EHZ', tr.stats.network)
+         
+        if pazfile == 'NULL' and tr.stats.network == '':
+            nat_freq, inst_ty, damping, sen, recsen, gain, pazfile, stlo, stla, netid \
+              = get_response_info(tr.stats.station, recdate.datetime, tr.stats.channel, 'OZ')
+            
+        if tr.stats.network == '' or tr.stats.network == 'AB':
+            if pazfile == 'NULL':
+                nat_freq, inst_ty, damping, sen, recsen, gain, pazfile, stlo, stla, netid \
+                  = get_response_info(tr.stats.station, recdate.datetime, 'EHZ', 'OZ')
+          
         # get fft of trace
         freq, wavfft = calc_fft(tr.data, tr.stats.sampling_rate)
         mi = (len(freq)/2)
@@ -272,9 +290,27 @@ def retry_stationlist_fft(tr, pickDat):
     
     recdate = pickDat['origintime']
     
+    #print(tr.stats.station, recdate.datetime, tr.stats.channel, tr.stats.network)        
+    
     nat_freq, inst_ty, damping, sen, recsen, gain, pazfile, stlo, stla, netid \
           = get_response_info(tr.stats.station, recdate.datetime, tr.stats.channel, tr.stats.network)
     
+    # change channel to EHZ - bit of a kluge     
+    if pazfile == 'NULL' and netid == 'OZ' and tr.stats.channel == 'HHZ':
+        #fix_stream_channels_bb2sp('iris_dump/'+mseedfile)
+        print('    Changing channel code ...')
+        nat_freq, inst_ty, damping, sen, recsen, gain, pazfile, stlo, stla, netid \
+             = get_response_info(tr.stats.station, recdate.datetime, 'EHZ', tr.stats.network)
+     
+    if pazfile == 'NULL' and tr.stats.network == '':
+        nat_freq, inst_ty, damping, sen, recsen, gain, pazfile, stlo, stla, netid \
+          = get_response_info(tr.stats.station, recdate.datetime, tr.stats.channel, 'OZ')
+          
+    if tr.stats.network == '' or tr.stats.network == 'AB':
+            if pazfile == 'NULL':
+                nat_freq, inst_ty, damping, sen, recsen, gain, pazfile, stlo, stla, netid \
+                  = get_response_info(tr.stats.station, recdate.datetime, 'EHZ', 'OZ')
+          
     # get fft of trace
     freq, wavfft = calc_fft(tr.data, tr.stats.sampling_rate)
     mi = (len(freq)/2)
@@ -300,8 +336,13 @@ def retry_stationlist_fft(tr, pickDat):
 evdict = parse_ga_event_query('au_ge_4.4_earthquakes_export_edit.csv')
 
 def get_ev_deets(fft_datetime):
+    #print(fft_datetime)
+    #ev = UTCDateTime(2024,2,27,16,4,9)
+    #print(UTCDateTime(ev-timedelta(seconds=601)))
+    #print(UTCDateTime(ev+timedelta(seconds=300)))
     for evnum, ev in enumerate(evdict): 
-        #ev['datetime'] = UTCDateTime(2009,3,18,5,28,17)
+        #ev['datetime'] = UTCDateTime(2024,2,27,16,4,9)
+        
         if fft_datetime > UTCDateTime(ev['datetime']-timedelta(seconds=601)) \
            and fft_datetime < UTCDateTime(ev['datetime']+timedelta(seconds=300)):
             
@@ -309,6 +350,28 @@ def get_ev_deets(fft_datetime):
                         'eqla': ev['lat'], 'eqlo': ev['lon'], 'eqdep': ev['dep']}
                
     return evdat
+
+lines = open('brune_stats.csv').readlines()[1:]
+brunedat = []
+for line in lines:
+    dat = line.strip().split(',')
+    tmp = {'datetime':UTCDateTime(dat[0]), 'mw':float(dat[6]), 'qual':int(float(dat[-1]))}
+    
+    brunedat.append(tmp)
+    
+def get_brune_deets(fft_datetime):
+    bruneStats = {'qual':0}
+    for evnum, ev in enumerate(brunedat): 
+        #ev['datetime'] = UTCDateTime(2024,2,27,16,4,9)
+        
+        if fft_datetime > UTCDateTime(ev['datetime']-timedelta(seconds=601)) \
+           and fft_datetime < UTCDateTime(ev['datetime']+timedelta(seconds=300)):
+            
+               bruneStats = ev
+               
+               
+    return bruneStats
+
 
 
 ################################################################################
@@ -353,7 +416,8 @@ else:
     d1h_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/1H_EAL2_2010.dataless')
     d1k_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/1K_ALFREX_2013.dataless')
     d1p_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/1P_BASS_2011.dataless')
-    d1q_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/1Q_AQT_2016.dataless')
+    #d1q_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/1Q_AQT_2016.dataless')
+    d1q_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/1q-inventory.xml')
     d6f_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/6F_BILBY_2008.dataless')
     d7b_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/7B_SKIPPY_1993.dataless')
     d7d_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/7D_KIMBA97_1997.dataless')
@@ -373,7 +437,7 @@ else:
 # loop through pick files
 ################################################################################
 records = [] 
-f = 0 
+f = 0
 start_idx = 0
 #pickfiles = ['2023-01-05T05.08.AU.ONGER.picks']
 for p, pf in enumerate(pickfiles[start_idx:]):
@@ -383,7 +447,8 @@ for p, pf in enumerate(pickfiles[start_idx:]):
     
     pickDat = parse_pickfile(pf)
     
-    if isnan(pickDat['mag']) == False: # and pf == '1997-03-05T06.15.00.AD.WHY.picks':
+    if isnan(pickDat['mag']) == False:
+        #if pickDat['starttime'].year == 1999 or pickDat['starttime'].year == 2001: # and pf == '1997-03-05T06.15.00.AD.WHY.picks':
         
         channels = []
         if not pickDat['ch1'] == '':
@@ -635,8 +700,18 @@ for p, pf in enumerate(pickfiles[start_idx:]):
             recDat['sampling_rate'] = tr.stats.sampling_rate
             recDat['ev'] = pickDat['ev']
             evdat = get_ev_deets(UTCDateTime(pickDat['evdt']))
-            recDat['mag'] = evdat['mag']
-            recDat['magType'] = evdat['magtype']
+            bruneStats = get_brune_deets(UTCDateTime(pickDat['evdt']))
+            if bruneStats['qual'] == 1:
+                recDat['mag'] = bruneStats['mw']
+                recDat['magType'] = 'Mwb'
+                recDat['omag'] = evdat['mag']
+                recDat['oMagType'] = evdat['magtype']
+            else:
+                recDat['mag'] = evdat['mag']
+                recDat['magType'] = evdat['magtype']
+                recDat['omag'] = evdat['mag']
+                recDat['oMagType'] = evdat['magtype']
+                
             recDat['eqlo'] = evdat['eqlo']
             recDat['eqla'] = evdat['eqla']
             recDat['eqdp'] = evdat['eqdep']
