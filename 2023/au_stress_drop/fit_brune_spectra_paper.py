@@ -293,7 +293,7 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
     if qual == 1:
     	
         sp += 1
-        plt.subplot(3,3,sp)
+        plt.subplot(2,3,sp)
         log_stack_logfds = []
         handles1 = []
         labels1 = []
@@ -436,9 +436,9 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
             else:
                 plt.title('; '.join((str(event)[0:16], 'MW '+str('%0.2f' % mw), 'SD '+str('%0.2f' % sd)+' MPa')), fontsize=10, color='k')
             
-            if sp == 1 or sp == 4 or sp == 7:
+            if sp == 1 or sp == 3 or sp == 5:
                plt.ylabel('Fourier Displacement Spectra (m-s)')
-            if sp >= 7:
+            if sp >= 5:
                plt.xlabel('Frequency (Hz)')
             #plt.title(' - '.join((ev, 'M'+str('%0.2f' % mag), place)), fontsize=10)
         

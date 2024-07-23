@@ -6,7 +6,7 @@ import matplotlib as mpl
 from mpl_toolkits.basemap import Basemap
 from matplotlib.colors import LightSource, ListedColormap
 from numpy import arange, mean, percentile, array, unique, where, argsort, floor, sqrt, delete, argsort, log10
-#from netCDF4 import Dataset as NetCDFFile
+from netCDF4 import Dataset as NetCDFFile
 from gmt_tools import cpt2colormap, remove_last_cmap_colour, remove_first_cmap_colour
 from os import path, walk, system
 from shapely.geometry import Polygon, Point
@@ -55,7 +55,7 @@ m.drawmeridians(arange(0.,360.,6.), labels=[0,0,0,1], fontsize=13, dashes=[2, 2]
 ##########################################################################################
 # plot gebco
 ##########################################################################################
-"""
+
 print( 'Reading netCDF file...')
 try:
     nc = NetCDFFile('//Users//trev//Documents//DATA//GMT//GEBCO//au_indo_gebco_2020.nc')
@@ -98,7 +98,7 @@ norm = mpl.colors.Normalize(vmin=-2000/zscale, vmax=3500/zscale)#wiki
 
 rgb = ls.shade(topodat.data, cmap=cmap, norm=norm)
 im = m.imshow(rgb, alpha=1.0)
-"""
+
 ##########################################################################################
 # add domains
 ##########################################################################################
@@ -149,10 +149,10 @@ for c, utrt, label in zip(cs, utrts, labels):
                 xx, yy = m(x,y)
                 #print(edgecolor)
                 if labeLegend == True:
-                    plt.fill(xx,yy, facecolor=c, edgecolor='none', linewidth=0.75, alpha=0.1, label=label)
+                    plt.fill(xx,yy, facecolor=c, edgecolor='none', linewidth=0.75, alpha=0.2, label=label)
                     labeLegend = False
                 else:
-                    plt.fill(xx,yy, facecolor=c, edgecolor='none', linewidth=0.75, alpha=0.1) 
+                    plt.fill(xx,yy, facecolor=c, edgecolor='none', linewidth=0.75, alpha=0.2) 
 
 ##########################################################################################
 # plot faults
@@ -259,9 +259,9 @@ for line in lines:
     dat = line.strip().split(',')
     lons.append(float(dat[1]))
     lats.append(float(dat[2]))
-    mags.append(float(dat[6]))
+    mags.append(float(dat[7]))
     qual.append(float(dat[-1]))
-    stressdrops.append(float(dat[7]))
+    stressdrops.append(float(dat[8]))
 
 logstress = log10(array(stressdrops))
         

@@ -4,6 +4,7 @@ from numpy import unique, array, arange, log, log10, exp, mean, nanmean, nanmedi
 from misc_tools import get_binned_stats, dictlist2array, get_mpl2_colourlist
 #from js_codes import get_average_Q_list, extract_Q_freq
 from mag_tools import nsha18_mb2mw, nsha18_ml2mw
+from get_mag_dist_terms import get_distance_term
 from mapping_tools import distance
 from scipy.odr import Data, Model, ODR, models
 import scipy.odr.odrpack as odrpack
@@ -30,24 +31,7 @@ def correct_atten(rec, coeffs):
     # loop thru freqs
     distterms = []
     for c in coeffs:
-        # get geometric spreading
-        D1 = sqrt(rec['rhyp']**2 + c['nref']**2)
-        if rec['rhyp'] <= c['r1']:
-            distterm = c['nc0s'] * log10(D1) #+ c['nc1s']
-        
-        # set mid-field
-        elif rec['rhyp'] > c['r1'] and rec['rhyp'] <= c['r2']:
-            D1 = sqrt(c['r1']**2 + c['nref']**2)
-            distterm = c['nc0s'] * log10(D1) \
-                       + c['mc0t'] * log10(rec['rhyp'] / c['r1']) + c['mc1s'] * (rec['rhyp'] - c['r1'])
-        
-        # set far-field
-        elif rec['rhyp'] > c['r2']:
-            D1 = sqrt(c['r1']**2 + c['nref']**2)
-            distterm = c['nc0s'] * log10(D1) \
-                       + c['mc0t'] * log10(c['r2'] / c['r1']) + c['mc1s'] * (c['r2'] - c['r1']) \
-                       + c['fc0'] * log10(rec['rhyp'] / c['r2']) + c['fc1'] * (rec['rhyp'] - c['r2']) \
-                       + c['fc2'] * (log10(rec['rhyp']) - log10(c['r2']))
+        distterm = get_distance_term(rec['rhyp'], c)
         
         distterms.append(distterm)
     
@@ -158,6 +142,7 @@ for line in lines:
 
 kappa_txt = 'STA,KAPPA,CNT\n'
 kappa_list = []
+kappa_cnt = []
 
 i = 1
 ii = 1
@@ -200,7 +185,8 @@ for sta in stations:
                or rec['sta'] == 'PHB' or rec['sta'] == 'NTLH' or rec['sta'] == 'MTKN' or rec['sta'] == 'WHY' \
                or rec['sta'] == 'GD1S' or rec['sta'] == 'CORO' or rec['sta'] == 'CN1H' or rec['sta'] == 'CN2S' \
                or rec['sta'] == 'BW1H' or rec['sta'] == 'BW2S' or rec['sta'] == 'AUMAR' or rec['sta'] == 'AUKHS' \
-               or rec['sta'] == 'AULRC' or rec['sta'] == 'AUJCS' or rec['sta'] == 'AUMAR' or rec['sta'] == 'AUKHS':
+               or rec['sta'] == 'AULRC' or rec['sta'] == 'AUJCS' or rec['sta'] == 'AUMAR' or rec['sta'] == 'AUKHS' \
+               or rec['sta'] == 'MILA':
                 maxf = 0.4 * 20.
                 idx = where(freqs > maxf)[0]
                 cor_fas[idx] = nan
@@ -252,6 +238,7 @@ for sta in stations:
         kappa, kappa_intercept, ridx = regress_kappa(freqs, mean_fas, max_reg_f)
         kappa_txt += ','.join((sta, str('%0.6f' % kappa), str(cnt))) + '\n'
         kappa_list.append(kappa)
+        kappa_cnt.append(cnt)
         print('kappa = ' + str('%0.4f' % kappa))
         
         # plot kappa
@@ -284,3 +271,21 @@ kappa_txt += ','.join(('MEDIAN_SITE', str('%0.6f' % mean_kappa), 'nan')) + '\n'
 f = open('site_kappa.csv', 'w')
 f.write(kappa_txt)
 f.close()
+
+###############################################################################
+# now plot histogram
+kappa_list = array(kappa_list)
+kappa_cnt = array(kappa_cnt)
+idx = kappa_cnt >= 3
+mean_kappa_trim = nanmedian(kappa_list[idx])
+
+fig = plt.figure(100, figsize=(7,7))
+bins = arange(-0.145,0.14,0.01)
+plt.hist(array(kappa_list[idx]), bins, color='0.8', ec='k')
+plt.ylim([0,25])
+plt.xlabel(r"$\kappa_0$", fontsize=18)
+plt.ylabel('Count', fontsize=16)
+medtxt = 'Median = ' +str('%0.4f' % mean_kappa_trim)
+plt.text(-0.14, 24.5, medtxt, fontsize=14, va='top')
+plt.savefig('kappa_hist.png',fmt='png', dpi=300, bbox_inches='tight')
+plt.show()

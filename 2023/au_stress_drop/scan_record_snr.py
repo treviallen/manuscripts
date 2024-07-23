@@ -288,6 +288,8 @@ for mseedfile in mseedfiles:
             print('Getting picks for', mseedfile)
             
             sta_data = return_sta_data(st[0].stats.station)
+            print(sta_data)
+            print(eqla, eqlo)
             rngkm, azim, baz = distance(eqla, eqlo, sta_data['stla'], sta_data['stlo'])
             rngdeg = km2deg(rngkm)
             

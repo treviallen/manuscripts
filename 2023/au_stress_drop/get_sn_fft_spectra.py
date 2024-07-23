@@ -346,8 +346,8 @@ def get_ev_deets(fft_datetime):
         if fft_datetime > UTCDateTime(ev['datetime']-timedelta(seconds=601)) \
            and fft_datetime < UTCDateTime(ev['datetime']+timedelta(seconds=300)):
             
-               evdat = {'mag': ev['mag'], 'magtype': ev['magType'], 'place': ev['description'],
-                        'eqla': ev['lat'], 'eqlo': ev['lon'], 'eqdep': ev['dep']}
+               evdat = {'mag': ev['mag'], 'magtype': ev['magType'], 'mb': ev['mag_mb'], 'place': ev['description'],
+                        'eqla': ev['lat'], 'eqlo': ev['lon'], 'eqdep': ev['dep'], 'gaid': ev['event_id']}
                
     return evdat
 
@@ -416,8 +416,8 @@ else:
     d1h_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/1H_EAL2_2010.dataless')
     d1k_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/1K_ALFREX_2013.dataless')
     d1p_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/1P_BASS_2011.dataless')
-    #d1q_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/1Q_AQT_2016.dataless')
-    d1q_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/1q-inventory.xml')
+    d1q_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/1Q_AQT_2016.dataless')
+    #d1q_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/1q-inventory.xml')
     d6f_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/6F_BILBY_2008.dataless')
     d7b_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/7B_SKIPPY_1993.dataless')
     d7d_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/7D_KIMBA97_1997.dataless')
@@ -448,7 +448,7 @@ for p, pf in enumerate(pickfiles[start_idx:]):
     pickDat = parse_pickfile(pf)
     
     if isnan(pickDat['mag']) == False:
-        #if pickDat['starttime'].year == 1999 or pickDat['starttime'].year == 2001: # and pf == '1997-03-05T06.15.00.AD.WHY.picks':
+        #if pickDat['starttime'].year == 2007 and pickDat['starttime'].month == 9: # or pickDat['starttime'].year == 2001: # and pf == '1997-03-05T06.15.00.AD.WHY.picks':
         
         channels = []
         if not pickDat['ch1'] == '':
@@ -701,6 +701,7 @@ for p, pf in enumerate(pickfiles[start_idx:]):
             recDat['ev'] = pickDat['ev']
             evdat = get_ev_deets(UTCDateTime(pickDat['evdt']))
             bruneStats = get_brune_deets(UTCDateTime(pickDat['evdt']))
+            
             if bruneStats['qual'] == 1:
                 recDat['mag'] = bruneStats['mw']
                 recDat['magType'] = 'Mwb'
@@ -715,7 +716,9 @@ for p, pf in enumerate(pickfiles[start_idx:]):
             recDat['eqlo'] = evdat['eqlo']
             recDat['eqla'] = evdat['eqla']
             recDat['eqdp'] = evdat['eqdep']
+            recDat['mb'] = evdat['mb']
             recDat['place'] = evdat['place']
+            recDat['gaid'] = evdat['gaid']
             recDat['evdt'] = pickDat['evdt']
             
             # get sta data

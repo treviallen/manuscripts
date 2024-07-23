@@ -51,6 +51,8 @@ fcnt = zeros(len(rec[chan]['sn_ratio']))
 ignore_stas = open('sta_ignore.txt').readlines()
 ignore_stas = set([x.strip() for x in ignore_stas])
 
+mag = []
+rhyp = []
 for rec in recs:
     if not rec['sta'] in ignore_stas:
         # get chan details
@@ -61,6 +63,9 @@ for rec in recs:
                 
                 if snr >= 4.0:
                     fcnt[f] += 1
+                    
+                    mag.append(rec['mag'])
+                    rhyp.append(rec['rhyp'])
 
 print('N freqs = '+str(len(freqs)))
 print('Mn freq = '+str(freqs[0]))
@@ -91,5 +96,22 @@ ax.set_yticklabels(ylabels)
 #plt.legend(loc=2, numpoints=3)
 
 plt.savefig('freq_recs_gt_snr.png', fmt='png', dpi=300, bbox_inches='tight')
+
+plt.show()
+
+################################################################################
+# plot
+################################################################################
+fig = plt.figure(2, figsize=(9,8))
+ax = plt.subplot(111)
+plt.semilogx(rhyp, mag, 'r+', lw=0.5)
+plt.xlabel('Hypocentral Distance (km)', fontsize=18)
+plt.ylabel('Magnitude', fontsize=18)
+plt.grid(which='both')
+plt.xlim([1,2500])
+plt.ylim([3.4,6.5])
+#plt.legend(loc=2, numpoints=3)
+
+plt.savefig('data_mag_vs_dist.png', fmt='png', dpi=300, bbox_inches='tight')
 
 plt.show()

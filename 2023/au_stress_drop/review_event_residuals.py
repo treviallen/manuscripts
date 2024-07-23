@@ -3,6 +3,7 @@ from numpy import unique, array, arange, log, log10, exp, mean, nanmean, ndarray
                   nanmedian, hstack, pi, nan, isnan, interp, where, zeros_like, polyfit
 from misc_tools import get_binned_stats, dictlist2array, get_mpl2_colourlist
 from mag_tools import nsha18_mb2mw, nsha18_ml2mw
+from get_mag_dist_terms import get_distance_term, get_magnitude_term, get_kappa_term
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import matplotlib.dates as mdates
@@ -77,29 +78,16 @@ for i, rec in enumerate(recs):
             rhyps.append(rec['rhyp'])
             
             # get mag term
-            magterm = c['magc0'] * rec['mag'] + c['magc1']
+            magterm = get_magnitude_term(rec['mag'], c)
             
-            # get distance term
-            D1 = sqrt(rec['rhyp']**2 + c['nref']**2)
-            if rec['rhyp'] <= c['r1']:
-                distterm = c['nc0s'] * log10(D1) #+ c['nc1s']
+            # get dist term
+            distterm = get_distance_term(rec['rhyp'], c)
+             
+            #	get distance independent kappa
+            kapterm = get_kappa_term(rec['sta'], c['freq'])
             
-            # set mid-field
-            elif rec['rhyp'] > c['r1'] and rec['rhyp'] <= c['r2']:
-                D1 = sqrt(c['r1']**2 + c['nref']**2)
-                distterm = c['nc0s'] * log10(D1) \
-                           + c['mc0t'] * log10(rec['rhyp'] / c['r1']) + c['mc1s'] * (rec['rhyp'] - c['r1'])
-            
-            # set far-field
-            elif rec['rhyp'] > c['r2']:
-                D1 = sqrt(c['r1']**2 + c['nref']**2)
-                distterm = c['nc0s'] * log10(D1) \
-                           + c['mc0t'] * log10(c['r2'] / c['r1']) + c['mc1s'] * (c['r2'] - c['r1']) \
-                           + c['fc0'] * log10(rec['rhyp'] / c['r2']) + c['fc1'] * (rec['rhyp'] - c['r2']) \
-                           + c['fc2'] * (log10(rec['rhyp']) - log10(c['r2']))
-            
-            # get mag correctio
-            ypred = magterm + distterm
+            # get total correction
+            ypred = magterm + distterm + kapterm
             
             yobs = log10(rec[channel]['swave_spec'][fidx])
             yres.append(yobs - ypred)

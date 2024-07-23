@@ -1,6 +1,6 @@
 from obspy import read, UTCDateTime, Trace
 from spectral_analysis import calc_fft, prep_psa_simple, calc_response_spectra, get_cor_velocity
-from data_fmt_tools import remove_low_sample_data, return_sta_data, remove_acceleration_data
+from data_fmt_tools import remove_low_sample_data, return_sta_data, remove_acceleration_data, fix_stream_channels_bb2sp
 from response import get_response_info, paz_response, deconvolve_instrument
 from misc_tools import listdir_extension, savitzky_golay
 from io_catalogues import parse_ga_event_query
@@ -178,6 +178,22 @@ def response_corrected_fft(tr, pickDat):
         nat_freq, inst_ty, damping, sen, recsen, gain, pazfile, stlo, stla, netid \
               = get_response_info(tr.stats.station, recdate.datetime, tr.stats.channel, tr.stats.network)
         
+        # change channel to EHZ - bit of a kluge     
+        if pazfile == 'NULL' and netid == 'OZ' and tr.stats.channel == 'HHZ':
+            #fix_stream_channels_bb2sp('iris_dump/'+mseedfile)
+            print('    Changing channel code ...')
+            nat_freq, inst_ty, damping, sen, recsen, gain, pazfile, stlo, stla, netid \
+                 = get_response_info(tr.stats.station, recdate.datetime, 'EHZ', tr.stats.network)
+         
+        if pazfile == 'NULL' and tr.stats.network == '':
+            nat_freq, inst_ty, damping, sen, recsen, gain, pazfile, stlo, stla, netid \
+              = get_response_info(tr.stats.station, recdate.datetime, tr.stats.channel, 'OZ')
+            
+        if tr.stats.network == '' or tr.stats.network == 'AB':
+            if pazfile == 'NULL':
+                nat_freq, inst_ty, damping, sen, recsen, gain, pazfile, stlo, stla, netid \
+                  = get_response_info(tr.stats.station, recdate.datetime, 'EHZ', 'OZ')        
+        
         # get fft of trace
         freq, wavfft = calc_fft(tr.data, tr.stats.sampling_rate)
         mi = (len(freq)/2)
@@ -307,6 +323,22 @@ def retry_stationlist_fft(tr, pickDat):
     nat_freq, inst_ty, damping, sen, recsen, gain, pazfile, stlo, stla, netid \
           = get_response_info(tr.stats.station, recdate.datetime, tr.stats.channel, tr.stats.network)
     
+    # change channel to EHZ - bit of a kluge     
+    if pazfile == 'NULL' and netid == 'OZ' and tr.stats.channel == 'HHZ':
+        #fix_stream_channels_bb2sp('iris_dump/'+mseedfile)
+        print('    Changing channel code ...')
+        nat_freq, inst_ty, damping, sen, recsen, gain, pazfile, stlo, stla, netid \
+             = get_response_info(tr.stats.station, recdate.datetime, 'EHZ', tr.stats.network)
+     
+    if pazfile == 'NULL' and tr.stats.network == '':
+        nat_freq, inst_ty, damping, sen, recsen, gain, pazfile, stlo, stla, netid \
+          = get_response_info(tr.stats.station, recdate.datetime, tr.stats.channel, 'OZ')
+          
+    if tr.stats.network == '' or tr.stats.network == 'AB':
+            if pazfile == 'NULL':
+                nat_freq, inst_ty, damping, sen, recsen, gain, pazfile, stlo, stla, netid \
+                  = get_response_info(tr.stats.station, recdate.datetime, 'EHZ', 'OZ')
+                  
     # get fft of trace
     freq, wavfft = calc_fft(tr.data, tr.stats.sampling_rate)
     mi = (len(freq)/2)
