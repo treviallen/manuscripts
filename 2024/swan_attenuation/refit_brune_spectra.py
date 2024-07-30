@@ -253,13 +253,11 @@ def spectral_correction(sta, cor_fds, cor_fds_nan, spec_cor):
     # find station
     for sc in spec_cor:
         if sc['sta'] == sta:
-            print(cor_fds)
             cor_fds /= sc['sta_cor']
-            print(cor_fds)
             cor_fds_nan /= sc['sta_cor']
             
     return cor_fds, cor_fds_nan
-   
+
 ####################################################################################
 # set def params
 ####################################################################################

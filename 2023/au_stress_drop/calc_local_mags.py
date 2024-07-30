@@ -208,8 +208,8 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
         prefml_2080 = mlm92_2080
         magzone = 'EA'
     elif mzone[0] == 'WCA':
-        prefml_2800 = gg91_2800
-        prefml_2080 = gg91_2080
+        prefml_2800 = array(gg91_2800) + 0.13 # correct for V2H
+        prefml_2080 = array(gg91_2080) + 0.13 # correct for V2H
         magzone = 'WCA'
     elif mzone[0] == 'SA':
         prefml_2800 = gs86_2800

@@ -394,7 +394,7 @@ for mseedfile in mseedfiles:
             rngkm, azim, baz = distance(eqla, eqlo, sta_data['stla'], sta_data['stlo'])
             rngdeg = km2deg(rngkm)
             
-            if rngkm < 500. and eqla < -28. and eqlo < 125. and sta_data['sta'].startswith('NOR'):
+            if rngkm < 500. and eqla < -28. and eqlo < 125. and sta_data['sta'].startswith('NWAO'):
             
                 # get arrivals
                 if eqdp < 0:

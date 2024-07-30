@@ -47,17 +47,17 @@ if getcwd().startswith('/nas'):
     network = 'II'
     '''
 else:
-    '''
-    iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AU/gmap-stations-noarray.txt')
-    #iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AU/gmap-stations-gswa.txt')
-    network = 'AU'
     
+    #iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AU/gmap-stations-noarray.txt')
+    iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AU/au-gmap-stations-nwao.txt')
+    network = 'AU'
+    '''
     iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/S1/s1-gmap-stations.txt')
     network = 'S1'
-    '''
+    
     iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/IU/iu-gmap-stations-autrim.txt')
     network = 'IU'
-    '''
+    
     iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/II/ii-gmap-stations-autrim.txt')
     network = 'II'		
     
@@ -102,7 +102,7 @@ for ev in events: #[40:]:
         for isl in iris_sta_list:
             
             # check if station is open
-            if isl['starttime'] <= dt and isl['stoptime'] >= dt: # and dt.year >= 2016 and dt.year < 2017:
+            if isl['starttime'] <= dt and isl['stoptime'] >= dt and dt.year >= 2018 and dt.month > 9 and dt.day > 14:
                 
                 # check if in distance range
                 repi = distance(ev['lat'], ev['lon'], isl['lat'], isl['lon'])[0]

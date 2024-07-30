@@ -54,7 +54,7 @@ for sta in unique_stas:
     for event in events:
         for i, evsta in enumerate(event['stas']):
             if evsta in sta_set:
-               if event['qual'] > 0:
+               if event['qual'] == 1: # iqnore == 2
                    # get ratio and stack
                    rat = exp(event['sta_spectra'][i]) / event['fitted_spectra']
                    

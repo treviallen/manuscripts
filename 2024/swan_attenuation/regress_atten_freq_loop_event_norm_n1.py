@@ -346,199 +346,8 @@ def fit_mid_field_atten(plt, norm_rhyps, log_norm_amps, n0, n1, r1, r2, freq):
        plt.loglog(10**xrng_mf, 10**yrng_mf, 'g-', lw=2)
        
     return mcf
-"""    
-def refit_mid_field_atten(plt, norm_rhyps, log_norm_amps, n0, m0s, r1, r2, freq):
-    
-    log_norm_rhyps = log10(norm_rhyps)
-    
-    logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log_norm_rhyps, log_norm_amps)
-    
-    # fit all data - keep me!
-    didx = where((medx >= log10(r1)) & (medx < log10(r2)) & (isnan(medx) == False))[0]
-    data = odrpack.RealData(medx[didx], logmedamp[didx])
-    
-    # if few datapoints, use full dataset
-    #if len(didx) <= 2:
-    #didx = where((log_norm_rhyps >= log10(r1)) & (log_norm_rhyps < log10(r2)))[0] # & (nperbin > 2))[0] #log10(r1))[0]
-    #data = odrpack.RealData(log_norm_rhyps[didx], log_norm_amps[didx])
 
-    # fit all as free params
-    afit = odrpack.Model(refit_mid_field_mc0_fix)
-    odr = odrpack.ODR(data, afit, beta0=[-0.002, 0])
-    
-    odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
-    out = odr.run()
-    mcf = out.beta
-    mc = zeros(3)
-    print('mcf refit ',mcf)
-    
-    mc[0] = m0s # smoothed m0
-    mc[1] = mcf[0]
-    mc[2] = mcf[1]
-    
-    xtest=arange(r1,r2,1)
-    ytest = mc[0] * log10(xtest / r1) + mc[1] * (xtest - r1)
-    
-    mididx = int(floor(len(xtest)/2))
-    '''
-    # if conditions met, refit with log-linear 
-    if ytest[mididx] > ytest[0] or ytest[-1] > ytest[0] or ytest[1] > ytest[0] or ytest[mididx] < ytest[-1] or mc[1] > 0.0:
-       
-       print('refitting mid 2')
-       afit = odrpack.Model(refit_mid_field_first_mc0_fix)
-       odr = odrpack.ODR(data, afit, beta0=[0.2])
-       
-       odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
-       out = odr.run()
-       remc = out.beta
-       
-       mc[0] = m0s # smoothed m0
-       mc[1] = 0. # assume linear - set to zero
-       mc[2] = remc[0]
-    '''   
-    # recalculate n1
-    D1 = sqrt(r1**2 + nref**2)
-    
-    n1 = mc[0] * log10(r1 / r1) + mc[1] * (r1 - r1) + mc[2] - n0 * log10(D1)
-    
-    # plot
-    xrng_mf = arange(log10(r1), log10(r2), 0.02)
-    
-    yrng_mf = n0 * log10(D1) + n1 + mc[0] * log10(10**xrng_mf / r1) + mc[1] * (10**xrng_mf - r1)
-         
-    if pltTrue == True:
-       plt.loglog(10**xrng_mf, 10**yrng_mf, 'g-', lw=2)
-    
-    return mc, n1
-    
-def refit_mid_field_atten_2(plt, norm_rhyps, log_norm_amps, n0, m0s, m1s, r1, r2, freq):
-    
-    log_norm_rhyps = log10(norm_rhyps)
-    
-    logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log_norm_rhyps, log_norm_amps)
-    
-    # fit all data - keep me!
-    didx = where((medx >= log10(r1)) & (medx < log10(r2)) & (isnan(medx) == False))[0]
-    data = odrpack.RealData(medx[didx], logmedamp[didx])
-    
-    # if few datapoints, use full dataset
-    #if len(didx) <= 2:
-    #didx = where((log_norm_rhyps >= log10(r1)) & (log_norm_rhyps < log10(r2)))[0] # & (nperbin > 2))[0] #log10(r1))[0]
-    #data = odrpack.RealData(log_norm_rhyps[didx], log_norm_amps[didx])
 
-    # fit all as free params
-    afit = odrpack.Model(fit_mid_field_first_mc0_mc1_fix)
-    odr = odrpack.ODR(data, afit, beta0=[0.2])
-    
-    odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
-    out = odr.run()
-    mcf = out.beta
-    mc = zeros(3)
-    print('mcf refit2 ',mcf)
-    
-    mc[0] = m0s # smoothed m0
-    mc[1] = m1s
-    mc[2] = mcf[0]
-    
-    xtest=arange(r1,r2,1)
-    ytest = mc[0] * log10(xtest / r1) + mc[1] * (xtest - r1)
-    
-    mididx = int(floor(len(xtest)/2))
-    '''
-    # if conditions met, refit with log-linear 
-    if ytest[mididx] > ytest[0] or ytest[-1] > ytest[0] or ytest[1] > ytest[0] or ytest[mididx] < ytest[-1] or mc[1] > 0.0:
-       
-       print('refitting mid 2')
-       afit = odrpack.Model(refit_mid_field_first_mc0_fix)
-       odr = odrpack.ODR(data, afit, beta0=[0.2])
-       
-       odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
-       out = odr.run()
-       remc = out.beta
-       
-       mc[0] = m0s # smoothed m0
-       mc[1] = 0. # assume linear - set to zero
-       mc[2] = remc[0]
-    '''   
-    # recalculate n1
-    D1 = sqrt(r1**2 + nref**2)
-    
-    n1 = mc[0] * log10(r1 / r1) + mc[1] * (r1 - r1) + mc[2] - n0 * log10(D1)
-
-    # plot
-    xrng_mf = arange(log10(r1), log10(r2), 0.02)
-    
-    yrng_mf = n0 * log10(D1) + n1 + mc[0] * log10(10**xrng_mf / r1) + mc[1] * (10**xrng_mf - r1)
-        
-    if pltTrue == True:
-       plt.loglog(10**xrng_mf, 10**yrng_mf, 'c-', lw=2)
-    
-    return mc, n1
-    
-def fit_far_field_atten(plt, mc0, mc1, norm_rhyps, log_norm_amps, n0, n1, r1, r2, r3, freq):
-    # fit all data
-    log_norm_rhyps = log10(norm_rhyps)
-    
-    logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log_norm_rhyps, log_norm_amps)
-    
-    # fit all data - keep me!
-    didx = where((medx >= log10(r2)) & (medx < log10(r3)) & (nperbin > 2) & (isnan(medx) == False))[0] 
-    data = odrpack.RealData(medx[didx], logmedamp[didx])
-    
-    didx = where((log_norm_rhyps >= log10(r2)) & (log_norm_rhyps < log10(2000)))[0] # & (nperbin > 2))[0] #log10(r1))[0]
-    data = odrpack.RealData(log_norm_rhyps[didx], log_norm_amps[didx])
-    
-    afit = odrpack.Model(fit_far_field)
-    odr = odrpack.ODR(data, afit, beta0=[-1., -0.001])
-    
-    odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
-    out = odr.run()
-    fc = out.beta
-    
-    # do some checks here
-    xtest=arange(r2,r3,1)
-    ytest = fc[0] * log10(xtest / r2) + fc[1] * (xtest - r2)
-    
-    mididx = int(floor(len(xtest)/2))
-    
-    # allow to fit data!
-    '''
-    # if conditions met, refit with log-linear 
-    if ytest[mididx] > ytest[0] or ytest[-1] > ytest[0] or ytest[1] > ytest[0] or ytest[mididx] < ytest[-1]:
-    
-        print('refitting far')
-        afit = odrpack.Model(refit_far_field)
-        odr = odrpack.ODR(data, afit, beta0=[-0.5])
-        
-        odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
-        out = odr.run()
-        refc = out.beta
-        
-        fc[0] = refc[0]
-        fc[1] = 0.
-    '''
-    
-    # plot mid
-    D1 = sqrt(r1**2 + nref**2)
-    xrng_mf = arange(log10(r1), log10(r2), 0.02)
-    
-    yrng_mf = n0 * log10(D1) + n1 + mc0 * log10(10**xrng_mf / r1) + mc1 * (10**xrng_mf - r1)
-        
-    if pltTrue == True:
-       plt.loglog(10**xrng_mf, 10**yrng_mf, 'm-', lw=2)
-    
-    # plot far
-    xrng_ff = arange(log10(r2), log10(r3), 0.02)
-    
-    yrng_ff = n0 * log10(D1) + n1 \
-              + mc0 * log10(r2 / r1) + mc1 * (r2 - r1) \
-              + fc[0] * log10(10**xrng_ff / r2) + fc[1] * (10**xrng_ff - r2)
-    
-    if pltTrue == True:
-        plt.loglog(10**xrng_ff, 10**yrng_ff, 'b-', lw=2)
-    
-    return fc
-"""
 def get_distance_residuals(n0, n1, mc, fc):
      D1 = sqrt((10**x)**2 + nref**2)
      ans = n0 * log10(D1) + n1
@@ -650,7 +459,7 @@ minr = 5.
 r1 = 60 # max dist for near source
 r2 = 450
 r3 = maxDist
-#n0 = -1.3
+n0 = -1.3
 sn_ratio = 4
 
 if pltTrue == True:
@@ -663,6 +472,7 @@ else:
     #sg_window = 11
     #sg_poly = 3
 
+'''
 for p, freq in enumerate(freqs[fidx]):
     if pltTrue == True:
         fig = plt.figure(1, figsize=(18,11))
@@ -690,15 +500,12 @@ smooth_nc0 = savitzky_golay(nc0_array, sg_window, sg_poly) # mid-slope
 for i, c in enumerate(coeffs):
     coeffs[i]['nc0s'] = smooth_nc0[i]
     #coeffs[i]['nc1f'] = fitted_nc1[i]
-    
+'''    
 for p, freq in enumerate(freqs[fidx]):
     if pltTrue == True:
         fig = plt.figure(1, figsize=(18,11))
         plt.subplot(3,4,p+1)
         plt.ylabel(str(freq), fontsize=7)
-    
-    # set freq-depeendent sn_ratio
-    sn_ratio = 4
     
     # get normalised amplitudes
     log_norm_amps, norm_rhyps, mags, logamps, stas = normalise_data(p, recs, sn_ratio, events)
@@ -706,10 +513,11 @@ for p, freq in enumerate(freqs[fidx]):
     ###############################################################################
     # plt near-field GR
     ###############################################################################
-    n0 = smooth_nc0[p]
-    print(n0)
     n1 = refit_near_source_atten(plt, norm_rhyps, log_norm_amps, r1, n0)
     
+    coeffs.append({'nc0': n0, 'nc0s': n0, 'n1': n1, 'r1': r1, 'r2': r2, 'nref':nref, 'freq':freq})
+    
+    nc0_array.append(n0)
     nc1_array.append(n1[0])
 
 nc1_array = array(nc1_array)    
@@ -728,7 +536,7 @@ for i, c in enumerate(coeffs):
     
     D1 = sqrt((10**xrng_nf)**2 + nref**2)
     #print(n1)
-    yrng_nf = coeffs[i]['nc0s'] * log10(D1) + coeffs[i]['nc1s']
+    yrng_nf = coeffs[i]['nc0'] * log10(D1) + coeffs[i]['nc1s']
     
     if pltTrue == True:
         fig = plt.figure(1, figsize=(18,11))

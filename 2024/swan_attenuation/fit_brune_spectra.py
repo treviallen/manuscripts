@@ -60,6 +60,7 @@ def parse_filtering_data():
     # read parameter file
     lines = open('event_filtering_lookup.csv').readlines()[1:]
     for line in lines:
+        print(line)
         dat = line.split(',')
         filt = {'ev':UTCDateTime(dat[0]), 'minf': float(dat[1]), 'maxf': float(dat[2]), 'qual':float(dat[3])}
     
