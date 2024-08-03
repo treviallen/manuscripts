@@ -76,6 +76,7 @@ keep_nets = set(['AU', 'IU', 'S1', 'II', 'G', 'MEL', 'ME', '2O', 'AD', 'SR', 'UM
                  '1P', '1P', '2P', '6F', '7K', '7G', 'G', '7B', '4N', '7D', '', 'OZ', 'OA', 'WG', 'XX'])
 # get stas to ignore
 ignore_stas = open('sta_ignore.txt').readlines()
+#ignore_stas = open('sta_ignore.test').readlines()
 ignore_stas = set([x.strip() for x in ignore_stas])
 
 ####################################################################################
@@ -99,7 +100,7 @@ events_dict = []
 sp = 0
 ii = 1	
 magcsv = 'EVENT,ML_2800,ML_2080,MW,SD,REG\n'
-stacsv = 'EVENT,STA,RHYP,ML_2800,ML_2080,MW\n'
+stacsv = 'EVENT,ML_REGION,STA,RHYP,ML_2800,ML_2080,MW\n'
 
 print('need to get mag region')
 
@@ -196,12 +197,23 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
                         mzone = get_au_ml_zone([rec['eqlo']], [rec['eqla']])
                         #print(mzone)
                         
+                        if mzone[0] == 'EA':
+                            staml_2800 = mlm92_2800[-1]
+                            staml_2080 = mlm92_2080[-1]
+                        elif mzone[0] == 'WCA':
+                            staml_2800 = gg91_2800[-1] + 0.13 # correct for V2H
+                            staml_2080 = gg91_2080[-1] + 0.13 # correct for V2H
+                        elif mzone[0] == 'SA':
+                            staml_2800 = gs86_2800[-1]
+                            staml_2080 = gs86_2080[-1]
+                        else:
+                            staml_2800 = mlm92_2800[-1]
+                            staml_2080 = mlm92_2080[-1]
                         
-                        '''
-                        stacsv += ','.join((str(event), rec['sta'], str('%0.1f' % rec['rhyp']), \
-                                            str('%0.2f' % prefml_2800), str('%0.2f' % prefml_2080), \
+                        stacsv += ','.join((str(event), mzone[0], rec['sta'], str('%0.1f' % rec['rhyp']), \
+                                            str('%0.2f' % staml_2800), str('%0.2f' % staml_2080), \
                                             str('%0.2f' % mw))) + '\n'
-                        '''
+                        
     # get pref mag
     if mzone[0] == 'EA':
         prefml_2800 = mlm92_2800

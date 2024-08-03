@@ -1,4 +1,4 @@
-from numpy import nan
+from numpy import nan, isnan
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import pickle
@@ -11,11 +11,11 @@ warnings.filterwarnings("ignore")
 col = get_ga_master_colours_2022()
 
 
-def parse_brune_data():
+def parse_swn_brune_data(csvfile):
     
     mwdat = []
     # read parameter file
-    lines = open('brune_stats.csv').readlines()[1:]
+    lines = open(csvfile).readlines()[1:]
     for line in lines:
         dat = line.split(',')
         filt = {'ev':dat[0], 'minf': float(dat[-3]), 'maxf': float(dat[-2]), 'qual':float(dat[-1]),
@@ -24,8 +24,23 @@ def parse_brune_data():
         mwdat.append(filt)
     
     return mwdat
+    
+def parse_brune_data(csvfile):
+    
+    mwdat = []
+    # read parameter file
+    lines = open(csvfile).readlines()[1:]
+    for line in lines:
+        dat = line.split(',')
+        filt = {'ev':dat[0], 'minf': float(dat[-3]), 'maxf': float(dat[-2]), 'qual':float(dat[-1]),
+        	      'mw': float(dat[7]), 'sd': float(dat[8])}
+    
+        mwdat.append(filt)
+    
+    return mwdat
 
-mwdat = parse_brune_data()
+swn_mwdat = parse_swn_brune_data('brune_stats.csv')
+sd_mwdat = parse_brune_data('../../2023/au_stress_drop/brune_stats.csv')
 ###############################################################################
 # load pickle 
 ###############################################################################
@@ -49,12 +64,17 @@ for rec in recs:
         if snr >= 4.0 and rec['rhyp'] <= 500:
             
             # get swn mw
-            for md in mwdat:
-                if rec['ev'] == md['ev']:
+            m = nan
+            for md in sd_mwdat:
+                if rec['ev'] == md['ev'][0:16].replace(':','.'):
                    if md['qual'] > 0:
                        m = md['mw']
-                   else:
-                       m = nan
+                       
+            if isnan(m):
+                for md in swn_mwdat:
+                    if rec['ev'] == md['ev']:
+                       if md['qual'] > 0:
+                           m = md['mw']
             
             if rec['sta'].startswith('SWN'):
                 swn_mw.append(m)

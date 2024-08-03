@@ -4,7 +4,7 @@ from numpy import unique, array, arange, log, log10, logspace, exp, mean, nanmea
                   floor, zeros
 from misc_tools import get_binned_stats, dictlist2array, get_mpl2_colourlist, savitzky_golay, dictlist2array, get_log_xy_locs
 from mag_tools import nsha18_mb2mw, nsha18_ml2mw
-from get_mag_dist_terms_swan import get_distance_term
+from get_mag_dist_terms_swan import *
 from scipy.odr import Data, Model, ODR, models
 import matplotlib.pyplot as plt
 import matplotlib as mpl
@@ -186,14 +186,16 @@ sn_ratio = 4
 # load atten coeffs
 coeffs = pickle.load(open('atten_coeffs.pkl', 'rb' ))
 
-fidx = [76, 117]
 fidx = [76, 99]
+#fidx = [76, 99] # 2 & 5 Hz
+#fidx = [59, 99] #.75 & 5 Hz
+#fidx = [51, 86]
 
-xplt = arange(1,2200,1)
+xplt = arange(1,500,1)
+fig = plt.figure(1, figsize=(13,4))
 for p, freq in enumerate(freqs[fidx]):
-    fig = plt.figure(1, figsize=(12,4))
-    ax = plt.subplot(1,2,p+1)
     
+    ax = plt.subplot(1,2,p+1)
     
     # set freq-depeendent sn_ratio
     sn_ratio = 4
@@ -229,10 +231,139 @@ for p, freq in enumerate(freqs[fidx]):
     xloc = get_log_xy_locs(xlims, 0.04)
     yloc = get_log_xy_locs(ylims, 0.04)
     props = dict(boxstyle='round', facecolor='w', alpha=1)
-    plt.text(xloc, yloc, 'f = '+str('%0.1f' % freq)+' Hz', va='bottom', ha ='left', fontsize=12, bbox=props)
+    if p == 0:
+       fstr = str('%0.1f' % freq)
+    else:
+        fstr = str('%0.1f' % freq)
+        
+    plt.text(xloc, yloc, 'f = '+fstr+' Hz', va='bottom', ha ='left', fontsize=12, bbox=props)
     if p == 0:
         plt.ylabel('Normailised Fourier Amplitude')
     plt.xlabel('Hypocentral Distance (km)')
     
+plt.subplots_adjust(wspace=0.1)
 plt.savefig('norm_geom_spread_paper.png', fmt='png', dpi=150, bbox_inches='tight')
+plt.show()
+
+####################################################################################
+# get mag data
+####################################################################################
+
+def parse_swn_brune_data(csvfile):
+    
+    mwdat = []
+    # read parameter file
+    lines = open(csvfile).readlines()[1:]
+    for line in lines:
+        dat = line.split(',')
+        filt = {'ev':dat[0], 'minf': float(dat[-3]), 'maxf': float(dat[-2]), 'qual':float(dat[-1]),
+        	      'mw': float(dat[6]), 'sd': float(dat[7])}
+    
+        mwdat.append(filt)
+    
+    return mwdat
+    
+def parse_brune_data(csvfile):
+    
+    mwdat = []
+    # read parameter file
+    lines = open(csvfile).readlines()[1:]
+    for line in lines:
+        dat = line.split(',')
+        filt = {'ev':dat[0], 'minf': float(dat[-3]), 'maxf': float(dat[-2]), 'qual':float(dat[-1]),
+        	      'mw': float(dat[7]), 'sd': float(dat[8])}
+    
+        mwdat.append(filt)
+    
+    return mwdat
+
+swn_mwdat = parse_swn_brune_data('brune_stats.csv')
+sd_mwdat = parse_brune_data('../../2023/au_stress_drop/brune_stats.csv')
+
+####################################################################################
+# plot residuals
+####################################################################################
+# set freq-depeendent sn_ratio
+sn_ratio = 4
+fig = plt.figure(2, figsize=(14,4))
+mag_coeffs = pickle.load(open('mag_coeffs.pkl','rb'))
+for p, freq in enumerate(freqs[fidx]):
+    ax = plt.subplot(1,2,p+1)
+    
+    rhyps = []
+    yres = []    
+    for i, rec in enumerate(recs):
+    	
+        # first get swn mw
+        mw = nan
+        for md in sd_mwdat:
+            if rec['ev'] == md['ev'][0:16].replace(':','.'):
+               if md['qual'] > 0:
+                   mw = md['mw']
+                   
+        if isnan(mw):
+            for md in swn_mwdat:
+                if rec['ev'] == md['ev']:
+                   if md['qual'] > 0:
+                       mw = md['mw']
+    
+        try:
+            channel = rec['channels'][0]
+                
+            if rec[channel]['sn_ratio'][fidx[p]] >= 4.:
+                rhyps.append(rec['rhyp'])
+                
+                # get mag term
+                magterm = get_magnitude_term(mw, mag_coeffs[fidx[p]])
+                
+                # get dist term
+                distterm = get_distance_term(rec['rhyp'], coeffs[fidx[p]])
+                 
+                #	get distance independent kappa
+                kapterm = get_kappa_term(rec['sta'], freqs[fidx[p]])
+                
+                # get total correction
+                ypred = magterm + distterm + kapterm
+                
+                yobs = log10(rec[channel]['swave_spec'][fidx[p]])
+                yres.append(yobs - ypred)
+                recs[i]['yres'] = yobs - ypred
+                
+            else:
+                yres.append(nan)
+                rhyps.append(rec['rhyp'])
+                recs[i]['yres'] = nan
+        
+        except:
+            print('No data')
+            recs[i]['yres'] = nan
+        
+    
+    plt.plot([0, 500], [0, 0], 'k--')
+    plt.plot(rhyps, yres, '+', c='0.7')
+    
+    bins = arange(10, 500, 20)
+    medamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, rhyps, yres)
+    
+    plt.errorbar(medx, medamp, yerr=stdbin, fmt='s', ms=8, mfc='r', mec='k', ecolor='r', elinewidth=1.5, ls='none', zorder=1000)
+    
+    plt.xlim([0, 500])
+    plt.ylim([-2, 2])
+    
+    xlims = ax.get_xlim()
+    ylims = ax.get_ylim()
+    xloc = get_log_xy_locs(xlims, 0.04)
+    yloc = get_log_xy_locs(ylims, 0.04)
+    if p == 0:
+       fstr = str('%0.1f' % freq)
+    else:
+        fstr = str('%0.1f' % freq)
+    plt.text(20, -1.84, 'f = '+fstr+' Hz', va='bottom', ha ='left', fontsize=12, bbox=props)
+    
+    if p == 0:
+        plt.ylabel('Normailised Fourier Amplitude')
+    plt.xlabel('Hypocentral Distance (km)')
+plt.subplots_adjust(wspace=0.1)
+
+plt.savefig('model_residuals_paper.png', fmt='png', dpi=150, bbox_inches='tight')
 plt.show()

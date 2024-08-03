@@ -27,7 +27,7 @@ def get_distance_term(rhyp, c):
     
 def get_magnitude_term(mw, c):
     
-    return c['magc0s'] * mw + c['magc1s']
+    return c['m0s'] * mw + c['m1s']
     
 def parse_kappa_data():
     from numpy import array, loadtxt
