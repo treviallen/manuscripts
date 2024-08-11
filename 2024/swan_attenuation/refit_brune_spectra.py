@@ -596,9 +596,9 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
         edict['fitted_spectra'] = fitted_curve
         
         if qual == 0:
-            plt.title('; '.join((evmagtype+str('%0.1f' % evmag), str(event)[0:16], 'MW '+str('%0.2f' % mw), 'SD '+str('%0.2f' % sd)+' MPa')), fontsize=10, color='red')
+            plt.title('; '.join((evmagtype+str('%0.1f' % evmag), str(event)[0:16], '$\mathregular{M_{W(Brune)}}$ ' +str('%0.2f' % mw), r"$\Delta\sigma$ " +str('%0.2f' % sd)+' MPa')), fontsize=10, color='red')
         else:
-            plt.title('; '.join((evmagtype+str('%0.1f' % evmag), str(event)[0:16], 'MW '+str('%0.2f' % mw), 'SD '+str('%0.2f' % sd)+' MPa')), fontsize=10, color='k')
+            plt.title('; '.join((evmagtype+str('%0.1f' % evmag), str(event)[0:16], '$\mathregular{M_{W(Brune)}}$ '+str('%0.2f' % mw), r"$\Delta\sigma$ " +str('%0.2f' % sd)+' MPa')), fontsize=10, color='k')
         
         if sp == 1 or sp == 4:
            plt.ylabel('Fourier Displacement Spectra (m-s)')

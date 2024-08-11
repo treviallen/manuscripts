@@ -636,23 +636,6 @@ plt.savefig('brune_refit/paper_brune_fit_'+str(ii)+'.png', fmt='png', dpi=300, b
 
 ##########################################################################################
 
-# export Brune data
-pklfile = open('brune_data.pkl', 'wb')
-pickle.dump(events_dict, pklfile, protocol=-1)
-pklfile.close()
-
-# write csv
-txt = 'EVENT,LON,LAT,DEP,OMAG,OMAG_TYPE,BRUNE_MAG,STRESS_DROP,CORN_FREQ,NRECS,FMIN,FMAX,QUALITY\n'
-
-for ev in events_dict:
-    txt += ','.join((str(ev['evdt']),str(ev['lon']),str(ev['lat']),str(ev['dep']),str(ev['omag']),ev['omag_type'], \
-                     str(ev['brune_mw']),str(ev['brune_sd']),str(ev['brune_f0']),str(ev['nrecs']), str(ev['minf']),str(ev['maxf']),str(ev['qual']))) + '\n'
-
-# write to file
-f = open('brune_stats.csv', 'w')
-f.write(txt)
-f.close()
-
 # now show figs        
 plt.show()    
 

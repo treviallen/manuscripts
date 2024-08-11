@@ -52,6 +52,7 @@ rhyps = logspace(0, log10(500), 100)
 
 # set freqs    
 fidx = [51, 99] # 1 & 5 Hz
+fidx = [41, 99] # 1 & 5 Hz
 
 mw = 5
 

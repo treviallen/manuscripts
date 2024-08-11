@@ -1,7 +1,7 @@
 import pickle
 from numpy import unique, array, arange, log, log10, exp, mean, nanmean, nanmedian, ndarray, \
                   nanmedian, vstack, pi, nan, isnan, interp, where, zeros_like, sqrt
-from misc_tools import get_binned_stats, dictlist2array, get_mpl2_colourlist
+from misc_tools import get_binned_stats, dictlist2array, get_mpl2_colourlist, get_log_xy_locs
 #from js_codes import get_average_Q_list, extract_Q_freq
 from mag_tools import nsha18_mb2mw, nsha18_ml2mw
 from get_mag_dist_terms_swan import get_distance_term
@@ -123,17 +123,25 @@ else:
     pltTrue = False
 
 if pltTrue == True:
-    fig = plt.figure(1, figsize=(18,11))
+    fig = plt.figure(1, figsize=(18,15))
 
 # loop through & plot station  data
 cs = get_mpl2_colourlist()
 
 handles1 = []
 labels1 = []
+props = dict(boxstyle='round', facecolor='w', alpha=1)
 
 events = unique(dictlist2array(recs, 'ev'))
 stations = unique(dictlist2array(recs, 'sta'))
 
+'''
+# use alt stationlist
+stations = []
+lines = open('kappa_plot_paper.txt').readlines()
+for line in lines:
+    stations.append(line.strip())
+'''
 '''
 # load station sets
 lines = open('station_sets.csv').readlines()
@@ -150,7 +158,7 @@ for sta in stations:
     cnt = 0
     maxf = 12.
             
-    ax = plt.subplot(3,3,i)
+    ax = plt.subplot(4,3,i)
     
     log_stack_logfas = []
     
@@ -228,17 +236,32 @@ for sta in stations:
         if pltTrue == True:
             kap_plt = exp(-1 * pi * freqs * kappa + kappa_intercept)
             plt.semilogy(freqs[ridx], kap_plt[ridx], 'g-', lw=2)
+            
     
     if pltTrue == True:
-        plt.title(sta+' '+str(cnt))
+        #plt.title(sta)
+        
+        # annotate
+        ktxt = ' = '.join((sta+'\nn', str(cnt)+'\n'+r"$\kappa_0$",str('%0.3f' % kappa)+' s'))
         plt.xlim([0, 20])
+        xlims = ax.get_xlim()
+        ylims = ax.get_ylim()
+        xloc = xlims[1] * 0.04 #get_log_xy_locs(xlims, 0.04)
+        yloc = get_log_xy_locs(ylims, 0.04)
+        plt.text(xloc, yloc, ktxt, va='bottom', ha ='left', fontsize=13, bbox=props)
+        
+        if i >= 10:
+            plt.xlabel('Frequency (Hz)', fontsize=11)
+        if i == 1 or i == 4 or i == 7 or i == 10:
+            plt.ylabel('Normalised Fourier Amplitude', fontsize=14)
+        
         # prep for next subplot
         i += 1
-        if i > 9:
+        if i > 12:
             plt.savefig('kappa/site_kappa_'+str(ii)+'.png', fmt='png', bbox_inches='tight')
             i = 1
             ii += 1
-            fig = plt.figure(ii, figsize=(18,11))
+            fig = plt.figure(ii, figsize=(18,15))
     
     print(sta+' '+str(cnt))
     
@@ -247,10 +270,11 @@ if pltTrue == True:
     
 
 # add mean kappa to list
-mean_kappa = nanmedian(array(kappa_list))
-kappa_txt += ','.join(('MEDIAN_SITE', str('%0.6f' % mean_kappa), 'nan')) + '\n'
-
-# write csv
-f = open('site_kappa.csv', 'w')
-f.write(kappa_txt)
-f.close()
+if pltTrue == False:
+    mean_kappa = nanmedian(array(kappa_list))
+    kappa_txt += ','.join(('MEDIAN_SITE', str('%0.6f' % mean_kappa), 'nan')) + '\n'
+    
+    # write csv
+    f = open('site_kappa.csv', 'w')
+    f.write(kappa_txt)
+    f.close()

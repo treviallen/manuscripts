@@ -361,7 +361,7 @@ for p, freq in enumerate(freqs[fidx]):
     plt.text(20, -1.84, 'f = '+fstr+' Hz', va='bottom', ha ='left', fontsize=12, bbox=props)
     
     if p == 0:
-        plt.ylabel('Normailised Fourier Amplitude')
+        plt.ylabel('log(Observed) - log(predicted)')
     plt.xlabel('Hypocentral Distance (km)')
 plt.subplots_adjust(wspace=0.1)
 

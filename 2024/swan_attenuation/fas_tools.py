@@ -46,10 +46,13 @@ def get_allen_etal_2006(mw, rhyp):
                 
     fas = 10**log_fas # in mm/s
     
+    # apply rough H2V correction
+    fas /= 10**0.18 
+    
     # convert to displacement in mm-s
     fds = fas / (2 * pi * freqs)**2
     
-    return freqs, fas, fds
+    return freqs, fas, fds # approx vertical comp
     
 # get a range of distances for Allen et al 2006 for SWWA in mm-s
 def get_dist_atten_allen_2006(mw, rhyps, f_interp):
@@ -73,7 +76,7 @@ def get_dist_atten_allen_2006(mw, rhyps, f_interp):
 Get Allen 2007 for SEA
 '''
 
-# get allen_etal_2006 for horizontal-component GMs in SEA
+# get allen_etal_2007 for vertical-component GMs in SEA
 def get_allen_etal_2007(mw, rhyp):
     '''
     # coeffs are: f, c1, c2, c3, c4, sigma, Q
@@ -188,7 +191,7 @@ def get_atkinson_2004(mw, rhyp):
                 - 1.3 * log10(70.0) + 0.2 * log10(140.0/70.0) \
                 - 0.5 * log10(rhyp/140.0) + c4 * rhyp
                 
-    fas = 10 * 10**log_fas # in mm/s
+    fas = 10 * (10**log_fas) # in mm/s
     
     # convert to displacement in mm-s
     fds = fas / (2 * pi * freqs)**2
