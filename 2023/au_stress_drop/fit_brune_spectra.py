@@ -326,7 +326,7 @@ coeffs = pickle.load(open('atten_coeffs.pkl', 'rb' ))
 ###############################################################################
 
 # remove bad recs
-keep_nets = set(['AU', 'IU', 'S1', 'II', 'G', 'MEL', 'ME', '2O', 'AD', 'SR', 'UM', 'AB', 'VI', 'GM' \
+keep_nets = set(['AU', 'IU', 'S1', 'II', 'G', 'MEL', 'ME', '2O', 'AD', 'SR', 'UM', 'AB', 'VI', 'GM', 'M8', 'DU', \
                  '1P', '1P', '2P', '6F', '7K', '7G', 'G', '7B', '4N', '7D', '', 'OZ', 'OA', 'WG', 'XX'])
 # get stas to ignore
 ignore_stas = open('sta_ignore.txt').readlines()
@@ -467,6 +467,7 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
                         evdep = rec['eqdp']
                         evdt = rec['evdt']
                         evmb = rec['mb']
+                        evid = rec['gaid']
     
     leg1 = plt.legend(handles=handles1, loc=3, fontsize=6, ncol=4)
 	
@@ -564,6 +565,7 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
         edict = {}
         edict['evstr'] = event
         edict['evdt'] = evdt
+        edict['evid'] = evid
         edict['lon'] = evlon
         edict['lat'] = evlat
         edict['dep'] = evdep
@@ -578,7 +580,6 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
         edict['qual'] = qual
         edict['stas'] = labels1
         edict['sta_spectra'] = log_stack_logfds
-        
         
         if log_stack_logfds.shape[0] == 150:
             nrecs = 1
@@ -596,9 +597,9 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
         edict['fitted_spectra'] = fitted_curve
         
         if qual == 0:
-            plt.title('; '.join((evmagtype+str('%0.1f' % evmag), str(event)[0:16], 'MW '+str('%0.2f' % mw), 'SD '+str('%0.2f' % sd)+' MPa')), fontsize=10, color='red')
+            plt.title('; '.join((evmagtype+str('%0.1f' % evmag), str(event)[0:16], '$\mathregular{M_W}$ '+str('%0.2f' % mw), r"$\Delta\sigma$ = " +str('%0.2f' % sd)+' MPa')), fontsize=10, color='red')
         else:
-            plt.title('; '.join((evmagtype+str('%0.1f' % evmag), str(event)[0:16], 'MW '+str('%0.2f' % mw), 'SD '+str('%0.2f' % sd)+' MPa')), fontsize=10, color='k')
+            plt.title('; '.join((evmagtype+str('%0.1f' % evmag), str(event)[0:16], '$\mathregular{M_W}$ '+str('%0.2f' % mw), r"$\Delta\sigma$ = " +str('%0.2f' % sd)+' MPa')), fontsize=10, color='k')
         
         if sp == 1 or sp == 4:
            plt.ylabel('Fourier Displacement Spectra (m-s)')
@@ -641,10 +642,10 @@ pickle.dump(events_dict, pklfile, protocol=-1)
 pklfile.close()
 
 # write csv
-txt = 'EVENT,LON,LAT,DEP,OMAG,OMAG_TYPE,MB,BRUNE_MAG,STRESS_DROP,CORN_FREQ,NRECS,FMIN,FMAX,QUALITY\n'
+txt = 'EVENT,GAID,LON,LAT,DEP,OMAG,OMAG_TYPE,MB,BRUNE_MAG,STRESS_DROP,CORN_FREQ,NRECS,FMIN,FMAX,QUALITY\n'
 
 for ev in events_dict:
-    txt += ','.join((str(ev['evdt']),str(ev['lon']),str(ev['lat']),str(ev['dep']),str(ev['omag']),ev['omag_type'],str(ev['mb']), \
+    txt += ','.join((str(ev['evdt']),ev['evid'],str(ev['lon']),str(ev['lat']),str(ev['dep']),str(ev['omag']),ev['omag_type'],str(ev['mb']), \
                      str(ev['brune_mw']),str(ev['brune_sd']),str(ev['brune_f0']),str(ev['nrecs']), str(ev['minf']),str(ev['maxf']),str(ev['qual']))) + '\n'
 
 # write to file

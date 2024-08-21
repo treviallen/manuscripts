@@ -151,7 +151,6 @@ def fit_brune_model(c, f):
     
     return FittedCurve
 
-
     
 def fit_brune_model_fixed_omega(c, f):
     from numpy import array, log
@@ -465,6 +464,7 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
                         evlat = rec['eqla']
                         evdep = rec['eqdp']
                         evdt = rec['ev']
+                        evid = rec['gaid']
                         #evmb = rec['mb']
     
     leg1 = plt.legend(handles=handles1, loc=3, fontsize=6, ncol=4)
@@ -563,6 +563,7 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
         edict = {}
         edict['evstr'] = event
         edict['evdt'] = evdt
+        edict['evid'] = evid
         edict['lon'] = evlon
         edict['lat'] = evlat
         edict['dep'] = evdep
@@ -591,14 +592,14 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
         # plot fitted curve
         fitted_curve = omega0 / (1 + (freqs / f0)**2)
         h3, = plt.loglog(freqs, fitted_curve, 'k-', lw=1.5, label='Fitted Brune Model')
-        plt.legend(handles=[h2, h3], loc=1, fontsize=8)
+        plt.legend(handles=[h2, h3], loc=1, fontsize=11)
         
         edict['fitted_spectra'] = fitted_curve
         
         if qual == 0:
-            plt.title('; '.join((evmagtype+str('%0.1f' % evmag), str(event)[0:16], '$\mathregular{M_{W(Brune)}}$ ' +str('%0.2f' % mw), r"$\Delta\sigma$ " +str('%0.2f' % sd)+' MPa')), fontsize=10, color='red')
+            plt.title('; '.join((evmagtype+str('%0.1f' % evmag), str(event)[0:16], '$\mathregular{M_{W(Brune)}}$ ' +str('%0.2f' % mw), r"$\Delta\sigma$ " +str('%0.2f' % sd)+' MPa')), fontsize=13, color='red')
         else:
-            plt.title('; '.join((evmagtype+str('%0.1f' % evmag), str(event)[0:16], '$\mathregular{M_{W(Brune)}}$ '+str('%0.2f' % mw), r"$\Delta\sigma$ " +str('%0.2f' % sd)+' MPa')), fontsize=10, color='k')
+            plt.title('; '.join((evmagtype+str('%0.1f' % evmag), str(event)[0:16], '$\mathregular{M_{W(Brune)}}$ '+str('%0.2f' % mw), r"$\Delta\sigma$ " +str('%0.2f' % sd)+' MPa')), fontsize=13, color='k')
         
         if sp == 1 or sp == 4:
            plt.ylabel('Fourier Displacement Spectra (m-s)')
@@ -625,30 +626,32 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
     plt.grid(which='both', color='0.7')
         
     if sp == 6:
+        plt.subplots_adjust(wspace=0.1)
         plt.savefig('brune_refit/brune_fit_'+str(ii)+'.png', fmt='png', bbox_inches='tight')
         sp = 0
         ii += 1
         fig = plt.figure(ii, figsize=(18,11))
 
+plt.subplots_adjust(wspace=0.1)
 plt.savefig('brune_refit/brune_fit_'+str(ii)+'.png', fmt='png', dpi=150, bbox_inches='tight')
 
 
 ##########################################################################################
 
 # export Brune data
-pklfile = open('brune_data.pkl', 'wb')
+pklfile = open('refit_brune_data.pkl', 'wb')
 pickle.dump(events_dict, pklfile, protocol=-1)
 pklfile.close()
 
 # write csv
-txt = 'EVENT,LON,LAT,DEP,OMAG,OMAG_TYPE,BRUNE_MAG,STRESS_DROP,CORN_FREQ,NRECS,FMIN,FMAX,QUALITY\n'
+txt = 'EVENT,GAID,LON,LAT,DEP,OMAG,OMAG_TYPE,BRUNE_MAG,STRESS_DROP,CORN_FREQ,NRECS,FMIN,FMAX,QUALITY\n'
 
 for ev in events_dict:
-    txt += ','.join((str(ev['evdt']),str(ev['lon']),str(ev['lat']),str(ev['dep']),str(ev['omag']),ev['omag_type'], \
+    txt += ','.join((str(ev['evdt']),ev['evid'],str(ev['lon']),str(ev['lat']),str(ev['dep']),str(ev['omag']),ev['omag_type'], \
                      str(ev['brune_mw']),str(ev['brune_sd']),str(ev['brune_f0']),str(ev['nrecs']), str(ev['minf']),str(ev['maxf']),str(ev['qual']))) + '\n'
 
 # write to file
-f = open('brune_stats.csv', 'w')
+f = open('refit_brune_stats_swn.csv', 'w')
 f.write(txt)
 f.close()
 

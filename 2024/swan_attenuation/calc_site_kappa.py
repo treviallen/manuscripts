@@ -135,13 +135,14 @@ props = dict(boxstyle='round', facecolor='w', alpha=1)
 events = unique(dictlist2array(recs, 'ev'))
 stations = unique(dictlist2array(recs, 'sta'))
 
-'''
+
 # use alt stationlist
 stations = []
 lines = open('kappa_plot_paper.txt').readlines()
 for line in lines:
     stations.append(line.strip())
-'''
+
+
 '''
 # load station sets
 lines = open('station_sets.csv').readlines()
@@ -251,9 +252,9 @@ for sta in stations:
         plt.text(xloc, yloc, ktxt, va='bottom', ha ='left', fontsize=13, bbox=props)
         
         if i >= 10:
-            plt.xlabel('Frequency (Hz)', fontsize=11)
+            plt.xlabel('Frequency (Hz)', fontsize=14)
         if i == 1 or i == 4 or i == 7 or i == 10:
-            plt.ylabel('Normalised Fourier Amplitude', fontsize=14)
+            plt.ylabel('Normalised Acceleration', fontsize=14)
         
         # prep for next subplot
         i += 1

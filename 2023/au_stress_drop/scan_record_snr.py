@@ -30,14 +30,15 @@ from data_fmt_tools import get_stn_dataless_seed, get_station_distance, \
 def do_picks(st, eqdt):
     fig = plt.figure(1, figsize=(16, 11))
     
-    # get reference time for record
-    reftime = st[0].stats.starttime-UTCDateTime(eqdt)
+    
     
     i = 0
     channels = []
     # loop through traces
     #print(st)
     for j, tr in enumerate(st):
+    	  # get reference time for record
+        reftime = tr.stats.starttime-UTCDateTime(eqdt)
         if i < 3:
            if tr.stats.channel[1] != 'N' and len(st) > 3:
                i += 1
@@ -222,6 +223,9 @@ outtxt = ''
 mseedfiles = open(records).readlines(dat[9])[0:]"""
 
 mseedfiles = listdir_extension('iris_dump', 'mseed')
+
+#mseedfiles = listdir_extension('iris_dump', 'ms')
+
 #mseedfiles = listdir_extension('mseed_test', 'mseed')
 
 m = 1

@@ -624,7 +624,6 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
 
 plt.savefig('brune_fit/brune_fit_'+str(ii)+'.png', fmt='png', dpi=150, bbox_inches='tight')
 
-
 ##########################################################################################
 
 # export Brune data
@@ -640,7 +639,7 @@ for ev in events_dict:
                      str(ev['brune_mw']),str(ev['brune_sd']),str(ev['brune_f0']),str(ev['nrecs']), str(ev['minf']),str(ev['maxf']),str(ev['qual']))) + '\n'
 
 # write to file
-f = open('brune_stats.csv', 'w')
+f = open('brune_stats_swn.csv', 'w')
 f.write(txt)
 f.close()
 

@@ -287,6 +287,13 @@ def response_corrected_fft(tr, pickDat):
         elif tr.stats.network == '2P':
             paz = d2p_parser.get_response(seedid,start_time)
             staloc = d2p_parser.get_coordinates(seedid,start_time)
+        elif tr.stats.network == 'M8':
+            paz = dm8_parser.get_response(seedid,start_time)
+            staloc = dm8_parser.get_coordinates(seedid,start_time)
+        elif tr.stats.network == '5C':
+            paz = d5c_parser.get_response(seedid,start_time)
+            staloc = d5c_parser.get_coordinates(seedid,start_time)
+        
         '''
         elif tr.stats.network == 'G':
             paz = g_parser.get_paz(seedid,start_time)
@@ -295,6 +302,10 @@ def response_corrected_fft(tr, pickDat):
         # simulate response
         if tr.stats.network == '2P':
             tr.remove_response(inventory=d2p_parser)
+        elif tr.stats.network == '5C':
+            tr.remove_response(inventory=d5c_parser)
+        elif tr.stats.network == 'M8':
+            tr.remove_response(inventory=dm8_parser)
         else:
             if tr.stats.channel.endswith('SHZ') or tr.stats.channel.endswith('EHZ'):
                 tr = tr.simulate(paz_remove=paz, water_level=10) #  testing water level for SP instruments
@@ -434,7 +445,10 @@ else:
     d7s_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/7S_SETA_2006.dataless')
     d7t_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/7T_SEAL2_2007.dataless')
     d8k_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/8K_CAPRICORNHPS_2014.dataless')
+    dm8_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/m8-inventory.xml')
     d2p_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/2p-inventory-edit.xml')
+    d5c_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/5c-inventory.xml')
+
 
 ################################################################################
 # loop through pick files

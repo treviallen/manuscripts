@@ -259,9 +259,9 @@ for line in lines:
     dat = line.strip().split(',')
     lons.append(float(dat[1]))
     lats.append(float(dat[2]))
-    mags.append(float(dat[7]))
+    mags.append(float(dat[8]))
     qual.append(float(dat[-1]))
-    stressdrops.append(float(dat[8]))
+    stressdrops.append(float(dat[9]))
 
 logstress = log10(array(stressdrops))
         

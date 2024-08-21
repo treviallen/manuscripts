@@ -47,7 +47,7 @@ def parse_filtering_data():
     for line in lines:
         dat = line.split(',')
         filt = {'ev':dat[0], 'minf': float(dat[-3]), 'maxf': float(dat[-2]), 'qual':float(dat[-1]),
-        	      'mw': float(dat[7]), 'sd': float(dat[8])}
+        	      'mw': float(dat[8]), 'sd': float(dat[9])}
     
         mwdat.append(filt)
     
@@ -461,7 +461,7 @@ sc = plt.scatter(mw_array, mw_res, c=log10(sd_array), vmin=-1.0, vmax=2.0, s=36,
 plt.text(xloc, yloc, 'All Data', va='top', ha ='left', fontsize=12, bbox=props)
 plt.grid(which='both')
 plt.ylabel('$\mathregular{M_{W(Brune)}}$ - $\mathregular{M_{W(Conv)}}$', fontsize=16)
-plt.xlim([2.5,7])
+plt.xlim([2.75,6.75])
 plt.ylim([-0.8,0.8])
 plt.text(1.77,0.95, '(a)', va='top', ha ='left', fontsize=16)
 
@@ -490,7 +490,7 @@ stat_txt = r'$\mu$ = '+str('%0.2f' % mean_res) + '\n' \
 plt.text(xloc2, yloc2, stat_txt, va='bottom', ha ='right', fontsize=12, bbox=props)
 
 plt.grid(which='both')
-plt.xlim([2.5,7])
+plt.xlim([2.75,6.75])
 plt.ylim([-0.8,0.8])
 plt.text(1.77,0.95, '(b)', va='top', ha ='left', fontsize=16)
 
@@ -511,7 +511,7 @@ plt.text(xloc2, yloc2, stat_txt, va='bottom', ha ='right', fontsize=12, bbox=pro
 plt.xlabel('$\mathregular{M_{W(Brune)}}$', fontsize=16)
 plt.ylabel('$\mathregular{M_{W(Brune)}}$ - $\mathregular{M_{W(Conv)}}$', fontsize=16)
 plt.grid(which='both')
-plt.xlim([2.5,7])
+plt.xlim([2.75,6.75])
 plt.ylim([-0.8,0.8])
 plt.text(1.77,0.95, '(c)', va='top', ha ='left', fontsize=16)
 
@@ -532,7 +532,7 @@ plt.text(xloc2, yloc2, stat_txt, va='bottom', ha ='right', fontsize=12, bbox=pro
 plt.xlabel('$\mathregular{M_{W(Brune)}}$', fontsize=16)
 #plt.ylabel('$\mathregular{M_{W(Brune)}}$', fontsize=16)#plt.ylabel('Brune $\mathregular{M_W}$', fontsize=18)
 plt.grid(which='both')
-plt.xlim([2.5,7])
+plt.xlim([2.75,6.75])
 plt.ylim([-0.8,0.8])
 plt.text(1.77,0.95, '(d)', va='top', ha ='left', fontsize=16)
 #mag_res = ml_array - mw_array

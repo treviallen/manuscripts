@@ -558,7 +558,7 @@ def get_distance_residuals(n0, n1, mc, fc):
 recs = pickle.load(open('fft_data.pkl', 'rb' ))
 
 # remove bad recs
-keep_nets = set(['AU', 'IU', 'S1', 'G', 'MEL', 'ME', '20', 'AD', 'SR', 'UM', 'AB', 'VI', 'GM' \
+keep_nets = set(['AU', 'IU', 'S1', 'G', 'MEL', 'ME', '20', 'AD', 'SR', 'UM', 'AB', 'VI', 'GM', 'M8', 'DU', \
                  '1P', '1P', '2P', '6F', '7K', '7G', 'G', '7B', '4N', '7D', '', 'OZ', 'OA', 'WG','XX'])
 
 # get stas to ignore

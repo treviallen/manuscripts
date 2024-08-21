@@ -1,6 +1,7 @@
 from obspy import read, UTCDateTime
 from spectral_analysis import calc_fft, prep_psa_simple, calc_response_spectra, get_cor_velocity
-from data_fmt_tools import remove_low_sample_data, return_sta_data, remove_acceleration_data, fix_stream_channels_bb2sp
+from data_fmt_tools import remove_low_sample_data, return_sta_data, remove_acceleration_data, \
+                           fix_src_stream_channels, fix_stream_channels_bb2sp, fix_stream_network
 from response import get_response_info, paz_response, deconvolve_instrument
 from misc_tools import listdir_extension, savitzky_golay
 from mapping_tools import distance
@@ -104,6 +105,7 @@ def response_corrected_fft(tr, pickDat):
     seedid = tr.get_id()
     channel = tr.stats.channel
     start_time = tr.stats.starttime
+    pazfile = 'NULL'
     
     # check if HSR AU data
     use_stationlist = False
@@ -257,6 +259,12 @@ def response_corrected_fft(tr, pickDat):
         elif tr.stats.network == '2P':
             paz = d2p_parser.get_response(seedid,start_time)
             staloc = d2p_parser.get_coordinates(seedid,start_time)
+        elif tr.stats.network == 'M8':
+            paz = dm8_parser.get_response(seedid,start_time)
+            staloc = dm8_parser.get_coordinates(seedid,start_time)
+        elif tr.stats.network == '5C':
+            paz = d5c_parser.get_response(seedid,start_time)
+            staloc = d5c_parser.get_coordinates(seedid,start_time)
         '''
         elif tr.stats.network == 'G':
             paz = g_parser.get_paz(seedid,start_time)
@@ -265,6 +273,10 @@ def response_corrected_fft(tr, pickDat):
         # simulate response
         if tr.stats.network == '2P':
             tr.remove_response(inventory=d2p_parser)
+        elif tr.stats.network == '5C':
+            tr.remove_response(inventory=d5c_parser)
+        elif tr.stats.network == 'M8':
+            tr.remove_response(inventory=dm8_parser)
         else:
             if tr.stats.channel.endswith('SHZ') or tr.stats.channel.endswith('EHZ'):
                 tr = tr.simulate(paz_remove=paz, water_level=10) #  testing water level for SP instruments
@@ -281,7 +293,7 @@ def response_corrected_fft(tr, pickDat):
                 
         dispamp = calc_disp_spectra(tr, corfftr, corffti, freq)
                 
-    return freq[1:mi], dispamp[1:mi]
+    return freq[1:mi], dispamp[1:mi], pazfile
 
 def retry_stationlist_fft(tr, pickDat):
     seedid = tr.get_id()
@@ -327,7 +339,7 @@ def retry_stationlist_fft(tr, pickDat):
     
     staloc = {'latitude':stla, 'longitude':stlo}
     	
-    return freq[1:mi], dispamp[1:mi]
+    return freq[1:mi], dispamp[1:mi], pazfile
     	
 ################################################################################
 # find eevents - should have done this in pick files
@@ -355,7 +367,7 @@ lines = open('brune_stats.csv').readlines()[1:]
 brunedat = []
 for line in lines:
     dat = line.strip().split(',')
-    tmp = {'datetime':UTCDateTime(dat[0]), 'mw':float(dat[6]), 'qual':int(float(dat[-1]))}
+    tmp = {'datetime':UTCDateTime(dat[0]), 'mw':float(dat[7]), 'qual':int(float(dat[-1]))}
     
     brunedat.append(tmp)
     
@@ -431,7 +443,9 @@ else:
     d7s_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/7S_SETA_2006.dataless')
     d7t_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/7T_SEAL2_2007.dataless')
     d8k_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/8K_CAPRICORNHPS_2014.dataless')
+    dm8_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/m8-inventory.xml')
     d2p_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/2p-inventory-edit.xml')
+    d5c_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/5c-inventory.xml')
 
 ################################################################################
 # loop through pick files
@@ -448,7 +462,7 @@ for p, pf in enumerate(pickfiles[start_idx:]):
     pickDat = parse_pickfile(pf)
     
     if isnan(pickDat['mag']) == False:
-        #if pickDat['starttime'].year == 2007 and pickDat['starttime'].month == 9: # or pickDat['starttime'].year == 2001: # and pf == '1997-03-05T06.15.00.AD.WHY.picks':
+       if pickDat['starttime'].year == 2023 and pickDat['starttime'].month == 10: # or pickDat['starttime'].year == 2001: # and pf == '1997-03-05T06.15.00.AD.WHY.picks':
         
         channels = []
         if not pickDat['ch1'] == '':
@@ -474,6 +488,28 @@ for p, pf in enumerate(pickfiles[start_idx:]):
                 skipRec = True
         
         if skipRec == False:
+            
+            # fix DU network if in filename
+            if mseedfile.find('.DU.') >= 0:
+                fix_stream_network(path.join('iris_dump', mseedfile), 'DU')
+                # reparse
+                st = read(path.join('iris_dump', mseedfile))
+            
+            if mseedfile.find('.AD.') >= 0:
+                fix_stream_network(path.join('iris_dump', mseedfile), 'AD')
+                # reparse
+                st = read(path.join('iris_dump', mseedfile))
+                
+            if mseedfile.find('.S.') >= 0:
+                fix_stream_network(path.join('iris_dump', mseedfile), 'S1')
+                # reparse
+                st = read(path.join('iris_dump', mseedfile))
+                
+            # check if channel bonkers
+            if st[0].stats.channel[1] == 'Y' or st[0].stats.channel.startswith('EL'):
+                fix_src_stream_channels(path.join('iris_dump', mseedfile))
+                # reparse
+                st = read(path.join('iris_dump', mseedfile))
             
             # split trace containing gaps into contiguous unmasked traces
             st = st.split()
@@ -571,15 +607,30 @@ for p, pf in enumerate(pickfiles[start_idx:]):
                     
                     # get instrument corrected spectra
                     try:
-                        freqs, n_disp_amp = response_corrected_fft(ntr_trim, pickDat)
+                        freqs, n_disp_amp, pazfile = response_corrected_fft(ntr_trim, pickDat)
                     except:
-                        freqs, n_disp_amp = retry_stationlist_fft(ntr_trim, pickDat)
+                        freqs, n_disp_amp, pazfile = retry_stationlist_fft(ntr_trim, pickDat)
                         
                     smoothed_disp, smoothed_interp_disp = get_smoothed_fft_spectra(freqs, n_disp_amp)
                     
+                    # fix channels
+                    if pazfile.endswith('mark-L4C-3D.paz') or pazfile.endswith('cmg-6t-1s.paz') \
+                       or pazfile.endswith('willmore.paz') or pazfile.endswith('ss-1.paz') \
+                       or pazfile.endswith('cmg-40t-1s.paz') or pazfile.endswith('s6000-2hz.paz') \
+                       or pazfile.endswith('lennartz-LE-3Dlite-mkII.paz'):  
+                        lofreq = 0.2
+                        channel = 'E'+channel[1:]
+                        	
+                    elif pazfile.endswith('cmg-3t-100s.paz') or pazfile.endswith('sts2.paz'):
+                        lofreq = 0.01
+                        if tr.stats.sampling_rate >= 80:
+                            channel = 'H'+channel[1:]
+                        else:
+                            channel = 'B'+channel[1:]
+                    
                     traceDat = {'hi_freq_filt': hifreq, 'lo_freq_filt': lofreq, 
                                 'noise_spec': smoothed_interp_disp, 'freqs': interp_freqs,
-                                'sample_rate': tr.stats.sampling_rate}
+                                'sample_rate': tr.stats.sampling_rate, 'channel': channel}
                         
                     #plt.loglog(freqs, n_disp_amp, 'b-', lw=0.3)
                                   
@@ -596,9 +647,9 @@ for p, pf in enumerate(pickfiles[start_idx:]):
                     
                     # get instrument corrected spectra
                     try:
-                        freqs, ps_disp_amp = response_corrected_fft(pstr_trim, pickDat)
+                        freqs, ps_disp_amp, pazfile = response_corrected_fft(pstr_trim, pickDat)
                     except:
-                        freqs, ps_disp_amp = retry_stationlist_fft(pstr_trim, pickDat)
+                        freqs, ps_disp_amp, pazfile = retry_stationlist_fft(pstr_trim, pickDat)
                         
                     smoothed_disp, smoothed_interp_disp = get_smoothed_fft_spectra(freqs, ps_disp_amp)
                     
@@ -618,9 +669,9 @@ for p, pf in enumerate(pickfiles[start_idx:]):
                     
                     # get instrument corrected spectra
                     try:
-                        freqs, s_disp_amp = response_corrected_fft(str_trim, pickDat)
+                        freqs, s_disp_amp, pazfile = response_corrected_fft(str_trim, pickDat)
                     except:
-                        freqs, s_disp_amp = retry_stationlist_fft(str_trim, pickDat)
+                        freqs, s_disp_amp, pazfile = retry_stationlist_fft(str_trim, pickDat)
                         
                     smoothed_disp, smoothed_interp_disp = get_smoothed_fft_spectra(freqs, s_disp_amp)
                     

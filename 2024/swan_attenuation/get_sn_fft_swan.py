@@ -359,6 +359,8 @@ def get_ev_deets(fft_datetime):
             eqmagType = ev['magType']
             eqdp = ev['dep']
             eqdt = ev['datetime']
+            print(ev)
+            gaid = ev['gaid']
             
             mag = eqmag
             magType = eqmagType
@@ -379,6 +381,7 @@ def get_ev_deets(fft_datetime):
                     eqmagType = ev['magType']
                     eqdp = ev['dep']
                     eqdt = ev['datetime']
+                    gaid = ''
                     
             else:
                 if UTCDateTime(ev['datetime']) > st[0].stats.starttime-timedelta(seconds=30)  \
@@ -390,6 +393,7 @@ def get_ev_deets(fft_datetime):
                     eqmagType = ev['magType']
                     eqdp = ev['dep']
                     eqdt = ev['datetime']
+                    gaid = ''
                     
                     
         mag = eqmag
@@ -737,13 +741,15 @@ for p, pf in enumerate(pickfiles[start_idx:]):
             recDat['eqlo'] = pickDat['eqlo']
             recDat['eqla'] = pickDat['eqla']
             recDat['eqdp'] = pickDat['eqdp']
-            mag, magType = get_ev_deets(UTCDateTime(pickDat['evdt']))
+            mag, magType, gaid = get_ev_deets(UTCDateTime(pickDat['evdt']))
             recDat['mag'] = mag
             recDat['magType'] = magType
+            recDat['gaid'] = gaid
             print(mag, magType)
             #recDat['place'] = evName
             recDat['rhyp'] = pickDat['rhyp']
             recDat['eqla'] = pickDat['eqla']
+            
             
             # get sta data
             staDat = return_sta_data(tr.stats.station)

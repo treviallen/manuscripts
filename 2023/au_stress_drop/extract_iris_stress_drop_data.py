@@ -56,8 +56,8 @@ else:
 # loop through networks
 ##############################################################################
 
-networks = ['AU', 'S1', 'IU', 'II', 'G', '2O'] #, 'M8']
-#networks = ['AU']
+networks = ['AU', 'S1', 'IU', 'II', 'G', '2O', 'M8']
+#networks = ['M8']
 #networks = ['S1', 'IU', 'II', 'G', '2O', 'M8']
 
 for network in networks:

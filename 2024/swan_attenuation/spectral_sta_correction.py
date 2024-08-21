@@ -4,6 +4,7 @@ loads output from fit_brune_spectra.py and gets mean sta correction
 
 import pickle
 from numpy import array, unique, vstack, nanmean, exp, log, zeros_like, nan
+from misc_tools import get_log_xy_locs
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 mpl.style.use('classic')
@@ -28,17 +29,25 @@ for event in events:
     for sta in event['stas']:
         allstas.append(sta)
         
-unique_stas = unique(array(allstas))
+unique_stas = unique(array(allstas))  
+'''
+# use alt stationlist
+unique_stas = []
+lines = open('spectral_plot_paper.txt').readlines()
+for line in lines:
+    unique_stas.append(line.strip())
+'''
 
 ###############################################################################
 # get unique sta correction
 ###############################################################################
-fig = plt.figure(1, figsize=(18,10))
+fig = plt.figure(1, figsize=(18,15))
+props = dict(boxstyle='round', facecolor='w', alpha=1)
 sta_spec_cor = []
 p = 1
 pp = 1
 for sta in unique_stas:
-    plt.subplot(3,3,p)
+    ax = plt.subplot(4,3,p)
     
     print(sta)
     ratio_stack = []
@@ -81,25 +90,38 @@ for sta in unique_stas:
         av_ratio = zeros_like(event['freqs']) * nan
         
     plt.grid(which='both')
-    plt.title(sta)
+    #plt.title(sta)
     plt.xlim([0.1, 30])
     plt.ylim([0.001, 10])
+    
+    xlims = ax.get_xlim()
+    ylims = ax.get_ylim()
+    xloc = get_log_xy_locs(xlims, 0.04)
+    yloc = get_log_xy_locs(ylims, 0.04)
+    plt.text(xloc, yloc, sta, va='bottom', ha ='left', fontsize=13, bbox=props)
+    
+    if p >= 10:
+        plt.xlabel('Frequency (Hz)', fontsize=14)
+    if p == 1 or p == 4 or p == 7 or p == 10:
+        plt.ylabel('Spectral Ratio', fontsize=14)
     
     tmp = {'sta':sta, 'sta_cor':av_ratio}
     sta_spec_cor.append(tmp)
     
     p += 1
     
-    if p == 10:
+    if p == 13:
         plt.savefig('spectral_corr/spectral_correction_'+str(pp)+'.png', fmt='png', bbox_inches='tight')
         pp += 1
         p = 1
-        fig = plt.figure(pp, figsize=(18,10))
+        fig = plt.figure(pp, figsize=(18,15))
         
 
 plt.savefig('spectral_corr/spectral_correction_'+str(pp)+'.png', fmt='png', bbox_inches='tight')
 
+'''
 # export spectral correction
 pklfile = open('sta_spec_correction.pkl', 'wb')
 pickle.dump(sta_spec_cor, pklfile, protocol=-1)
 pklfile.close()
+'''

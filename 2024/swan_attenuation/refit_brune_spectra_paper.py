@@ -374,7 +374,7 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
     # get upper & lower f for filtering
     minf = 0.8
     maxf = 12
-    qual = 1
+    qual = 0
     for fdat in filtdat:
         if fdat['ev'] == event:
             minf = fdat['minf']
@@ -384,8 +384,9 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
     #print(','.join((event,str(minf),str(maxf))))
 
     if qual == 1:
+        print('   '+event)
         sp += 1
-        plt.subplot(2,3,sp)
+        ax = plt.subplot(2,3,sp)
         log_stack_logfds = []
         handles1 = []
         labels1 = []
@@ -592,19 +593,19 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
             # plot fitted curve
             fitted_curve = omega0 / (1 + (freqs / f0)**2)
             h3, = plt.loglog(freqs, fitted_curve, 'k-', lw=1.5, label='Fitted Brune Model')
-            plt.legend(handles=[h2, h3], loc=1, fontsize=8)
+            plt.legend(handles=[h2, h3], loc=1, fontsize=11)
             
             edict['fitted_spectra'] = fitted_curve
             
             if qual == 0:
-                plt.title('; '.join((str(event)[0:16], '$\mathregular{M_{W(Brune)}}$ ' +str('%0.2f' % mw), r"$\Delta\sigma$ " +str('%0.2f' % sd)+' MPa')), fontsize=10, color='red')
+                plt.title('; '.join((str(event)[0:16], '$\mathregular{M_W}$ ' +str('%0.2f' % mw), r"$\Delta\sigma$ = " +str('%0.2f' % sd)+' MPa')), fontsize=13, color='red')
             else:
-                plt.title('; '.join((str(event)[0:16], '$\mathregular{M_{W(Brune)}}$ '+str('%0.2f' % mw), r"$\Delta\sigma$ " +str('%0.2f' % sd)+' MPa')), fontsize=10, color='k')
+                plt.title('; '.join((str(event)[0:16], '$\mathregular{M_W}$ '+str('%0.2f' % mw), r"$\Delta\sigma$ = " +str('%0.2f' % sd)+' MPa')), fontsize=14, color='k')
             
             if sp == 1 or sp == 4:
-               plt.ylabel('Fourier Displacement Spectra (m-s)')
+               plt.ylabel('Fourier Displacement Spectra (m-s)', fontsize=14)
             if sp >= 4:
-               plt.xlabel('Frequency (Hz)')
+               plt.xlabel('Frequency (Hz)', fontsize=14)
             #plt.title(' - '.join((ev, 'M'+str('%0.2f' % mag), place)), fontsize=10)
         
         plt.gca().add_artist(leg1)
@@ -626,11 +627,13 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
         plt.grid(which='both', color='0.7')
             
         if sp == 6:
-            plt.savefig('brune_refit/brune_fit_'+str(ii)+'.png', fmt='png', bbox_inches='tight')
+            plt.subplots_adjust(wspace=0.11)
+            plt.savefig('brune_refit/paper_brune_fit_'+str(ii)+'.png', fmt='png', bbox_inches='tight')
             sp = 0
             ii += 1
             fig = plt.figure(ii, figsize=(18,11))
-        
+
+plt.subplots_adjust(wspace=0.1)        
 plt.savefig('brune_refit/paper_brune_fit_'+str(ii)+'.png', fmt='png', dpi=300, bbox_inches='tight')
 
 

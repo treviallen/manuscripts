@@ -16,8 +16,8 @@ plt.rcParams['pdf.fonttype'] = 42
 import warnings
 warnings.filterwarnings("ignore")
 
-fidx = 75
-#fidx = 20
+fidx = 75 # 1Hz
+fidx = 90 # 2Hz
 ###############################################################################
 # load datasets 
 ###############################################################################
@@ -113,11 +113,11 @@ plt.xlim([5, 2200])
 plt.ylim([-3, 3])
 
 plt.show()
-crash
+#crash
 ###############################################################################
 # get stns res
 ###############################################################################
-dateRng = [UTCDateTime(1989,12,1).datetime, UTCDateTime(2024,6,30).datetime]
+dateRng = [UTCDateTime(1989,12,1).datetime, UTCDateTime(2024,8,30).datetime]
 fig = plt.figure(1, figsize=(19,11))
 i = 1
 ii = 1
