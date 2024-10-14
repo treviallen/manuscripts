@@ -1,6 +1,6 @@
 import pickle
 from numpy import unique, array, arange, log, log10, exp, mean, nanmean, ndarray, sqrt, \
-                  nanmedian, hstack, pi, nan, isnan, interp, where, zeros_like, polyfit
+                  nanmedian, hstack, pi, nan, isnan, interp, where, zeros_like, polyfit, logspace
 from misc_tools import get_binned_stats, dictlist2array, get_mpl2_colourlist
 from mag_tools import nsha18_mb2mw, nsha18_ml2mw
 from get_mag_dist_terms import get_distance_term, get_magnitude_term, get_kappa_term
@@ -16,30 +16,71 @@ plt.rcParams['pdf.fonttype'] = 42
 import warnings
 warnings.filterwarnings("ignore")
 
+fidx = 30 # 0.13
+#fidx = 50 # 0.3Hz
 fidx = 75 # 1Hz
 fidx = 90 # 2Hz
+#fidx = 115 # 6.3 Hz
+#fidx = 100 # 3.2 Hz
+#fidx = 110 # 5
 ###############################################################################
 # load datasets 
 ###############################################################################
-
 recs = pickle.load(open('fft_data.pkl', 'rb' ))
+
+
+# set most recent Brune mags
+"""
+lines = open('brune_stats.csv').readlines()[1:]
+brunedat = []
+for line in lines:
+    dat = line.strip().split(',')
+    tmp = {'datetime':UTCDateTime(dat[0]), 'mw':float(dat[8]), 'qual':int(float(dat[-1]))}
+    
+    brunedat.append(tmp)
+    
+def get_brune_deets(rec_ev):
+    bruneStats = {'qual':0}
+    for evnum, ev in enumerate(brunedat): 
+        if rec_ev == ev['datetime']:
+            #print(rec_ev)
+            bruneStats = ev
+               
+    return bruneStats
 
 # convert mags to MW
 for i, rec in enumerate(recs):
-    if rec['magType'].lower().startswith('mb'):
-        recs[i]['mag'] = nsha18_mb2mw(rec['mag'])
-    elif rec['magType'].lower().startswith('ml'):
-        # additional fix for use of W-A 2800 magnification pre-Antelope
-        if UTCDateTime(rec['ev']) < UTCDateTime(2008, 1, 1):
-            recs[i]['mag'] -= 0.07
-        
-        # now fix ML
+    bruneMag = False
+    bruneStats = get_brune_deets(rec['evdt'])
+    
+    if bruneStats['qual'] > 0:
+        recs[i]['mag'] = bruneStats['mw']
+        bruneMag = True
+    
+    if bruneMag == False:
+        if rec['magType'].lower().startswith('mb'):
+            recs[i]['mag'] = nsha18_mb2mw(rec['mag'])
+        elif rec['magType'].lower().startswith('ml'):
+            # additional fix for use of W-A 2800 magnification pre-Antelope
+            if UTCDateTime(rec['ev']) < UTCDateTime(2008, 1, 1):
+                recs[i]['mag'] -= 0.07
+            
+            # now fix ML
         recs[i]['mag'] = nsha18_ml2mw(rec['mag'])
+"""
+# dump with updated mags
+'''
+pklfile = open('fft_data.pkl', 'wb')      
+pickle.dump(recs, pklfile, protocol=-1)
+pklfile.close()                           
+'''
 
-# load atten coeffs
+# load coeffs
 coeffs = pickle.load(open('atten_coeffs.pkl', 'rb' ))
+#coeffs = pickle.load(open('atten_coeffs_1f.pkl', 'rb' ))
 
 c = coeffs[fidx]
+#c = coeffs[0]
 print("Coeffs Freq = " +str('%0.3f' % c['freq']))
 
 # load station sets
@@ -68,6 +109,11 @@ stalist = stationlist2dict()
 stalist_start = dictlist2array(stalist, 'start')
 stalist_sta = dictlist2array(stalist, 'sta')
 
+
+mdist_lookup_mags = arange(3.5,7.1,0.5)
+mdist_lookup_dists = array([550, 1200, 1700, 2000, 2200, 2200, 2200, 2200])
+
+
 ###############################################################################
 # parse coefs and get model prediction
 ###############################################################################
@@ -76,8 +122,14 @@ yres = []
 for i, rec in enumerate(recs):
     try:
         channel = rec['channels'][0]
+        
+        idx = where(rec['mag'] >= mdist_lookup_mags)[0]
+        if len(idx) == 0:
+            mag_dist = mdist_lookup_dists[0]
+        else:
+            mag_dist = mdist_lookup_dists[idx[-1]]
             
-        if rec[channel]['sn_ratio'][fidx] >= 4.:
+        if rec[channel]['sn_ratio'][fidx] >= 4. and rec['mag'] <= mag_dist:
             rhyps.append(rec['rhyp'])
             
             # get mag term
@@ -95,6 +147,11 @@ for i, rec in enumerate(recs):
             yobs = log10(rec[channel]['swave_spec'][fidx])
             yres.append(yobs - ypred)
             recs[i]['yres'] = yobs - ypred
+            recs[i]['yobs'] = yobs
+            recs[i]['ypred'] = ypred
+            recs[i]['magterm'] = magterm
+            recs[i]['distterm'] = distterm
+            recs[i]['kapterm'] = kapterm
             
         else:
             yres.append(nan)
@@ -112,8 +169,13 @@ plt.semilogx([5, 2200], [0, 0], 'k--')
 plt.xlim([5, 2200])
 plt.ylim([-3, 3])
 
+# get binned data
+logbins = arange(0.1, 3.5, 0.1)
+logresbin, stdbin, medx, binstrp, nperbin = get_binned_stats(logbins, log10(rhyps), yres)
+plt.semilogx(10**medx, logresbin, 'rs', ms=7)
+
 plt.show()
-#crash
+crash
 ###############################################################################
 # get stns res
 ###############################################################################

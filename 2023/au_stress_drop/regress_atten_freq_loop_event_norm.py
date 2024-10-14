@@ -115,12 +115,18 @@ def fit_near_source_saturation(c, x):
 # grunt defs
 ###############################################################################
 #print('\n ASSIGN MW AND RE-RUN \n')
+mdist_lookup_mags = arange(3.5,7.1,0.5)
+mdist_lookup_dists = array([450, 1200, 1700, 2000, 2200, 2200, 2200, 2200])
+
 def normalise_data(p, recs, sn_ratio, events):
     
     #print('!!!!!!! UNCOMMENT FILTER BY SAMPLE RATE !!!!!!!')
     
     log_norm_amps = []
+    norm_rhyps = []
+    mags = []
     stas = []
+    logamps = []
 
     chan = recs[0]['channels'][-1]
     
@@ -137,7 +143,16 @@ def normalise_data(p, recs, sn_ratio, events):
     
         # get all records for each sta
         for rec in recs:
-            if len(rec['channels']) > 0 and rec['ev'] == e:
+            
+            idx = where(rec['mag'] >= mdist_lookup_mags)[0]
+            if len(idx) == 0:
+                mag_dist = mdist_lookup_dists[0]
+            else:
+                mag_dist = mdist_lookup_dists[idx[-1]]
+            
+            evmag = rec['mag']
+            
+            if len(rec['channels']) > 0 and rec['ev'] == e and rec['rhyp'] < mag_dist:
                 if rec['net'] in keep_nets:
                     if not rec['sta'] in ignore_stas:
                         channel = rec['channels'][0]
@@ -558,7 +573,7 @@ def get_distance_residuals(n0, n1, mc, fc):
 recs = pickle.load(open('fft_data.pkl', 'rb' ))
 
 # remove bad recs
-keep_nets = set(['AU', 'IU', 'S1', 'G', 'MEL', 'ME', '20', 'AD', 'SR', 'UM', 'AB', 'VI', 'GM', 'M8', 'DU', \
+keep_nets = set(['AU', 'IU', 'S1', 'G', 'MEL', 'ME', '20', 'AD', 'SR', 'UM', 'AB', 'VI', 'GM', 'M8', 'DU', 'AM', 'YW', \
                  '1P', '1P', '2P', '6F', '7K', '7G', 'G', '7B', '4N', '7D', '', 'OZ', 'OA', 'WG','XX'])
 
 # get stas to ignore

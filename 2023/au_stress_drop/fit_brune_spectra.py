@@ -99,10 +99,7 @@ def correct_atten(rec, coeffs, kapdat):
         """    
         distterms.append(distterm)
     
-    #distterms.append(nan) # as no coeffs for last freq
-    
-    #	get distance independent kappa
-    #smedian_kappa = 0.072214 # should read this from file
+    # set kappa
     kappa = kapdat[-1]['kappa0'] # default kappa
     
     # get site kappa
@@ -138,6 +135,10 @@ def correct_atten(rec, coeffs, kapdat):
         
     if rec['sta'] == 'NPS': 
         idx = where(freqs < 100)[0]
+        cor_fds_nan[idx] = nan
+        
+    if rec['sta'] == 'STKA': 
+        idx = where(freqs < 0.1)[0]
         cor_fds_nan[idx] = nan
         
     if rec['sta'] == 'AS17' and rec['evdt'].year > 2013 and rec['evdt'].year < 2018: 
@@ -327,7 +328,7 @@ coeffs = pickle.load(open('atten_coeffs.pkl', 'rb' ))
 
 # remove bad recs
 keep_nets = set(['AU', 'IU', 'S1', 'II', 'G', 'MEL', 'ME', '2O', 'AD', 'SR', 'UM', 'AB', 'VI', 'GM', 'M8', 'DU', \
-                 '1P', '1P', '2P', '6F', '7K', '7G', 'G', '7B', '4N', '7D', '', 'OZ', 'OA', 'WG', 'XX'])
+                 '1P', '1P', '2P', '6F', '7K', '7G', 'G', '7B', '4N', '7D', '', 'OZ', 'OA', 'WG', 'XX', 'AM', 'YW', '3B'])
 # get stas to ignore
 ignore_stas = open('sta_ignore.txt').readlines()
 ignore_stas = set([x.strip() for x in ignore_stas])
@@ -363,6 +364,10 @@ f.write(outtxt)
 f.close()
 crash
 '''
+
+# set M-R lookup
+mdist_lookup_mags = arange(3.5,7.1,0.5)
+mdist_lookup_dists = array([550, 1200, 1700, 2000, 2200, 2200, 2200, 2200])
 
 # get kappas
 kapdat = parse_kappa_data()
@@ -409,11 +414,22 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
                     if rec['evdt'] == event: # will need to cahnge to rec['datetime']
                         print('   '+rec['sta'])
                         
+                        # get distance cut-off
+                        idx = where((rec['mag']-0.2) >= mdist_lookup_mags)[0]
+                        if len(idx) == 0:
+                            mag_dist = mdist_lookup_dists[0]
+                        else:
+                            mag_dist = mdist_lookup_dists[idx[-1]]
+                        
                         # do skip sta checks
                         skip_sta = False
                         if rec['sta'] == 'QIS' and rec['evdt'].year <= 1999:
                             skip_sta = True
                         elif rec['sta'] == 'RMQ' and rec['evdt'].year <= 1998:
+                            skip_sta = True
+                            
+                        
+                        if rec['rhyp'] > mag_dist:
                             skip_sta = True
                         
                         if skip_sta == False:
@@ -484,8 +500,8 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
         h2, = plt.loglog(freqs, mean_fds,'--', color='0.2', lw=1.5, label='Mean Source Spectrum')
         
         # don't fit these freqs
-        idx = where((freqs >= 0.08) & (freqs <= 0.4))[0]
-        mean_fds[idx] = nan
+        #idx = where((freqs >= 0.08) & (freqs <= 0.4))[0]
+        #mean_fds[idx] = nan
         
         # fit mean curve
         fidx = where((freqs >= minf) & (freqs <= maxf) & (isnan(mean_fds) == False))[0]
@@ -495,6 +511,7 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
         data = odrpack.RealData(freqs[fidx], log(mean_fds[fidx]))
         
         # do special case for Broome
+        '''
         if event == UTCDateTime('2019-07-14T05:39:24.991000Z'):
             print('M6.6 Broome')
             fitted_brune = odrpack.Model(fit_brune_model_fixed_omega)
@@ -507,6 +524,7 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
             f0 = abs(out.beta[0])
             print('f0', f0)
         
+        
         elif event == UTCDateTime('2016-05-20T18:14:02.000000Z'):
             print('M6.0 Petermann')
             fitted_brune = odrpack.Model(fit_brune_model_fixed_omega_petermann)
@@ -518,6 +536,10 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
             omega0 = fixed_omega
             f0 = abs(out.beta[0])
             print('f0', f0)    
+        '''
+        #else:
+            
+        '''
         elif event == UTCDateTime('2021-11-13T13:05:52.663000Z'):
             print('M5.3 Marble Bar')
             fitted_brune = odrpack.Model(fit_brune_model_fixed_omega_marblebar)
@@ -529,6 +551,7 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
             omega0 = fixed_omega
             f0 = abs(out.beta[0])
             print('f0', f0)    
+        
         elif event == UTCDateTime('2020-04-15T07:11:04.955000Z'):
             print('2020 Bowen')
             fitted_brune = odrpack.Model(fit_brune_model_fixed_omega_marblebar)
@@ -540,15 +563,15 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
             omega0 = fixed_omega
             f0 = abs(out.beta[0])
             print('f0', f0) 
-        else:
-            fitted_brune = odrpack.Model(fit_brune_model)
-            odr = odrpack.ODR(data, fitted_brune, beta0=[1E-2,1.])
-            odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
-            out = odr.run()
-            
-            omega0 = out.beta[0]
-            f0 = abs(out.beta[1])
-            print('f0', f0)
+        '''
+        fitted_brune = odrpack.Model(fit_brune_model)
+        odr = odrpack.ODR(data, fitted_brune, beta0=[1E-2,1.])
+        odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
+        out = odr.run()
+        
+        omega0 = out.beta[0]
+        f0 = abs(out.beta[1])
+        print('f0', f0)
         
         m0 = C * omega0
         mw =  m02mw(m0)

@@ -36,7 +36,7 @@ for i, rec in enumerate(recs):
         recs[i]['mag'] = nsha18_ml2mw(rec['mag'])
 
 # load atten coeffs
-coeffs = pickle.load(open('atten_coeffs.pkl', 'rb' ))
+coeffs = pickle.load(open('atten_coeffs_1f.pkl', 'rb' ))
 c = coeffs[fidx]
 print("Coeffs Freq = " +str('%0.3f' % c['freq']))
 
@@ -110,7 +110,7 @@ fig = plt.figure(1, figsize=(19,11))
 i = 1
 ii = 1
 residuals = []
-for ev in events:
+for ev in events[::-1]:
     
     staRes = []
     stas = []

@@ -265,6 +265,12 @@ def response_corrected_fft(tr, pickDat):
         elif tr.stats.network == '5C':
             paz = d5c_parser.get_response(seedid,start_time)
             staloc = d5c_parser.get_coordinates(seedid,start_time)
+        elif tr.stats.network == '3O':
+            paz = d3o_parser.get_response(seedid,start_time)
+            staloc = d3o_parser.get_coordinates(seedid,start_time)
+        elif tr.stats.network == 'AM':
+            paz = dam_parser.get_response(seedid,start_time)
+            staloc = dam_parser.get_coordinates(seedid,start_time)
         '''
         elif tr.stats.network == 'G':
             paz = g_parser.get_paz(seedid,start_time)
@@ -275,8 +281,12 @@ def response_corrected_fft(tr, pickDat):
             tr.remove_response(inventory=d2p_parser)
         elif tr.stats.network == '5C':
             tr.remove_response(inventory=d5c_parser)
+        elif tr.stats.network == '3O':
+            tr.remove_response(inventory=d3o_parser)
         elif tr.stats.network == 'M8':
             tr.remove_response(inventory=dm8_parser)
+        elif tr.stats.network == 'AM':
+            tr.remove_response(inventory=dam_parser)
         else:
             if tr.stats.channel.endswith('SHZ') or tr.stats.channel.endswith('EHZ'):
                 tr = tr.simulate(paz_remove=paz, water_level=10) #  testing water level for SP instruments
@@ -367,7 +377,7 @@ lines = open('brune_stats.csv').readlines()[1:]
 brunedat = []
 for line in lines:
     dat = line.strip().split(',')
-    tmp = {'datetime':UTCDateTime(dat[0]), 'mw':float(dat[7]), 'qual':int(float(dat[-1]))}
+    tmp = {'datetime':UTCDateTime(dat[0]), 'mw':float(dat[8]), 'qual':int(float(dat[-1]))}
     
     brunedat.append(tmp)
     
@@ -446,6 +456,8 @@ else:
     dm8_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/m8-inventory.xml')
     d2p_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/2p-inventory-edit.xml')
     d5c_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/5c-inventory.xml')
+    d3o_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/3o-inventory.xml')
+    dam_parser = read_inventory('/Users/trev/Documents/Networks/AM/R7AF5.xml')
 
 ################################################################################
 # loop through pick files
@@ -462,7 +474,7 @@ for p, pf in enumerate(pickfiles[start_idx:]):
     pickDat = parse_pickfile(pf)
     
     if isnan(pickDat['mag']) == False:
-       if pickDat['starttime'].year == 2023 and pickDat['starttime'].month == 10: # or pickDat['starttime'].year == 2001: # and pf == '1997-03-05T06.15.00.AD.WHY.picks':
+        #if pickDat['starttime'].year == 2024 and pickDat['starttime'].month == 10: # or pickDat['starttime'].year == 2001: # and pf == '1997-03-05T06.15.00.AD.WHY.picks':
         
         channels = []
         if not pickDat['ch1'] == '':

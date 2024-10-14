@@ -30,13 +30,13 @@ for event in events:
         allstas.append(sta)
         
 unique_stas = unique(array(allstas))  
-'''
+
 # use alt stationlist
 unique_stas = []
 lines = open('spectral_plot_paper.txt').readlines()
 for line in lines:
     unique_stas.append(line.strip())
-'''
+
 
 ###############################################################################
 # get unique sta correction
@@ -112,6 +112,7 @@ for sta in unique_stas:
     
     if p == 13:
         plt.savefig('spectral_corr/spectral_correction_'+str(pp)+'.png', fmt='png', bbox_inches='tight')
+        plt.savefig('spectral_corr/spectral_correction_'+str(pp)+'.pdf', fmt='pdf', dpi=300, bbox_inches='tight')
         pp += 1
         p = 1
         fig = plt.figure(pp, figsize=(18,15))
@@ -120,7 +121,7 @@ for sta in unique_stas:
 plt.savefig('spectral_corr/spectral_correction_'+str(pp)+'.png', fmt='png', bbox_inches='tight')
 
 '''
-# export spectral correction
+# export spectral correction - comment out when making paper plot
 pklfile = open('sta_spec_correction.pkl', 'wb')
 pickle.dump(sta_spec_cor, pklfile, protocol=-1)
 pklfile.close()

@@ -293,6 +293,12 @@ def response_corrected_fft(tr, pickDat):
         elif tr.stats.network == '5C':
             paz = d5c_parser.get_response(seedid,start_time)
             staloc = d5c_parser.get_coordinates(seedid,start_time)
+        elif tr.stats.network == '3O':
+            paz = d3o_parser.get_response(seedid,start_time)
+            staloc = d3o_parser.get_coordinates(seedid,start_time)
+        elif tr.stats.network == 'AM':
+            paz = dam_parser.get_response(seedid,start_time)
+            staloc = dam_parser.get_coordinates(seedid,start_time)
         
         '''
         elif tr.stats.network == 'G':
@@ -306,6 +312,10 @@ def response_corrected_fft(tr, pickDat):
             tr.remove_response(inventory=d5c_parser)
         elif tr.stats.network == 'M8':
             tr.remove_response(inventory=dm8_parser)
+        elif tr.stats.network == 'AM':
+            tr.remove_response(inventory=dam_parser)
+        elif tr.stats.network == '3O':
+            tr.remove_response(inventory=d3o_parser)
         else:
             if tr.stats.channel.endswith('SHZ') or tr.stats.channel.endswith('EHZ'):
                 tr = tr.simulate(paz_remove=paz, water_level=10) #  testing water level for SP instruments
@@ -448,7 +458,8 @@ else:
     dm8_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/m8-inventory.xml')
     d2p_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/2p-inventory-edit.xml')
     d5c_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/5c-inventory.xml')
-
+    d3o_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/3o-inventory.xml')
+    dam_parser = read_inventory('/Users/trev/Documents/Networks/AM/R7AF5.xml')
 
 ################################################################################
 # loop through pick files

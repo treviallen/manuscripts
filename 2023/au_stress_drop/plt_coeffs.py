@@ -38,6 +38,11 @@ qc = polyfit(log10(freqs), nc1s, 2)
 yplt = qc[0]*log10(freqs)**2 + qc[1]*log10(freqs) + qc[2]
 plt.semilogx(freqs, yplt, 'g-')
 
+# fit cubic
+qc = polyfit(log10(freqs[15:]), nc1s[15:], 3)
+yplt = qc[0]*log10(freqs)**3 + qc[1]*log10(freqs)**2 + qc[2]*log10(freqs) + qc[3]
+plt.semilogx(freqs, yplt, 'k--')
+
 # fit exponential
 # fit mid
 def fit_exponential(c, x):
@@ -149,13 +154,13 @@ plt.plot(xplt, yplt, 'g')
 mc1 = dictlist2array(coeffs, 'mc1')
 mc1s = dictlist2array(coeffs, 'mc1s')
 mc1t = dictlist2array(coeffs, 'mc1f')
-mc1ts = dictlist2array(coeffs, 'mc1fs')
+#mc1ts = dictlist2array(coeffs, 'mc1fs')
 
 plt.subplot(424)
 plt.semilogx(freqs, mc1, 'ro')
 plt.semilogx(freqs, mc1s, 'bo')
 plt.semilogx(freqs, mc1t, 'co')
-plt.semilogx(freqs, mc1ts, 'mo')
+#plt.semilogx(freqs, mc1ts, 'mo')
 plt.ylabel('mc1')
 
 f0 = 0.03
@@ -234,17 +239,17 @@ plt.semilogx(freqs, fc1, 'ro')
 plt.semilogx(freqs, fc1s, 'bo')
 #plt.ylim([-2,0])
 plt.ylabel('fc1')
-
+'''
 plt.subplot(427)
 fc2 = dictlist2array(coeffs, 'fc2')
-fc2s = dictlist2array(coeffs, 'fc2s')
+#fc2s = dictlist2array(coeffs, 'fc2s')
 plt.semilogx(freqs, fc2, 'ro')
-plt.semilogx(freqs, fc2s, 'bo')
+#plt.semilogx(freqs, fc2s, 'bo')
 #plt.ylim([-2,0])
 plt.ylabel('fc2')
 
 #fig = plt.figure(1, figsize=(12, 10))
-
+'''
 '''
 #plt.semilogx(freqs, nc0s, 'bo')
 
@@ -260,4 +265,18 @@ plt.semilogx(freqs, mc1, 'ro')
 idx = where((freqs > 0.5) & (freqs < 10))[0]
 print(median(mc1[idx]))
 '''
+
+plt.subplot(427)
+fc1 = dictlist2array(coeffs, 'magc0')
+fc1s = dictlist2array(coeffs, 'magc0s')
+plt.semilogx(freqs, fc1, 'ro')
+plt.semilogx(freqs, fc1s, 'bo')
+
+plt.subplot(428)
+fc1 = dictlist2array(coeffs, 'magc1')
+fc1s = dictlist2array(coeffs, 'magc1s')
+plt.semilogx(freqs, fc1, 'ro')
+plt.semilogx(freqs, fc1s, 'bo')
+
+
 plt.show()

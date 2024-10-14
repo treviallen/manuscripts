@@ -257,8 +257,8 @@ stressdrops = []
 
 for line in lines:
     dat = line.strip().split(',')
-    lons.append(float(dat[1]))
-    lats.append(float(dat[2]))
+    lons.append(float(dat[2]))
+    lats.append(float(dat[3]))
     mags.append(float(dat[8]))
     qual.append(float(dat[-1]))
     stressdrops.append(float(dat[9]))

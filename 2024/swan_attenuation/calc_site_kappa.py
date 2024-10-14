@@ -28,6 +28,12 @@ def correct_atten(rec, coeffs):
     
     sn_thresh = 10. # used 4 in model regression
     
+    # set > 0.4 * sample rate to nan
+    maxf = 0.4 * rec['sampling_rate']
+    idx = where(freqs > maxf)[0]
+    raw_fds[idx] = nan
+    sn_ratio[idx] = nan
+    
     # loop thru freqs
     distterms = []
     for c in coeffs:
@@ -134,6 +140,7 @@ props = dict(boxstyle='round', facecolor='w', alpha=1)
 
 events = unique(dictlist2array(recs, 'ev'))
 stations = unique(dictlist2array(recs, 'sta'))
+
 
 
 # use alt stationlist
@@ -260,6 +267,7 @@ for sta in stations:
         i += 1
         if i > 12:
             plt.savefig('kappa/site_kappa_'+str(ii)+'.png', fmt='png', bbox_inches='tight')
+            plt.savefig('kappa/site_kappa_'+str(ii)+'.pdf', fmt='pdf', dpi=600, bbox_inches='tight')
             i = 1
             ii += 1
             fig = plt.figure(ii, figsize=(18,15))
@@ -268,8 +276,10 @@ for sta in stations:
     
 if pltTrue == True:
     plt.savefig('kappa/site_kappa_'+str(ii)+'.png', fmt='png', bbox_inches='tight')
-    
+    plt.savefig('kappa/site_kappa_'+str(ii)+'.pdf', fmt='pdf', dpi=600, bbox_inches='tight')
+   
 
+'''
 # add mean kappa to list
 if pltTrue == False:
     mean_kappa = nanmedian(array(kappa_list))
@@ -279,3 +289,4 @@ if pltTrue == False:
     f = open('site_kappa.csv', 'w')
     f.write(kappa_txt)
     f.close()
+'''

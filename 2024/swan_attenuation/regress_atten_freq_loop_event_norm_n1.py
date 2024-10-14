@@ -149,7 +149,7 @@ def normalise_data(p, recs, sn_ratio, events):
                                 addData = False
                         
                         # filer by sample-rate
-                        if rec[channel]['freqs'][fidx[p]] > 0.45 * rec[channel]['sample_rate']:
+                        if rec[channel]['freqs'][fidx[p]] > (0.4 * rec[channel]['sample_rate']):
                             addData = False
                         
                         # ignore dodgy CMSA data
@@ -381,7 +381,7 @@ ignore_stas = set([x.strip() for x in ignore_stas])
 # parse preliminary Mw and assign as mag
 ###############################################################################
 
-lines = open('brune_stats.csv').readlines()[1:]
+lines = open('../../2023/au_stress_drop/brune_stats.csv').readlines()[1:]
 
 brune_ev = []
 brune_mw = []
@@ -390,8 +390,8 @@ brune_flag = [] # if trust Mw
 for line in lines:
     dat = line.strip().split(',')
     brune_ev.append(dat[0])
-    brune_mw.append(dat[6])
-    brune_flag.append(0) # for now!
+    brune_mw.append(dat[8])
+    brune_flag.append(int(float(dat[-1]))) # for now!
 
 ####################################################################################
 # start main
@@ -407,9 +407,9 @@ omag = mags
 # reset mag to brune mw
 for i, event in enumerate(events):
     for j, bev in enumerate(brune_ev):
-        if brune_flag == 1:
+        if brune_flag[j] >= 1:
             mags[i] = brune_mw[j]
-            #magTypes[i] = 
+            magTypes[i] = 'mwb'
 
 stations = unique(dictlist2array(recs, 'sta'))
 
@@ -501,6 +501,7 @@ for i, c in enumerate(coeffs):
     coeffs[i]['nc0s'] = smooth_nc0[i]
     #coeffs[i]['nc1f'] = fitted_nc1[i]
 '''    
+normDict = [] 
 for p, freq in enumerate(freqs[fidx]):
     if pltTrue == True:
         fig = plt.figure(1, figsize=(18,11))
@@ -509,7 +510,8 @@ for p, freq in enumerate(freqs[fidx]):
     
     # get normalised amplitudes
     log_norm_amps, norm_rhyps, mags, logamps, stas = normalise_data(p, recs, sn_ratio, events)
-    
+    nd = {'log_norm_amps': log_norm_amps, 'logamps':logamps, 'norm_rhyps':norm_rhyps, 'mags':mags}
+    normDict.append(nd)
     ###############################################################################
     # plt near-field GR
     ###############################################################################
@@ -574,13 +576,15 @@ for p, freq in enumerate(freqs[fidx]):
     
     # set n0 - use smoothed vals
     n0 = coeffs[p]['nc0s']
-    n1 = coeffs[p]['nc1s']
-    #mc0_fix = coeffs[p]['mc0s']
-    #print('n0 '+str(n0)) 
-    
+    if pltTrue == True:
+        n1 = coeffs[p]['nc1s']
+    else:
+        n1 = coeffs[p]['nc1f']
+     
     # get normalised amplitudes
-    log_norm_amps, norm_rhyps, mags, logamps, stas = normalise_data(p, recs, sn_ratio, events)
-    
+    #log_norm_amps, norm_rhyps, mags, logamps, stas = normalise_data(p, recs, sn_ratio, events)
+    log_norm_amps = normDict[p]['log_norm_amps']
+    norm_rhyps = normDict[p]['norm_rhyps']
     ###############################################################################
     # plt mid-field GR
     ###############################################################################
@@ -920,7 +924,11 @@ for p, freq in enumerate(freqs[fidx]):
     fc1 = nan
     
     # get normalised amplitudes
-    log_norm_amps, norm_rhyps, mags, logamps, stas = normalise_data(p, recs, sn_ratio, events)
+    #log_norm_amps, norm_rhyps, mags, logamps, stas = normalise_data(p, recs, sn_ratio, events)
+    log_norm_amps = normDict[p]['log_norm_amps']
+    norm_rhyps = normDict[p]['norm_rhyps']
+    logamps = normDict[p]['logamps']
+    mags = normDict[p]['mags']
 
     # get residual for mag regression
     D1 = sqrt(norm_rhyps**2 + nref**2)
@@ -930,7 +938,7 @@ for p, freq in enumerate(freqs[fidx]):
     idx = where((norm_rhyps > r1) & (norm_rhyps <= r2))[0]
     D1 = sqrt(r1**2 + nref**2)
     distterm[idx] = n0 * log10(D1) \
-                    + mc0 * log10(norm_rhyps[idx] / r1) + mc1 * (norm_rhyps[idx] - r1)
+                    + mc1 * (norm_rhyps[idx] - r1) #mc0 * log10(norm_rhyps[idx] / r1) +
     
     # set far-field
     idx = where(norm_rhyps > r2)[0]

@@ -56,7 +56,7 @@ else:
 # loop through networks
 ##############################################################################
 
-networks = ['AU', 'S1', 'IU', 'II', 'G', '2O', 'M8']
+networks = ['AU', 'S1', 'IU', 'II', 'G', '2O', 'M8', '3B']
 #networks = ['M8']
 #networks = ['S1', 'IU', 'II', 'G', '2O', 'M8']
 
@@ -76,6 +76,9 @@ for network in networks:
         iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AU/2o-gmap-stations.txt')
     elif network == 'M8':
         iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AUSPASS/m8-gmap-stations.txt')
+    if network == '3B':
+        iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AU/3b-gmap-stations.txt') 
+       
 ##############################################################################
 # loop through events
 ##############################################################################

@@ -25,11 +25,11 @@ plt.ylabel('nc0')
 plt.subplot(222)
 nc1 = dictlist2array(coeffs, 'nc1')
 nc1s = dictlist2array(coeffs, 'nc1s')
-#nc1f = dictlist2array(coeffs, 'nc1f')
+nc1f = dictlist2array(coeffs, 'nc1f')
 
 plt.semilogx(freqs, nc1, 'ro')
 plt.semilogx(freqs, nc1s, 'bo')
-#plt.semilogx(freqs, nc1f, 'co')
+plt.semilogx(freqs, nc1f, 'co')
 plt.ylabel('nc1')
 
 # fit quadratic

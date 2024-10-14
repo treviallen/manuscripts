@@ -9,7 +9,7 @@
 9) fit_brune_spectra.py - get first fit
 10) spectral_sta_correction.py
 11) refit_brune_spectra.py
-12) fit_mag_scaling.py
+12) fit_mag_scaling.py - doesn't exist?
 
 Other:
 plot_atten_paper.py

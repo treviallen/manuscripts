@@ -442,14 +442,13 @@ cb.set_label('Brune Stress Drop (MPa)', rotation=270, fontsize=18, labelpad=18)
 plt.savefig('mw_vs_ml_zone.png', fmt='png', dpi=300, bbox_inches='tight')       
 plt.show()    
 
-
 ##########################################################################################
 # plot regional residual
 mw_pred = c0 * ml_array**2 + c1 * ml_array + c2 # NSHA23
 mw_res = mw_array - mw_pred
-xloc = 2.635
+xloc = 2.87
 yloc = 0.736        
-xloc2 = 6.865
+xloc2 = 6.63
 yloc2 = -0.736
 
 fig = plt.figure(3, figsize=(14, 8.))
@@ -463,7 +462,7 @@ plt.grid(which='both')
 plt.ylabel('$\mathregular{M_{W(Brune)}}$ - $\mathregular{M_{W(Conv)}}$', fontsize=16)
 plt.xlim([2.75,6.75])
 plt.ylim([-0.8,0.8])
-plt.text(1.77,0.95, '(a)', va='top', ha ='left', fontsize=16)
+plt.text(2.3,0.98, '(a)', va='top', ha ='left', fontsize=16)
 
 # get mean & std
 mean_res = nanmean(mw_res)
@@ -492,7 +491,7 @@ plt.text(xloc2, yloc2, stat_txt, va='bottom', ha ='right', fontsize=12, bbox=pro
 plt.grid(which='both')
 plt.xlim([2.75,6.75])
 plt.ylim([-0.8,0.8])
-plt.text(1.77,0.95, '(b)', va='top', ha ='left', fontsize=16)
+plt.text(2.3,0.98, '(b)', va='top', ha ='left', fontsize=16)
 
 #plt WCA
 plt.subplot(223)
@@ -513,7 +512,7 @@ plt.ylabel('$\mathregular{M_{W(Brune)}}$ - $\mathregular{M_{W(Conv)}}$', fontsiz
 plt.grid(which='both')
 plt.xlim([2.75,6.75])
 plt.ylim([-0.8,0.8])
-plt.text(1.77,0.95, '(c)', va='top', ha ='left', fontsize=16)
+plt.text(2.3,0.98, '(c)', va='top', ha ='left', fontsize=16)
 
 #plt SA
 plt.subplot(224)
@@ -534,7 +533,7 @@ plt.xlabel('$\mathregular{M_{W(Brune)}}$', fontsize=16)
 plt.grid(which='both')
 plt.xlim([2.75,6.75])
 plt.ylim([-0.8,0.8])
-plt.text(1.77,0.95, '(d)', va='top', ha ='left', fontsize=16)
+plt.text(2.3,0.98, '(d)', va='top', ha ='left', fontsize=16)
 #mag_res = ml_array - mw_array
 
 # make colourbar

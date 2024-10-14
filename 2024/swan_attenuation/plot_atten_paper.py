@@ -123,7 +123,7 @@ ignore_stas = set([x.strip() for x in ignore_stas])
 # parse preliminary Mw and assign as mag
 ###############################################################################
 
-lines = open('brune_stats.csv').readlines()[1:]
+lines = open('../../2023/au_stress_drop/brune_stats.csv').readlines()[1:]
 
 brune_ev = []
 brune_mw = []
@@ -132,8 +132,8 @@ brune_flag = [] # if trust Mw
 for line in lines:
     dat = line.strip().split(',')
     brune_ev.append(dat[0])
-    brune_mw.append(dat[6])
-    brune_flag.append(0) # for now!
+    brune_mw.append(dat[8])
+    brune_flag.append(int(float(dat[-1]))) # for now!
 
 ####################################################################################
 # start main
@@ -149,9 +149,9 @@ omag = mags
 # reset mag to brune mw
 for i, event in enumerate(events):
     for j, bev in enumerate(brune_ev):
-        if brune_flag == 1:
+        if brune_flag[j] == 1:
             mags[i] = brune_mw[j]
-            #magTypes[i] = 
+            magTypes[i] = 'mwb'
 
 stations = unique(dictlist2array(recs, 'sta'))
 
@@ -187,8 +187,10 @@ sn_ratio = 4
 coeffs = pickle.load(open('atten_coeffs.pkl', 'rb' ))
 
 fidx = [76, 99]
+#fidx = [76, 117]
+#fidx = [58, 99]
 #fidx = [76, 99] # 2 & 5 Hz
-#fidx = [59, 99] #.75 & 5 Hz
+#fidx = [51, 99] #.75 & 5 Hz
 #fidx = [51, 86]
 
 xplt = arange(1,500,1)
@@ -243,6 +245,7 @@ for p, freq in enumerate(freqs[fidx]):
     
 plt.subplots_adjust(wspace=0.1)
 plt.savefig('norm_geom_spread_paper.png', fmt='png', dpi=150, bbox_inches='tight')
+plt.savefig('norm_geom_spread_paper.pdf', fmt='pdf', dpi=300, bbox_inches='tight')
 plt.show()
 
 ####################################################################################
@@ -271,7 +274,7 @@ def parse_brune_data(csvfile):
     for line in lines:
         dat = line.split(',')
         filt = {'ev':dat[0], 'minf': float(dat[-3]), 'maxf': float(dat[-2]), 'qual':float(dat[-1]),
-        	      'mw': float(dat[7]), 'sd': float(dat[8])}
+        	      'mw': float(dat[8]), 'sd': float(dat[9])}
     
         mwdat.append(filt)
     
@@ -366,4 +369,5 @@ for p, freq in enumerate(freqs[fidx]):
 plt.subplots_adjust(wspace=0.1)
 
 plt.savefig('model_residuals_paper.png', fmt='png', dpi=150, bbox_inches='tight')
+plt.savefig('model_residuals_paper.pdf', fmt='pdf', dpi=300, bbox_inches='tight')
 plt.show()
