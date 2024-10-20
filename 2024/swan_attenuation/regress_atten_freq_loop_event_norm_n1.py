@@ -961,7 +961,8 @@ for p, freq in enumerate(freqs[fidx]):
     logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(mrng, mags, logres)
     
     # fit mag linear
-    magc = polyfit(medx, logmedamp, 1)
+    idx = where(medx <= 4.7)[0]
+    magc = polyfit(medx[idx], logmedamp[idx], 1)
     
     if pltTrue == True:
         plt.plot(medx, logmedamp, 'rs', ms=6.5)

@@ -178,16 +178,19 @@ def get_atkinson_2004(mw, rhyp):
     c2 = a04_coeffs[:,2]
     c3 = a04_coeffs[:,3]
     c4 = a04_coeffs[:,4]
+    	
+    # set m1 
+    m1 = 0.36 + 0.91 * mw # Eqn 12
     
     if rhyp <= 70.:
-        log_fas = c1 + c2*(mw - 4.0) + c3*(mw - 4.0)**2 \
+        log_fas = c1 + c2*(m1 - 4.0) + c3*(m1 - 4.0)**2 \
                 - 1.3 * log10(rhyp) + c4 * rhyp
     elif rhyp > 70 and rhyp <= 140:
-        log_fas = c1 + c2*(mw - 4.0) + c3*(mw - 4.0)**2 \
+        log_fas = c1 + c2*(m1 - 4.0) + c3*(m1 - 4.0)**2 \
                 - 1.3 * log10(70.0) + 0.2 * log10(rhyp/70.0) + c4 * rhyp
                 
     else:
-        log_fas = c1 + c2*(mw - 4.0) + c3*(mw - 4.0)**2 \
+        log_fas = c1 + c2*(m1 - 4.0) + c3*(m1 - 4.0)**2 \
                 - 1.3 * log10(70.0) + 0.2 * log10(140.0/70.0) \
                 - 0.5 * log10(rhyp/140.0) + c4 * rhyp
                 

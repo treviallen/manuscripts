@@ -142,12 +142,12 @@ events = unique(dictlist2array(recs, 'ev'))
 stations = unique(dictlist2array(recs, 'sta'))
 
 
-
-# use alt stationlist
-stations = []
-lines = open('kappa_plot_paper.txt').readlines()
-for line in lines:
-    stations.append(line.strip())
+if pltTrue == True:
+    # use alt stationlist
+    stations = []
+    lines = open('kappa_plot_paper.txt').readlines()
+    for line in lines:
+        stations.append(line.strip())
 
 
 '''
@@ -279,7 +279,7 @@ if pltTrue == True:
     plt.savefig('kappa/site_kappa_'+str(ii)+'.pdf', fmt='pdf', dpi=600, bbox_inches='tight')
    
 
-'''
+
 # add mean kappa to list
 if pltTrue == False:
     mean_kappa = nanmedian(array(kappa_list))
@@ -289,4 +289,3 @@ if pltTrue == False:
     f = open('site_kappa.csv', 'w')
     f.write(kappa_txt)
     f.close()
-'''
