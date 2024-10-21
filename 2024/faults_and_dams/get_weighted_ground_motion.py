@@ -32,6 +32,7 @@ for line in lines[1:]:
 rjb = rrup
 
 Tplot = [0]
+Tplot = [1.0]
 # wts for [A12, AB06, D15, S09nc, ngae] 
 nsha23nc_wts = [0.29, 0.15, 0.17, 0.29, 0.10]
 
@@ -57,7 +58,7 @@ for j, t in enumerate(Tplot):
                 newline = ','.join(lines[i+1].split(',')[0:8]) + ',' + ','.join(str(x) for x in datArray) + ',' + ','.join(str(x) for x in nsha23c_wts) + '\n'
                 txtc += newline
             else:
-                datArray = [A12imt['pga'][0], AB06imt['pga'][0], D15imt['pga'][0], Sea09imt['pga'][0], NGAEimt['sa'][0], \
+                datArray = [A12imt['pga'][0][0], AB06imt['pga'][0][0], D15imt['pga'][0][0], Sea09imt['pga'][0][0], NGAEimt['sa'][0], \
                             A12imt['sig'][0], AB06imt['sig'][0], D15imt['sig'][0], Sea09imt['sig'][0], NGAEimt['sig'][0]]
                 newline = ','.join(lines[i+1].split(',')[0:8]) + ',' + ','.join(str(x) for x in datArray) + ',' + ','.join(str(x) for x in nsha23nc_wts) + '\n'
                 txtnc += newline
@@ -80,13 +81,13 @@ for j, t in enumerate(Tplot):
             ESHM20Cs = interp(t, ESHM20Cimt['per'], ESHM20Cimt['sig'])
             
             if dom[i] == '1':
-                datArray = [A12r, AB06r, D15r, ESHM20Cr, NGAEr, Sea09YCr, Sea09r, \
-                            A12s, AB06s, D15s, ESHM20Cs, NGAEs, Sea09YCs, Sea09s]
+                datArray = [A12r, AB06r, D15r, ESHM20Cr, NGAEr, Sea09YCr, Sea09NCr, \
+                            A12s, AB06s, D15s, ESHM20Cs, NGAEs, Sea09YCs, Sea09NCs]
                 newline = ','.join(lines[i+1].split(',')[0:8]) + ',' + ','.join(str(x) for x in datArray) + ',' + ','.join(str(x) for x in nsha23c_wts) + '\n'
                 txtc += newline
             else:
-                datArray = [A12r, AB06r, D15r, Sea09r, NGAEr, \
-                            A12s, AB06s, D15s, Sea09s, NGAEs]
+                datArray = [A12r, AB06r, D15r, Sea09NCr, NGAEr, \
+                            A12s, AB06s, D15s, Sea09NCs, NGAEs]
                 newline = ','.join(lines[i+1].split(',')[0:8]) + ',' + ','.join(str(x) for x in datArray) + ',' + ','.join(str(x) for x in nsha23nc_wts) + '\n'
                 txtnc += newline
             
