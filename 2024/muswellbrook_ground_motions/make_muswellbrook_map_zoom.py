@@ -94,8 +94,8 @@ NatGeo_World_Map - nice road map - hard to read
 # add cities
 ##########################################################################################
 numCities = 9
-annotate_cities(numCities, plt, m, marker='s', fs=16, weight='medium')
-
+annotate_cities(numCities, plt, m, markersize=10, markerfacecolor='maroon', markeredgecolor='w', \
+                markeredgewidth=1.5, fs=16, weight='medium')
 """
 # add extra locs
 import matplotlib.patheffects as PathEffects
@@ -191,7 +191,7 @@ urcrnrlon
 llcrnrlon
 '''
 x,y = m(rdk_lon, rdk_lat)
-plt.plot(x, y, '^', c='limegreen', ms=12, zorder=1000, label='Rapid Deployment Kits')
+plt.plot(x, y, '^', c='limegreen', ms=12, zorder=1000, label='Rapid Deployment Kits Phase 1')
 
 for sta, slon, slat in zip(rdk_sta, rdk_lon, rdk_lat):
     if slon >= llcrnrlon-ll_buffer and slon <= urcrnrlon+ll_buffer \
@@ -200,6 +200,24 @@ for sta, slon, slat in zip(rdk_sta, rdk_lon, rdk_lat):
             x,y = m(slon+0.004, slat+0.0015)
             plt.text(x, y, sta, size=12, c='k', va='bottom', ha='left', weight='normal', style='italic', \
                      path_effects=path_effects, zorder=11000)
+
+
+rdk1_list = return_all_au_station_data('rdk2_stations.txt')
+rdk_lon = dictlist2array(rdk1_list, 'stlo')
+rdk_lat = dictlist2array(rdk1_list, 'stla')
+rdk_sta = dictlist2array(rdk1_list, 'sta')
+
+x,y = m(rdk_lon, rdk_lat)
+plt.plot(x, y, '^', c='orange', ms=12, zorder=1000, label='Rapid Deployment Kits Phase 2')
+
+for sta, slon, slat in zip(rdk_sta, rdk_lon, rdk_lat):
+    if slon >= llcrnrlon-ll_buffer and slon <= urcrnrlon+ll_buffer \
+        and slat >= llcrnrlat-ll_buffer and slat <= urcrnrlat+ll_buffer:
+            print(sta)
+            x,y = m(slon+0.004, slat+0.0015)
+            plt.text(x, y, sta, size=12, c='k', va='bottom', ha='left', weight='normal', style='italic', \
+                     path_effects=path_effects, zorder=11000)
+
 
 rs_list = return_all_au_station_data('rs_station.txt')
 
@@ -210,24 +228,21 @@ x,y = m(rs_list[0]['stlo']+0.004, rs_list[0]['stla']+0.0015)
 plt.text(x, y, 'R7AF5', size=12, c='k', va='bottom', ha='left', weight='normal', style='italic', \
          path_effects=path_effects, zorder=11000)
 
-plt.legend(loc=2, numpoints=1, fontsize=11)
-
 ##########################################################################################
 # get land & lake polygons for masking
 ##########################################################################################
-'''
-polys = get_map_polygons(m)
+from io_catalogues import parse_ga_event_query
+gadat = parse_ga_event_query('2024_mswl_earthquakes_export.csv')
 
-#mask_outside_polygon(polys[1][::-1], ax=None)
-#mask_outside_polygons(polys, 'lightskyblue', plt)
+la = dictlist2array(gadat, 'lat')
+lo = dictlist2array(gadat, 'lon')
+mag = dictlist2array(gadat, 'mag_ml')
+x,y = m(lo, la)
+scatter = plt.scatter(x,y,s=-75+mag*80, c='yellow', linewidths=0.25, zorder=10000, alpha=0.7, label='Earthquake Epicentres')
 
-# get lake ploygons
-polygons = []
-for polygon in m.lakepolygons:
-    poly = polygon.get_coords()
-    plt.fill(poly[:,0], poly[:,1], 'lightblue')
-    polygons.append(poly)
-'''
+plt.legend(loc=4, numpoints=1, fontsize=11)
+
+
 ##########################################################################################
 # make map inset
 ##########################################################################################
@@ -235,7 +250,7 @@ for polygon in m.lakepolygons:
 from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes
 
 if doLocal == False:
-    axins = zoomed_inset_axes(ax, 0.0011, loc=3)
+    axins = zoomed_inset_axes(ax, 0.0018, loc=3)
 
 m2 = Basemap(projection='merc',\
             llcrnrlon=111,llcrnrlat=-45, \

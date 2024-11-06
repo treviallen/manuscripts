@@ -73,7 +73,7 @@ for ff in fasfiles:
     	
     smoothed_vel, smoothed_interp_vel = get_smoothed_fft_spectra(freqs, vel_amps)
     if comp == 'EHZ':
-        idx = where(interp_freqs < 0.8)[0]
+        idx = where(interp_freqs < 0.5)[0]
         smoothed_interp_vel[idx] = nan
         
     smoothed_interp_vel *= 1000 # convert to mm
@@ -101,6 +101,7 @@ for ff in fasfiles:
             
 mean_hamps = exp(nanmean(hamps, axis=0))
 mean_zamps = exp(nanmean(zamps, axis=0))
+idx = where(interp_freqs >= 0.5)[0]
 
 # finish plots
 plt.subplot(121)
@@ -113,7 +114,7 @@ plt.ylim([1E-3, 20])
 plt.xlim([0.1, 60])
 
 plt.subplot(122)
-plt.loglog(interp_freqs, mean_zamps, 'k-', lw=2.5, label='Mean Vertical')
+plt.loglog(interp_freqs[idx], mean_zamps[idx], 'k-', lw=2.5, label='Mean Vertical')
 plt.legend(loc=3, fontsize=10)
 plt.grid(which='both')
 plt.xlabel('Frequency (Hz)')
