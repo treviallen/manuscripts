@@ -106,7 +106,7 @@ NatGeo_World_Map - nice road map - hard to read
 # add earthquakes
 ##########################################################################################
 import matplotlib.patheffects as PathEffects
-path_effects=[PathEffects.withStroke(linewidth=2.5, foreground="w")]
+#path_effects=[PathEffects.withStroke(linewidth=2.5, foreground="w")]
 
 ##########################################################################################
 # set colours
@@ -168,7 +168,8 @@ for lm in legmag:
     legh.append(h[0])
 
 legtxt = ('$\mathregular{M}$ 2.0', '$\mathregular{M}$ 3.5', '$\mathregular{M}$ 5.0')
-l = plt.legend(legh, legtxt, loc=1, numpoints=1, fontsize=12, title="Magnitude", labelspacing=0.75, frameon=False)
+l = plt.legend(legh, legtxt, loc=1, numpoints=1, fontsize=12, title="Magnitude", title_fontsize=16, \
+               labelspacing=0.75, frameon=False)
 for text in l.get_texts():
     text.set_color("w")
 l.set_zorder(len(mags)+5)
@@ -180,10 +181,34 @@ font = font_manager.FontProperties(weight='bold',
 plt.setp(l.get_title(), color='white')
 
 ##########################################################################################
+# add 50 km buffer
+##########################################################################################
+
+from mapping_tools import distance, reckon
+
+azims = arange(0,360,1)
+rng = 15
+
+azim_lon = []
+azim_lat = []
+eqlo = 150.86
+eqla = -32.34
+for azim in azims:
+    loc = reckon(eqla, eqlo, rng, azim)
+    azim_lon.append(loc[0])
+    azim_lat.append(loc[1])
+    
+azim_lon = array(azim_lon)
+azim_lat = array(azim_lat)
+
+x,y = m(azim_lon, azim_lat)
+plt.plot(x, y, '--', c='c', lw=1.5) #, zorder=41000)
+
+##########################################################################################
 # plt stations
 ##########################################################################################
 import matplotlib.patheffects as PathEffects
-path_effects=[PathEffects.withStroke(linewidth=1.5, foreground="w")]
+path_effects=[PathEffects.withStroke(linewidth=2, foreground="w")]
 
 stationlist = '/Users/trev/Documents/Networks/AU/gmap-stations-edit.txt'
 staDict = parse_iris_stationlist(stationlist)
@@ -203,16 +228,22 @@ for stla, stlo, sta in zip(sta_lat, sta_lon, sta_code):
             cmdlat.append(stla)
             cmdlon.append(stlo)
             print(cmdlat)
-            x,y = m(stlo+0.001, stlo+0.001)
-            plt.text(x, y, sta, size=9, c='k', va='bottom', ha='left', weight='normal', style='italic', \
+            if sta == 'NTLS':
+                x,y = m(stlo-0.015, stla-0.024)
+                plt.text(x, y, sta, size=11, c='k', va='top', ha='right', weight='normal', style='italic', \
                      path_effects=path_effects, zorder=40000)
+            else:
+                x,y = m(stlo-0.015, stla-0.005)
+                plt.text(x, y, sta, size=11, c='k', va='bottom', ha='right', weight='normal', style='italic', \
+                     path_effects=path_effects, zorder=40000)
+            
 '''
 x,y = m(slon+0.004, slat+0.0015)
             plt.text(x, y, sta, size=12, c='k', va='bottom', ha='left', weight='normal', style='italic', \
                      path_effects=path_effects, zorder=11000)
 '''
 x,y = m(sta_lon, sta_lat)
-plt.plot(x, y, '^', c='w', ms=10, zorder=41000)
+plt.plot(x, y, '^', c='lime', ms=10, zorder=41000)
 '''
 x,y = m(cmdlon, cmdlat)
 plt.plot(x, y, '^', c='yellow', ms=12, zorder=1000)
@@ -226,10 +257,10 @@ llcrnrlon
 ##########################################################################################
 # add cities
 ##########################################################################################
-numCities = 10
+numCities = 15
 blacklist = ['Umina', 'Bateau Bay']
 annotate_cities(numCities, plt, m, markersize=8, markerfacecolor='k', markeredgecolor='w', \
-                markeredgewidth=1., fs=12, weight='medium', marker='s', blacklist=blacklist)
+                markeredgewidth=1., fs=12, weight='medium', marker='s', blacklist=blacklist, splittext=True)
 
 ##########################################################################################
 # add colourbar

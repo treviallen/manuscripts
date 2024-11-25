@@ -21,8 +21,8 @@ from obspy import UTCDateTime
 # parse eq list
 ##############################################################################
 #gadat = parse_ga_event_query('earthquakes_export_2012-16_250.edit.csv')
-#recent_csv = 'au_ge_4.4_earthquakes_export_edit.csv'
-recent_csv = 'au_ge_4.4_earthquakes_export_recent.csv'
+recent_csv = 'au_ge_4.4_earthquakes_export_edit.csv'
+#recent_csv = 'au_ge_4.4_earthquakes_export_recent.csv'
 #recent_csv = 'au_ge_4.4_earthquakes_export_bboo.csv'	
 gadat = parse_ga_event_query(recent_csv)
 
@@ -56,8 +56,8 @@ else:
 # loop through networks
 ##############################################################################
 
-networks = ['AU', 'S1', 'IU', 'II', 'G', '2O', 'M8', '3B']
-#networks = ['M8']
+networks = ['AU', 'S1', 'IU', 'II', 'G', '2O', 'M8', '3B', 'YW', 'WG']
+networks = ['5G']
 #networks = ['S1', 'IU', 'II', 'G', '2O', 'M8']
 
 for network in networks:
@@ -76,8 +76,14 @@ for network in networks:
         iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AU/2o-gmap-stations.txt')
     elif network == 'M8':
         iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AUSPASS/m8-gmap-stations.txt')
-    if network == '3B':
+    elif network == '3B':
         iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AU/3b-gmap-stations.txt') 
+    elif network == 'YW':
+        iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AU/yw-gmap-stations.txt') 
+    elif network == 'WG':
+        iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/GSWA/wg-gmap-stations.txt')
+    elif network == '5G':
+        iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AUSPASS/5g-gmap-stations.txt')
        
 ##############################################################################
 # loop through events
@@ -126,6 +132,12 @@ for network in networks:
                     if not path.isfile(mseedfile):
                         if network == 'M8' and getauspass == True:
                             get_auspass_data(dateTuple, durn=1800, network='M8')
+                            getauspass = False
+                        elif network == 'WG' and getauspass == True:
+                            get_auspass_data(dateTuple, durn=1800, network='WG')
+                            getauspass = False
+                        elif network == '5G' and getauspass == True:
+                            get_auspass_data(dateTuple, durn=1800, network='5G')
                             getauspass = False
                         else:
                             st = get_iris_data(dateTuple, isl['sta'], network, durn=1800)

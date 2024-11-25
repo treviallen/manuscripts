@@ -71,6 +71,19 @@ ll_buffer = 0.2
 plt, m, ax = make_street_map(clat, clon, service='World_Imagery', ll_buffer = 0.15, \
              xpixels = 1500, plt_inset = False, plt_marker = False)
 
+parSpace = 0.2
+merSpace = 0.2
+scaleLength = 10
+res = 'f'
+
+slon = m.llcrnrlon + 0.08*(m.urcrnrlon - m.llcrnrlon)
+slat = m.llcrnrlat + 0.85*(m.urcrnrlat - m.llcrnrlat)
+slon0 = mean([m.urcrnrlon, m.llcrnrlon])
+slat0 = mean([m.urcrnrlat, m.llcrnrlat])
+
+m.drawmapscale(slon, slat, slon0, slat0, scaleLength, fontsize=12, barstyle='fancy', zorder=10000, fontcolor='w')
+
+
 '''
     Map Services:
         ESRI_Imagery_World_2D - pref!
