@@ -13,7 +13,7 @@ from misc_tools import listdir_extension
 from data_fmt_tools import return_sta_data, fix_stream_channels
 from datetime import datetime, timedelta
 from os import path, getcwd, remove
-from numpy import asarray
+from numpy import asarray, ceil, log10, array
 import matplotlib.pyplot as plt
 plt.ion()
 import matplotlib as mpl
@@ -158,31 +158,64 @@ def plt_trace(tr, plt, ax, reftime):
     
     plt.plot(times, tr_filt.data, 'b-', lw=0.5, label='Data')
     #ax = plt.gca()
-    ylims = ax.get_ylim()
     
     # set x lims based on distance
     if rngkm < 10.:
-        plt.xlim([pTravelTime-10, pTravelTime+30])
+        #plt.xlim([pTravelTime-10, pTravelTime+30])
+        x1, x2 = [pTravelTime-10, pTravelTime+30]
     elif rngkm < 20.:
-        plt.xlim([pTravelTime-10, pTravelTime+60])
+        #plt.xlim([pTravelTime-10, pTravelTime+60])
+        x1, x2 = [pTravelTime-10, pTravelTime+60]
     elif rngkm >= 20. and rngkm < 100.:
-        plt.xlim([pTravelTime-40, pTravelTime+150])
+        #plt.xlim([pTravelTime-40, pTravelTime+150])
+        x1, x2 = [pTravelTime-40, pTravelTime+150]
     elif rngkm >= 100. and rngkm < 200:
-        plt.xlim([pTravelTime-20, pTravelTime+250])
+        #plt.xlim([pTravelTime-20, pTravelTime+250])
+        x1, x2 = [pTravelTime-20, pTravelTime+250]
     elif rngkm >= 200. and rngkm < 400:
-        plt.xlim([pTravelTime-30, pTravelTime+400])
+        #plt.xlim([pTravelTime-30, pTravelTime+400])
+        x1, x2 = [pTravelTime-30, pTravelTime+400]
     elif rngkm >= 400. and rngkm < 700:
-        plt.xlim([pTravelTime-60, pTravelTime+600])
+        #plt.xlim([pTravelTime-60, pTravelTime+600])
+        x1, x2 = [pTravelTime-60, pTravelTime+600]
     elif rngkm >= 700. and rngkm < 1000:
-        plt.xlim([pTravelTime-60, pTravelTime+900])
+        #plt.xlim([pTravelTime-60, pTravelTime+900])
+        x1, x2 = [pTravelTime-60, pTravelTime+900]
     elif rngkm >= 1000. and rngkm < 1300:
-        plt.xlim([pTravelTime-60, pTravelTime+1200])
+        #plt.xlim([pTravelTime-60, pTravelTime+1200])
+        x1, x2 = [pTravelTime-60, pTravelTime+1200]
     else:
-        plt.xlim([pTravelTime-60, pTravelTime+1500])
+        #plt.xlim([pTravelTime-60, pTravelTime+1500])
+        x1, x2 = [pTravelTime-60, pTravelTime+1500]
         
     if tr.stats.station == 'PIG4' or tr.stats.station == 'CVQOZ':
-        plt.xlim([pTravelTime-120, pTravelTime+180])
+        #plt.xlim([pTravelTime-120, pTravelTime+180])
+        x1, x2 = [pTravelTime-120, pTravelTime+180]
     
+    plt.xlim([x1, x2])
+    ylims = array(ax.get_ylim())
+    
+    # now get indexes
+    xi1 = int(round((x1 * tr.stats.sampling_rate)))
+    xi2 = int(round((x2 * tr.stats.sampling_rate)))
+    '''
+    try:
+        maxy = max(abs(tr_filt.data[xi1:xi2]))
+        	
+        loy = abs(maxy/ylims[0])
+        if loy < 0.2:
+            ylims[0] = -0.8*10**(ceil(log10(maxy)))
+            
+        hiy = abs(maxy/ylims[1])
+        if hiy < 0.2:
+            ylims[1] = 0.8*10**(ceil(log10(maxy)))
+        
+        #print(ylims, loy, hiy)  
+    except:
+        print('Bad Channel: '+tr.stats.channel)  
+    '''
+    plt.ylim(ylims)
+        
     # plt theoretical arrivals
     plt.plot([pTravelTime, pTravelTime], ylims, 'r--', label='P Phase')
     plt.plot([sTravelTime, sTravelTime], ylims, 'g--', label='S Phase')

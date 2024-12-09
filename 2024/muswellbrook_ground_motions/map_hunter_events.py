@@ -257,9 +257,9 @@ llcrnrlon
 ##########################################################################################
 # add cities
 ##########################################################################################
-numCities = 15
-blacklist = ['Umina', 'Bateau Bay']
-annotate_cities(numCities, plt, m, markersize=8, markerfacecolor='k', markeredgecolor='w', \
+numCities = 20
+blacklist = ['Umina', 'Bateau Bay', 'South Tamworth']
+annotate_cities(numCities, plt, m, markersize=8, markerfacecolor='k', markeredgecolor='w', loc=4, \
                 markeredgewidth=1., fs=12, weight='medium', marker='s', blacklist=blacklist, splittext=True)
 
 ##########################################################################################

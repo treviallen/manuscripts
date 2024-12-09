@@ -81,7 +81,7 @@ slat = m.llcrnrlat + 0.85*(m.urcrnrlat - m.llcrnrlat)
 slon0 = mean([m.urcrnrlon, m.llcrnrlon])
 slat0 = mean([m.urcrnrlat, m.llcrnrlat])
 
-m.drawmapscale(slon, slat, slon0, slat0, scaleLength, fontsize=12, barstyle='fancy', zorder=10000, fontcolor='w')
+m.drawmapscale(slon, slat, slon0, slat0, scaleLength, fontsize=12, barstyle='simple', zorder=10000, fontcolor='w')
 
 
 '''

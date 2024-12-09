@@ -9,7 +9,7 @@ from io_catalogues import parse_ga_event_query
 import matplotlib.pyplot as plt
 from misc_tools import dictlist2array
 from mapping_tools import distance
-from data_fmt_tools import return_sta_data, parse_iris_stationlist, get_iris_data, get_auspass_data
+from data_fmt_tools import return_sta_data, parse_iris_stationlist, get_iris_data, get_auspass_data, get_swan_data
 import datetime as dt
 from numpy import arange, array, where, zeros_like, histogram
 #from gmt_tools import cpt2colormap 
@@ -57,7 +57,7 @@ else:
 ##############################################################################
 
 networks = ['AU', 'S1', 'IU', 'II', 'G', '2O', 'M8', '3B', 'YW', 'WG']
-networks = ['5G']
+networks = ['4N']
 #networks = ['S1', 'IU', 'II', 'G', '2O', 'M8']
 
 for network in networks:
@@ -84,6 +84,8 @@ for network in networks:
         iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/GSWA/wg-gmap-stations.txt')
     elif network == '5G':
         iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AUSPASS/5g-gmap-stations.txt')
+    elif network == '4N':
+        iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AUSPASS/4n-gmap-stations.txt')
        
 ##############################################################################
 # loop through events
@@ -106,42 +108,50 @@ for network in networks:
         dt = ev['datetime']
         print(dt)
         # allow 2 mins pre-event - subs realised "get_iris_data" already pads by 2 mins, so have 4 mins
-        dateTuple = (dt.year, dt.month, dt.day, dt.hour, dt.minute-2)
+        dt = UTCDateTime(ev['datetime']) - 120
+        dateTuple = (dt.year, dt.month, dt.day, dt.hour, dt.minute)
         
-        # set string for dummy file
-        evdate = str(UTCDateTime(dt.year, dt.month, dt.day, dt.hour, dt.minute)-240)[0:16].replace(':','.')
+        if dt >= UTCDateTime(2019, 7, 14, 22, 0):
         
-        # loop thru stations
-        #iris_sta_list = [{'CAAN']
-        getauspass = True
-        for isl in iris_sta_list:
+            # set string for dummy file
+            evdate = str(UTCDateTime(dt.year, dt.month, dt.day, dt.hour, dt.minute)-240)[0:16].replace(':','.')
             
-            # check if station is open
-            if isl['starttime'] <= dt and isl['stoptime'] >= dt: # and dt.year >= 2020:
-                #if isl['starttime'] <= dt and isl['stoptime'] < dt: # and dt.year >= 2020:
+            # loop thru stations
+            #iris_sta_list = [{'CAAN']
+            getauspass = True
+            for isl in iris_sta_list:
                 
-                # check if in distance range
-                repi = distance(ev['lat'], ev['lon'], isl['lat'], isl['lon'])[0]
-                #print(repi)
-                if repi >= mindist and repi <= maxdist: # and isl['sta'].startswith('KIM'):
+                # check if station is open
+                if isl['starttime'] <= dt and isl['stoptime'] >= dt: # and dt.year >= 2020:
+                    #if isl['starttime'] <= dt and isl['stoptime'] < dt: # and dt.year >= 2020:
                     
-                    # make dummy file name and see if exists
-                    mseedfile = path.join('iris_dump', \
-                               '.'.join((evdate, network, isl['sta'], 'mseed')))
-                    
-                    if not path.isfile(mseedfile):
-                        if network == 'M8' and getauspass == True:
-                            get_auspass_data(dateTuple, durn=1800, network='M8')
-                            getauspass = False
-                        elif network == 'WG' and getauspass == True:
-                            get_auspass_data(dateTuple, durn=1800, network='WG')
-                            getauspass = False
-                        elif network == '5G' and getauspass == True:
-                            get_auspass_data(dateTuple, durn=1800, network='5G')
-                            getauspass = False
-                        else:
-                            st = get_iris_data(dateTuple, isl['sta'], network, durn=1800)
+                    # check if in distance range
+                    repi = distance(ev['lat'], ev['lon'], isl['lat'], isl['lon'])[0]
+                    #print(repi)
+                    if repi >= mindist and repi <= maxdist: # and isl['sta'].startswith('KIM'):
                         
-                    else:
-                        print('Skipping: ' + mseedfile)
-    
+                        # make dummy file name and see if exists
+                        mseedfile = path.join('iris_dump', \
+                                   '.'.join((evdate, network, isl['sta'], 'mseed')))
+                        
+                        if not path.isfile(mseedfile):
+                            if network == 'M8' and getauspass == True:
+                                get_auspass_data(dateTuple, durn=1800, network='M8')
+                                getauspass = False
+                            elif network == 'WG' and getauspass == True:
+                                get_auspass_data(dateTuple, durn=1800, network='WG')
+                                getauspass = False
+                            elif network == '5G' and getauspass == True:
+                                #get_auspass_data(dateTuple, durn=1800, network='5G')
+                                get_swan_data(dateTuple, durn=1800, network='5G')
+                                getauspass = False
+                            elif network == '4N' and getauspass == True:
+                                #get_auspass_data(dateTuple, durn=1800, network='4N')
+                                get_swan_data(dateTuple, durn=1800, network='4N')
+                                getauspass = False
+                            else:
+                                st = get_iris_data(dateTuple, isl['sta'], network, durn=1800)
+                            
+                        else:
+                            print('Skipping: ' + mseedfile)
+            
