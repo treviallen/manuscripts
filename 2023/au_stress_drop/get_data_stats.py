@@ -81,7 +81,7 @@ plt.xlabel('Frequency (Hz)', fontsize=18)
 plt.ylabel('Count', fontsize=18)
 plt.grid(which='both')
 plt.xlim([0.02,40])
-plt.ylim([800,6000])
+plt.ylim([800,7000])
 print('Max Cnt: '+str(max(fcnt)))
 
 xticks = [0.1, 1.0, 10]

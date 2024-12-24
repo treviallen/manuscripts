@@ -287,6 +287,10 @@ def response_corrected_fft(tr, pickDat):
             tr.remove_response(inventory=dm8_parser)
         elif tr.stats.network == 'AM':
             tr.remove_response(inventory=dam_parser)
+        elif tr.stats.network == 'WG':
+            tr.remove_response(inventory=dwg_parser)
+        elif tr.stats.network == '4N':
+            tr.remove_response(inventory=d4n_parser)
         else:
             if tr.stats.channel.endswith('SHZ') or tr.stats.channel.endswith('EHZ'):
                 tr = tr.simulate(paz_remove=paz, water_level=10) #  testing water level for SP instruments
@@ -458,6 +462,9 @@ else:
     d5c_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/5c-inventory.xml')
     d3o_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/3o-inventory.xml')
     dam_parser = read_inventory('/Users/trev/Documents/Networks/AM/R7AF5.xml')
+    d4n_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/4n-inventory.xml')
+    dwg_parser = read_inventory('/Users/trev/Documents/Networks/GSWA/wg-inventory.xml')
+    
 
 ################################################################################
 # loop through pick files

@@ -296,7 +296,7 @@ for i in srcidx:
             print('NEQ After =', len(mvect))
             
             # get bval for combined zones data - uses new MW estimates ("total_mvect") to do cleaning
-            mmin = 3.15
+            mmin = 3.25
             bval, beta, sigb, sigbeta, fn0, cum_rates, ev_out, err_up, err_lo, nevents = \
                   get_mfds(mvect, mxvect, tvect, dec_tvect, ev_dict, \
                            mcomps, ycomps, nshaMaxYear, mrng, src_mmax[i], mmin, \

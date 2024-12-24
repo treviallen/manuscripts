@@ -53,10 +53,10 @@ doLocal = False
 clat = -32.34
 clon = 150.87
 if doLocal == False:
-    urcrnrlat = clat + 0.12
-    llcrnrlat = clat - 0.12
-    urcrnrlon = clon + 0.12
-    llcrnrlon = clon - 0.12
+    urcrnrlat = clat + 0.13
+    llcrnrlat = clat - 0.13
+    urcrnrlon = clon + 0.16
+    llcrnrlon = clon - 0.16
 
 ##########################################################################################
 # set up street map
@@ -68,20 +68,32 @@ clat = mean([llcrnrlat, urcrnrlat])
             
 degrng = urcrnrlon-llcrnrlon
 ll_buffer = 0.2
+'''
 plt, m, ax = make_street_map(clat, clon, service='World_Imagery', ll_buffer = 0.15, \
              xpixels = 1500, plt_inset = False, plt_marker = False)
+'''
+fig = plt.figure(figsize=(18,10))
+#plt.tick_params(labelsize=16)
+ax = fig.add_subplot(111)
+
+m = Basemap(llcrnrlon=llcrnrlon,llcrnrlat=llcrnrlat,urcrnrlon=urcrnrlon,urcrnrlat=urcrnrlat, epsg=3857) #3112)
+#m.drawparallels(arange(-90.,90.,0.5), labels=[1,0,0,0],fontsize=10, dashes=[2, 2], color='0.5', linewidth=0.0)
+#m.drawmeridians(arange(0.,360.,0.5), labels=[0,0,0,1], fontsize=10, dashes=[2, 2], color='0.5', linewidth=0.0)
+#http://server.arcgisonline.com/arcgis/rest/services
+
+m.arcgisimage(service='World_Imagery', xpixels = 1500, verbose= True)
 
 parSpace = 0.2
 merSpace = 0.2
 scaleLength = 10
 res = 'f'
 
-slon = m.llcrnrlon + 0.08*(m.urcrnrlon - m.llcrnrlon)
-slat = m.llcrnrlat + 0.85*(m.urcrnrlat - m.llcrnrlat)
+slon = m.llcrnrlon + 0.18*(m.urcrnrlon - m.llcrnrlon)
+slat = m.llcrnrlat + 0.93*(m.urcrnrlat - m.llcrnrlat)
 slon0 = mean([m.urcrnrlon, m.llcrnrlon])
 slat0 = mean([m.urcrnrlat, m.llcrnrlat])
 
-m.drawmapscale(slon, slat, slon0, slat0, scaleLength, fontsize=12, barstyle='simple', zorder=10000, fontcolor='w')
+m.drawmapscale(slon, slat, slon0, slat0, scaleLength, fontsize=14, barstyle='fancy', zorder=10000, fontcolor='w')
 
 
 '''
@@ -131,32 +143,50 @@ x, y = m(133.54-txtoff, -17.55+txtoff)
 plt.text(x, y, 'Elliott', size=14, ha='right', weight='normal', path_effects=path_effects)
 """
 ##########################################################################################
-# add shapefiles
+# add DYFI?
 ##########################################################################################
-'''
-shpfile = '../NT/shapefiles/PetroleumTitles28August2019.shp'
-shpfile = 'PetroleumTitles28August2019.shp'
-sf = shapefile.Reader(shpfile)
-drawshapepoly(m, plt, sf, col='r',lw=0.75, alpha=0.5, fillshape = True)
+from gmt_tools import cpt2colormap, remove_last_cmap_colour
 
-jsonfile='NSW_CSG_Boreholes.geojson'
-csg_data = return_csg_data(jsonfile)
-status = dictlist2array(csg_data, 'status')
-csg_lon = dictlist2array(csg_data, 'lon')
-csg_lat = dictlist2array(csg_data, 'lat')
+cptfile = '//Users//trev//Documents//DATA//GMT//cpt//mi_pop.cpt'
+ncols = 10
+cmap, zvals = cpt2colormap(cptfile, ncols+1, rev=False)
+cmap = remove_last_cmap_colour(cmap)
+cs = (cmap(arange(ncols)))
 
-idx1 = where(status == 'Permanently Sealed')
-x,y = m(csg_lon[idx1], csg_lat[idx1])
-plt.plot(x,y,'ro',ms=7,label='Permanently Sealed')
+import json
+jsonFilePath = 'felt_reports/felt_reports_1km.geojson'
 
-idx1 = where(status == 'Not Producing Gas')
-x,y = m(csg_lon[idx1], csg_lat[idx1])
-plt.plot(x,y,'o',c='orange',ms=7,label='Not Producing Gas')
+with open(jsonFilePath) as f:
+    data = json.load(f)
 
-idx1 = where(status == 'Producing Gas')
-x,y = m(csg_lon[idx1], csg_lat[idx1])
-plt.plot(x,y,'o',c='limegreen',ms=7,label='Producing Gas', zorder=10000)
-'''
+dyfi_dict = []
+for feature in data['features']:
+    tmp = {'geomerty':feature['geometry']['coordinates'][0],
+           'centroid':feature['properties']['center']['coordinates'],
+           'intensity':feature['properties']['intensityFine'],
+           'nresp':feature['properties']['nresp']}
+    
+    # append to list
+    dyfi_dict.append(tmp)
+    
+
+nresp = 0
+min_resp = 0
+for dyfi in dyfi_dict:        
+    # add to list greater than minObs
+    if dyfi['nresp'] > min_resp:
+        
+        # now plot
+        pltx = array(dyfi['geomerty'])[:,0]
+        plty = array(dyfi['geomerty'])[:,1]
+        
+        x, y = m(pltx, plty)
+        colidx = int(round(dyfi['intensity']))-1
+        c= tuple(cs[colidx][:-1])
+        plt.fill(x, y, fc=c, ec='none', lw=0.25, alpha=0.5)
+        
+    nresp += dyfi['nresp']
+        
 ##########################################################################################
 # plt stations
 ##########################################################################################
@@ -251,9 +281,10 @@ la = dictlist2array(gadat, 'lat')
 lo = dictlist2array(gadat, 'lon')
 mag = dictlist2array(gadat, 'mag_ml')
 x,y = m(lo, la)
-scatter = plt.scatter(x,y,s=-75+mag*80, c='yellow', linewidths=0.25, zorder=10000, alpha=0.7, label='Earthquake Epicentres')
+#scatter = plt.scatter(x,y,s=-75+mag*80, c='yellow', linewidths=0.25, zorder=10000, alpha=0.7, label='Earthquake Epicentres')
+scatter = plt.scatter(x,y,s=-75+mag*80, c='crimson', linewidths=0.25, zorder=10000, alpha=0.7, label='Earthquake Epicentres')
 
-plt.legend(loc=4, numpoints=1, fontsize=11)
+plt.legend(loc=4, numpoints=1, fontsize=12)
 
 
 ##########################################################################################
@@ -297,6 +328,22 @@ for i, st in enumerate(state):
 # add colourbar
 ##########################################################################################
 
-plt.savefig('muswellbrook_rdks.png', format='png', bbox_inches='tight', dpi=150)
+# set colourbar
+plt.gcf().subplots_adjust(bottom=0.1)
+cax = fig.add_axes([0.34,0.06,0.33,0.03]) # setup colorbar axes.
+
+norm = mpl.colors.Normalize(vmin=0.5, vmax=10.5)#myb
+cb = colorbar.ColorbarBase(cax, cmap=cmap, norm=norm, orientation='horizontal', alpha=0.5)
+
+# set cb labels
+ticks = range(1,11)
+rom_num = ['I', 'II', 'III', 'IV', 'V', 'VI','VII','VIII','IX','X']
+cb.set_ticks(ticks)
+cb.set_ticklabels(rom_num)
+
+titlestr = 'Macroseismic Intensity'
+cb.set_label(titlestr, fontsize=16)
+
+plt.savefig('muswellbrook_rdks.png', format='png', bbox_inches='tight', dpi=200)
 #plt.savefig('camden_csg_boreholes.svg', format='svg', bbox_inches='tight', dpi=150)
 plt.show()

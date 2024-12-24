@@ -57,7 +57,7 @@ else:
 ##############################################################################
 
 networks = ['AU', 'S1', 'IU', 'II', 'G', '2O', 'M8', '3B', 'YW', 'WG']
-networks = ['4N']
+networks = ['5G']
 #networks = ['S1', 'IU', 'II', 'G', '2O', 'M8']
 
 for network in networks:
@@ -92,7 +92,7 @@ for network in networks:
 ##############################################################################
     for ev in gadat: #[40:]:
         mindist = 0
-        if network == 'S1' or network == 'M8':
+        if network == 'S1' or network == 'M8' or network == '5G':
             maxdist = 800
             #maxdist = 750
         else:

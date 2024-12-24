@@ -1,4 +1,5 @@
 import pickle
+from sys import argv
 from numpy import unique, array, arange, log, log10, exp, mean, nanmean, ndarray, std, sqrt, \
                   nanmedian, nanstd, vstack, pi, nan, isnan, interp, where, zeros_like, ones_like, floor, ceil, \
                   argsort
@@ -58,10 +59,10 @@ def parse_filtering_data():
     
     filtdat = []
     # read parameter file
-    lines = open('event_filtering_lookup.csv').readlines()[1:]
+    lines = open('brune_stats.csv').readlines()[1:]
     for line in lines:
         dat = line.split(',')
-        filt = {'ev':UTCDateTime(dat[0]), 'minf': float(dat[1]), 'maxf': float(dat[2]), 'qual':float(dat[3])}
+        filt = {'ev':UTCDateTime(dat[0]), 'minf': float(dat[12]), 'maxf': float(dat[13]), 'qual':float(dat[14])}
     
         filtdat.append(filt)
     
@@ -320,7 +321,9 @@ for i, rec in enumerate(recs):
         recs[i]['mag'] = nsha18_ml2mw(rec['mag'])
 
 # load atten coeffs
-coeffs = pickle.load(open('atten_coeffs.pkl', 'rb' ))
+pklfile = argv[1]
+
+coeffs = pickle.load(open(pklfile, 'rb' ))
 
 ###############################################################################
 # set data to use
