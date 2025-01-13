@@ -3,7 +3,7 @@ from numpy import unique, array, arange, log, log10, exp, mean, nanmean, ndarray
                   nanmedian, nanstd, vstack, pi, nan, isnan, interp, where, zeros_like, ones_like, floor, ceil, \
                   argsort, loadtxt
 from scipy.stats import linregress, trim_mean
-from misc_tools import get_binned_stats, dictlist2array, get_mpl2_colourlist
+from misc_tools import get_binned_stats, dictlist2array, get_mpl2_colourlist, get_log_xy_locs
 from mag_tools import nsha18_mb2mw, nsha18_ml2mw, get_au_ml_zone
 from mag_tools import m02mw
 from calculate_magnitudes import calc_R35, calc_HB87, calc_MLM92, calc_BJ84, calc_GG91, calc_GS86
@@ -264,7 +264,7 @@ s0, s1, s2 = loadtxt('mw-ml_coeffs_2800.csv', delimiter=',', skiprows=1)
 yplt_nsha23 = s0 * xplt**2 + s1 * xplt + s2
 
 cm = plt.cm.get_cmap('RdBu_r')
-sc = plt.scatter(ml_array, mw_array, c=log10(sd_array), vmin=-1.0, vmax=2.0, s=36, cmap=cm, label='Data')
+sc = plt.scatter(ml_array, mw_array, c=log10(sd_array), vmin=-0.7, vmax=1.6, s=36, cmap=cm, label='Data')
 
 # fit new data
 
@@ -379,7 +379,7 @@ plt.subplot(311)
 plt.plot([2,7], [2,7], 'k--', lw=0.5, label='1:1')
 plt.plot(xplt, yplt, '-', lw=2, c='k', label='2023 Simulated (W-A 2800)')
 idx = where(mzone_array == 'EA')[0]
-sc = plt.scatter(ml_array[idx], mw_array[idx], c=log10(sd_array[idx]), vmin=-1.0, vmax=2.0, s=36, cmap=cm, label='Data')
+sc = plt.scatter(ml_array[idx], mw_array[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.6, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'Eastern Australia', va='top', ha ='left', fontsize=12, bbox=props)
 plt.xlabel('$\mathregular{M_{L(MLM92)}}$', fontsize=18)
 #plt.ylabel('Brune $\mathregular{M_W}$', fontsize=18)
@@ -393,7 +393,7 @@ plt.subplot(312)
 plt.plot([2,7], [2,7], 'k--', lw=0.5, label='1:1')
 plt.plot(xplt, yplt, '-', lw=2, c='k', label='2023 Simulated (W-A 2800)')
 idx = where(mzone_array == 'WCA')[0]
-sc = plt.scatter(ml_array[idx], mw_array[idx], c=log10(sd_array[idx]), vmin=-1.0, vmax=2.0, s=36, cmap=cm, label='Data')
+sc = plt.scatter(ml_array[idx], mw_array[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.6, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'Western and Central Australia', va='top', ha ='left', fontsize=12, bbox=props)
 plt.xlabel('$\mathregular{M_{L(GG91)}}$', fontsize=18)
 plt.ylabel('$\mathregular{M_{W(Brune)}}$', fontsize=18)
@@ -407,7 +407,7 @@ plt.subplot(313)
 plt.plot([2,7], [2,7], 'k--', lw=0.5, label='1:1')
 plt.plot(xplt, yplt, '-', lw=2, c='k', label='2023 Simulated (W-A 2800)')
 idx = where(mzone_array == 'SA')[0]
-sc = plt.scatter(ml_array[idx], mw_array[idx], c=log10(sd_array[idx]), vmin=-1.0, vmax=2.0, s=36, cmap=cm, label='Data')
+sc = plt.scatter(ml_array[idx], mw_array[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.6, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'South Australia', va='top', ha ='left', fontsize=12, bbox=props)
 plt.xlabel('$\mathregular{M_{L(GS86)}}$', fontsize=18)
 #plt.ylabel('Brune $\mathregular{M_W}$', fontsize=18)
@@ -422,7 +422,7 @@ plt.text(2.0,7.4, '(c)', va='top', ha ='left', fontsize=18)
 #ticks = arange(0,len(logstressbins))
 plt.gcf().subplots_adjust(right=0.85)
 cax = fig.add_axes([0.88,0.3,0.05,0.4]) # setup colorbar axes.
-norm = colors.Normalize(vmin=-1.0, vmax=2.0)
+norm = colors.Normalize(vmin=-0.7, vmax=1.6)
 cb = colorbar.ColorbarBase(cax, cmap=cm, norm=norm, orientation='vertical')
 
 logticks = cb.get_ticks()[0:]
@@ -588,14 +588,14 @@ plt.show()
 
 ##########################################################################################
 # plot SD vs mag
-fig = plt.figure(5, figsize=(24, 6))
+fig = plt.figure(5, figsize=(24, 4))
 
 plt.subplot(121)
 #plt.plot([.1, 200], [0,0], 'k--')  '#1f77b4', '#ff7f0e'
 #sc = plt.scatter(sd_array, m_res, c=mw_array, vmin=3, vmax=6.5, s=36, cmap=cm, label='Data')
 idx = where(isnan(sd_array) == False)[0]
 c = linregress(mw_array[idx], log10(sd_array[idx]))
-mplt = array([3, 6.5])
+mplt = array([3, 7])
 splt = c[0]*mplt + c[1]
 
 print('Correlation Coef: '+str(c[2]))
@@ -603,12 +603,24 @@ print('log mean: '+str(nanmean(log10(sd_array))))
 print('log std: '+str(nanstd(log10(sd_array))))
 print('Correlation Coef: '+str(c[2]))
 
-plt.semilogy(mw_array, sd_array, 'o', c='#ff7f0e', ms=9)
-plt.semilogy(mplt, 10**splt, '--', c='#1f77b4', lw=3)
+plt.semilogy(mw_array, sd_array, 'o', c='0.8', ms=6.5)
+plt.semilogy(mplt, 10**splt, '--', c='k', lw=3)
 plt.ylabel(r"$\Delta\sigma$ (MPa)", fontsize=18)
 plt.xlabel('$\mathregular{M_{W(Brune)}}$', fontsize=18)
 plt.grid(which='both') 
 plt.ylim([0.1, 250])
+
+# annotate
+
+
+xloc2 = 6.96
+yloc2 = get_log_xy_locs([0.1, 250], 0.03)
+
+stat_txt = r'$\mu$ = '+str('%0.2f' % 10**nanmean(log10(sd_array[idx]))) + '\n' \
+           + r'log $\tau$ = '+str('%0.2f' % nanstd(log10(sd_array[idx]))) + '\n' \
+           + '$r^{2}$ = '+str('%0.3f' % c.rvalue**2)
+plt.text(xloc2, yloc2, stat_txt, va='bottom', ha ='right', fontsize=12, bbox=props)
+
 
 '''
 # make colourbar
@@ -622,13 +634,13 @@ cb.set_label('$\mathregular{M_{W(Brune)}}$', rotation=270, fontsize=18, labelpad
 # now plot hist
 ax = plt.subplot(143)
 bins = arange(-1, 2.5, 0.2)
-plt.hist(sd_array[idx], bins=10**bins, orientation='horizontal', facecolor='#ff7f0e') #, width=0.8)
+plt.hist(sd_array[idx], bins=10**bins, orientation='horizontal', facecolor='0.8') #, width=0.8)
 #plt.yticks([])
 #ax.set_yticklabels([])
 ax.tick_params(labelleft=False) 
 plt.yscale('log')
 plt.ylim([0.1, 250])
-plt.xlim([0, 36])
+#plt.xlim([0, 36])
 plt.xlabel('Count', fontsize=18)
 
 plt.subplots_adjust(wspace=0.07)

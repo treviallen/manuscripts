@@ -221,7 +221,7 @@ plt.text(x, y, 'New Guinea\nHighlands', size=10, c='k', va='center', ha='center'
 ##########################################################################################
 
 # get stress range
-logstressbins = arange(-.4, 1.9, 0.2)
+logstressbins = arange(-.7, 1.6, 0.2)
 logstressrng = logstressbins[-1] - logstressbins[0]
 
 ncols = len(logstressbins) - 1

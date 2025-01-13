@@ -4,12 +4,13 @@ from numpy import unique, array, arange, log, log10, exp, mean, nanmean, nanmedi
 from misc_tools import get_binned_stats, dictlist2array, get_mpl2_colourlist
 #from js_codes import get_average_Q_list, extract_Q_freq
 from mag_tools import nsha18_mb2mw, nsha18_ml2mw
-from get_mag_dist_terms import get_distance_term
+from get_mag_dist_terms import get_distance_term, get_regional_term
 from mapping_tools import distance
 from scipy.odr import Data, Model, ODR, models
 import scipy.odr.odrpack as odrpack
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+from sys import argv
 mpl.style.use('classic')
 plt.rcParams['pdf.fonttype'] = 42
 import warnings
@@ -30,14 +31,19 @@ def correct_atten(rec, coeffs):
     
     # loop thru freqs
     distterms = []
+    regterms = []
     for c in coeffs:
         distterm = get_distance_term(rec['rhyp'], c)
         
         distterms.append(distterm)
+        
+        regterm = get_regional_term(rec['rhyp'], c, rec['eqdom'])
+        
+        regterms.append(regterm)
     
     #.append(nan) # as no coeffs for last freq
     
-    cor_fds = 10**(log10(raw_fds) - distterms) # - log10(k_term))
+    cor_fds = 10**(log10(raw_fds) - distterms - regterm) # - log10(k_term))
     
     # get data exceeding SN ratio
     idx = where(sn_ratio < sn_thresh)[0]
@@ -111,8 +117,45 @@ for i, rec in enumerate(recs):
         recs[i]['mag'] = nsha18_ml2mw(rec['mag'])
 
 # load atten coeffs
-coeffs = pickle.load(open('atten_coeffs.pkl', 'rb' ))
+coeffs_pkl = argv[2]
+coeffs = pickle.load(open(coeffs_pkl, 'rb' ))
 
+###############################################################################
+# fix region - grrr!
+###############################################################################
+"""
+import shapefile
+from shapely.geometry import Point, Polygon
+from mapping_tools import get_field_data
+shpfile = '/Users/trev/Documents/Geoscience_Australia/NSHA2023/source_models/zones/shapefiles/NSHA13_Background/NSHA13_BACKGROUND_NSHA18_May2016.shp'
+sf = shapefile.Reader(shpfile)
+shapes = sf.shapes()
+polygons = []
+for poly in shapes:
+    polygons.append(Polygon(poly.points))
+    
+zone_code = get_field_data(sf, 'CODE', 'str')
+zone_trt = get_field_data(sf, 'TRT', 'str')
+    
+def get_domain(lon, lat):
+    
+    domain = ''
+    
+    for poly, zcode, ztrt in zip(polygons, zone_code, zone_trt):
+        pt = Point(lon, lat)
+        if pt.within(poly):
+            domain = zcode
+            
+    return domain
+    
+for i, rec in enumerate(recs):
+    recs[i]['stdom'] = get_domain(rec['stlo'], rec['stla'])
+    recs[i]['eqdom'] = get_domain(rec['eqlo'], rec['eqla'])
+
+pklfile = open('fft_data.pkl', 'wb')
+pickle.dump(recs, pklfile, protocol=-1)
+pklfile.close() 
+"""   
 ####################################################################################
 # start main
 ####################################################################################
@@ -268,7 +311,8 @@ mean_kappa = nanmedian(array(kappa_list))
 kappa_txt += ','.join(('MEDIAN_SITE', str('%0.6f' % mean_kappa), 'nan')) + '\n'
 
 # write csv
-f = open('site_kappa.csv', 'w')
+kapfile = 'site_kappa_'+coeffs_pkl[13:-4]+'.csv'
+f = open(kapfile, 'w')
 f.write(kappa_txt)
 f.close()
 

@@ -132,6 +132,13 @@ def response_corrected_fft(tr, pickDat):
     elif tr.stats.station == 'AS32' or tr.stats.station == 'ARPS' or tr.stats.station == 'ARPS' \
          or tr.stats.network == 'MEL' or tr.stats.network == 'OZ': 
         use_stationlist = True
+    elif tr.stats.network == 'II':
+        try:
+            if tr.stats.start_time.year > 2019:
+                use_stationlist = True
+        except:
+            if tr.stats.starttime.year > 2019:
+                use_stationlist = True
     #print('use_stationlist', use_stationlist) 
        
     if use_stationlist == True:
@@ -198,9 +205,6 @@ def response_corrected_fft(tr, pickDat):
         elif tr.stats.network == 'IU':
             paz = iu_parser.get_paz(seedid,start_time)
             staloc = iu_parser.get_coordinates(seedid,start_time)
-        elif tr.stats.network == 'II':
-            paz = ii_parser.get_paz(seedid,start_time)
-            staloc = ii_parser.get_coordinates(seedid,start_time)
         elif tr.stats.network == 'S1':
             paz = s1_parser.get_paz(seedid,start_time)
             staloc = s1_parser.get_coordinates(seedid,start_time)
@@ -213,9 +217,6 @@ def response_corrected_fft(tr, pickDat):
         elif tr.stats.network == '1P':
             paz = d1p_parser.get_paz(seedid,start_time)
             staloc = d1p_parser.get_coordinates(seedid,start_time)
-        elif tr.stats.network == '1Q':
-            paz = d1q_parser.get_paz(seedid,start_time)
-            staloc = d1q_parser.get_coordinates(seedid,start_time)
         elif tr.stats.network == '6F':
             paz = d6f_parser.get_paz(seedid,start_time)
             staloc = d6f_parser.get_coordinates(seedid,start_time)
@@ -291,6 +292,12 @@ def response_corrected_fft(tr, pickDat):
             tr.remove_response(inventory=dwg_parser)
         elif tr.stats.network == '4N':
             tr.remove_response(inventory=d4n_parser)
+        elif tr.stats.network == 'II':
+            tr.remove_response(inventory=dii_parser)
+        elif tr.stats.network == '1Q':
+            tr.remove_response(inventory=d1q_parser)
+        elif tr.stats.network == '7M':
+            tr.remove_response(inventory=d7m_parser)
         else:
             if tr.stats.channel.endswith('SHZ') or tr.stats.channel.endswith('EHZ'):
                 tr = tr.simulate(paz_remove=paz, water_level=10) #  testing water level for SP instruments
@@ -377,6 +384,35 @@ def get_ev_deets(fft_datetime):
                
     return evdat
 
+################################################################################
+# get eq domain
+
+import shapefile
+from shapely.geometry import Point, Polygon
+from mapping_tools import get_field_data
+shpfile = '/Users/trev/Documents/Geoscience_Australia/NSHA2023/source_models/zones/shapefiles/NSHA13_Background/NSHA13_BACKGROUND_NSHA18_May2016.shp'
+sf = shapefile.Reader(shpfile)
+shapes = sf.shapes()
+polygons = []
+for poly in shapes:
+    polygons.append(Polygon(poly.points))
+    
+zone_code = get_field_data(sf, 'CODE', 'str')
+zone_trt = get_field_data(sf, 'TRT', 'str')
+    
+def get_domain(lon, lat):
+    
+    domain = ''
+    
+    for poly, zcode, ztrt in zip(polygons, zone_code, zone_trt):
+        pt = Point(lon, lat)
+        if pt.within(poly):
+            domain = zcode
+            
+    return domain
+    
+################################################################################
+
 lines = open('brune_stats.csv').readlines()[1:]
 brunedat = []
 for line in lines:
@@ -438,11 +474,11 @@ else:
     s1_parser = Parser('/Users/trev/Documents/Networks/S1/S1.IRIS.dataless')
     iu_parser = Parser('/Users/trev/Documents/Networks/IU/IU.IRIS.dataless')
     #g_parser = Parser('/Users/trev/Documents/Networks/G/G.IRIS.dataless')
-    ii_parser = Parser('/Users/trev/Documents/Networks/II/II.IRIS.dataless')
+    #ii_parser = Parser('/Users/trev/Documents/Networks/II/II.IRIS.dataless')
     d1h_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/1H_EAL2_2010.dataless')
     d1k_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/1K_ALFREX_2013.dataless')
     d1p_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/1P_BASS_2011.dataless')
-    d1q_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/1Q_AQT_2016.dataless')
+    #d1q_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/1Q_AQT_2016.dataless')
     #d1q_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/1q-inventory.xml')
     d6f_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/6F_BILBY_2008.dataless')
     d7b_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/7B_SKIPPY_1993.dataless')
@@ -464,7 +500,9 @@ else:
     dam_parser = read_inventory('/Users/trev/Documents/Networks/AM/R7AF5.xml')
     d4n_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/4n-inventory.xml')
     dwg_parser = read_inventory('/Users/trev/Documents/Networks/GSWA/wg-inventory.xml')
-    
+    dii_parser = read_inventory('/Users/trev/Documents/Networks/II/ii-inventory.xml')
+    d1q_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/1q-inventory.xml')
+    d7m_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/7m-inventory.xml')
 
 ################################################################################
 # loop through pick files
@@ -481,7 +519,7 @@ for p, pf in enumerate(pickfiles[start_idx:]):
     pickDat = parse_pickfile(pf)
     
     if isnan(pickDat['mag']) == False:
-        #if pickDat['starttime'].year == 2024 and pickDat['starttime'].month == 10: # or pickDat['starttime'].year == 2001: # and pf == '1997-03-05T06.15.00.AD.WHY.picks':
+        #if pickDat['starttime'].year == 2025 and pickDat['starttime'].month == 1: # or pickDat['starttime'].year == 2001: # and pf == '1997-03-05T06.15.00.AD.WHY.picks':
         
         channels = []
         if not pickDat['ch1'] == '':
@@ -635,9 +673,12 @@ for p, pf in enumerate(pickfiles[start_idx:]):
                     # fix channels
                     if pazfile.endswith('mark-L4C-3D.paz') or pazfile.endswith('cmg-6t-1s.paz') \
                        or pazfile.endswith('willmore.paz') or pazfile.endswith('ss-1.paz') \
-                       or pazfile.endswith('cmg-40t-1s.paz') or pazfile.endswith('s6000-2hz.paz') \
-                       or pazfile.endswith('lennartz-LE-3Dlite-mkII.paz'):  
-                        lofreq = 0.2
+                       or pazfile.endswith('cmg-40t-1s.paz') or pazfile.endswith('lennartz-LE-3Dlite-mkII.paz'):  
+                        lofreq = 0.4
+                        channel = 'E'+channel[1:]
+                        	
+                    elif pazfile.endswith('s6000-2hz.paz'):
+                        lofreq = 1.0
                         channel = 'E'+channel[1:]
                         	
                     elif pazfile.endswith('cmg-3t-100s.paz') or pazfile.endswith('sts2.paz'):
@@ -649,7 +690,8 @@ for p, pf in enumerate(pickfiles[start_idx:]):
                     
                     traceDat = {'hi_freq_filt': hifreq, 'lo_freq_filt': lofreq, 
                                 'noise_spec': smoothed_interp_disp, 'freqs': interp_freqs,
-                                'sample_rate': tr.stats.sampling_rate, 'channel': channel}
+                                'sample_rate': tr.stats.sampling_rate, 'channel': channel,
+                                'pazfile':pazfile}
                         
                     #plt.loglog(freqs, n_disp_amp, 'b-', lw=0.3)
                                   
@@ -768,6 +810,7 @@ for p, pf in enumerate(pickfiles[start_idx:]):
             recDat['net'] = tr.stats.network
             recDat['location'] = tr.stats.location
             recDat['sampling_rate'] = tr.stats.sampling_rate
+            recDat['pazfile'] = pazfile
             recDat['ev'] = pickDat['ev']
             evdat = get_ev_deets(UTCDateTime(pickDat['evdt']))
             bruneStats = get_brune_deets(UTCDateTime(pickDat['evdt']))
@@ -795,6 +838,10 @@ for p, pf in enumerate(pickfiles[start_idx:]):
             staDat = return_sta_data(tr.stats.station)
             recDat['stlo'] = staDat['stlo']
             recDat['stla'] = staDat['stla']
+            
+            # get event and sta domain
+            recDat['stdom'] = get_domain(recDat['stlo'], recDat['stla'])
+            recDat['eqdom'] = get_domain(recDat['eqlo'], recDat['eqla'])
             
             # calc new distance from event list
             recDat['repi'] = distance(evdat['eqla'], evdat['eqlo'], staDat['stla'], staDat['stlo'])[0]

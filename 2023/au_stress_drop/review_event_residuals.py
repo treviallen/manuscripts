@@ -3,7 +3,7 @@ from numpy import unique, array, arange, log, log10, exp, mean, nanmean, ndarray
                   nanmedian, hstack, pi, nan, isnan, interp, where, zeros_like, polyfit
 from misc_tools import get_binned_stats, dictlist2array, get_mpl2_colourlist
 from mag_tools import nsha18_mb2mw, nsha18_ml2mw
-from get_mag_dist_terms import get_distance_term, get_magnitude_term, get_kappa_term
+from get_mag_dist_terms import get_distance_term, get_magnitude_term, get_kappa_term, get_regional_term
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import matplotlib.dates as mdates
@@ -36,7 +36,7 @@ for i, rec in enumerate(recs):
         recs[i]['mag'] = nsha18_ml2mw(rec['mag'])
 
 # load atten coeffs
-coeffs = pickle.load(open('atten_coeffs_1f.pkl', 'rb' ))
+coeffs = pickle.load(open('atten_coeffs_1.3_5km.pkl', 'rb' ))
 c = coeffs[fidx]
 print("Coeffs Freq = " +str('%0.3f' % c['freq']))
 
@@ -82,12 +82,14 @@ for i, rec in enumerate(recs):
             
             # get dist term
             distterm = get_distance_term(rec['rhyp'], c)
+            
+            regterm = get_regional_term(rec['rhyp'], c, rec['eqdom'])
              
             #	get distance independent kappa
             kapterm = get_kappa_term(rec['sta'], c['freq'])
             
             # get total correction
-            ypred = magterm + distterm + kapterm
+            ypred = magterm + distterm + kapterm + regterm
             
             yobs = log10(rec[channel]['swave_spec'][fidx])
             yres.append(yobs - ypred)
@@ -110,7 +112,7 @@ fig = plt.figure(1, figsize=(19,11))
 i = 1
 ii = 1
 residuals = []
-for ev in events[::-1]:
+for ev in events:
     
     staRes = []
     stas = []

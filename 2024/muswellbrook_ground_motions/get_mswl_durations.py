@@ -128,7 +128,7 @@ warnings.filterwarnings("ignore")
 mseed = '/Users/trev/Documents/Earthquake_Data/20240906.Muswellbrook/2024-09-06T19-58-00.YW.MSWL1.ga2024rqpnyt.mseed'
 mseed = '/Users/trev/Documents/Earthquake_Data/20240906.Muswellbrook/2024-11-12T01-12-56.YW.MSWL6.ga2024widwze.mseed'
 
-mseed = argv[1]    
+mseed = argv[1] 
 
 st = read(mseed)
 # remove low sample rate data

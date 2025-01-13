@@ -1,11 +1,10 @@
 import pickle
 import matplotlib.pyplot as plt
-from misc_tools import dictlist2array
-from numpy import mean, median, where, array, log10
-
+from misc_tools import dictlist2array, savitzky_golay
+from numpy import mean, median, where, array, log10, nanmean
 
 # load atten coeffs
-coeffs = pickle.load(open('atten_coeffs.pkl', 'rb' ))
+coeffs = pickle.load(open('atten_coeffs_1.3_5km.pkl', 'rb' ))
 
 freqs = dictlist2array(coeffs, 'freq')
 
@@ -154,7 +153,7 @@ plt.plot(xplt, yplt, 'g')
 mc1 = dictlist2array(coeffs, 'mc1')
 mc1s = dictlist2array(coeffs, 'mc1s')
 mc1t = dictlist2array(coeffs, 'mc1f')
-#mc1ts = dictlist2array(coeffs, 'mc1fs')
+mc1h = dictlist2array(coeffs, 'mc1h')
 
 plt.subplot(424)
 plt.semilogx(freqs, mc1, 'ro')
@@ -196,6 +195,18 @@ fcm = out.beta
 xplt = array([f1, f2])
 yplt = reg1.intercept + reg1.slope*log10(f1) + fcm[0] * (log10(xplt) - log10(f1))
 plt.plot(xplt, yplt, 'g')
+
+# take mean < 2 Hz then smooth raw
+idx = where(freqs < 2.0)[0]
+mean_m1 = nanmean(mc1[idx])
+hybrid_mc1 = mc1
+hybrid_mc1[idx] = mean_m1
+
+# smooth
+sg_window = 41
+sg_poly = 3
+#smooth_hybrid_mc1 = savitzky_golay(hybrid_mc1, sg_window, sg_poly) # mid-slope
+plt.plot(freqs, mc1h, 'mo')
 
 # fit high
 def fit_high_mc0(c, x):
@@ -271,12 +282,40 @@ fc1 = dictlist2array(coeffs, 'magc0')
 fc1s = dictlist2array(coeffs, 'magc0s')
 plt.semilogx(freqs, fc1, 'ro')
 plt.semilogx(freqs, fc1s, 'bo')
+plt.ylabel('mag0')
 
 plt.subplot(428)
 fc1 = dictlist2array(coeffs, 'magc1')
 fc1s = dictlist2array(coeffs, 'magc1s')
 plt.semilogx(freqs, fc1, 'ro')
 plt.semilogx(freqs, fc1s, 'bo')
+plt.ylabel('mag1')
 
+
+plt.show()
+
+######################################
+# Plot regional FF corrections
+
+fig = plt.figure(1, figsize=(14, 10))
+
+NCCZ = dictlist2array(coeffs, 'NCCZ_rc')
+EBGZ = dictlist2array(coeffs, 'EBGZ_rc')
+CBGZ = dictlist2array(coeffs, 'CBGZ_rc')
+
+plt.subplot(421)
+plt.semilogx(freqs, NCCZ, 'ro')
+#plt.ylim([-2,0])
+plt.ylabel('NCCZ')
+
+plt.subplot(422)
+plt.semilogx(freqs, EBGZ, 'ro')
+#plt.ylim([-2,0])
+plt.ylabel('EBGZ')
+
+plt.subplot(423)
+plt.semilogx(freqs, CBGZ, 'ro')
+#plt.ylim([-2,0])
+plt.ylabel('CBGZ')
 
 plt.show()

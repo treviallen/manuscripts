@@ -21,8 +21,8 @@ from obspy import UTCDateTime
 # parse eq list
 ##############################################################################
 #gadat = parse_ga_event_query('earthquakes_export_2012-16_250.edit.csv')
-recent_csv = 'au_ge_4.4_earthquakes_export_edit.csv'
-#recent_csv = 'au_ge_4.4_earthquakes_export_recent.csv'
+#recent_csv = 'au_ge_4.4_earthquakes_export_edit.csv'
+recent_csv = 'au_ge_4.4_earthquakes_export_recent.csv'
 #recent_csv = 'au_ge_4.4_earthquakes_export_bboo.csv'	
 gadat = parse_ga_event_query(recent_csv)
 
@@ -57,7 +57,7 @@ else:
 ##############################################################################
 
 networks = ['AU', 'S1', 'IU', 'II', 'G', '2O', 'M8', '3B', 'YW', 'WG']
-networks = ['5G']
+#networks = ['5G']
 #networks = ['S1', 'IU', 'II', 'G', '2O', 'M8']
 
 for network in networks:
@@ -86,6 +86,8 @@ for network in networks:
         iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AUSPASS/5g-gmap-stations.txt')
     elif network == '4N':
         iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AUSPASS/4n-gmap-stations.txt')
+    elif network == '4N':
+        iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AUSPASS/3o-gmap-stations.txt')
        
 ##############################################################################
 # loop through events
@@ -148,6 +150,9 @@ for network in networks:
                             elif network == '4N' and getauspass == True:
                                 #get_auspass_data(dateTuple, durn=1800, network='4N')
                                 get_swan_data(dateTuple, durn=1800, network='4N')
+                                getauspass = False
+                            if network == '3O' and getauspass == True:
+                                get_auspass_data(dateTuple, durn=1800, network='M8')
                                 getauspass = False
                             else:
                                 st = get_iris_data(dateTuple, isl['sta'], network, durn=1800)

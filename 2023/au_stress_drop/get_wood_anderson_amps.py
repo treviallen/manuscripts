@@ -169,6 +169,14 @@ def response_corrected_fft(tr, pickDat):
         use_stationlist = True       
     elif tr.stats.station == 'AS32' or tr.stats.station == 'ARPS' or tr.stats.station == 'ARPS' or tr.stats.network == 'MEL': 
         use_stationlist = True
+    elif tr.stats.network == 'II':
+        try:
+            if tr.stats.start_time.year > 2019:
+                use_stationlist = True
+        except:
+            if tr.stats.starttime.year > 2019:
+                use_stationlist = True
+                
     #print('use_stationlist', use_stationlist) 
        
     if use_stationlist == True:
@@ -226,9 +234,7 @@ def response_corrected_fft(tr, pickDat):
         elif tr.stats.network == 'IU':
             paz = iu_parser.get_paz(seedid,start_time)
             staloc = iu_parser.get_coordinates(seedid,start_time)
-        elif tr.stats.network == 'II':
-            paz = ii_parser.get_paz(seedid,start_time)
-            staloc = ii_parser.get_coordinates(seedid,start_time)
+        
         elif tr.stats.network == 'S1':
             paz = s1_parser.get_paz(seedid,start_time)
             staloc = s1_parser.get_coordinates(seedid,start_time)
@@ -241,9 +247,6 @@ def response_corrected_fft(tr, pickDat):
         elif tr.stats.network == '1P':
             paz = d1p_parser.get_paz(seedid,start_time)
             staloc = d1p_parser.get_coordinates(seedid,start_time)
-        elif tr.stats.network == '1Q':
-            paz = d1q_parser.get_paz(seedid,start_time)
-            staloc = d1q_parser.get_coordinates(seedid,start_time)
         elif tr.stats.network == '6F':
             paz = d6f_parser.get_paz(seedid,start_time)
             staloc = d6f_parser.get_coordinates(seedid,start_time)
@@ -304,6 +307,9 @@ def response_corrected_fft(tr, pickDat):
         elif tr.stats.network == 'G':
             paz = g_parser.get_paz(seedid,start_time)
             staloc = g_parser.get_coordinates(seedid,start_time)
+        elif tr.stats.network == 'II':
+            paz = ii_parser.get_paz(seedid,start_time)
+            staloc = ii_parser.get_coordinates(seedid,start_time)
         '''
         # simulate response
         if tr.stats.network == '2P':
@@ -320,6 +326,12 @@ def response_corrected_fft(tr, pickDat):
             tr.remove_response(inventory=dwg_parser)
         elif tr.stats.network == '4N':
             tr.remove_response(inventory=d4n_parser)	
+        elif tr.stats.network == 'II':
+            tr.remove_response(inventory=ii_parser)
+        elif tr.stats.network == '1Q':
+            tr.remove_response(inventory=d1q_parser)
+        elif tr.stats.network == '7M':
+            tr.remove_response(inventory=d7m_parser)
         else:
             if tr.stats.channel.endswith('SHZ') or tr.stats.channel.endswith('EHZ'):
                 tr = tr.simulate(paz_remove=paz, water_level=10) #  testing water level for SP instruments
@@ -441,7 +453,7 @@ else:
     s1_parser = Parser('/Users/trev/Documents/Networks/S1/S1.IRIS.dataless')
     iu_parser = Parser('/Users/trev/Documents/Networks/IU/IU.IRIS.dataless')
     #g_parser = Parser('/Users/trev/Documents/Networks/G/G.IRIS.dataless')
-    ii_parser = Parser('/Users/trev/Documents/Networks/II/II.IRIS.dataless')
+    #ii_parser = Parser('/Users/trev/Documents/Networks/II/II.IRIS.dataless')
     d1h_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/1H_EAL2_2010.dataless')
     d1k_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/1K_ALFREX_2013.dataless')
     d1p_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/1P_BASS_2011.dataless')
@@ -466,7 +478,9 @@ else:
     dam_parser = read_inventory('/Users/trev/Documents/Networks/AM/R7AF5.xml')
     d4n_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/4n-inventory.xml')
     dwg_parser = read_inventory('/Users/trev/Documents/Networks/GSWA/wg-inventory.xml')
-    
+    ii_parser = read_inventory('/Users/trev/Documents/Networks/II/ii-inventory.xml')
+    d1q_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/1q-inventory.xml')
+    d7m_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/7m-inventory.xml')
 
 ################################################################################
 # loop through pick files

@@ -7,8 +7,7 @@ from scipy.stats import linregress, trim_mean
 from misc_tools import get_binned_stats, dictlist2array, get_mpl2_colourlist
 from mag_tools import nsha18_mb2mw, nsha18_ml2mw
 from mag_tools import m02mw
-from get_mag_dist_terms import get_distance_term
-#from js_codes import get_average_Q_list, extract_Q_freq
+from get_mag_dist_terms import get_distance_term, get_regional_term
 from mapping_tools import distance
 from scipy.odr import Data, Model, ODR, models
 import scipy.odr.odrpack as odrpack
@@ -40,9 +39,11 @@ used_zones = set(['EBGZ', 'CBGZ', 'NCCZ'])
 ####################################################################################
 # correct attenuation
 ####################################################################################
-def parse_kappa_data():
+def parse_kappa_data(coeffs_pkl):
     from numpy import array, loadtxt
     
+    # set site file
+    kapfile = 'site_kappa_'+coeffs_pkl[13:-4]+'.csv'
     kapdat = []
     # read parameter file
     lines = open('site_kappa.csv').readlines()[1:]
@@ -78,27 +79,16 @@ def correct_atten(rec, coeffs, kapdat):
     
     # loop thru freqs
     distterms = []
+    regterms = []
     for c in coeffs:
         # get distance term
         distterm = get_distance_term(rec['rhyp'], c)
         
-        """
-        # get regional correction for epicentre
-        for zc, zt, poly in zip(zone_code, zone_trt, polygons):
-            eqpt = Point(rec['eqlo'], rec['eqla'])
-            #stpt = Point(stlo[i], eqla[i])
-            if eqpt.within(poly):
-                eqtrt = zt
-                eqcode = zc
-        
-        if eqtrt == 'Non_cratonic':
-            eqcode = 'NCCZ'
-        
-        # now get regional coeff
-        if rec['rhyp'] > c['regr']:
-            distterm += c[eqcode+'_rc'] * (log10(rec['rhyp']) - log10(c['regr']))
-        """    
         distterms.append(distterm)
+        
+        regterm = get_regional_term(rec['rhyp'], c, rec['eqdom'])
+        
+        regterms.append(regterm)
     
     # set kappa
     kappa = kapdat[-1]['kappa0'] # default kappa
@@ -113,7 +103,7 @@ def correct_atten(rec, coeffs, kapdat):
     k_term = log10(exp(-1 * pi * freqs * kappa))
     
     # correct to source
-    cor_fds = 10**(log10(raw_fds) - distterms - k_term)
+    cor_fds = 10**(log10(raw_fds) - distterms - regterms - k_term)
     
     # get data exceeding SN ratio
     idx = where(sn_ratio < sn_thresh)[0]
@@ -126,7 +116,10 @@ def correct_atten(rec, coeffs, kapdat):
     
     # if short period only use f > 0.5
     if  channel.startswith('SH') or channel.startswith('EH'):
-        idx = where(freqs < 0.5)[0]
+        if rec['pazfile'].endswith('s6000-2hz.paz'):
+            idx = where(freqs < 0.9)[0]
+        else:
+            idx = where(freqs < 0.5)[0]
         cor_fds_nan[idx] = nan
         
     # ignore dodgy CMSA data
@@ -330,8 +323,11 @@ coeffs = pickle.load(open(pklfile, 'rb' ))
 ###############################################################################
 
 # remove bad recs
-keep_nets = set(['AU', 'IU', 'S1', 'II', 'G', 'MEL', 'ME', '2O', 'AD', 'SR', 'UM', 'AB', 'VI', 'GM', 'M8', 'DU', \
-                 '1P', '1P', '2P', '6F', '7K', '7G', 'G', '7B', '4N', '7D', '', 'OZ', 'OA', 'WG', 'XX', 'AM', 'YW', '3B'])
+keep_nets = set(['AU', 'IU', 'S1', 'II', 'G', 'MEL', 'ME', '2O', 'AD', 'SR', 'UM', 'AB', 'VI', 'GM', 'M8', 'DU', 'WG', '4N', \
+                 '1P', '1P', '2P', '6F', '7K', '7G', 'G', '7B', '4N', '7D', '', 'OZ', 'OA', 'WG', 'XX', 'AM', 'YW', '3B', '1K', \
+                 '1Q', '3O'])
+                 
+
 # get stas to ignore
 ignore_stas = open('sta_ignore.txt').readlines()
 ignore_stas = set([x.strip() for x in ignore_stas])
@@ -373,7 +369,7 @@ mdist_lookup_mags = arange(3.5,7.1,0.5)
 mdist_lookup_dists = array([550, 1200, 1700, 2000, 2200, 2200, 2200, 2200])
 
 # get kappas
-kapdat = parse_kappa_data()
+kapdat = parse_kappa_data(pklfile)
 
 # get event filters
 filtdat = parse_filtering_data()
@@ -399,7 +395,8 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
 
     sp += 1
     plt.subplot(2,3,sp)
-    log_stack_logfds = []
+    log_stack_logfds = [] 
+    log_stack_logfds_ge100 = []
     handles1 = []
     labels1 = []
     
@@ -418,7 +415,7 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
                         print('   '+rec['sta'])
                         
                         # get distance cut-off
-                        idx = where((rec['mag']-0.2) >= mdist_lookup_mags)[0]
+                        idx = where((rec['mag']) >= mdist_lookup_mags)[0]
                         if len(idx) == 0:
                             mag_dist = mdist_lookup_dists[0]
                         else:
@@ -434,7 +431,7 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
                         
                         if rec['rhyp'] > mag_dist:
                             skip_sta = True
-                        
+                        #print(skip_sta, rec['rhyp'], rec['mag'], mag_dist)
                         if skip_sta == False:
                         
                             cor_fds, cor_fds_nan, freqs = correct_atten(rec, coeffs, kapdat)
@@ -476,6 +473,12 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
                             else:
                                 log_stack_logfds = vstack((log_stack_logfds, log(cor_fds_nan)))
                                 
+                            if rec['rhyp'] >= 0:
+                                if log_stack_logfds_ge100 == []:
+                                    log_stack_logfds_ge100 = log(cor_fds_nan)
+                                else:
+                                    log_stack_logfds_ge100 = vstack((log_stack_logfds_ge100, log(cor_fds_nan)))
+                                
                             i += 1
                         
                         # set evmag
@@ -491,6 +494,8 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
     leg1 = plt.legend(handles=handles1, loc=3, fontsize=6, ncol=4)
 	
     # get mean spectra
+    sd = -99
+    #edict['nrecs'] = i
     if log_stack_logfds != []:
         if len(log_stack_logfds.shape) == 1:
             mean_fds = exp(log_stack_logfds)
@@ -613,8 +618,72 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
             nrecs = log_stack_logfds.shape[0]
         edict['nrecs'] = nrecs
         
-        events_dict.append(edict)
-    
+        # in the case where SD < 1 MPa, retry without stas < 100 km        
+        if sd < 0.9:
+            if log_stack_logfds_ge100 != []:
+                if len(log_stack_logfds.shape) == 1:
+                    mean_fds = exp(log_stack_logfds_ge100)
+                else:
+                    mean_fds = exp(nanmean(log_stack_logfds_ge100, axis=0))
+                
+                # get nrecs    
+                if log_stack_logfds.shape[0] == 150:
+                    nrecs = 1
+                else:
+                    nrecs = log_stack_logfds.shape[0]
+                
+                # set marginal quality
+                if log_stack_logfds_ge100.shape[0] <= 2:
+                    qual = 2
+                
+                h2, = plt.loglog(freqs, mean_fds,'--', color='r', lw=1.5, label='Mean Source Spectrum (GE 100)')
+                
+                # fit mean curve
+                fidx = where((freqs >= minf) & (freqs <= maxf) & (isnan(mean_fds) == False))[0]
+                
+                data = odrpack.RealData(freqs[fidx], log(mean_fds[fidx]))
+                
+                fitted_brune = odrpack.Model(fit_brune_model)
+                odr = odrpack.ODR(data, fitted_brune, beta0=[1E-2,1.])
+                odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
+                out = odr.run()
+                
+                omega0 = out.beta[0]
+                f0 = abs(out.beta[1])
+                #print('f0', f0)
+                
+                m0 = C * omega0
+                mw =  m02mw(m0)
+                print('Mw', m02mw(m0))
+                
+                # calc stress drop
+                r0 = 2.34 * vsm / (2 * pi * f0)
+                
+                sd = 7. * m0 / (16. * r0**3) / 10**6 # in MPa
+                print('SD', sd, 'MPa')
+                print('f0', f0, 'Hz\n' )
+                
+                # add to events
+                edict = {}
+                edict['evstr'] = event
+                edict['evdt'] = evdt
+                edict['evid'] = evid
+                edict['lon'] = evlon
+                edict['lat'] = evlat
+                edict['dep'] = evdep
+                edict['omag'] = evmag
+                edict['omag_type'] = evmagtype
+                edict['mb'] = evmb
+                edict['brune_mw'] = mw
+                edict['brune_sd'] = sd
+                edict['brune_f0'] = f0
+                edict['minf'] = minf
+                edict['maxf'] = maxf
+                edict['qual'] = qual
+                edict['stas'] = labels1
+                edict['nrecs'] = nrecs
+                edict['sta_spectra'] = log_stack_logfds_ge100
+                
         # plot fitted curve
         fitted_curve = omega0 / (1 + (freqs / f0)**2)
         h3, = plt.loglog(freqs, fitted_curve, 'k-', lw=1.5, label='Fitted Brune Model')
@@ -656,6 +725,15 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
         sp = 0
         ii += 1
         fig = plt.figure(ii, figsize=(18,11))
+    
+        '''# plot fitted curve
+        fitted_curve = omega0 / (1 + (freqs / f0)**2)
+        h3, = plt.loglog(freqs, fitted_curve, 'k-', lw=1.5, label='Fitted Brune Model')
+        plt.legend(handles=[h2, h3], loc=1, fontsize=8)
+        
+        edict['fitted_spectra'] = fitted_curve	
+        '''
+    events_dict.append(edict)
 
 plt.savefig('brune_fit/brune_fit_'+str(ii)+'.png', fmt='png', dpi=150, bbox_inches='tight')
 
