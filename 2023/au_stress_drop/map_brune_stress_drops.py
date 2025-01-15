@@ -154,6 +154,7 @@ for c, utrt, label in zip(cs, utrts, labels):
                 else:
                     plt.fill(xx,yy, facecolor=c, edgecolor='none', linewidth=0.75, alpha=0.2) 
 
+l1 = plt.legend(fontsize=11, loc=3, bbox_to_anchor=(0.125, 0))
 ##########################################################################################
 # plot faults
 ##########################################################################################
@@ -292,6 +293,9 @@ for lm in legmag:
 legtxt = ('$\mathregular{M_W}$ 3.5', '$\mathregular{M_W}$ 4.5', '$\mathregular{M_W}$ 5.5', '$\mathregular{M_W}$ 6.5')
 l = plt.legend(legh, legtxt, loc=3, numpoints=1, fontsize=10, title="Magnitude", labelspacing=0.75)
 l.set_zorder(len(mags)+5)
+
+# re-add tectonic reg leg
+plt.gca().add_artist(l1)
 
 
 ##########################################################################################

@@ -379,6 +379,68 @@ def fit_mid_field_atten(plt, norm_rhyps, log_norm_amps, n0, n1, r1, r2, freq):
        
     return mcf
 
+def fit_mid_field_atten_first(plt, norm_rhyps, log_norm_amps, n0, n1, r1, r2, freq):
+    # get binned data
+    log_norm_rhyps = log10(norm_rhyps)
+    logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log_norm_rhyps, log_norm_amps)
+    
+    '''
+    if pltTrue == True:
+        plt.loglog(norm_rhyps, 10**log_norm_amps, '+', c='0.6', lw=0.5, ms=6)
+        plt.xlim([2, 2000])
+        plt.ylim([0.01, 500])
+        plt.loglog(10**medx, 10**logmedamp, 'rs', ms=7)
+    '''
+    # fit all data - keep me!
+    didx = where((medx >= log10(r1)) & (medx < log10(r2)) & (isnan(medx) == False) & (nperbin > 2) & (logmedamp < 2))[0]
+    data = odrpack.RealData(medx[didx], logmedamp[didx])
+    
+    #print(medx[didx])
+    #print(logmedamp[didx])
+    
+    # if few datapoints, use full dataset
+    #if len(didx) <= 2:
+    #didx = where((log_norm_rhyps >= log10(r1)) & (log_norm_rhyps < log10(r2)))[0] # & (nperbin > 2))[0] #log10(r1))[0]
+    #data = odrpack.RealData(log_norm_rhyps[didx], log_norm_amps[didx])
+
+    # fit all as free params
+    afit = odrpack.Model(fit_mid_field_mc0_fix)
+    #odr = odrpack.ODR(data, afit, beta0=[-0.1, -0.001, 1.])
+    odr = odrpack.ODR(data, afit, beta0=[-0.001, 0.0])
+    
+    odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
+    out = odr.run()
+    mcf = out.beta
+    
+    # recalculate n1
+    D1 = sqrt(r1**2 + nref**2)
+    n1 = mcf[1] - n0 * log10(D1)
+    
+    xrng_nf = log10(arange(1, r1+1))
+    #print(xrng_nf)
+    D1 = sqrt(10**xrng_nf**2 + nref**2)
+    #print(D1)
+    yrng_nf = n0 * log10(D1) + n1
+    #sprint(yrng_nf)
+    # plot
+    if pltTrue == True:
+        #fig = plt.figure(1, figsize=(18,11))
+        
+        #plt.subplot(3,4,i+1)
+        plt.loglog(10**xrng_nf, 10**yrng_nf, 'c--', lw=2)
+        #plt.grid(which='both')
+        
+    D1 = sqrt(r1**2 + nref**2)
+    
+    xrng_mf = arange(log10(r1), log10(r2), 0.02)
+    
+    yrng_mf = n0 * log10(D1) + n1 + mcf[0] * (10**xrng_mf - r1)
+         
+    if pltTrue == True:
+       plt.loglog(10**xrng_mf, 10**yrng_mf, 'g-', lw=2)
+       
+    return mcf, n1
+
 def fit_far_field_atten(plt, mc0, mc1, norm_rhyps, log_norm_amps, n0, n1, r1, r2, r3, freq):
     # fit all data
     log_norm_rhyps = log10(norm_rhyps)
@@ -599,7 +661,7 @@ if pltTrue == 'False':
 
 else:
     fig = plt.figure(1, figsize=(18,11))
-    fidx=arange(0,90,8)+18 # for testing
+    fidx=arange(0,90,8)+19 # for testing
     #fidx=arange(0,12,1)+0 # for testing
     pltTrue = True
     #fidx = fidx[0:2]
@@ -769,14 +831,14 @@ for p, freq in enumerate(freqs[fidx]):
             
         return ans 
 
-    
+    '''
     def fit_mid_field_first_mc0_fix(c, x):
         from numpy import sqrt, log10
-        print('fit_mid_field_first_mc0_fix')
+        #print('fit_mid_field_first_mc0_fix')
         
-        ans = mc0_fix * log10(10**x / r1) + c[0] * (10**x - r1) + c[1]
+        ans = c[0] * (10**x - r1) + c[1]
         return ans
-        
+    '''    
     def refit_mid_field_first(c, x):
         from numpy import sqrt, log10
         
@@ -784,6 +846,7 @@ for p, freq in enumerate(freqs[fidx]):
         return ans
     '''
     mc = fit_mid_field_atten(plt, norm_rhyps, log_norm_amps, n0, n1, r1, r2, freq) # temp mc for smoothing
+    #mc, n1 = fit_mid_field_atten_first(plt, norm_rhyps, log_norm_amps, n0, n1, r1, r2, freq) # temp mc for smoothing
     
     #mc0_array.append(mc[0])
     mc0_array.append(0.)
@@ -801,7 +864,7 @@ smooth_mc1 = savitzky_golay(mc1_array, sg_window, sg_poly) # mid-slope
 interp_mc1 = interp(freqs[fidx], freqs[fidx], smooth_mc1)
 
 # make hybrid
-idx = where(freqs < 2.0)[0]
+idx = where(freqs[fidx] < 2.0)[0]
 mean_m1 = nanmean(mc1_array[idx])
 hybrid_mc1 = mc1_array
 hybrid_mc1[idx] = mean_m1
@@ -1012,7 +1075,7 @@ for p, freq in enumerate(freqs[fidx]):
     
     if pltTrue == True:
         mc0 = coeffs[p]['mc0']
-        mc1 = coeffs[p]['mc1']
+        mc1 = coeffs[p]['mc1h']
     else:
         mc0 = coeffs[p]['mc0f']
         mc1 = coeffs[p]['mc1h'] # using hybrid

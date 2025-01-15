@@ -642,8 +642,8 @@ plt.yscale('log')
 plt.ylim([0.1, 250])
 #plt.xlim([0, 36])
 plt.xlabel('Count', fontsize=18)
-
-plt.subplots_adjust(wspace=0.07)
+plt.tight_layout() 
+#plt.subplots_adjust(wspace=0.07)
 
 # now show figs 
 plt.savefig('stressdrop_vs_mag.png', fmt='png', dpi=300, bbox_inches='tight')       

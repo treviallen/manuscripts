@@ -107,7 +107,7 @@ for xls in xlstables:
                 # interpolate to get amp factor
                 #ampFact = interp(log(period), log(vsPeriod), totalVsFact)
                 
-                impedance = False # no impedance contraste - assumes gradual velocity change
+                impedance = False # no impedance contrast - assumes gradual velocity change
                 
                 refT = 0.0 # PGA
                 
