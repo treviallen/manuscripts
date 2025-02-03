@@ -1,4 +1,5 @@
 import pickle
+from sys import argv
 from numpy import unique, array, arange, log, log10, exp, mean, nanmean, ndarray, std, sqrt, \
                   nanmedian, nanstd, vstack, pi, nan, isnan, interp, where, zeros_like, ones_like, floor, ceil, \
                   argsort
@@ -6,7 +7,7 @@ from scipy.stats import linregress, trim_mean
 from misc_tools import get_binned_stats, dictlist2array, get_mpl2_colourlist
 from mag_tools import nsha18_mb2mw, nsha18_ml2mw
 from mag_tools import m02mw
-from js_codes import get_average_Q_list, extract_Q_freq
+from get_mag_dist_terms import get_distance_term, get_regional_term
 from mapping_tools import distance
 from scipy.odr import Data, Model, ODR, models
 import scipy.odr.odrpack as odrpack
@@ -38,9 +39,11 @@ used_zones = set(['EBGZ', 'CBGZ', 'NCCZ'])
 ####################################################################################
 # correct attenuation
 ####################################################################################
-def parse_kappa_data():
+def parse_kappa_data(coeffs_pkl):
     from numpy import array, loadtxt
     
+    # set site file
+    kapfile = 'site_kappa_'+coeffs_pkl[13:-4]+'.csv'
     kapdat = []
     # read parameter file
     lines = open('site_kappa.csv').readlines()[1:]
@@ -57,11 +60,10 @@ def parse_filtering_data():
     
     filtdat = []
     # read parameter file
-    lines = open('event_filtering_lookup_paper.csv').readlines()[1:] # use good examples
-    	
+    lines = open('brune_stats_paper.csv').readlines()[1:]
     for line in lines:
         dat = line.split(',')
-        filt = {'ev':UTCDateTime(dat[0]), 'minf': float(dat[1]), 'maxf': float(dat[2]), 'qual':float(dat[3])}
+        filt = {'ev':UTCDateTime(dat[0]), 'minf': float(dat[12]), 'maxf': float(dat[13]), 'qual':float(dat[14])}
     
         filtdat.append(filt)
     
@@ -77,48 +79,19 @@ def correct_atten(rec, coeffs, kapdat):
     
     # loop thru freqs
     distterms = []
+    regterms = []
     for c in coeffs:
-        # get geometric spreading
-        D1 = sqrt(rec['rhyp']**2 + c['nref']**2)
-        if rec['rhyp'] <= c['r1']:
-            distterm = c['nc0s'] * log10(D1) #+ c['nc1s']
+        # get distance term
+        distterm = get_distance_term(rec['rhyp'], c)
         
-        # set mid-field
-        elif rec['rhyp'] > c['r1'] and rec['rhyp'] <= c['r2']:
-            D1 = sqrt(c['r1']**2 + c['nref']**2)
-            distterm = c['nc0s'] * log10(D1) \
-                       + c['mc0t'] * log10(rec['rhyp'] / c['r1']) + c['mc1s'] * (rec['rhyp'] - c['r1'])
-        
-        # set far-field
-        elif rec['rhyp'] > c['r2']:
-            D1 = sqrt(c['r1']**2 + c['nref']**2)
-            distterm = c['nc0s'] * log10(D1) \
-                       + c['mc0t'] * log10(c['r2'] / c['r1']) + c['mc1s'] * (c['r2'] - c['r1']) \
-                       + c['fc0'] * log10(rec['rhyp'] / c['r2']) + c['fc1'] * (rec['rhyp'] - c['r2']) \
-                       + c['fc2'] * (log10(rec['rhyp']) - log10(c['r2']))
-        
-        """
-        # get regional correction for epicentre
-        for zc, zt, poly in zip(zone_code, zone_trt, polygons):
-            eqpt = Point(rec['eqlo'], rec['eqla'])
-            #stpt = Point(stlo[i], eqla[i])
-            if eqpt.within(poly):
-                eqtrt = zt
-                eqcode = zc
-        
-        if eqtrt == 'Non_cratonic':
-            eqcode = 'NCCZ'
-        
-        # now get regional coeff
-        if rec['rhyp'] > c['regr']:
-            distterm += c[eqcode+'_rc'] * (log10(rec['rhyp']) - log10(c['regr']))
-        """    
         distterms.append(distterm)
-    
-    #distterms.append(nan) # as no coeffs for last freq
-    
-    #	get distance independent kappa
-    #smedian_kappa = 0.072214 # should read this from file
+        
+        '''
+        regterm = get_regional_term(rec['rhyp'], c, rec['eqdom'])
+        
+        regterms.append(regterm)
+        '''
+    # set kappa
     kappa = kapdat[-1]['kappa0'] # default kappa
     
     # get site kappa
@@ -131,19 +104,48 @@ def correct_atten(rec, coeffs, kapdat):
     k_term = log10(exp(-1 * pi * freqs * kappa))
     
     # correct to source
-    cor_fds = 10**(log10(raw_fds) - distterms - k_term)
-    
-    #print(distterms)
+    cor_fds = 10**(log10(raw_fds) - distterms - k_term) # - regterms - k_term)
     
     # get data exceeding SN ratio
     idx = where(sn_ratio < sn_thresh)[0]
     cor_fds_nan = cor_fds.copy()
     cor_fds_nan[idx] = nan
     
+    # ensure high SN for periods affected by 2ndary microseisms
+    #idx = where((sn_ratio < 20) & (freqs >= 0.09) & (freqs <= 0.35))[0]
+    #cor_fds_nan[idx] = nan
+    
     # if short period only use f > 0.5
     if  channel.startswith('SH') or channel.startswith('EH'):
-        idx = where(freqs < 0.4)[0]
+        if rec['pazfile'].endswith('s6000-2hz.paz'):
+            idx = where(freqs < 0.9)[0]
+        else:
+            idx = where(freqs < 0.5)[0]
         cor_fds_nan[idx] = nan
+        
+    # ignore dodgy CMSA data
+    if rec['sta'] == 'CMSA_FIXED' or rec['sta'] == 'PI207': 
+        idx = where(freqs < 0.5)[0]
+        cor_fds_nan[idx] = nan
+        
+    if rec['sta'] == 'NPS': 
+        idx = where(freqs < 100)[0]
+        cor_fds_nan[idx] = nan
+        
+    if rec['sta'] == 'STKA': 
+        idx = where(freqs < 0.1)[0]
+        cor_fds_nan[idx] = nan
+        
+    if rec['sta'] == 'AS17' and rec['evdt'].year > 2013 and rec['evdt'].year < 2018: 
+        idx = where(freqs < 100)[0]
+        cor_fds_nan[idx] = nan
+        
+    if rec['net'].startswith('1Q'):
+        print(rec['sta'])
+        idx = where(freqs > 5.0)[0]
+        cor_fds_nan[idx] = nan
+        
+    # for all remove 0.1-0.3 Hz?
             
     return cor_fds, cor_fds_nan, freqs
 
@@ -166,6 +168,102 @@ def fit_brune_model(c, f):
     # fit curve
     FittedCurve = log(c[0] / (1 + (f / (c[1]))**2))
     #FittedCurve = C * omega / (1 + (f / c[1])**2)
+    
+    return FittedCurve
+
+
+    
+def fit_brune_model_fixed_omega(c, f):
+    from numpy import array, log
+    '''
+    c[0] = omega0
+    c[1] = f0
+    f    = frequency
+    '''
+    
+    fixed_omega = 4.5 # from dist corrected stacked spectra
+    
+    # set constants
+    vs = 3.6 # km/s
+    vsm = vs*1000.
+    rho = 2800 # kg/m^3
+    C = 4. * pi * rho * vsm**3 * 1000. / (0.55 * 2.0 * 0.71)
+    #f = array(exp(logf))
+    #print(f
+
+    # fit curve
+    FittedCurve = log(fixed_omega / (1 + (f / (c[0]))**2))
+    #FittedCurve = C * omega / (1 + (f / c[1])**2)
+    
+    return FittedCurve
+    
+def fit_brune_model_fixed_omega_petermann(c, f):
+    from numpy import array, log
+    '''
+    c[0] = omega0
+    c[1] = f0
+    f    = frequency
+    '''
+    
+    fixed_omega = 0.32 # from dist corrected stacked spectra
+    
+    # set constants
+    vs = 3.6 # km/s
+    vsm = vs*1000.
+    rho = 2800 # kg/m^3
+    C = 4. * pi * rho * vsm**3 * 1000. / (0.55 * 2.0 * 0.71)
+    #f = array(exp(logf))
+    #print(f
+
+    # fit curve
+    FittedCurve = log(fixed_omega / (1 + (f / (c[0]))**2))
+    #FittedCurve = C * omega / (1 + (f / c[1])**2)
+    
+    return FittedCurve
+    
+def fit_brune_model_fixed_omega_marblebar(c, f):
+    from numpy import array, log
+    '''
+    c[0] = omega0
+    c[1] = f0
+    f    = frequency
+    '''
+    
+    fixed_omega = 0.038 # from dist corrected stacked spectra
+    
+    # set constants
+    vs = 3.6 # km/s
+    vsm = vs*1000.
+    rho = 2800 # kg/m^3
+    C = 4. * pi * rho * vsm**3 * 1000. / (0.55 * 2.0 * 0.71)
+    #f = array(exp(logf))
+    #print(f
+
+    # fit curve
+    FittedCurve = log(fixed_omega / (1 + (f / (c[0]))**2))
+    
+    return FittedCurve
+    
+def fit_brune_model_fixed_omega_2020bowen(c, f):
+    from numpy import array, log
+    '''
+    c[0] = omega0
+    c[1] = f0
+    f    = frequency
+    '''
+    
+    fixed_omega = 0.0081 # from dist corrected stacked spectra
+    
+    # set constants
+    vs = 3.6 # km/s
+    vsm = vs*1000.
+    rho = 2800 # kg/m^3
+    C = 4. * pi * rho * vsm**3 * 1000. / (0.55 * 2.0 * 0.71)
+    #f = array(exp(logf))
+    #print(f
+
+    # fit curve
+    FittedCurve = log(fixed_omega / (1 + (f / (c[0]))**2))
     
     return FittedCurve
    
@@ -222,15 +320,20 @@ for i, rec in enumerate(recs):
         recs[i]['mag'] = nsha18_ml2mw(rec['mag'])
 
 # load atten coeffs
-coeffs = pickle.load(open('atten_coeffs.pkl', 'rb' ))
+pklfile = argv[1]
+
+coeffs = pickle.load(open(pklfile, 'rb' ))
 
 ###############################################################################
 # set data to use
 ###############################################################################
 
 # remove bad recs
-keep_nets = set(['AU', 'IU', 'S1', 'II', 'G', 'MEL', 'ME', '2O', 'AD', 'SR', 'UM', 'AB', 'VI', 'GM' \
-                 '1P', '1P', '2P', '6F', '7K', '7G', 'G', '7B', '4N', '7D', '', 'OZ', 'OA', 'WG']) #, 'XX'])
+keep_nets = set(['AU', 'IU', 'S1', 'II', 'G', 'MEL', 'ME', '2O', 'AD', 'SR', 'UM', 'AB', 'VI', 'GM', 'M8', 'DU', 'WG', '4N', \
+                 '1P', '1P', '2P', '6F', '7K', '7G', 'G', '7B', '4N', '7D', '', 'OZ', 'OA', 'WG', 'XX', 'AM', 'YW', '3B', '1K', \
+                 '1Q', '3O'])
+                 
+
 # get stas to ignore
 ignore_stas = open('sta_ignore.txt').readlines()
 ignore_stas = set([x.strip() for x in ignore_stas])
@@ -243,7 +346,8 @@ SWN20, SWNNG
 ####################################################################################
 # start main
 ####################################################################################
-fig = plt.figure(1, figsize=(12,12))
+print('DO NOT EXCLUDE LOW F DATA, BUT DO NOT ALLOW FITTING FROM 0.08 - 0.4 HZ')
+fig = plt.figure(1, figsize=(12,18))
 
 # loop through & plot station  data
 cs = get_mpl2_colourlist()
@@ -266,8 +370,12 @@ f.close()
 crash
 '''
 
+# set M-R lookup
+mdist_lookup_mags = arange(3.25,7.1,0.5)
+mdist_lookup_dists = array([550, 1200, 1700, 2000, 2200, 2200, 2200, 2200])
+
 # get kappas
-kapdat = parse_kappa_data()
+kapdat = parse_kappa_data(pklfile)
 
 # get event filters
 filtdat = parse_filtering_data()
@@ -291,16 +399,16 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
 
     #print(','.join((event,str(minf),str(maxf))))
     if qual == 1:
-    	
         sp += 1
-        plt.subplot(2,3,sp)
-        log_stack_logfds = []
+        plt.subplot(3,2,sp)
+        log_stack_logfds = [] 
+        log_stack_logfds_ge100 = []
         handles1 = []
         labels1 = []
         
         ceil_log_fds = -99
         floor_log_fds = 99
-        
+    
         i = 0
         pltboxes = True
         for rsi in rhyp_sort_idx:
@@ -311,92 +419,150 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
                     if len(rec['channels']) > 0:
                         if rec['evdt'] == event: # will need to cahnge to rec['datetime']
                             print('   '+rec['sta'])
-                            cor_fds, cor_fds_nan, freqs = correct_atten(rec, coeffs, kapdat)
                             
-                            # get max/min
-                            if ceil(max(log10(cor_fds[30:120]))) > ceil_log_fds:
-                                ceil_log_fds = ceil(max(log10(cor_fds[30:120])))
+                            # get distance cut-off
+                            idx = where((rec['mag']) >= mdist_lookup_mags)[0]
+                            if len(idx) == 0:
+                                mag_dist = mdist_lookup_dists[0]
+                            else:
+                                mag_dist = mdist_lookup_dists[idx[-1]]
+                            
+                            # do skip sta checks
+                            skip_sta = False
+                            if rec['sta'] == 'QIS' and rec['evdt'].year <= 1999:
+                                skip_sta = True
+                            elif rec['sta'] == 'RMQ' and rec['evdt'].year <= 1998:
+                                skip_sta = True
                                 
-                                if max(cor_fds[30:120]) < 2*10**(ceil_log_fds-1):
-                                    ceil_log_fds = log10(2*10**(ceil_log_fds-1))
+                            
+                            if rec['rhyp'] > mag_dist:
+                                skip_sta = True
+                            #print(skip_sta, rec['rhyp'], rec['mag'], mag_dist)
+                            if skip_sta == False:
+                            
+                                cor_fds, cor_fds_nan, freqs = correct_atten(rec, coeffs, kapdat)
+                                
+                                # get max/min
+                                if ceil(max(log10(cor_fds[30:120]))) > ceil_log_fds:
+                                    ceil_log_fds = ceil(max(log10(cor_fds[30:120])))
                                     
-                                elif max(cor_fds[30:120]) < 4*10**(ceil_log_fds-1):
-                                    ceil_log_fds = log10(4*10**(ceil_log_fds-1))
+                                    if max(cor_fds[30:120]) < 2*10**(ceil_log_fds-1):
+                                        ceil_log_fds = log10(2*10**(ceil_log_fds-1))
+                                        
+                                    elif max(cor_fds[30:120]) < 4*10**(ceil_log_fds-1):
+                                        ceil_log_fds = log10(4*10**(ceil_log_fds-1))
+                                    
+                                if floor(min(log10(cor_fds[30:120]))) < floor_log_fds:
+                                    floor_log_fds = floor(min(log10(cor_fds[30:120])))
+                                    
+                                if i <= 9:
+                                    h1, = plt.loglog(freqs, cor_fds_nan,'-', c=cs[i], lw=1, label='-'.join((rec['sta'],str('%0.0f' % rec['rhyp']))))
+                                elif i <= 19:
+                                    h1, = plt.loglog(freqs, cor_fds_nan,'--', c=cs[i-10], lw=1, label='-'.join((rec['sta'],str('%0.0f' % rec['rhyp']))))
+                                elif i <= 29:
+                                    h1, = plt.loglog(freqs, cor_fds_nan,'-.', c=cs[i-20], lw=1, label='-'.join((rec['sta'],str('%0.0f' % rec['rhyp']))))
+                                elif i <= 39:
+                                    linestyle = (0, (3, 5, 1, 5, 1, 5))
+                                    h1, = plt.loglog(freqs, cor_fds_nan, linestyle=linestyle, c=cs[i-30], lw=1, label='-'.join((rec['sta'],str('%0.0f' % rec['rhyp']))))
+                                else:
+                                    linestyle = (0, (3, 5, 1, 5))
+                                    h1, = plt.loglog(freqs, cor_fds_nan, linestyle=linestyle, c=cs[i-40], lw=1) # don't write sta
+                                    if i == 49:
+                                        i = 40
                                 
-                            if floor(min(log10(cor_fds[30:120]))) < floor_log_fds:
-                                floor_log_fds = floor(min(log10(cor_fds[30:120])))
+                                handles1.append(h1)
+                                labels1.append(rec['sta'])
                                 
-                            if i <= 9:
-                                h1, = plt.loglog(freqs, cor_fds_nan,'-', c=cs[i], lw=1, label=rec['sta'])
-                            elif i <= 19:
-                                h1, = plt.loglog(freqs, cor_fds_nan,'--', c=cs[i-10], lw=1, label=rec['sta'])
-                            elif i <= 29:
-                                h1, = plt.loglog(freqs, cor_fds_nan,'-.', c=cs[i-20], lw=1)
-                            elif i <= 39:
-                                linestyle = (0, (3, 5, 1, 5, 1, 5))
-                                h1, = plt.loglog(freqs, cor_fds_nan, linestyle=linestyle, c=cs[i-30], lw=1)
-                            else:
-                                linestyle = (0, (3, 5, 1, 5))
-                                h1, = plt.loglog(freqs, cor_fds_nan, linestyle=linestyle, c=cs[i-40], lw=1) # don't write sta
-                                if i == 49:
-                                    i = 40
-                            
-                            handles1.append(h1)
-                            labels1.append(rec['sta'])
-                            
-                            # stack
-                            if log_stack_logfds == []:
-                                log_stack_logfds = log(cor_fds_nan)
-                            else:
-                                log_stack_logfds = vstack((log_stack_logfds, log(cor_fds_nan)))
-                                
-                            i += 1
-                            
-                            '''
-                            if rec['sta'] == 'ONGER':
-                            	plt.subplot(2,3,2)
-                            	channel = rec['channels'][0]
-                            	raw_fds = rec[channel]['swave_spec']
-                            	freqs = rec[channel]['freqs']
-                            	
-                            	plt.subplot(2,3,2)
-                            	plt.loglog(freqs, raw_fds,'b-')
-                            	plt.subplot(2,3,sp)
-                            '''	
+                                # stack
+                                if log_stack_logfds == []:
+                                    log_stack_logfds = log(cor_fds_nan)
+                                else:
+                                    log_stack_logfds = vstack((log_stack_logfds, log(cor_fds_nan)))
+                                    
+                                if rec['rhyp'] >= 0:
+                                    if log_stack_logfds_ge100 == []:
+                                        log_stack_logfds_ge100 = log(cor_fds_nan)
+                                    else:
+                                        log_stack_logfds_ge100 = vstack((log_stack_logfds_ge100, log(cor_fds_nan)))
+                                    
+                                i += 1
                             
                             # set evmag
-                            evmag = rec['mag']
-                            evmagtype = rec['magType']
+                            evmag = rec['omag']
+                            evmagtype = rec['oMagType']
                             evlon = rec['eqlo']
                             evlat = rec['eqla']
                             evdep = rec['eqdp']
                             evdt = rec['evdt']
+                            evmb = rec['mb']
+                            evid = rec['gaid']
         
         leg1 = plt.legend(handles=handles1, loc=3, fontsize=6, ncol=4)
 	      
         # get mean spectra
+        sd = -99
+        #edict['nrecs'] = i
         if log_stack_logfds != []:
             if len(log_stack_logfds.shape) == 1:
                 mean_fds = exp(log_stack_logfds)
             else:
                 mean_fds = exp(nanmean(log_stack_logfds, axis=0))
-                
+            
+            if log_stack_logfds.shape[0] <= 2:
+                qual = 2
+            
             h2, = plt.loglog(freqs, mean_fds,'--', color='0.2', lw=1.5, label='Mean Source Spectrum')
-        
+            
+            # don't fit these freqs
+            #idx = where((freqs >= 0.08) & (freqs <= 0.4))[0]
+            #mean_fds[idx] = nan
+            
             # fit mean curve
             fidx = where((freqs >= minf) & (freqs <= maxf) & (isnan(mean_fds) == False))[0]
+            
             #sfidx = where((freqs >= minf) & (freqs <= maxsf))[0] # for labelling curves
             
             data = odrpack.RealData(freqs[fidx], log(mean_fds[fidx]))
-            fitted_brune = odrpack.Model(fit_brune_model)
-            odr = odrpack.ODR(data, fitted_brune, beta0=[1E-2,1.])
-            odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
-            out = odr.run()
             
-            omega0 = out.beta[0]
-            f0 = abs(out.beta[1])
-            print('f0', f0)
+            # do special case for Broome
             
+            if event == UTCDateTime('2019-07-14T05:39:24.991000Z'):
+                print('M6.6 Broome')
+                fitted_brune = odrpack.Model(fit_brune_model_fixed_omega)
+                odr = odrpack.ODR(data, fitted_brune, beta0=[0.3])
+                odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
+                out = odr.run()
+                
+                fixed_omega = 4.5
+                omega0 = fixed_omega
+                f0 = abs(out.beta[0])
+                print('f0', f0)
+            
+            
+                
+            elif event == UTCDateTime('2021-11-13T13:05:52.663000Z'):
+                print('M5.3 Marble Bar')
+                fitted_brune = odrpack.Model(fit_brune_model_fixed_omega_marblebar)
+                odr = odrpack.ODR(data, fitted_brune, beta0=[0.3])
+                odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
+                out = odr.run()
+                
+                fixed_omega = 0.038
+                omega0 = fixed_omega
+                f0 = abs(out.beta[0])
+                print('f0', f0)    
+            
+            else:
+            
+                fitted_brune = odrpack.Model(fit_brune_model)
+                odr = odrpack.ODR(data, fitted_brune, beta0=[1E-2,1.])
+                odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
+                out = odr.run()
+                
+                omega0 = out.beta[0]
+                f0 = abs(out.beta[1])
+                print('f0', f0)
+                
             m0 = C * omega0
             mw =  m02mw(m0)
             print('Mw', m02mw(m0))
@@ -408,42 +574,143 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
             print('SD', sd, 'MPa')
             print('f0', f0, 'Hz\n' )
             
+            
+            '''
+            fitted_brune = odrpack.Model(fit_brune_model)
+            odr = odrpack.ODR(data, fitted_brune, beta0=[1E-2,1.])
+            odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
+            out = odr.run()
+            
+            omega0 = out.beta[0]
+            f0 = abs(out.beta[1])
+            print('f0', f0)
+            '''
+            m0 = C * omega0
+            mw =  m02mw(m0)
+            print('Mw', m02mw(m0))
+            
+            # calc stress drop
+            r0 = 2.34 * vsm / (2 * pi * f0)
+            
+            sd = 7. * m0 / (16. * r0**3) / 10**6 # in MPa	
+            print('SD', sd, 'MPa')
+            print('f0', f0, 'Hz\n' )
+            
             # add to events
             edict = {}
             edict['evstr'] = event
             edict['evdt'] = evdt
+            edict['evid'] = evid
             edict['lon'] = evlon
             edict['lat'] = evlat
             edict['dep'] = evdep
             edict['omag'] = evmag
             edict['omag_type'] = evmagtype
+            edict['mb'] = evmb
             edict['brune_mw'] = mw
             edict['brune_sd'] = sd
             edict['brune_f0'] = f0
             edict['minf'] = minf
             edict['maxf'] = maxf
             edict['qual'] = qual
+            edict['stas'] = labels1
+            edict['sta_spectra'] = log_stack_logfds
             
-            events_dict.append(edict)
-        
+            if log_stack_logfds.shape[0] == 150:
+                nrecs = 1
+            else:
+                nrecs = log_stack_logfds.shape[0]
+            edict['nrecs'] = nrecs
+            
+            '''
+            # in the case where SD < 1 MPa, retry without stas < 100 km        
+            if sd < 0.9:
+                if log_stack_logfds_ge100 != []:
+                    if len(log_stack_logfds.shape) == 1:
+                        mean_fds = exp(log_stack_logfds_ge100)
+                    else:
+                        mean_fds = exp(nanmean(log_stack_logfds_ge100, axis=0))
+                    
+                    # get nrecs    
+                    if log_stack_logfds.shape[0] == 150:
+                        nrecs = 1
+                    else:
+                        nrecs = log_stack_logfds.shape[0]
+                    
+                    # set marginal quality
+                    if log_stack_logfds_ge100.shape[0] <= 2:
+                        qual = 2
+                    
+                    h2, = plt.loglog(freqs, mean_fds,'--', color='r', lw=1.5, label='Mean Source Spectrum (GE 100)')
+                    
+                    # fit mean curve
+                    fidx = where((freqs >= minf) & (freqs <= maxf) & (isnan(mean_fds) == False))[0]
+                    
+                    data = odrpack.RealData(freqs[fidx], log(mean_fds[fidx]))
+                    
+                    fitted_brune = odrpack.Model(fit_brune_model)
+                    odr = odrpack.ODR(data, fitted_brune, beta0=[1E-2,1.])
+                    odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
+                    out = odr.run()
+                    
+                    omega0 = out.beta[0]
+                    f0 = abs(out.beta[1])
+                    #print('f0', f0)
+                    
+                    m0 = C * omega0
+                    mw =  m02mw(m0)
+                    print('Mw', m02mw(m0))
+                    
+                    # calc stress drop
+                    r0 = 2.34 * vsm / (2 * pi * f0)
+                    
+                    sd = 7. * m0 / (16. * r0**3) / 10**6 # in MPa
+                    print('SD', sd, 'MPa')
+                    print('f0', f0, 'Hz\n' )
+                    
+                    # add to events
+                    edict = {}
+                    edict['evstr'] = event
+                    edict['evdt'] = evdt
+                    edict['evid'] = evid
+                    edict['lon'] = evlon
+                    edict['lat'] = evlat
+                    edict['dep'] = evdep
+                    edict['omag'] = evmag
+                    edict['omag_type'] = evmagtype
+                    edict['mb'] = evmb
+                    edict['brune_mw'] = mw
+                    edict['brune_sd'] = sd
+                    edict['brune_f0'] = f0
+                    edict['minf'] = minf
+                    edict['maxf'] = maxf
+                    edict['qual'] = qual
+                    edict['stas'] = labels1
+                    edict['nrecs'] = nrecs
+                    edict['sta_spectra'] = log_stack_logfds_ge100
+            '''    
             # plot fitted curve
             fitted_curve = omega0 / (1 + (freqs / f0)**2)
             h3, = plt.loglog(freqs, fitted_curve, 'k-', lw=1.5, label='Fitted Brune Model')
             plt.legend(handles=[h2, h3], loc=1, fontsize=8)
+            plt.yticks(fontsize=12)
+            plt.xticks(fontsize=12)
+            
+            edict['fitted_spectra'] = fitted_curve
             
             if qual == 0:
-                plt.title('; '.join((str(event)[0:16], 'MW '+str('%0.2f' % mw), 'SD '+str('%0.2f' % sd)+' MPa')), fontsize=10, color='red')
+                plt.title('; '.join((str(event)[0:16], '$\mathregular{M_W}$ '+str('%0.2f' % mw), r"$\Delta\sigma$ = " +str('%0.2f' % sd)+' MPa')), fontsize=10, color='red')
             else:
-                plt.title('; '.join((str(event)[0:16], 'MW '+str('%0.2f' % mw), 'SD '+str('%0.2f' % sd)+' MPa')), fontsize=10, color='k')
+                plt.title('; '.join((str(event)[0:16], '$\mathregular{M_W}$ '+str('%0.2f' % mw), r"$\Delta\sigma$ = " +str('%0.2f' % sd)+' MPa')), fontsize=16, color='k')
             
             if sp == 1 or sp == 3 or sp == 5:
-               plt.ylabel('Fourier Displacement Spectra (m-s)')
-            if sp >= 5:
-               plt.xlabel('Frequency (Hz)')
+               plt.ylabel('Fourier Displacement Spectra (m-s)', fontsize=14)
+            if sp > 4:
+               plt.xlabel('Frequency (Hz)', fontsize=14)
             #plt.title(' - '.join((ev, 'M'+str('%0.2f' % mag), place)), fontsize=10)
-        
+    
         plt.gca().add_artist(leg1)
-        if f0 < 1.5:
+        if f0 < 1. or omega0 >= 0.005:
             plt.xlim([0.03, 20])
         else:
             plt.xlim([0.1, 20])
@@ -459,19 +726,45 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
         plt.fill([maxf, maxf, 20, 20, maxf], [ymin, ymax, ymax, ymin, ymin], '0.9', ec='0.9', zorder=1)
                                 
         plt.grid(which='both', color='0.7')
+            
+        if sp == 6:
+            fig.tight_layout()
+            plt.savefig('brune_fit/brune_fit_paper_'+str(ii)+'.png', fmt='png', bbox_inches='tight')
+            sp = 0
+            ii += 1
+            fig = plt.figure(ii, figsize=(18,12))
         
-    if sp == 9:
-        plt.savefig('brune_fit/brune_fit_paper_'+str(ii)+'.png', fmt='png', dpi=300, bbox_inches='tight')
-        sp = 0
-        ii += 1
-        fig = plt.figure(ii, figsize=(12,12))
+            '''# plot fitted curve
+            fitted_curve = omega0 / (1 + (freqs / f0)**2)
+            h3, = plt.loglog(freqs, fitted_curve, 'k-', lw=1.5, label='Fitted Brune Model')
+            plt.legend(handles=[h2, h3], loc=1, fontsize=8)
+            
+            edict['fitted_spectra'] = fitted_curve	
+            '''
+        events_dict.append(edict)
 
-plt.savefig('brune_fit/brune_fit_paper_'+str(ii)+'.png', fmt='png', dpi=300, bbox_inches='tight')
+plt.savefig('brune_fit/brune_fit_paper_'+str(ii)+'.png', fmt='png', dpi=150, bbox_inches='tight')
 
 
 ##########################################################################################
+'''
+# export Brune data
+pklfile = open('brune_data.pkl', 'wb')
+pickle.dump(events_dict, pklfile, protocol=-1)
+pklfile.close()
 
+# write csv
+txt = 'EVENT,GAID,LON,LAT,DEP,OMAG,OMAG_TYPE,MB,BRUNE_MAG,STRESS_DROP,CORN_FREQ,NRECS,FMIN,FMAX,QUALITY\n'
 
+for ev in events_dict:
+    txt += ','.join((str(ev['evdt']),ev['evid'],str(ev['lon']),str(ev['lat']),str(ev['dep']),str(ev['omag']),ev['omag_type'],str(ev['mb']), \
+                     str(ev['brune_mw']),str(ev['brune_sd']),str(ev['brune_f0']),str(ev['nrecs']), str(ev['minf']),str(ev['maxf']),str(ev['qual']))) + '\n'
+
+# write to file
+f = open('brune_stats.csv', 'w')
+f.write(txt)
+f.close()
+'''
 # now show figs        
 plt.show()    
 

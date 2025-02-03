@@ -86,10 +86,11 @@ def correct_atten(rec, coeffs, kapdat):
         
         distterms.append(distterm)
         
+        '''
         regterm = get_regional_term(rec['rhyp'], c, rec['eqdom'])
         
         regterms.append(regterm)
-    
+        '''
     # set kappa
     kappa = kapdat[-1]['kappa0'] # default kappa
     
@@ -103,7 +104,7 @@ def correct_atten(rec, coeffs, kapdat):
     k_term = log10(exp(-1 * pi * freqs * kappa))
     
     # correct to source
-    cor_fds = 10**(log10(raw_fds) - distterms - regterms - k_term)
+    cor_fds = 10**(log10(raw_fds) - distterms - k_term) # - regterms - k_term)
     
     # get data exceeding SN ratio
     idx = where(sn_ratio < sn_thresh)[0]
@@ -139,7 +140,11 @@ def correct_atten(rec, coeffs, kapdat):
         idx = where(freqs < 100)[0]
         cor_fds_nan[idx] = nan
         
-    # for all remove 0.1-0.3 Hz?
+    # if sta starts with AQT
+    if rec['net'].startswith('1Q'):
+        print(rec['sta'])
+        idx = where(freqs > 5.0)[0]
+        cor_fds_nan[idx] = nan
             
     return cor_fds, cor_fds_nan, freqs
 
@@ -175,7 +180,7 @@ def fit_brune_model_fixed_omega(c, f):
     f    = frequency
     '''
     
-    fixed_omega = 2.6 # from dist corrected stacked spectra
+    fixed_omega = 4.5 # from dist corrected stacked spectra
     
     # set constants
     vs = 3.6 # km/s
@@ -199,7 +204,7 @@ def fit_brune_model_fixed_omega_petermann(c, f):
     f    = frequency
     '''
     
-    fixed_omega = 0.32 # from dist corrected stacked spectra
+    fixed_omega = 0.69 # from dist corrected stacked spectra
     
     # set constants
     vs = 3.6 # km/s
@@ -223,7 +228,7 @@ def fit_brune_model_fixed_omega_marblebar(c, f):
     f    = frequency
     '''
     
-    fixed_omega = 0.018 # from dist corrected stacked spectra
+    fixed_omega = 0.038 # from dist corrected stacked spectra
     
     # set constants
     vs = 3.6 # km/s
@@ -365,7 +370,7 @@ crash
 '''
 
 # set M-R lookup
-mdist_lookup_mags = arange(3.5,7.1,0.5)
+mdist_lookup_mags = arange(3.25,7.1,0.5)
 mdist_lookup_dists = array([550, 1200, 1700, 2000, 2200, 2200, 2200, 2200])
 
 # get kappas
@@ -519,7 +524,6 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
         data = odrpack.RealData(freqs[fidx], log(mean_fds[fidx]))
         
         # do special case for Broome
-        '''
         if event == UTCDateTime('2019-07-14T05:39:24.991000Z'):
             print('M6.6 Broome')
             fitted_brune = odrpack.Model(fit_brune_model_fixed_omega)
@@ -527,11 +531,24 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
             odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
             out = odr.run()
             
-            fixed_omega = 2.6
+            fixed_omega = 4.5
             omega0 = fixed_omega
             f0 = abs(out.beta[0])
             print('f0', f0)
         
+        
+            
+        elif event == UTCDateTime('2021-11-13T13:05:52.663000Z'):
+            print('M5.3 Marble Bar')
+            fitted_brune = odrpack.Model(fit_brune_model_fixed_omega_marblebar)
+            odr = odrpack.ODR(data, fitted_brune, beta0=[0.3])
+            odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
+            out = odr.run()
+            
+            fixed_omega = 0.038
+            omega0 = fixed_omega
+            f0 = abs(out.beta[0])
+            print('f0', f0)    
         
         elif event == UTCDateTime('2016-05-20T18:14:02.000000Z'):
             print('M6.0 Petermann')
@@ -540,47 +557,22 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
             odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
             out = odr.run()
             
-            fixed_omega = 0.32
+            fixed_omega = 0.69
             omega0 = fixed_omega
             f0 = abs(out.beta[0])
             print('f0', f0)    
-        '''
-        #else:
             
-        '''
-        elif event == UTCDateTime('2021-11-13T13:05:52.663000Z'):
-            print('M5.3 Marble Bar')
-            fitted_brune = odrpack.Model(fit_brune_model_fixed_omega_marblebar)
-            odr = odrpack.ODR(data, fitted_brune, beta0=[0.3])
+        else:
+        
+            fitted_brune = odrpack.Model(fit_brune_model)
+            odr = odrpack.ODR(data, fitted_brune, beta0=[1E-2,1.])
             odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
             out = odr.run()
             
-            fixed_omega = 0.018
-            omega0 = fixed_omega
-            f0 = abs(out.beta[0])
-            print('f0', f0)    
-        
-        elif event == UTCDateTime('2020-04-15T07:11:04.955000Z'):
-            print('2020 Bowen')
-            fitted_brune = odrpack.Model(fit_brune_model_fixed_omega_marblebar)
-            odr = odrpack.ODR(data, fitted_brune, beta0=[0.3])
-            odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
-            out = odr.run()
+            omega0 = out.beta[0]
+            f0 = abs(out.beta[1])
+            print('f0', f0)
             
-            fixed_omega = 0.0081
-            omega0 = fixed_omega
-            f0 = abs(out.beta[0])
-            print('f0', f0) 
-        '''
-        fitted_brune = odrpack.Model(fit_brune_model)
-        odr = odrpack.ODR(data, fitted_brune, beta0=[1E-2,1.])
-        odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
-        out = odr.run()
-        
-        omega0 = out.beta[0]
-        f0 = abs(out.beta[1])
-        print('f0', f0)
-        
         m0 = C * omega0
         mw =  m02mw(m0)
         print('Mw', m02mw(m0))
@@ -760,4 +752,18 @@ f.close()
 # now show figs        
 plt.show()    
 
-    
+'''
+        elif event == UTCDateTime('2020-04-15T07:11:04.955000Z'):
+            print('2020 Bowen')
+            fitted_brune = odrpack.Model(fit_brune_model_fixed_omega_marblebar)
+            odr = odrpack.ODR(data, fitted_brune, beta0=[0.3])
+            odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
+            out = odr.run()
+            
+            fixed_omega = 0.0081
+            omega0 = fixed_omega
+            f0 = abs(out.beta[0])
+            print('f0', f0) 
+            
+        
+'''    

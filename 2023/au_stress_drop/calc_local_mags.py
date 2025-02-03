@@ -457,6 +457,7 @@ fig = plt.figure(3, figsize=(14, 8.))
 plt.subplot(221)
 plt.plot([2,7], [0,0], 'k--', lw=0.5)
 sc = plt.scatter(mw_array, mw_res, c=log10(sd_array), vmin=-1.0, vmax=2.0, s=36, cmap=cm, label='Data')
+#sc = plt.scatter(ml_array, mw_res, c=log10(sd_array), vmin=-1.0, vmax=2.0, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'All Data', va='top', ha ='left', fontsize=12, bbox=props)
 plt.grid(which='both')
 plt.ylabel('$\mathregular{M_{W(Brune)}}$ - $\mathregular{M_{W(Conv)}}$', fontsize=16)
@@ -466,8 +467,10 @@ plt.text(2.3,0.98, '(a)', va='top', ha ='left', fontsize=16)
 
 # get mean & std
 mean_res = nanmean(mw_res)
+med_res = nanmedian(mw_res[idx])
 std_res = nanstd(mw_res)
 stat_txt = r'$\mu$ = '+str('%0.2f' % mean_res) + '\n' \
+           + r'$\tilde{x}$ = '+str('%0.2f' % med_res) + '\n' \
            + r'$\tau$ = '+str('%0.2f' % std_res)
 plt.text(xloc2, yloc2, stat_txt, va='bottom', ha ='right', fontsize=12, bbox=props)
 
@@ -477,14 +480,17 @@ plt.subplot(222)
 plt.plot([2,7], [0,0], 'k--', lw=0.5)
 idx = where(mzone_array == 'EA')[0]
 sc = plt.scatter(mw_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-1.0, vmax=2.0, s=36, cmap=cm, label='Data')
+#sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-1.0, vmax=2.0, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'Eastern Australia', va='top', ha ='left', fontsize=12, bbox=props)
 #plt.xlabel('$\mathregular{M_{L(MLM92)}}$', fontsize=18)
 #plt.ylabel('Brune $\mathregular{M_W}$', fontsize=18)
 
 # get mean & std
 mean_res = nanmean(mw_res[idx])
+med_res = nanmedian(mw_res[idx])
 std_res = nanstd(mw_res[idx])
 stat_txt = r'$\mu$ = '+str('%0.2f' % mean_res) + '\n' \
+           + r'$\tilde{x}$ = '+str('%0.2f' % med_res) + '\n' \
            + r'$\tau$ = '+str('%0.2f' % std_res)
 plt.text(xloc2, yloc2, stat_txt, va='bottom', ha ='right', fontsize=12, bbox=props)
 
@@ -498,12 +504,15 @@ plt.subplot(223)
 plt.plot([2,7], [0,0], 'k--', lw=0.5)
 idx = where(mzone_array == 'WCA')[0]
 sc = plt.scatter(mw_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-1.0, vmax=2.0, s=36, cmap=cm, label='Data')
+#sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-1.0, vmax=2.0, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'Western and Central Australia', va='top', ha ='left', fontsize=12, bbox=props)
 
 # get mean & std
 mean_res = nanmean(mw_res[idx])
+med_res = nanmedian(mw_res[idx])
 std_res = nanstd(mw_res[idx])
 stat_txt = r'$\mu$ = '+str('%0.2f' % mean_res) + '\n' \
+           + r'$\tilde{x}$ = '+str('%0.2f' % med_res) + '\n' \
            + r'$\tau$ = '+str('%0.2f' % std_res)
 plt.text(xloc2, yloc2, stat_txt, va='bottom', ha ='right', fontsize=12, bbox=props)
 
@@ -523,8 +532,10 @@ plt.text(xloc, yloc, 'South Australia', va='top', ha ='left', fontsize=12, bbox=
 
 # get mean & std
 mean_res = nanmean(mw_res[idx])
+med_res = nanmedian(mw_res[idx])
 std_res = nanstd(mw_res[idx])
 stat_txt = r'$\mu$ = '+str('%0.2f' % mean_res) + '\n' \
+           + r'$\tilde{x}$ = '+str('%0.2f' % med_res) + '\n' \
            + r'$\tau$ = '+str('%0.2f' % std_res)
 plt.text(xloc2, yloc2, stat_txt, va='bottom', ha ='right', fontsize=12, bbox=props)
 
@@ -588,7 +599,7 @@ plt.show()
 
 ##########################################################################################
 # plot SD vs mag
-fig = plt.figure(5, figsize=(24, 4))
+fig = plt.figure(5, figsize=(14, 4))
 
 plt.subplot(121)
 #plt.plot([.1, 200], [0,0], 'k--')  '#1f77b4', '#ff7f0e'
@@ -613,14 +624,14 @@ plt.ylim([0.1, 250])
 # annotate
 
 
-xloc2 = 6.96
+xloc2 = 6.94
 yloc2 = get_log_xy_locs([0.1, 250], 0.03)
 
 stat_txt = r'$\mu$ = '+str('%0.2f' % 10**nanmean(log10(sd_array[idx]))) + '\n' \
            + r'log $\tau$ = '+str('%0.2f' % nanstd(log10(sd_array[idx]))) + '\n' \
            + '$r^{2}$ = '+str('%0.3f' % c.rvalue**2)
 plt.text(xloc2, yloc2, stat_txt, va='bottom', ha ='right', fontsize=12, bbox=props)
-
+plt.xlim([3, 7])
 
 '''
 # make colourbar
@@ -640,7 +651,6 @@ plt.hist(sd_array[idx], bins=10**bins, orientation='horizontal', facecolor='0.8'
 ax.tick_params(labelleft=False) 
 plt.yscale('log')
 plt.ylim([0.1, 250])
-#plt.xlim([0, 36])
 plt.xlabel('Count', fontsize=18)
 plt.tight_layout() 
 #plt.subplots_adjust(wspace=0.07)

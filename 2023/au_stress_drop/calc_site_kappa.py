@@ -37,13 +37,14 @@ def correct_atten(rec, coeffs):
         
         distterms.append(distterm)
         
+        '''
         regterm = get_regional_term(rec['rhyp'], c, rec['eqdom'])
         
         regterms.append(regterm)
-    
+        '''
     #.append(nan) # as no coeffs for last freq
     
-    cor_fds = 10**(log10(raw_fds) - distterms - regterm) # - log10(k_term))
+    cor_fds = 10**(log10(raw_fds) - distterms) # - regterm) # - log10(k_term))
     
     # get data exceeding SN ratio
     idx = where(sn_ratio < sn_thresh)[0]
@@ -330,6 +331,6 @@ plt.hist(array(kappa_list[idx]), bins, color='0.8', ec='k')
 plt.xlabel(r"$\kappa_0$", fontsize=18)
 plt.ylabel('Count', fontsize=16)
 medtxt = 'Median = ' +str('%0.4f' % mean_kappa_trim)
-plt.text(-0.14, 24.5, medtxt, fontsize=14, va='top')
+plt.text(-0.14, 96, medtxt, fontsize=14, va='top')
 plt.savefig('kappa_hist.png',fmt='png', dpi=300, bbox_inches='tight')
 plt.show()

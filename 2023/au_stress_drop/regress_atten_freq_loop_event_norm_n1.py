@@ -120,7 +120,7 @@ def fit_near_source_saturation(c, x):
 ###############################################################################
 #print('\n ASSIGN MW AND RE-RUN \n')
 
-mdist_lookup_mags = arange(3.5,7.1,0.5)
+mdist_lookup_mags = arange(3.25,7.1,0.5)
 mdist_lookup_dists = array([550, 1200, 1700, 2000, 2200, 2200, 2200, 2200])
 
 def normalise_data(p, recs, sn_ratio, events):
@@ -662,6 +662,7 @@ if pltTrue == 'False':
 else:
     fig = plt.figure(1, figsize=(18,11))
     fidx=arange(0,90,8)+19 # for testing
+    fidx = [20, 30, 50, 60, 69, 76, 80, 99, 110] #.75 & 5 Hz
     #fidx=arange(0,12,1)+0 # for testing
     pltTrue = True
     #fidx = fidx[0:2]
@@ -672,8 +673,8 @@ nc0_array = []
 nc1_array = []
 
 minr = 2.
-r1 = 60 # max dist for near source
-r2 = 190
+#r1 = 60 # max dist for near source
+#r2 = 190
 r1 = 60 # max dist for near source
 r2 = 200
 
@@ -747,7 +748,7 @@ smooth_nc1 = savitzky_golay(nc1_array, sg_window, sg_poly) # mid-slope
 
 # fit with quadratic
 if pltTrue == False:
-    idx = where(freqs[fidx] <= 15)[0]
+    idx = where(freqs[fidx] <= 17)[0]
     qc = polyfit(log10(freqs[fidx][idx]), smooth_nc1[idx], 2)
     fitted_nc1 = qc[0]*log10(freqs[fidx])**2 + qc[1]*log10(freqs[fidx]) + qc[2]
 else:
@@ -864,7 +865,7 @@ smooth_mc1 = savitzky_golay(mc1_array, sg_window, sg_poly) # mid-slope
 interp_mc1 = interp(freqs[fidx], freqs[fidx], smooth_mc1)
 
 # make hybrid
-idx = where(freqs[fidx] < 2.0)[0]
+idx = where(freqs[fidx] < 5.0)[0]
 mean_m1 = nanmean(mc1_array[idx])
 hybrid_mc1 = mc1_array
 hybrid_mc1[idx] = mean_m1
@@ -1236,7 +1237,7 @@ for p, freq in enumerate(freqs[fidx]):
         return ans
     
     # get data > r2 and < 1500 km
-    idx = where((10**medx >= ffc_dist) & (10**medx <= 2000))[0]
+    idx = where((10**medx >= ffc_dist) & (10**medx <= 2200))[0]
     data = odrpack.RealData(medx[idx], logmedamp[idx])
 
     # fit all as free params

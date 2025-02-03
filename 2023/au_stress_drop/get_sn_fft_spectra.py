@@ -505,9 +505,38 @@ else:
     d7m_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/7m-inventory.xml')
 
 ################################################################################
+# look to see if need to update or append pkl
+################################################################################
+
+# get pick max date
+max_pick_time = UTCDateTime(1900,1,1)
+for pf in pickfiles:
+    pickDat = parse_pickfile(pf)
+    if not isnan(pickDat['mag']):
+        if pickDat['origintime'] > max_pick_time:
+            max_pick_time = pickDat['origintime']
+        
+# now get max time in pkl
+max_pkl_time = UTCDateTime(1900,1,1)    
+recs = pickle.load(open('wa_data.pkl', 'rb' ))
+
+# convert mags to MW
+for i, rec in enumerate(recs):
+    if rec['evdt'] > max_pkl_time:
+        max_pkl_time = rec['evdt']
+        
+# now check if appending and set records
+if max_pick_time > max_pkl_time:
+    append_pkl = True
+    records = recs
+else:
+    append_pkl = False
+    records = []
+    
+################################################################################
 # loop through pick files
 ################################################################################
-records = [] 
+
 f = 0
 start_idx = 0
 #pickfiles = ['2023-01-05T05.08.AU.ONGER.picks']
@@ -517,6 +546,11 @@ for p, pf in enumerate(pickfiles[start_idx:]):
     recDat = {}
     
     pickDat = parse_pickfile(pf)
+    
+    # if appending
+    if not isnan(pickDat['mag']):
+        if append_pkl == True and pickDat['origintime'] <= max_pkl_time:
+            skipRec = True
     
     if isnan(pickDat['mag']) == False:
         #if pickDat['starttime'].year == 2025 and pickDat['starttime'].month == 1: # or pickDat['starttime'].year == 2001: # and pf == '1997-03-05T06.15.00.AD.WHY.picks':

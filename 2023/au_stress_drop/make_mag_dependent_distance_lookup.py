@@ -7,12 +7,13 @@ from misc_tools import dictlist2array
 recs = pickle.load(open('fft_data.pkl', 'rb' ))
 
 # remove bad recs
-keep_nets = set(['AU', 'IU', 'S1', 'G', 'MEL', 'ME', '20', 'AD', 'SR', 'UM', 'AB', 'VI', 'GM', 'AM', 'YW', \
-				 '1P', '1P', '2P', '6F', '7K', '7G', 'G', '7B', '4N', '7D', '', 'OZ', 'OA', 'WG','XX'])
+keep_nets = set(['AU', 'IU', 'S1', 'II', 'G', 'MEL', 'ME', '2O', 'AD', 'SR', 'UM', 'AB', 'VI', 'GM', 'M8', 'DU', 'WG', '4N', \
+                 '1P', '1P', '2P', '6F', '7K', '7G', 'G', '7B', '4N', '7D', '', 'OZ', 'OA', 'WG', 'XX', 'AM', 'YW', '3B', '1K', \
+                 '1Q', '3O'])
 
 # get stas to ignore
 ignore_stas = open('sta_ignore.txt').readlines()
-ignore_stas = open('sta_ignore.test').readlines()
+#ignore_stas = open('sta_ignore.test').readlines()
 ignore_stas = set([x.strip() for x in ignore_stas])
 
 ###############################################################################
@@ -28,8 +29,8 @@ brune_flag = [] # if trust Mw
 for line in lines:
 	dat = line.strip().split(',')
 	brune_ev.append(dat[0])
-	brune_mw.append(dat[6])
-	brune_flag.append(0) # for now!
+	brune_mw.append(float(dat[8]))
+	brune_flag.append(dat[-1]) # for now!
 
 ####################################################################################
 # start main
@@ -66,8 +67,8 @@ for e, mag in zip(events, mags):
 # loop thru freqs
 ####################################################################################
 minc = 0.5
-mrng = arange(3.5,7.1,minc)
-drng = arange(200,2201,50)
+mrng = arange(3.25,7.1,minc)
+drng = arange(200,2201,100)
 mdict = []
 for i in range(0, len(mrng)-1):
    midm = mrng[i] + minc/2
@@ -109,5 +110,5 @@ for i in range(0, len(mrng)-1):
 			   
 	   fdist.append(mdist)
 	   
-   mdat = {'mag_min': mrng[i], 'mag_max': mrng[i+1], 'fdist':array(fdist), 'freqs':freqs}
+   mdat = {'mag_min': mrng[i], 'mag_max': mrng[i+1], 'fdist':array(fdist), 'freqs':freqs, 'd05Hz':fdist[60]}
    mdict.append(mdat)

@@ -2,6 +2,9 @@ import pickle
 import matplotlib.pyplot as plt
 from misc_tools import dictlist2array, savitzky_golay
 from numpy import mean, median, where, array, log10, nanmean
+import matplotlib as mpl
+mpl.style.use('classic')
+
 
 # load atten coeffs
 coeffs = pickle.load(open('atten_coeffs_1.3_5km.pkl', 'rb' ))
@@ -158,7 +161,7 @@ mc1h = dictlist2array(coeffs, 'mc1h')
 plt.subplot(424)
 plt.semilogx(freqs, mc1, 'ro')
 plt.semilogx(freqs, mc1s, 'bo')
-plt.semilogx(freqs, mc1t, 'co')
+#plt.semilogx(freqs, mc1t, 'co')
 #plt.semilogx(freqs, mc1ts, 'mo')
 plt.ylabel('mc1')
 
@@ -206,7 +209,7 @@ hybrid_mc1[idx] = mean_m1
 sg_window = 41
 sg_poly = 3
 #smooth_hybrid_mc1 = savitzky_golay(hybrid_mc1, sg_window, sg_poly) # mid-slope
-plt.plot(freqs, mc1h, 'mo')
+#plt.plot(freqs, mc1h, 'mo')
 
 # fit high
 def fit_high_mc0(c, x):
@@ -299,6 +302,7 @@ plt.show()
 
 fig = plt.figure(1, figsize=(14, 10))
 
+ffc = dictlist2array(coeffs, 'ffc') 
 NCCZ = dictlist2array(coeffs, 'NCCZ_rc')
 EBGZ = dictlist2array(coeffs, 'EBGZ_rc')
 CBGZ = dictlist2array(coeffs, 'CBGZ_rc')
@@ -317,5 +321,10 @@ plt.subplot(423)
 plt.semilogx(freqs, CBGZ, 'ro')
 #plt.ylim([-2,0])
 plt.ylabel('CBGZ')
+
+plt.subplot(424)
+plt.semilogx(freqs, ffc, 'ro')
+#plt.ylim([-2,0])
+plt.ylabel('ffc')
 
 plt.show()

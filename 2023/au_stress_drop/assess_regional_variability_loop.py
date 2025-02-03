@@ -106,11 +106,22 @@ for f, c in enumerate(coeffs):
         for i, rec in enumerate(recs):
             if rec['net'] in keep_nets:
                 if not rec['sta'] in ignore_stas:
-            
                     try:
                         channel = rec['channels'][0]
                 
-                        if rec[channel]['sn_ratio'][f] >= 4.:
+                        # filter by instrument type
+                        addData = True
+                        if channel.startswith('SH') or channel.startswith('EH'):
+                            if rec[channel]['freqs'][f] < 0.9 and rec['pazfile'].endswith('s6000-2hz.paz'):
+                                addData = False
+                            elif rec[channel]['freqs'][f] < 0.4:
+                                addData = False
+                        
+                        # filer by sample-rate
+                        if rec[channel]['freqs'][f] > (0.4 * rec[channel]['sample_rate']):
+                            addData = False
+                            
+                        if rec[channel]['sn_ratio'][f] >= 4. and addData == True:
                             rhyps.append(rec['rhyp'])
                 
                             # get mag term
