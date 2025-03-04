@@ -1,7 +1,7 @@
 import pickle
 from numpy import unique, array, arange, log, log10, exp, mean, nanmean, ndarray, std, sqrt, \
                   nanmedian, nanstd, vstack, pi, nan, isnan, interp, where, zeros_like, ones_like, floor, ceil, \
-                  argsort, loadtxt
+                  argsort, loadtxt, percentile
 from scipy.stats import linregress, trim_mean
 from misc_tools import get_binned_stats, dictlist2array, get_mpl2_colourlist, get_log_xy_locs
 from mag_tools import nsha18_mb2mw, nsha18_ml2mw, get_au_ml_zone
@@ -39,6 +39,14 @@ used_zones = set(['EBGZ', 'CBGZ', 'NCCZ'])
 ####################################################################################
 # correct attenuation
 ####################################################################################
+# load surface ruptures
+sface_csv = 'au_surface_ruptures.csv'
+lines = open(sface_csv).readlines()[1:]
+sface_ruptures = []
+for line in lines:
+    dat = line.strip().split(',')
+    sface_ruptures.append(dat[0].strip('\n'))
+
 def parse_filtering_data():
     
     mwdat = []
@@ -47,13 +55,25 @@ def parse_filtering_data():
     for line in lines:
         dat = line.split(',')
         filt = {'ev':dat[0], 'minf': float(dat[-3]), 'maxf': float(dat[-2]), 'qual':float(dat[-1]),
-        	      'mw': float(dat[8]), 'sd': float(dat[9])}
+        	      'mw': float(dat[8]), 'sd': float(dat[10]), 'sd_std': float(dat[11]), 'surf_rup':0}
+        
+        # check if sface rupture
+        for sr in sface_ruptures:
+            if sr == dat[0]:
+                filt['surf_rup'] = 1
+                print('surf_rup')
     
         mwdat.append(filt)
     
     return mwdat
     
-
+# load surface ruptures
+sface_csv = 'au_surface_ruptures.csv'
+lines = open(sface_csv).readlines()[1:]
+sface_ruptures = []
+for line in lines:
+    dat = line.split(',')
+    sface_ruptures.append(dat[0])
    
 ####################################################################################
 # set def params
@@ -107,6 +127,7 @@ print('need to get mag region')
 ml_array = []
 mw_array = []
 sd_array = []
+sd_std_array = []
 mzone_array = []
 
 for e, event in enumerate(events): # [::-1]): #[-2:-1]:
@@ -116,19 +137,19 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
     qual = 0
     mw = nan
     sd = nan
+    sd_std = nan
     for fdat in mwdat:
         if fdat['ev'] == event:
             minf = fdat['minf']
             maxf = fdat['maxf']
             qual = fdat['qual']
-            if qual >= 1.0:
+            if qual == 1.0:
                 mw = fdat['mw']
                 sd = fdat['sd']
+                sd_std = fdat['sd_std']
             else:
                 mw = nan
                 sd = nan
-
-    #print(','.join((event,str(minf),str(maxf))))
 
     i = 0
     pltboxes = True
@@ -245,6 +266,7 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
     ml_array.append(ml_2800)
     mw_array.append(mw)
     sd_array.append(sd)
+    sd_std_array.append(sd_std)
     mzone_array.append(mzone)
 
 ml_array = array(ml_array)
@@ -264,14 +286,15 @@ s0, s1, s2 = loadtxt('mw-ml_coeffs_2800.csv', delimiter=',', skiprows=1)
 yplt_nsha23 = s0 * xplt**2 + s1 * xplt + s2
 
 cm = plt.cm.get_cmap('RdBu_r')
-sc = plt.scatter(ml_array, mw_array, c=log10(sd_array), vmin=-0.7, vmax=1.6, s=36, cmap=cm, label='Data')
+sc = plt.scatter(ml_array, mw_array, c=log10(sd_array), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
 
 # fit new data
-
 def ortho_quad_reg(c, x):
     return c[0] * x**2 + c[1] * x + c[2]
 
-data = odrpack.RealData(ml_array, mw_array)
+pc84 = percentile(sd_std_array, 84)
+idx = where(sd_std_array <= pc84)[0]
+data = odrpack.RealData(ml_array[idx], mw_array[idx])
 '''
 sx = interp(mw, [min(mw), max(mw)],[0.3, 0.1])
 sy = sx
@@ -299,7 +322,7 @@ plt.plot(xplt, yplt, '--', lw=2, c='k', label='Present Study')
 plt.xlim([2.5,7])
 plt.ylim([2.5,7])
 plt.xlabel('$\mathregular{M_{L(2800)}}$', fontsize=18)
-plt.ylabel('$\mathregular{M_{W(Brune)}}$', fontsize=18)
+plt.ylabel('$\mathregular{M_{Brune}}$', fontsize=18)
 plt.xticks(fontsize=14)
 plt.yticks(fontsize=14)
 plt.legend(loc=2, fontsize=14)
@@ -379,7 +402,7 @@ plt.subplot(311)
 plt.plot([2,7], [2,7], 'k--', lw=0.5, label='1:1')
 plt.plot(xplt, yplt, '-', lw=2, c='k', label='2023 Simulated (W-A 2800)')
 idx = where(mzone_array == 'EA')[0]
-sc = plt.scatter(ml_array[idx], mw_array[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.6, s=36, cmap=cm, label='Data')
+sc = plt.scatter(ml_array[idx], mw_array[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'Eastern Australia', va='top', ha ='left', fontsize=12, bbox=props)
 plt.xlabel('$\mathregular{M_{L(MLM92)}}$', fontsize=18)
 #plt.ylabel('Brune $\mathregular{M_W}$', fontsize=18)
@@ -393,10 +416,10 @@ plt.subplot(312)
 plt.plot([2,7], [2,7], 'k--', lw=0.5, label='1:1')
 plt.plot(xplt, yplt, '-', lw=2, c='k', label='2023 Simulated (W-A 2800)')
 idx = where(mzone_array == 'WCA')[0]
-sc = plt.scatter(ml_array[idx], mw_array[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.6, s=36, cmap=cm, label='Data')
+sc = plt.scatter(ml_array[idx], mw_array[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'Western and Central Australia', va='top', ha ='left', fontsize=12, bbox=props)
 plt.xlabel('$\mathregular{M_{L(GG91)}}$', fontsize=18)
-plt.ylabel('$\mathregular{M_{W(Brune)}}$', fontsize=18)
+plt.ylabel('$\mathregular{M_{Brune}}$', fontsize=18)
 plt.grid(which='both')
 plt.xlim([2.5,7])
 plt.ylim([2.5,7])
@@ -407,7 +430,7 @@ plt.subplot(313)
 plt.plot([2,7], [2,7], 'k--', lw=0.5, label='1:1')
 plt.plot(xplt, yplt, '-', lw=2, c='k', label='2023 Simulated (W-A 2800)')
 idx = where(mzone_array == 'SA')[0]
-sc = plt.scatter(ml_array[idx], mw_array[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.6, s=36, cmap=cm, label='Data')
+sc = plt.scatter(ml_array[idx], mw_array[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'South Australia', va='top', ha ='left', fontsize=12, bbox=props)
 plt.xlabel('$\mathregular{M_{L(GS86)}}$', fontsize=18)
 #plt.ylabel('Brune $\mathregular{M_W}$', fontsize=18)
@@ -456,11 +479,11 @@ fig = plt.figure(3, figsize=(14, 8.))
 #plt all data
 plt.subplot(221)
 plt.plot([2,7], [0,0], 'k--', lw=0.5)
-sc = plt.scatter(mw_array, mw_res, c=log10(sd_array), vmin=-1.0, vmax=2.0, s=36, cmap=cm, label='Data')
-#sc = plt.scatter(ml_array, mw_res, c=log10(sd_array), vmin=-1.0, vmax=2.0, s=36, cmap=cm, label='Data')
+sc = plt.scatter(mw_array, mw_res, c=log10(sd_array), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
+#sc = plt.scatter(ml_array, mw_res, c=log10(sd_array), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'All Data', va='top', ha ='left', fontsize=12, bbox=props)
 plt.grid(which='both')
-plt.ylabel('$\mathregular{M_{W(Brune)}}$ - $\mathregular{M_{W(Conv)}}$', fontsize=16)
+plt.ylabel('$\mathregular{M_{Brune}}$ - $\mathregular{M_{W(Conv)}}$', fontsize=16)
 plt.xlim([2.75,6.75])
 plt.ylim([-0.8,0.8])
 plt.text(2.3,0.98, '(a)', va='top', ha ='left', fontsize=16)
@@ -479,8 +502,8 @@ plt.text(xloc2, yloc2, stat_txt, va='bottom', ha ='right', fontsize=12, bbox=pro
 plt.subplot(222)
 plt.plot([2,7], [0,0], 'k--', lw=0.5)
 idx = where(mzone_array == 'EA')[0]
-sc = plt.scatter(mw_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-1.0, vmax=2.0, s=36, cmap=cm, label='Data')
-#sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-1.0, vmax=2.0, s=36, cmap=cm, label='Data')
+sc = plt.scatter(mw_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
+#sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'Eastern Australia', va='top', ha ='left', fontsize=12, bbox=props)
 #plt.xlabel('$\mathregular{M_{L(MLM92)}}$', fontsize=18)
 #plt.ylabel('Brune $\mathregular{M_W}$', fontsize=18)
@@ -503,8 +526,8 @@ plt.text(2.3,0.98, '(b)', va='top', ha ='left', fontsize=16)
 plt.subplot(223)
 plt.plot([2,7], [0,0], 'k--', lw=0.5)
 idx = where(mzone_array == 'WCA')[0]
-sc = plt.scatter(mw_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-1.0, vmax=2.0, s=36, cmap=cm, label='Data')
-#sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-1.0, vmax=2.0, s=36, cmap=cm, label='Data')
+sc = plt.scatter(mw_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
+#sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'Western and Central Australia', va='top', ha ='left', fontsize=12, bbox=props)
 
 # get mean & std
@@ -516,8 +539,8 @@ stat_txt = r'$\mu$ = '+str('%0.2f' % mean_res) + '\n' \
            + r'$\tau$ = '+str('%0.2f' % std_res)
 plt.text(xloc2, yloc2, stat_txt, va='bottom', ha ='right', fontsize=12, bbox=props)
 
-plt.xlabel('$\mathregular{M_{W(Brune)}}$', fontsize=16)
-plt.ylabel('$\mathregular{M_{W(Brune)}}$ - $\mathregular{M_{W(Conv)}}$', fontsize=16)
+plt.xlabel('$\mathregular{M_{Brune}}$', fontsize=16)
+plt.ylabel('$\mathregular{M_{Brune}}$ - $\mathregular{M_{W(Conv)}}$', fontsize=16)
 plt.grid(which='both')
 plt.xlim([2.75,6.75])
 plt.ylim([-0.8,0.8])
@@ -527,7 +550,7 @@ plt.text(2.3,0.98, '(c)', va='top', ha ='left', fontsize=16)
 plt.subplot(224)
 plt.plot([2,7], [0,0], 'k--', lw=0.5)
 idx = where(mzone_array == 'SA')[0]
-sc = plt.scatter(mw_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-1.0, vmax=2.0, s=36, cmap=cm, label='Data')
+sc = plt.scatter(mw_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'South Australia', va='top', ha ='left', fontsize=12, bbox=props)
 
 # get mean & std
@@ -539,8 +562,8 @@ stat_txt = r'$\mu$ = '+str('%0.2f' % mean_res) + '\n' \
            + r'$\tau$ = '+str('%0.2f' % std_res)
 plt.text(xloc2, yloc2, stat_txt, va='bottom', ha ='right', fontsize=12, bbox=props)
 
-plt.xlabel('$\mathregular{M_{W(Brune)}}$', fontsize=16)
-#plt.ylabel('$\mathregular{M_{W(Brune)}}$', fontsize=16)#plt.ylabel('Brune $\mathregular{M_W}$', fontsize=18)
+plt.xlabel('$\mathregular{M_{Brune}}$', fontsize=16)
+#plt.ylabel('$\mathregular{M_{Brune}}$', fontsize=16)#plt.ylabel('Brune $\mathregular{M_W}$', fontsize=18)
 plt.grid(which='both')
 plt.xlim([2.75,6.75])
 plt.ylim([-0.8,0.8])
@@ -550,7 +573,7 @@ plt.text(2.3,0.98, '(d)', va='top', ha ='left', fontsize=16)
 # make colourbar
 plt.gcf().subplots_adjust(right=0.85)
 cax = fig.add_axes([0.87,0.2,0.02,0.6]) # setup colorbar axes.
-norm = colors.Normalize(vmin=-1.0, vmax=2.0)
+norm = colors.Normalize(vmin=-0.7, vmax=1.7)
 cb = colorbar.ColorbarBase(cax, cmap=cm, norm=norm, orientation='vertical')
 
 logticks = cb.get_ticks()[0:]
@@ -579,22 +602,49 @@ m_res = ml_array - mw_array
 plt.plot([.1, 200], [0,0], 'k--')
 cm = plt.cm.get_cmap('viridis')
 #cm = cmc.batlow
-sc = plt.scatter(sd_array, m_res, c=mw_array, vmin=3, vmax=6.5, s=36, cmap=cm, label='Data')
+sc = plt.scatter(sd_array, m_res, c=mw_array, vmin=3, vmax=6.6, s=36, cmap=cm, label='Data')
 plt.xlabel(r"$\Delta\sigma$ (MPa)", fontsize=18)
-plt.ylabel('$\mathregular{M_{L(2800)}}$ - $\mathregular{M_{W(Brune)}}$', fontsize=18)
+plt.ylabel('$\mathregular{M_{L(2800)}}$ - $\mathregular{M_{Brune}}$', fontsize=18)
 plt.xscale("log")  
 plt.grid(which='both') 
-plt.xlim([0.1, 200])
+plt.xlim([0.05, 100])
 
 # make colourbar
 plt.gcf().subplots_adjust(right=0.85)
 cax = fig.add_axes([0.87,0.2,0.02,0.6]) # setup colorbar axes.
-norm = colors.Normalize(vmin=3, vmax=6.5)
+norm = colors.Normalize(vmin=3, vmax=6.6)
 cb = colorbar.ColorbarBase(cax, cmap=cm, norm=norm, orientation='vertical')
-cb.set_label('$\mathregular{M_{W(Brune)}}$', rotation=270, fontsize=18, labelpad=20)
+cb.set_label('$\mathregular{M_{Brune}}$', rotation=270, fontsize=18, labelpad=20)
 
 # now show figs 
 plt.savefig('mw_ml_res_vs_stressdrop.png', fmt='png', dpi=300, bbox_inches='tight')       
+plt.show()    
+
+##########################################################################################
+# plot ML-MW diff with SD std
+fig = plt.figure(10, figsize=(10, 8))
+m_res = ml_array - mw_array
+
+
+plt.plot([.05, 200], [0,0], 'k--')
+cm = plt.cm.get_cmap('plasma')
+#cm = cmc.batlow
+sc = plt.scatter(sd_array, m_res, c=sd_std_array, vmin=0.1, vmax=0.9, s=36, cmap=cm, label='Data')
+plt.xlabel(r"$\Delta\sigma$ (MPa)", fontsize=18)
+plt.ylabel('$\mathregular{M_{L(2800)}}$ - $\mathregular{M_{Brune}}$', fontsize=18)
+plt.xscale("log")  
+plt.grid(which='both') 
+plt.xlim([0.05, 100])
+
+# make colourbar
+plt.gcf().subplots_adjust(right=0.85)
+cax = fig.add_axes([0.87,0.2,0.02,0.6]) # setup colorbar axes.
+norm = colors.Normalize(vmin=0.1, vmax=0.9)
+cb = colorbar.ColorbarBase(cax, cmap=cm, norm=norm, orientation='vertical')
+cb.set_label(r"log $\Delta\sigma$ STD (MPa)", rotation=270, fontsize=18, labelpad=20)
+
+# now show figs 
+plt.savefig('mw_ml_res_vs_stressdrop_std.png', fmt='png', dpi=300, bbox_inches='tight')       
 plt.show()    
 
 ##########################################################################################
@@ -609,23 +659,28 @@ c = linregress(mw_array[idx], log10(sd_array[idx]))
 mplt = array([3, 7])
 splt = c[0]*mplt + c[1]
 
+surf_rup_sd = dictlist2array(mwdat, 'sd')
+surf_rup_mag = dictlist2array(mwdat, 'mw')
+surf_rup_flag = dictlist2array(mwdat, 'surf_rup')
+sidx = where(array(surf_rup_flag)==1)[0]
+
 print('Correlation Coef: '+str(c[2]))
 print('log mean: '+str(nanmean(log10(sd_array))))
 print('log std: '+str(nanstd(log10(sd_array))))
 print('Correlation Coef: '+str(c[2]))
 
-plt.semilogy(mw_array, sd_array, 'o', c='0.8', ms=6.5)
+plt.semilogy(mw_array, sd_array, 'o', c='0.8', ms=6.5, label='Blind Ruptures')
+plt.semilogy(surf_rup_mag[sidx], surf_rup_sd[sidx], 'o', c='0.8', ms=6.5, mec='r', mew=0.75, label='Surface Ruptures')
 plt.semilogy(mplt, 10**splt, '--', c='k', lw=3)
 plt.ylabel(r"$\Delta\sigma$ (MPa)", fontsize=18)
-plt.xlabel('$\mathregular{M_{W(Brune)}}$', fontsize=18)
+plt.xlabel('$\mathregular{M_{Brune}}$', fontsize=18)
 plt.grid(which='both') 
-plt.ylim([0.1, 250])
+plt.ylim([0.05, 100])
+plt.legend(loc=4, numpoints=1, fontsize=10)
 
 # annotate
-
-
-xloc2 = 6.94
-yloc2 = get_log_xy_locs([0.1, 250], 0.03)
+xloc2 = 6.92
+yloc2 = get_log_xy_locs([0.05, 100], 0.21)
 
 stat_txt = r'$\mu$ = '+str('%0.2f' % 10**nanmean(log10(sd_array[idx]))) + '\n' \
            + r'log $\tau$ = '+str('%0.2f' % nanstd(log10(sd_array[idx]))) + '\n' \
@@ -639,22 +694,86 @@ plt.gcf().subplots_adjust(right=0.85)
 cax = fig.add_axes([0.87,0.2,0.02,0.6]) # setup colorbar axes.
 norm = colors.Normalize(vmin=3, vmax=6.5)
 cb = colorbar.ColorbarBase(cax, cmap=cm, norm=norm, orientation='vertical')
-cb.set_label('$\mathregular{M_{W(Brune)}}$', rotation=270, fontsize=18, labelpad=20)
+cb.set_label('$\mathregular{M_{Brune}}$', rotation=270, fontsize=18, labelpad=20)
 '''
 
 # now plot hist
 ax = plt.subplot(143)
-bins = arange(-1, 2.5, 0.2)
+bins = arange(-1.3, 2.5, 0.2)
 plt.hist(sd_array[idx], bins=10**bins, orientation='horizontal', facecolor='0.8') #, width=0.8)
 #plt.yticks([])
 #ax.set_yticklabels([])
 ax.tick_params(labelleft=False) 
 plt.yscale('log')
-plt.ylim([0.1, 250])
+plt.ylim([0.05, 100])
 plt.xlabel('Count', fontsize=18)
 plt.tight_layout() 
 #plt.subplots_adjust(wspace=0.07)
 
 # now show figs 
 plt.savefig('stressdrop_vs_mag.png', fmt='png', dpi=300, bbox_inches='tight')       
+plt.show() 
+
+##########################################################################################
+# plot SD vs ML and ML
+fig = plt.figure(5, figsize=(14, 4))
+
+plt.subplot(121)
+#plt.plot([.1, 200], [0,0], 'k--')  '#1f77b4', '#ff7f0e'
+#sc = plt.scatter(sd_array, m_res, c=mw_array, vmin=3, vmax=6.5, s=36, cmap=cm, label='Data')
+idx = where((isnan(sd_array) == False) & (isnan(ml_array) == False))[0]
+c = linregress(ml_array[idx], log10(sd_array[idx]))
+mplt = array([3, 7])
+splt = c[0]*mplt + c[1]
+
+print('Correlation Coef: '+str(c[2]))
+print('log mean: '+str(nanmean(log10(sd_array))))
+print('log std: '+str(nanstd(log10(sd_array))))
+print('Correlation Coef: '+str(c[2]))
+
+plt.semilogy(ml_array, sd_array, 'o', c='0.8', ms=6.5)
+plt.semilogy(mplt, 10**splt, '--', c='k', lw=3)
+plt.ylabel(r"$\Delta\sigma$ (MPa)", fontsize=18)
+plt.xlabel('$\mathregular{M_{L(2800)}}$', fontsize=18)
+plt.grid(which='both') 
+plt.ylim([0.05, 100])
+#plt.legend(loc=4, numpoints=1, fontsize=10)
+
+# annotate
+xloc2 = 6.9
+yloc2 = get_log_xy_locs([0.05, 100], 0.04)
+
+stat_txt = r'$r^{2}$ = '+str('%0.3f' % c.rvalue**2)
+plt.text(xloc2, yloc2, stat_txt, va='bottom', ha ='right', fontsize=14, bbox=props)
+plt.xlim([3, 7])
+
+
+# now plot hist
+ax = plt.subplot(122)
+idx = where(isnan(sd_array) == False)[0]
+c = linregress(mw_array[idx], log10(sd_array[idx]))
+mplt = array([3, 7])
+splt = c[0]*mplt + c[1]
+
+print('Correlation Coef: '+str(c[2]))
+print('log mean: '+str(nanmean(log10(sd_array))))
+print('log std: '+str(nanstd(log10(sd_array))))
+print('Correlation Coef: '+str(c[2]))
+
+plt.semilogy(mw_array, sd_array, 'o', c='0.8', ms=6.5)
+plt.semilogy(mplt, 10**splt, '--', c='k', lw=3)
+#plt.ylabel(r"$\Delta\sigma$ (MPa)", fontsize=18)
+plt.xlabel('M', fontsize=18, weight="bold")
+plt.grid(which='both') 
+plt.ylim([0.05, 100])
+#plt.legend(loc=4, numpoints=1, fontsize=10)
+
+# annotate
+stat_txt = r'$r^{2}$ = '+str('%0.3f' % c.rvalue**2)
+plt.text(xloc2, yloc2, stat_txt, va='bottom', ha ='right', fontsize=14, bbox=props)
+plt.xlim([3, 7])
+plt.tight_layout() 
+
+# now show figs 
+plt.savefig('stressdrop_vs_ml_mw.png', fmt='png', dpi=300, bbox_inches='tight')       
 plt.show() 

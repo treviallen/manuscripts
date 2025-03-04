@@ -748,9 +748,14 @@ smooth_nc1 = savitzky_golay(nc1_array, sg_window, sg_poly) # mid-slope
 
 # fit with quadratic
 if pltTrue == False:
+    '''
     idx = where(freqs[fidx] <= 17)[0]
     qc = polyfit(log10(freqs[fidx][idx]), smooth_nc1[idx], 2)
     fitted_nc1 = qc[0]*log10(freqs[fidx])**2 + qc[1]*log10(freqs[fidx]) + qc[2]
+    '''
+    # try cubic
+    qc = polyfit(log10(freqs[fidx][17:]), smooth_nc1[17:], 3)
+    fitted_nc1 = qc[0]*log10(freqs[fidx])**3 + qc[1]*log10(freqs[fidx])**2 + qc[2]*log10(freqs[fidx]) + qc[3]
 else:
     fitted_nc1 = nc1_array
 

@@ -41,9 +41,10 @@ yplt = qc[0]*log10(freqs)**2 + qc[1]*log10(freqs) + qc[2]
 plt.semilogx(freqs, yplt, 'g-')
 
 # fit cubic
-qc = polyfit(log10(freqs[15:]), nc1s[15:], 3)
+qc = polyfit(log10(freqs[17:]), nc1s[17:], 3)
+#qc = polyfit(log10(freqs), nc1s, 3)
 yplt = qc[0]*log10(freqs)**3 + qc[1]*log10(freqs)**2 + qc[2]*log10(freqs) + qc[3]
-plt.semilogx(freqs, yplt, 'k--')
+plt.semilogx(freqs, yplt, 'k--', lw=2)
 
 # fit exponential
 # fit mid
@@ -161,7 +162,7 @@ mc1h = dictlist2array(coeffs, 'mc1h')
 plt.subplot(424)
 plt.semilogx(freqs, mc1, 'ro')
 plt.semilogx(freqs, mc1s, 'bo')
-#plt.semilogx(freqs, mc1t, 'co')
+plt.semilogx(freqs, mc1h, 'co')
 #plt.semilogx(freqs, mc1ts, 'mo')
 plt.ylabel('mc1')
 

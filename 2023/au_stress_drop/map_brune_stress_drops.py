@@ -222,7 +222,7 @@ plt.text(x, y, 'New Guinea\nHighlands', size=10, c='k', va='center', ha='center'
 ##########################################################################################
 
 # get stress range
-logstressbins = arange(-.7, 1.6, 0.2)
+logstressbins = arange(-.5, 2, 0.2)
 logstressrng = logstressbins[-1] - logstressbins[0]
 
 ncols = len(logstressbins) - 1
@@ -290,7 +290,7 @@ for lm in legmag:
     h = m.plot(x, y, 'o', mfc='k', mec='w', mew=0.25, markersize=(5 * lm - 12), alpha=1., zorder=len(mags)+1)
     legh.append(h[0])
 
-legtxt = ('$\mathregular{M_W}$ 3.5', '$\mathregular{M_W}$ 4.5', '$\mathregular{M_W}$ 5.5', '$\mathregular{M_W}$ 6.5')
+legtxt = ('$\mathregular{M}$ 3.5', '$\mathregular{M}$ 4.5', '$\mathregular{M}$ 5.5', '$\mathregular{M}$ 6.5')
 l = plt.legend(legh, legtxt, loc=3, numpoints=1, fontsize=10, title="Magnitude", labelspacing=0.75)
 l.set_zorder(len(mags)+5)
 

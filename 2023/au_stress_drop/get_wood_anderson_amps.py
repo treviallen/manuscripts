@@ -2,16 +2,17 @@ from obspy import read, UTCDateTime, Trace
 from spectral_analysis import calc_fft, prep_psa_simple, calc_response_spectra, get_cor_velocity
 from data_fmt_tools import remove_low_sample_data, return_sta_data, remove_acceleration_data, fix_stream_channels_bb2sp
 from response import get_response_info, paz_response, deconvolve_instrument
+from plotting import plot_dva
 from misc_tools import listdir_extension, savitzky_golay
 from io_catalogues import parse_ga_event_query
 from mapping_tools import distance
 from os import path, chmod, stat, getcwd
-from numpy import arange, sqrt, pi, exp, log, logspace, interp, nan, where, isnan, nanmean
+from numpy import arange, sqrt, pi, exp, log, logspace, interp, nan, where, isnan, nanmean, fft, linspace
 from datetime import datetime, timedelta
 import pickle
 import warnings
 warnings.filterwarnings("ignore")
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 #import matplotlib as mpl
 #mpl.style.use('classic')
 
@@ -66,6 +67,7 @@ def parse_pickfile(pickfile):
 def calc_disp_wave(tr, corfftr, corffti, freq):
     from numpy import fft, pi
     
+    freq[0] = 1.0
     if tr.stats.channel[1] == 'N':
         dispfftr = corfftr / ((2 * pi * abs(freq))**2)
         dispffti = corffti / ((2 * pi * abs(freq))**2)
@@ -74,15 +76,32 @@ def calc_disp_wave(tr, corfftr, corffti, freq):
         dispffti = corffti / (2 * pi * abs(freq))
         
     n = len(corfftr)
-    freq[0] = 1.0
-        
+    
     dispfftr[0] = 0
     dispffti[0] = 0
     freq[0] = 0
     complex_array = dispfftr + 1j*dispffti
+    
+    ford = 4
+    lofreq = 0.2
+    hifreq = 0.45 * tr.stats.sampling_rate
+    complex_array[1:] /= sqrt(1 + (abs(freq[1:]) / lofreq)**(-2*ford))
+    
+    # do low pass filter
+    complex_array[1:] /= sqrt(1 + (abs(freq[1:]) / hifreq)**(2*ford))
+    
+    # remover zero freq
+    complex_array[0] *= 0.0
 
     idisp = fft.ifft(complex_array,n)
-
+    
+    '''
+    n = len(idisp)
+    #print(n
+    tvect = linspace(0,n/tr.stats.sampling_rate,num=n)
+    plt.plot(tvect, idisp)
+    plt.show()
+    '''
     return idisp
 
 def get_smoothed_fft_spectra(freqs, disp_amps):
@@ -129,7 +148,10 @@ def get_wa_amp(displacement_trace, sensitivity, start_idx, end_idx):
               'poles': paz['poles']}
     disp_wa = displacement_trace.copy().simulate(paz_remove=None,
                                                  paz_simulate=paz_wa, water_level=10)
-
+    #disp_wa.plot()
+    #print(start_idx,end_idx)
+    #disp_wa.taper(max_percentage=0.01, max_length=2)
+    #disp_wa.plot()
     try:
         ampl = max(abs(disp_wa.data[start_idx:end_idx]))
     except:
@@ -145,13 +167,16 @@ def response_corrected_fft(tr, pickDat):
     channel = tr.stats.channel
     start_time = tr.stats.starttime
     
+    # taper
+    tr.taper(max_percentage=0.01,max_length=2)
+    
     # check if HSR AU data
     use_stationlist = False
     if tr.stats.network == 'AU' and tr.stats.channel.startswith('HH'):
         use_stationlist = True
     elif tr.stats.network == 'AU' and tr.stats.channel.startswith('BH'):
         use_stationlist = True
-    elif tr.stats.network == 'AU' and tr.stats.start_time.year >= 2017:
+    elif tr.stats.network == 'AU' and tr.stats.starttime.year >= 2017:
         use_stationlist = True
     elif tr.stats.network == 'OA' and tr.stats.channel.startswith('HH'):
         use_stationlist = True
@@ -165,6 +190,8 @@ def response_corrected_fft(tr, pickDat):
         use_stationlist = True  
     elif tr.stats.network == '7M':
         use_stationlist = True                       
+    elif tr.stats.network == 'DU':
+        use_stationlist = True  
     elif tr.stats.network == '5J':
         use_stationlist = True       
     elif tr.stats.station == 'AS32' or tr.stats.station == 'ARPS' or tr.stats.station == 'ARPS' or tr.stats.network == 'MEL': 
@@ -213,7 +240,7 @@ def response_corrected_fft(tr, pickDat):
         
         # deconvolve response
         corfftr, corffti = deconvolve_instrument(real_resp, imag_resp, wavfft)
-        
+                
         dispwave = calc_disp_wave(tr, corfftr, corffti, freq)
         
         staloc = {'latitude':stla, 'longitude':stlo}
@@ -235,9 +262,6 @@ def response_corrected_fft(tr, pickDat):
             paz = iu_parser.get_paz(seedid,start_time)
             staloc = iu_parser.get_coordinates(seedid,start_time)
         
-        elif tr.stats.network == 'S1':
-            paz = s1_parser.get_paz(seedid,start_time)
-            staloc = s1_parser.get_coordinates(seedid,start_time)
         elif tr.stats.network == '1K':
             paz = d1k_parser.get_paz(seedid,start_time)
             staloc = d1k_parser.get_coordinates(seedid,start_time)
@@ -332,6 +356,8 @@ def response_corrected_fft(tr, pickDat):
             tr.remove_response(inventory=d1q_parser)
         elif tr.stats.network == '7M':
             tr.remove_response(inventory=d7m_parser)
+        elif tr.stats.network == 'S1':
+            tr.remove_response(inventory=s1_parser)
         else:
             if tr.stats.channel.endswith('SHZ') or tr.stats.channel.endswith('EHZ'):
                 tr = tr.simulate(paz_remove=paz, water_level=10) #  testing water level for SP instruments
@@ -347,7 +373,7 @@ def response_corrected_fft(tr, pickDat):
         corffti = wavfft.imag
                 
         dispwave = calc_disp_wave(tr, corfftr, corffti, freq)
-                
+
     return dispwave
 
 def retry_stationlist_fft(tr, pickDat):
@@ -419,6 +445,7 @@ def get_ev_deets(fft_datetime):
 # get pick files
 ################################################################################
 folder = 'record_picks'
+#folder = 'rp_test'
 #folder = 'new_picks' # for testing
 pickfiles = listdir_extension(folder, 'picks')
 
@@ -447,13 +474,15 @@ if getcwd().startswith('/nas'):
     ii_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/II/II.IRIS.dataless')
     
 else:
+    
     #print('test parsers')
     au_parser = Parser('/Users/trev/Documents/Networks/AU/AU.IRIS.dataless')
     cwb_parser = Parser('/Users/trev/Documents/Networks/AU/AU.cwb.dataless')
-    s1_parser = Parser('/Users/trev/Documents/Networks/S1/S1.IRIS.dataless')
+    #s1_parser = Parser('/Users/trev/Documents/Networks/S1/S1.IRIS.dataless')
     iu_parser = Parser('/Users/trev/Documents/Networks/IU/IU.IRIS.dataless')
     #g_parser = Parser('/Users/trev/Documents/Networks/G/G.IRIS.dataless')
     #ii_parser = Parser('/Users/trev/Documents/Networks/II/II.IRIS.dataless')
+    
     d1h_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/1H_EAL2_2010.dataless')
     d1k_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/1K_ALFREX_2013.dataless')
     d1p_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/1P_BASS_2011.dataless')
@@ -481,7 +510,8 @@ else:
     ii_parser = read_inventory('/Users/trev/Documents/Networks/II/ii-inventory.xml')
     d1q_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/1q-inventory.xml')
     d7m_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/7m-inventory.xml')
-
+    s1_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/s1-inventory.xml')
+    
 ################################################################################
 # look to see if need to update or append pkl
 ################################################################################
@@ -510,7 +540,8 @@ if max_pick_time > max_pkl_time:
 else:
     append_pkl = False
     records = []
-
+#append_pkl = False
+#records = []
 ################################################################################
 # loop through pick files
 ################################################################################
@@ -528,8 +559,7 @@ for p, pf in enumerate(pickfiles[start_idx:]):
     # if appending
     if not isnan(pickDat['mag']):
         if append_pkl == True and pickDat['origintime'] <= max_pkl_time:
-            skipRec = True
-    
+            skipRec = True    
     
     if isnan(pickDat['mag']) == False: # and pf == '1997-03-05T06.15.00.AD.WHY.picks':
         
@@ -560,16 +590,12 @@ for p, pf in enumerate(pickfiles[start_idx:]):
             
             # split trace containing gaps into contiguous unmasked traces
             st = st.split()
-            
             # remove low sample rate data
             new_st = remove_low_sample_data(st)
             
             # remove HTT stations
             if new_st[0].stats.starttime > UTCDateTime(2018,12,12) and new_st[0].stats.starttime < UTCDateTime(2023,4,30):
                 new_st = remove_htt(new_st)
-            
-            # remove acceleration data
-            #new_st = remove_acceleration_data(new_st)
             
             # purge unused traces
             for tr in new_st:
@@ -608,6 +634,8 @@ for p, pf in enumerate(pickfiles[start_idx:]):
                     # demean and taper data  
                     tr_proc = tr.copy()
                     tr_proc.detrend(type='demean')
+                    #percent = tr_proc.stats.sampling_rate * 10 / tr_proc.stats.npts
+                    tr_proc.taper(max_percentage=0.01,max_length=5)
                     
                     # EN? dodgy stn channel from parsing JUMP data
                     if tr.stats.channel.startswith('BH') or tr.stats.channel.startswith('HH') \
@@ -631,6 +659,7 @@ for p, pf in enumerate(pickfiles[start_idx:]):
                     # get instrument corrected spectra
                     try:
                         dispwave = response_corrected_fft(tr, pickDat)
+                        #print(pickDat['mseed_path'])
                     except:
                         dispwave = retry_stationlist_fft(tr, pickDat)
                     
@@ -638,7 +667,8 @@ for p, pf in enumerate(pickfiles[start_idx:]):
                     disp_tr.times = tr.times
                     disp_tr.stats.sampling_rate = tr.stats.sampling_rate
                     disp_tr.stats.starttime = tr.stats.starttime
-                    
+                    #disp_tr.filter('highpass', freq=0.1, corners=4, zerophase=True)
+                    #disp_tr.plot()
                     #####################################################################
                     # loop thru WA coeffs and filters
                     #####################################################################
@@ -653,7 +683,7 @@ for p, pf in enumerate(pickfiles[start_idx:]):
                             # pre-filter disp wave
                             tr_filt = disp_tr.copy()
                             tr_filt.filter('highpass', freq=hpf, corners=4, zerophase=True)
-    
+                            #tr_filt.plot()
                             # get W-A amp
                             start_idx = pickDat['sidx']
                             end_idx = pickDat['eidx']

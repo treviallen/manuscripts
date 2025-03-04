@@ -217,16 +217,20 @@ for rec in recs:
 
 nets_dict = array(nets_dict)
 
+print('\n')
+for i, net in enumerate(nets_dict):
+    print(i, net['net'], net['cnt'])
+    
 # merge SRC data
 nets_dict = array(nets_dict)
-nets_dict[37]['cnt'] = nets_dict[37]['cnt'] + nets_dict[24]['cnt'] + nets_dict[35]['cnt'] \
-                       + nets_dict[39]['cnt']
+nets_dict[36]['cnt'] = nets_dict[36]['cnt'] + nets_dict[23]['cnt'] + nets_dict[34]['cnt'] \
+                       + nets_dict[38]['cnt']
                        
 # merge 4N and XX data
 nets_dict = array(nets_dict)
-nets_dict[10]['cnt'] = nets_dict[10]['cnt'] + nets_dict[-2]['cnt']
+nets_dict[9]['cnt'] = nets_dict[9]['cnt'] + nets_dict[-2]['cnt']
 
-nets_dict = delete(nets_dict, [24, 35, 39, -2])
+nets_dict = delete(nets_dict, [23, 34, 38, -2])
 
 # get data for plotting
 net_lab = []
@@ -237,7 +241,7 @@ for nd in nets_dict:
             net_lab.append(nd['net'])
             net_cnt.append(nd['cnt'])
             
-fig = plt.figure(3, figsize=(11, 5))
+fig = plt.figure(3, figsize=(12, 5))
 ax = plt.subplot(111)
 ax.bar(net_lab, net_cnt, fc='0.7')
 ax.set_yscale('log')

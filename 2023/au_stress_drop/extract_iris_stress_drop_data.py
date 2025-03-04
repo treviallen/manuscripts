@@ -56,8 +56,8 @@ else:
 # loop through networks
 ##############################################################################
 
-networks = ['AU', 'S1', 'IU', 'II', 'G', '2O', 'M8', '3B', 'YW', 'WG']
-#networks = ['5G']
+networks = ['AU', 'S1', 'IU', 'II', 'G', '2O', 'M8', '3B', 'YW', 'WG', 'OZ']
+#networks = ['OZ']
 #networks = ['S1', 'IU', 'II', 'G', '2O', 'M8']
 
 for network in networks:
@@ -88,13 +88,15 @@ for network in networks:
         iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AUSPASS/4n-gmap-stations.txt')
     elif network == '4N':
         iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AUSPASS/3o-gmap-stations.txt')
+    elif network == 'OZ':
+        iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/SRC/oz-gmap-stations.txt')
        
 ##############################################################################
 # loop through events
 ##############################################################################
     for ev in gadat: #[40:]:
         mindist = 0
-        if network == 'S1' or network == 'M8' or network == '5G':
+        if network == 'S1' or network == 'M8' or network == '5G' or network == 'OZ':
             maxdist = 800
             #maxdist = 750
         else:
@@ -151,9 +153,12 @@ for network in networks:
                                 #get_auspass_data(dateTuple, durn=1800, network='4N')
                                 get_swan_data(dateTuple, durn=1800, network='4N')
                                 getauspass = False
-                            if network == '3O' and getauspass == True:
-                                get_auspass_data(dateTuple, durn=1800, network='M8')
+                            elif network == '3O' and getauspass == True:
+                                get_auspass_data(dateTuple, durn=1800, network='3O')
                                 getauspass = False
+                            elif network == 'OZ' and getauspass == True:
+                                get_swan_data(dateTuple, durn=1800, network='OZ')
+                                getauspass = False 
                             else:
                                 st = get_iris_data(dateTuple, isl['sta'], network, durn=1800)
                             

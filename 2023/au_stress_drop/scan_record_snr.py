@@ -280,6 +280,22 @@ for mseedfile in mseedfiles:
         #st = read(path.join('mseed_dump', mseedfile))
         st = read(path.join('iris_dump', mseedfile))
         
+        if st[0].stats.station == 'WYMK4':
+            for i in range(0,len(st)):
+                st[i].stats.station = 'WYKM4'
+                st[i].stats.network = '3B'
+                print('WYKM4')
+            st.write(path.join('iris_dump', mseedfile), format="MSEED")
+            st = read(path.join('iris_dump', mseedfile)) 
+            
+        if st[0].stats.station == 'WYMK6':
+            for i in range(0,len(st)):
+                st[i].stats.station = 'WYKM6'
+                st[i].stats.network = '3B'
+                print('WYKM6')
+            st.write(path.join('iris_dump', mseedfile), format="MSEED")
+            st = read(path.join('iris_dump', mseedfile))    
+        
         # remove junk channels
         cannotMerge = False
         try:

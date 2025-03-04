@@ -4,9 +4,8 @@ from numpy import unique, array, arange, log, log10, exp, mean, nanmean, ndarray
                   nanmedian, nanstd, vstack, pi, nan, isnan, interp, where, zeros_like, ones_like, floor, ceil, \
                   argsort
 from scipy.stats import linregress, trim_mean
-from misc_tools import get_binned_stats, dictlist2array, get_mpl2_colourlist
-from mag_tools import nsha18_mb2mw, nsha18_ml2mw
-from mag_tools import m02mw
+from misc_tools import get_binned_stats, dictlist2array, get_mpl2_colourlist, get_log_xy_locs
+from mag_tools import nsha18_mb2mw, nsha18_ml2mw, m02mw
 from get_mag_dist_terms import get_distance_term, get_regional_term
 from mapping_tools import distance
 from scipy.odr import Data, Model, ODR, models
@@ -86,11 +85,11 @@ def correct_atten(rec, coeffs, kapdat):
         
         distterms.append(distterm)
         
-        '''
         regterm = get_regional_term(rec['rhyp'], c, rec['eqdom'])
         
         regterms.append(regterm)
-        '''
+        
+        
     # set kappa
     kappa = kapdat[-1]['kappa0'] # default kappa
     
@@ -104,7 +103,7 @@ def correct_atten(rec, coeffs, kapdat):
     k_term = log10(exp(-1 * pi * freqs * kappa))
     
     # correct to source
-    cor_fds = 10**(log10(raw_fds) - distterms - k_term) # - regterms - k_term)
+    cor_fds = 10**(log10(raw_fds) - distterms - regterms - k_term)
     
     # get data exceeding SN ratio
     idx = where(sn_ratio < sn_thresh)[0]
@@ -347,7 +346,7 @@ SWN20, SWNNG
 # start main
 ####################################################################################
 print('DO NOT EXCLUDE LOW F DATA, BUT DO NOT ALLOW FITTING FROM 0.08 - 0.4 HZ')
-fig = plt.figure(1, figsize=(12,18))
+fig = plt.figure(1, figsize=(12.5,18))
 
 # loop through & plot station  data
 cs = get_mpl2_colourlist()
@@ -373,6 +372,7 @@ crash
 # set M-R lookup
 mdist_lookup_mags = arange(3.25,7.1,0.5)
 mdist_lookup_dists = array([550, 1200, 1700, 2000, 2200, 2200, 2200, 2200])
+letters = ['(a)', '(b)', '(c)', '(d)', '(e)', '(f)', '(g)']
 
 # get kappas
 kapdat = parse_kappa_data(pklfile)
@@ -622,73 +622,6 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
                 nrecs = log_stack_logfds.shape[0]
             edict['nrecs'] = nrecs
             
-            '''
-            # in the case where SD < 1 MPa, retry without stas < 100 km        
-            if sd < 0.9:
-                if log_stack_logfds_ge100 != []:
-                    if len(log_stack_logfds.shape) == 1:
-                        mean_fds = exp(log_stack_logfds_ge100)
-                    else:
-                        mean_fds = exp(nanmean(log_stack_logfds_ge100, axis=0))
-                    
-                    # get nrecs    
-                    if log_stack_logfds.shape[0] == 150:
-                        nrecs = 1
-                    else:
-                        nrecs = log_stack_logfds.shape[0]
-                    
-                    # set marginal quality
-                    if log_stack_logfds_ge100.shape[0] <= 2:
-                        qual = 2
-                    
-                    h2, = plt.loglog(freqs, mean_fds,'--', color='r', lw=1.5, label='Mean Source Spectrum (GE 100)')
-                    
-                    # fit mean curve
-                    fidx = where((freqs >= minf) & (freqs <= maxf) & (isnan(mean_fds) == False))[0]
-                    
-                    data = odrpack.RealData(freqs[fidx], log(mean_fds[fidx]))
-                    
-                    fitted_brune = odrpack.Model(fit_brune_model)
-                    odr = odrpack.ODR(data, fitted_brune, beta0=[1E-2,1.])
-                    odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
-                    out = odr.run()
-                    
-                    omega0 = out.beta[0]
-                    f0 = abs(out.beta[1])
-                    #print('f0', f0)
-                    
-                    m0 = C * omega0
-                    mw =  m02mw(m0)
-                    print('Mw', m02mw(m0))
-                    
-                    # calc stress drop
-                    r0 = 2.34 * vsm / (2 * pi * f0)
-                    
-                    sd = 7. * m0 / (16. * r0**3) / 10**6 # in MPa
-                    print('SD', sd, 'MPa')
-                    print('f0', f0, 'Hz\n' )
-                    
-                    # add to events
-                    edict = {}
-                    edict['evstr'] = event
-                    edict['evdt'] = evdt
-                    edict['evid'] = evid
-                    edict['lon'] = evlon
-                    edict['lat'] = evlat
-                    edict['dep'] = evdep
-                    edict['omag'] = evmag
-                    edict['omag_type'] = evmagtype
-                    edict['mb'] = evmb
-                    edict['brune_mw'] = mw
-                    edict['brune_sd'] = sd
-                    edict['brune_f0'] = f0
-                    edict['minf'] = minf
-                    edict['maxf'] = maxf
-                    edict['qual'] = qual
-                    edict['stas'] = labels1
-                    edict['nrecs'] = nrecs
-                    edict['sta_spectra'] = log_stack_logfds_ge100
-            '''    
             # plot fitted curve
             fitted_curve = omega0 / (1 + (freqs / f0)**2)
             h3, = plt.loglog(freqs, fitted_curve, 'k-', lw=1.5, label='Fitted Brune Model')
@@ -716,7 +649,7 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
             plt.xlim([0.1, 20])
         
         # set ylims based on omega0
-        ceil_log_fds = log10(omega0) + 1.1
+        ceil_log_fds = log10(omega0) + 0.7
         ymin = 10**(ceil_log_fds-4)  
         ymax = 10**ceil_log_fds
         plt.ylim([ymin, ymax])
@@ -726,10 +659,15 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
         plt.fill([maxf, maxf, 20, 20, maxf], [ymin, ymax, ymax, ymin, ymin], '0.9', ec='0.9', zorder=1)
                                 
         plt.grid(which='both', color='0.7')
+        
+        # set letter
+        ytxt = get_log_xy_locs([ymin, ymax], 1.05)
+        xtxt = 0.02
+        plt.text(xtxt, ytxt, letters[sp-1], va='bottom', ha='right', fontsize=20)
             
         if sp == 6:
             fig.tight_layout()
-            plt.savefig('brune_fit/brune_fit_paper_'+str(ii)+'.png', fmt='png', bbox_inches='tight')
+            plt.savefig('figures/brune_fit_paper_'+str(ii)+'.png', fmt='png', bbox_inches='tight')
             sp = 0
             ii += 1
             fig = plt.figure(ii, figsize=(18,12))

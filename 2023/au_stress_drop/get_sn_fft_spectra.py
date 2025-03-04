@@ -164,6 +164,10 @@ def response_corrected_fft(tr, pickDat):
             if pazfile == 'NULL':
                 nat_freq, inst_ty, damping, sen, recsen, gain, pazfile, stlo, stla, netid \
                   = get_response_info(tr.stats.station, recdate.datetime, 'EHZ', 'OZ')
+        
+        if tr.stats.network == 'UM' and pazfile == 'NULL':
+            nat_freq, inst_ty, damping, sen, recsen, gain, pazfile, stlo, stla, netid \
+              = get_response_info(tr.stats.station, recdate.datetime, 'EHZ', 'VW')
           
         # get fft of trace
         freq, wavfft = calc_fft(tr.data, tr.stats.sampling_rate)
@@ -344,6 +348,10 @@ def retry_stationlist_fft(tr, pickDat):
                 nat_freq, inst_ty, damping, sen, recsen, gain, pazfile, stlo, stla, netid \
                   = get_response_info(tr.stats.station, recdate.datetime, 'EHZ', 'OZ')
           
+    if tr.stats.network == 'UM' and pazfile == 'NULL':
+            nat_freq, inst_ty, damping, sen, recsen, gain, pazfile, stlo, stla, netid \
+              = get_response_info(tr.stats.station, recdate.datetime, 'EHZ', 'VW')
+              
     # get fft of trace
     freq, wavfft = calc_fft(tr.data, tr.stats.sampling_rate)
     mi = (len(freq)/2)
@@ -517,10 +525,12 @@ for pf in pickfiles:
             max_pick_time = pickDat['origintime']
         
 # now get max time in pkl
-max_pkl_time = UTCDateTime(1900,1,1)    
-recs = pickle.load(open('wa_data.pkl', 'rb' ))
 
-# convert mags to MW
+max_pkl_time = UTCDateTime(1900,1,1)    
+recs = pickle.load(open('fft_data.pkl', 'rb' ))
+
+
+# get max time
 for i, rec in enumerate(recs):
     if rec['evdt'] > max_pkl_time:
         max_pkl_time = rec['evdt']
@@ -532,7 +542,9 @@ if max_pick_time > max_pkl_time:
 else:
     append_pkl = False
     records = []
-    
+
+#append_pkl = False 
+#records = []   
 ################################################################################
 # loop through pick files
 ################################################################################
@@ -553,8 +565,8 @@ for p, pf in enumerate(pickfiles[start_idx:]):
             skipRec = True
     
     if isnan(pickDat['mag']) == False:
-        #if pickDat['starttime'].year == 2025 and pickDat['starttime'].month == 1: # or pickDat['starttime'].year == 2001: # and pf == '1997-03-05T06.15.00.AD.WHY.picks':
-        
+        #if pickDat['starttime'].year == 2024 and pickDat['starttime'].month == 10: # or pickDat['starttime'].year == 2001: # and pf == '1997-03-05T06.15.00.AD.WHY.picks':
+        #print(pf)
         channels = []
         if not pickDat['ch1'] == '':
             channels.append(pickDat['ch1'])
@@ -569,11 +581,20 @@ for p, pf in enumerate(pickfiles[start_idx:]):
             #fileStat = stat(pickDat['mseed_path'])
             #print('filesize', fileStat.st_size
             #mseedfile = path.join('iris_dump', path.split(pickDat['mseed_path'])[-1])
-            st = read(pickDat['mseed_path'])
+            mseedfile = pickDat['mseed_path']
+            st = read(mseedfile)
+            
+            
+                
         except:
             try:
                 mseedfile = path.split(pickDat['mseed_path'])[-1]
                 st = read(path.join('iris_dump', mseedfile))
+                
+                if mseedfile.find('.MEL.') >= 0 and st[0].stats.network == 'UM':
+                    fix_stream_network(path.join('iris_dump', mseedfile), 'VW')
+                    # reparse
+                    st = read(path.join('iris_dump', mseedfile))
             except:
                 print('Skipping: '+pickDat['mseed_path'])
                 skipRec = True
@@ -586,6 +607,16 @@ for p, pf in enumerate(pickfiles[start_idx:]):
                 # reparse
                 st = read(path.join('iris_dump', mseedfile))
             
+            if mseedfile.find('.3B.') >= 0:
+                fix_stream_network(path.join('iris_dump', mseedfile), '3B')
+                # reparse
+                st = read(path.join('iris_dump', mseedfile))
+                
+            if mseedfile.find('.UM.') >= 0:
+                fix_stream_network(path.join('iris_dump', mseedfile), 'VW')
+                # reparse
+                st = read(path.join('iris_dump', mseedfile))
+            
             if mseedfile.find('.AD.') >= 0:
                 fix_stream_network(path.join('iris_dump', mseedfile), 'AD')
                 # reparse
@@ -593,6 +624,11 @@ for p, pf in enumerate(pickfiles[start_idx:]):
                 
             if mseedfile.find('.S.') >= 0:
                 fix_stream_network(path.join('iris_dump', mseedfile), 'S1')
+                # reparse
+                st = read(path.join('iris_dump', mseedfile))
+                
+            if mseedfile.find('.MEL.') >= 0 and mseedfile.find('BUCN') >= 0:
+                fix_stream_network(path.join('iris_dump', mseedfile), 'VW')
                 # reparse
                 st = read(path.join('iris_dump', mseedfile))
                 

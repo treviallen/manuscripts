@@ -63,7 +63,7 @@ def parse_filtering_data():
     lines = open('brune_stats.csv').readlines()[1:]
     for line in lines:
         dat = line.split(',')
-        filt = {'ev':UTCDateTime(dat[0]), 'minf': float(dat[12]), 'maxf': float(dat[13]), 'qual':float(dat[14])}
+        filt = {'ev':UTCDateTime(dat[0]), 'minf': float(dat[15]), 'maxf': float(dat[16]), 'qual':float(dat[17])}
     
         filtdat.append(filt)
     
@@ -86,11 +86,10 @@ def correct_atten(rec, coeffs, kapdat):
         
         distterms.append(distterm)
         
-        '''
         regterm = get_regional_term(rec['rhyp'], c, rec['eqdom'])
         
         regterms.append(regterm)
-        '''
+        
     # set kappa
     kappa = kapdat[-1]['kappa0'] # default kappa
     
@@ -104,7 +103,7 @@ def correct_atten(rec, coeffs, kapdat):
     k_term = log10(exp(-1 * pi * freqs * kappa))
     
     # correct to source
-    cor_fds = 10**(log10(raw_fds) - distterms - k_term) # - regterms - k_term)
+    cor_fds = 10**(log10(raw_fds) - distterms - regterms - k_term)
     
     # get data exceeding SN ratio
     idx = where(sn_ratio < sn_thresh)[0]
@@ -220,13 +219,65 @@ def fit_brune_model_fixed_omega_petermann(c, f):
     
     return FittedCurve
     
+def fit_brune_model_fixed_omega_murrayville(c, f):
+    from numpy import array, log
+    
+    fixed_omega = 0.0095 # from dist corrected stacked spectra
+    
+    # set constants
+    vs = 3.6 # km/s
+    vsm = vs*1000.
+    rho = 2800 # kg/m^3
+    C = 4. * pi * rho * vsm**3 * 1000. / (0.55 * 2.0 * 0.71)
+    #f = array(exp(logf))
+    #print(f
+
+    # fit curve
+    FittedCurve = log(fixed_omega / (1 + (f / (c[0]))**2))
+    #FittedCurve = C * omega / (1 + (f / c[1])**2)
+    
+    return FittedCurve
+
+def fit_brune_model_fixed_omega_carnarvon(c, f):
+    from numpy import array, log
+    
+    fixed_omega = 0.6 # from dist corrected stacked spectra
+    
+    # set constants
+    vs = 3.6 # km/s
+    vsm = vs*1000.
+    rho = 2800 # kg/m^3
+    C = 4. * pi * rho * vsm**3 * 1000. / (0.55 * 2.0 * 0.71)
+    #f = array(exp(logf))
+    #print(f
+
+    # fit curve
+    FittedCurve = log(fixed_omega / (1 + (f / (c[0]))**2))
+    #FittedCurve = C * omega / (1 + (f / c[1])**2)
+    
+    return FittedCurve
+    
+def fit_brune_model_fixed_omega_leongatha(c, f):
+    from numpy import array, log
+
+    fixed_omega = 0.01 # from dist corrected stacked spectra
+    
+    # set constants
+    vs = 3.6 # km/s
+    vsm = vs*1000.
+    rho = 2800 # kg/m^3
+    C = 4. * pi * rho * vsm**3 * 1000. / (0.55 * 2.0 * 0.71)
+    #f = array(exp(logf))
+    #print(f
+
+    # fit curve
+    FittedCurve = log(fixed_omega / (1 + (f / (c[0]))**2))
+    #FittedCurve = C * omega / (1 + (f / c[1])**2)
+    
+    return FittedCurve
+    
 def fit_brune_model_fixed_omega_marblebar(c, f):
     from numpy import array, log
-    '''
-    c[0] = omega0
-    c[1] = f0
-    f    = frequency
-    '''
     
     fixed_omega = 0.038 # from dist corrected stacked spectra
     
@@ -383,7 +434,7 @@ events_dict = []
 
 sp = 0
 ii = 1	
-for e, event in enumerate(events): # [::-1]): #[-2:-1]:
+for e, event in enumerate(events): #[::-1]): #[-2:-1]:
     print(event)
     
     # get upper & lower f for filtering
@@ -504,8 +555,10 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
     if log_stack_logfds != []:
         if len(log_stack_logfds.shape) == 1:
             mean_fds = exp(log_stack_logfds)
+            std_fds = ones_like(mean_fds) * 0.2
         else:
             mean_fds = exp(nanmean(log_stack_logfds, axis=0))
+            std_fds = nanstd(log_stack_logfds, axis=0)
         
         if log_stack_logfds.shape[0] <= 2:
             qual = 2
@@ -521,6 +574,11 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
         
         #sfidx = where((freqs >= minf) & (freqs <= maxsf))[0] # for labelling curves
         
+        sx = zeros_like(freqs) * 0.2
+        zidx = std_fds == 0
+        std_fds[zidx] = 2.0
+        
+        #data = odrpack.RealData(freqs[fidx], log(mean_fds[fidx]), sx=sx, sy=std_fds)
         data = odrpack.RealData(freqs[fidx], log(mean_fds[fidx]))
         
         # do special case for Broome
@@ -562,6 +620,41 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
             f0 = abs(out.beta[0])
             print('f0', f0)    
             
+        elif event == UTCDateTime('2018-12-16T14:26:21.333000Z'):
+            print('Carnarvon')
+            fitted_brune = odrpack.Model(fit_brune_model_fixed_omega_carnarvon)
+            odr = odrpack.ODR(data, fitted_brune, beta0=[0.3])
+            odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
+            out = odr.run()
+            
+            fixed_omega = 0.6
+            omega0 = fixed_omega
+            f0 = abs(out.beta[0])
+            print('f0', f0)  
+        
+        elif event == UTCDateTime('2021-10-08T16:47:26.216000Z'):
+            print('Murrayville')
+            fitted_brune = odrpack.Model(fit_brune_model_fixed_omega_murrayville)
+            odr = odrpack.ODR(data, fitted_brune, beta0=[0.3])
+            odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
+            out = odr.run()
+            
+            fixed_omega = 0.0095
+            omega0 = fixed_omega
+            f0 = abs(out.beta[0])
+            print('f0', f0)  
+        elif event == UTCDateTime('2024-02-08T13:49:37.456000Z'):
+            print('Leongatha')
+            fitted_brune = odrpack.Model(fit_brune_model_fixed_omega_leongatha)
+            odr = odrpack.ODR(data, fitted_brune, beta0=[0.3])
+            odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
+            out = odr.run()
+            
+            fixed_omega = 0.01
+            omega0 = fixed_omega
+            f0 = abs(out.beta[0])
+            print('f0', f0)    
+            
         else:
         
             fitted_brune = odrpack.Model(fit_brune_model)
@@ -571,7 +664,6 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
             
             omega0 = out.beta[0]
             f0 = abs(out.beta[1])
-            print('f0', f0)
             
         m0 = C * omega0
         mw =  m02mw(m0)
@@ -582,7 +674,69 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
         
         sd = 7. * m0 / (16. * r0**3) / 10**6 # in MPa
         print('SD', sd, 'MPa')
-        print('f0', f0, 'Hz\n' )
+        print('f0', f0, 'Hz' )
+        
+        # fit individual recs to get std of M, SD, fc
+        sta_mw = []
+        sta_sd = []
+        sta_fc = []
+        if len(log_stack_logfds.shape) == 1:
+            log_spec = log_stack_logfds
+            fidx = where((freqs >= minf) & (freqs <= maxf) & (isnan(log_spec) == False))[0]
+            data = odrpack.RealData(freqs[fidx], log_spec[fidx])
+            
+            fitted_brune = odrpack.Model(fit_brune_model)
+            odr = odrpack.ODR(data, fitted_brune, beta0=[omega0,f0])
+            odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
+            out = odr.run()
+            
+            tmp_omega0 = out.beta[0]
+            tmp_f0 = abs(out.beta[1])
+            m0 = C * tmp_omega0
+            tmp_mw = m02mw(m0)
+            
+            # calc stress drop
+            r0 = 2.34 * vsm / (2 * pi * tmp_f0)
+
+            
+            if (tmp_f0/f0) >= 0.25 and (tmp_f0/f0) <= 4.0 and tmp_mw >= mw-1.0 and tmp_mw <= mw+1.0:
+                sta_mw.append(tmp_mw)
+                sta_fc.append(tmp_f0)
+                sta_sd.append(log10(7. * m0 / (16. * r0**3) / 10**6)) # in log MPa
+            else:
+                print(tmp_f0/f0)
+            
+        else:
+            for log_spec in log_stack_logfds:
+                fidx = where((freqs >= minf) & (freqs <= maxf) & (isnan(log_spec) == False))[0]
+                data = odrpack.RealData(freqs[fidx], log_spec[fidx])
+                
+                fitted_brune = odrpack.Model(fit_brune_model)
+                odr = odrpack.ODR(data, fitted_brune, beta0=[omega0,f0])
+                odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
+                out = odr.run()
+                
+                tmp_omega0 = out.beta[0]
+                tmp_f0 = abs(out.beta[1])
+                m0 = C * tmp_omega0
+                tmp_mw = m02mw(m0)
+                
+                # calc stress drop
+                r0 = 2.34 * vsm / (2 * pi * tmp_f0)
+        
+                
+                if (tmp_f0/f0) >= 0.25 and (tmp_f0/f0) <= 4.0 and tmp_mw >= mw-1.5 and tmp_mw <= mw+1.5:
+                    sta_mw.append(tmp_mw)
+                    sta_fc.append(tmp_f0)
+                    sta_sd.append(log10(7. * m0 / (16. * r0**3) / 10**6)) # in log10 MPa
+                else:
+                    print(tmp_mw)
+                    
+        sta_mw = array(sta_mw)
+        sta_fc = array(sta_fc)
+        sta_sd = array(sta_sd)
+        print(sta_mw)
+        print('\n' )
         
         # add to events
         edict = {}
@@ -598,6 +752,9 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
         edict['brune_mw'] = mw
         edict['brune_sd'] = sd
         edict['brune_f0'] = f0
+        edict['brune_mw_std'] = nanstd(sta_mw)
+        edict['log_brune_sd_std'] = nanstd(sta_sd)
+        edict['brune_f0_std'] = nanstd(sta_fc)
         edict['minf'] = minf
         edict['maxf'] = maxf
         edict['qual'] = qual
@@ -610,6 +767,7 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
             nrecs = log_stack_logfds.shape[0]
         edict['nrecs'] = nrecs
         
+        """
         # in the case where SD < 1 MPa, retry without stas < 100 km        
         if sd < 0.9:
             if log_stack_logfds_ge100 != []:
@@ -675,7 +833,8 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
                 edict['stas'] = labels1
                 edict['nrecs'] = nrecs
                 edict['sta_spectra'] = log_stack_logfds_ge100
-                
+        
+        """        
         # plot fitted curve
         fitted_curve = omega0 / (1 + (freqs / f0)**2)
         h3, = plt.loglog(freqs, fitted_curve, 'k-', lw=1.5, label='Fitted Brune Model')
@@ -701,7 +860,7 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
         plt.xlim([0.1, 20])
     
     # set ylims based on omega0
-    ceil_log_fds = log10(omega0) + 1.1
+    ceil_log_fds = log10(omega0) + 0.7
     ymin = 10**(ceil_log_fds-4)  
     ymax = 10**ceil_log_fds
     plt.ylim([ymin, ymax])
@@ -738,11 +897,12 @@ pickle.dump(events_dict, pklfile, protocol=-1)
 pklfile.close()
 
 # write csv
-txt = 'EVENT,GAID,LON,LAT,DEP,OMAG,OMAG_TYPE,MB,BRUNE_MAG,STRESS_DROP,CORN_FREQ,NRECS,FMIN,FMAX,QUALITY\n'
+txt = 'EVENT,GAID,LON,LAT,DEP,OMAG,OMAG_TYPE,MB,BRUNE_MAG,MW_STD,STRESS_DROP,LOG_SD_STD,CORN_FREQ,FC_STD,NRECS,FMIN,FMAX,QUALITY\n'
 
 for ev in events_dict:
     txt += ','.join((str(ev['evdt']),ev['evid'],str(ev['lon']),str(ev['lat']),str(ev['dep']),str(ev['omag']),ev['omag_type'],str(ev['mb']), \
-                     str(ev['brune_mw']),str(ev['brune_sd']),str(ev['brune_f0']),str(ev['nrecs']), str(ev['minf']),str(ev['maxf']),str(ev['qual']))) + '\n'
+                     str(ev['brune_mw']),str(ev['brune_mw_std']),str(ev['brune_sd']),str(ev['log_brune_sd_std']), \
+                     str(ev['brune_f0']),str(ev['brune_f0_std']),str(ev['nrecs']), str(ev['minf']),str(ev['maxf']),str(ev['qual']))) + '\n'
 
 # write to file
 f = open('brune_stats.csv', 'w')
