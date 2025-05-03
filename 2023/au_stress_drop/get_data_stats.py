@@ -3,7 +3,7 @@ import shapefile
 from shapely.geometry import Point, Polygon
 from mapping_tools import get_field_data
 from mag_tools import nsha18_mb2mw, nsha18_ml2mw
-from misc_tools import get_mpl2_colourlist, get_ga_master_colours_2022, dictlist2array
+from misc_tools import get_mpl2_colourlist, get_ga_master_colours_2022, dictlist2array, get_log_xy_locs
 from obspy import UTCDateTime
 from numpy import unique, array, arange, log, log10, exp, mean, nanmean, ndarray, sqrt, zeros, delete, \
                   nanmedian, hstack, pi, nan, isnan, interp, where, zeros_like, polyfit, loadtxt, argmax
@@ -81,7 +81,7 @@ for rec in recs:
                     mag.append(rec['mag'])
                     rhyp.append(rec['rhyp'])
                     
-                    if f == 90:
+                    if f == 92:
                         scat_mag.append(rec['mag'])
                         scat_rhyp.append(rec['rhyp'])
 
@@ -135,7 +135,18 @@ def scatter_hist(x, y, ax, ax_histx, ax_histy, fc='0.7', mec='k'):
     ax.set_xlim([1,2200])
     ax.set_ylim([3.3,6.8])
     ax.set_xlabel('Hypocentral Distance (km)', fontsize=15)
-    ax.set_ylabel('$\mathregular{M_{W(Brune)}}$', fontsize=15)
+    ax.set_ylabel('Moment Magnitude', fontsize=15)
+    
+    # add text
+    props = dict(boxstyle='round', facecolor='w', alpha=1)
+    #ylims = ax.get_ylims()
+    yloc = 0.97 * (6.8-3.3) + 3.3
+    xloc = get_log_xy_locs([1,2200], 0.03)  
+    print(xloc)
+    print(yloc)  
+    print('Number of Records = '+str(len(x)))
+    ax.text(xloc, yloc, 'Number of Records = '+str(len(x)), va='top', ha ='left', fontsize=13, bbox=props)   
+    
     xticks = [1, 10, 100, 1000]
     xlabels = [str(x) for x in xticks]
     ax.set_xticks(xticks)
@@ -251,6 +262,8 @@ plt.grid(axis='y')
 xlim = ax.get_xlim()
 plt.xlim([xlim[0]-0.25, xlim[1]+0.25])
 plt.ylim([8, 4000])
+
+
 
 plt.savefig('net_count.png', fmt='png', dpi=300, bbox_inches='tight')
 

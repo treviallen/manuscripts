@@ -86,8 +86,10 @@ plt.plot(a25_mw4, a25_mw4-lin_mw, 'v', mec=cols[3], mfc='none', mew=1, label='Li
 
 plt.plot(a25_mw5, a25_mw5-bay_mw, 'd', mec=cols[4], mfc='none', mew=1, label='Bayless et al (2023)')
 
-plt.xlabel('$\mathregular{M_{Brune}}$', fontsize=18)
-plt.ylabel('$\mathregular{M_{Brune} - M_{Other}}$', fontsize=18)
+#plt.xlabel('$\mathregular{M_{Brune}}$', fontsize=18)
+plt.xlabel('M', fontsize=18, weight="bold")
+#plt.ylabel('$\mathregular{M_{Brune} - M_{Other}}$', fontsize=18)
+plt.ylabel('$\mathregular{M - M_{Other}}$', fontsize=18)
 plt.ylim([-1,1])
 plt.grid(axis='y')
 #fig.tight_layout()

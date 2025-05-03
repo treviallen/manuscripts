@@ -76,7 +76,7 @@ pklfile.close()
 '''
 
 # load coeffs
-coeffs = pickle.load(open('atten_coeffs.pkl', 'rb' ))
+coeffs = pickle.load(open('atten_coeffs_1.3_5km.pkl', 'rb' ))
 #coeffs = pickle.load(open('atten_coeffs_1f.pkl', 'rb' ))
 
 c = coeffs[fidx]
@@ -136,13 +136,16 @@ for i, rec in enumerate(recs):
             magterm = get_magnitude_term(rec['mag'], c)
             
             # get dist term
-            distterm = get_distance_term(rec['rhyp'], c)
+            distterm = get_distance_term(rec['rhyp'], c)   
+            
+            # get regional term
+            regterm = get_regional_term(rec['rhyp'], c, rec['eqdom'])
              
             #	get distance independent kappa
             kapterm = get_kappa_term(rec['sta'], c['freq'])
             
             # get total correction
-            ypred = magterm + distterm + kapterm
+            ypred = magterm + distterm + kapterm + regterm
             
             yobs = log10(rec[channel]['swave_spec'][fidx])
             yres.append(yobs - ypred)
@@ -158,6 +161,7 @@ for i, rec in enumerate(recs):
             rhyps.append(rec['rhyp'])
             recs[i]['yres'] = nan
     
+	
     except:
         print('No data')
         recs[i]['yres'] = nan
@@ -175,11 +179,11 @@ logresbin, stdbin, medx, binstrp, nperbin = get_binned_stats(logbins, log10(rhyp
 plt.semilogx(10**medx, logresbin, 'rs', ms=7)
 
 plt.show()
-crash
+
 ###############################################################################
 # get stns res
 ###############################################################################
-dateRng = [UTCDateTime(1989,12,1).datetime, UTCDateTime(2024,8,30).datetime]
+dateRng = [UTCDateTime(1989,12,1).datetime, UTCDateTime(2025,6,30).datetime]
 fig = plt.figure(1, figsize=(19,11))
 i = 1
 ii = 1

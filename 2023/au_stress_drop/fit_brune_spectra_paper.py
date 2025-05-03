@@ -463,7 +463,7 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
                                     h1, = plt.loglog(freqs, cor_fds_nan,'-.', c=cs[i-20], lw=1, label='-'.join((rec['sta'],str('%0.0f' % rec['rhyp']))))
                                 elif i <= 39:
                                     linestyle = (0, (3, 5, 1, 5, 1, 5))
-                                    h1, = plt.loglog(freqs, cor_fds_nan, linestyle=linestyle, c=cs[i-30], lw=1, label='-'.join((rec['sta'],str('%0.0f' % rec['rhyp']))))
+                                    h1, = plt.loglog(freqs, cor_fds_nan, linestyle=linestyle, c=cs[i-30], lw=1) #, label='-'.join((rec['sta'],str('%0.0f' % rec['rhyp']))))
                                 else:
                                     linestyle = (0, (3, 5, 1, 5))
                                     h1, = plt.loglog(freqs, cor_fds_nan, linestyle=linestyle, c=cs[i-40], lw=1) # don't write sta
@@ -497,7 +497,7 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
                             evmb = rec['mb']
                             evid = rec['gaid']
         
-        leg1 = plt.legend(handles=handles1, loc=3, fontsize=6, ncol=4)
+        leg1 = plt.legend(handles=handles1, loc=3, fontsize=8, ncol=3)
 	      
         # get mean spectra
         sd = -99
@@ -625,21 +625,24 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
             # plot fitted curve
             fitted_curve = omega0 / (1 + (freqs / f0)**2)
             h3, = plt.loglog(freqs, fitted_curve, 'k-', lw=1.5, label='Fitted Brune Model')
-            plt.legend(handles=[h2, h3], loc=1, fontsize=8)
+            plt.legend(handles=[h2, h3], loc=1, fontsize=11)
             plt.yticks(fontsize=12)
             plt.xticks(fontsize=12)
             
             edict['fitted_spectra'] = fitted_curve
             
             if qual == 0:
-                plt.title('; '.join((str(event)[0:16], '$\mathregular{M_W}$ '+str('%0.2f' % mw), r"$\Delta\sigma$ = " +str('%0.2f' % sd)+' MPa')), fontsize=10, color='red')
+                plt.title('; '.join((str(event)[0:16], '$\mathregular{M}$ '+str('%0.2f' % mw), r"$\Delta\sigma$ = " +str('%0.2f' % sd)+' MPa')), fontsize=10, color='red')
             else:
-                plt.title('; '.join((str(event)[0:16], '$\mathregular{M_W}$ '+str('%0.2f' % mw), r"$\Delta\sigma$ = " +str('%0.2f' % sd)+' MPa')), fontsize=16, color='k')
+                if sd < 10.:
+                    plt.title('; '.join((str(event)[0:16], '$\mathregular{M}$ '+str('%0.2f' % mw), r"$\Delta\sigma$ = " +str('%0.2f' % sd)+' MPa')), fontsize=16, color='k')
+                else:
+                    plt.title('; '.join((str(event)[0:16], '$\mathregular{M}$ '+str('%0.1f' % mw), r"$\Delta\sigma$ = " +str('%0.2f' % sd)+' MPa')), fontsize=16, color='k')
             
             if sp == 1 or sp == 3 or sp == 5:
-               plt.ylabel('Fourier Displacement Spectra (m-s)', fontsize=14)
+               plt.ylabel('Fourier Displacement Spectra (m-s)', fontsize=15)
             if sp > 4:
-               plt.xlabel('Frequency (Hz)', fontsize=14)
+               plt.xlabel('Frequency (Hz)', fontsize=15)
             #plt.title(' - '.join((ev, 'M'+str('%0.2f' % mag), place)), fontsize=10)
     
         plt.gca().add_artist(leg1)

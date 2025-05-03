@@ -222,7 +222,7 @@ plt.text(x, y, 'New Guinea\nHighlands', size=10, c='k', va='center', ha='center'
 ##########################################################################################
 
 # get stress range
-logstressbins = arange(-.5, 2, 0.2)
+logstressbins = arange(-.7, 1.7, 0.2)
 logstressrng = logstressbins[-1] - logstressbins[0]
 
 ncols = len(logstressbins) - 1
@@ -262,7 +262,7 @@ for line in lines:
     lats.append(float(dat[3]))
     mags.append(float(dat[8]))
     qual.append(float(dat[-1]))
-    stressdrops.append(float(dat[9]))
+    stressdrops.append(float(dat[10]))
 
 logstress = log10(array(stressdrops))
         

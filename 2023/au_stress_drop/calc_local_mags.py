@@ -445,7 +445,7 @@ plt.text(2.0,7.4, '(c)', va='top', ha ='left', fontsize=18)
 #ticks = arange(0,len(logstressbins))
 plt.gcf().subplots_adjust(right=0.85)
 cax = fig.add_axes([0.88,0.3,0.05,0.4]) # setup colorbar axes.
-norm = colors.Normalize(vmin=-0.7, vmax=1.6)
+norm = colors.Normalize(vmin=-0.7, vmax=1.7)
 cb = colorbar.ColorbarBase(cax, cmap=cm, norm=norm, orientation='vertical')
 
 logticks = cb.get_ticks()[0:]
@@ -594,6 +594,135 @@ plt.savefig('mw_res_zone.png', fmt='png', dpi=300, bbox_inches='tight')
 plt.show()    
 
 ##########################################################################################
+# plot regional residual with ML
+mw_pred = c0 * ml_array**2 + c1 * ml_array + c2 # NSHA23
+mw_res = mw_array - mw_pred
+xloc = 2.87
+yloc = 0.736        
+xloc2 = 6.63
+yloc2 = -0.736
+
+fig = plt.figure(10, figsize=(14, 8.))
+
+#plt all data
+plt.subplot(221)
+plt.plot([2,7], [0,0], 'k--', lw=0.5)
+sc = plt.scatter(ml_array, mw_res, c=log10(sd_array), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
+#sc = plt.scatter(ml_array, mw_res, c=log10(sd_array), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
+plt.text(xloc, yloc, 'All Data', va='top', ha ='left', fontsize=12, bbox=props)
+plt.grid(which='both')
+plt.ylabel('$\mathregular{M_{Brune}}$ - $\mathregular{M_{W(Conv)}}$', fontsize=16)
+plt.xlim([2.75,7])
+plt.ylim([-0.8,0.8])
+plt.text(2.3,0.98, '(a)', va='top', ha ='left', fontsize=16)
+
+# get mean & std
+mean_res = nanmean(mw_res)
+med_res = nanmedian(mw_res[idx])
+std_res = nanstd(mw_res)
+stat_txt = r'$\mu$ = '+str('%0.2f' % mean_res) + '\n' \
+           + r'$\tilde{x}$ = '+str('%0.2f' % med_res) + '\n' \
+           + r'$\tau$ = '+str('%0.2f' % std_res)
+plt.text(xloc2, yloc2, stat_txt, va='bottom', ha ='right', fontsize=12, bbox=props)
+
+
+#plt EA
+plt.subplot(222)
+plt.plot([2,7], [0,0], 'k--', lw=0.5)
+idx = where(mzone_array == 'EA')[0]
+sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
+#sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
+plt.text(xloc, yloc, 'Eastern Australia', va='top', ha ='left', fontsize=12, bbox=props)
+#plt.xlabel('$\mathregular{M_{L(MLM92)}}$', fontsize=18)
+#plt.ylabel('Brune $\mathregular{M_W}$', fontsize=18)
+
+# get mean & std
+mean_res = nanmean(mw_res[idx])
+med_res = nanmedian(mw_res[idx])
+std_res = nanstd(mw_res[idx])
+stat_txt = r'$\mu$ = '+str('%0.2f' % mean_res) + '\n' \
+           + r'$\tilde{x}$ = '+str('%0.2f' % med_res) + '\n' \
+           + r'$\tau$ = '+str('%0.2f' % std_res)
+plt.text(xloc2, yloc2, stat_txt, va='bottom', ha ='right', fontsize=12, bbox=props)
+
+plt.grid(which='both')
+plt.xlim([2.75,7])
+plt.ylim([-0.8,0.8])
+plt.text(2.3,0.98, '(b)', va='top', ha ='left', fontsize=16)
+
+#plt WCA
+plt.subplot(223)
+plt.plot([2,7], [0,0], 'k--', lw=0.5)
+idx = where(mzone_array == 'WCA')[0]
+sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
+#sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
+plt.text(xloc, yloc, 'Western and Central Australia', va='top', ha ='left', fontsize=12, bbox=props)
+
+# get mean & std
+mean_res = nanmean(mw_res[idx])
+med_res = nanmedian(mw_res[idx])
+std_res = nanstd(mw_res[idx])
+stat_txt = r'$\mu$ = '+str('%0.2f' % mean_res) + '\n' \
+           + r'$\tilde{x}$ = '+str('%0.2f' % med_res) + '\n' \
+           + r'$\tau$ = '+str('%0.2f' % std_res)
+plt.text(xloc2, yloc2, stat_txt, va='bottom', ha ='right', fontsize=12, bbox=props)
+
+plt.xlabel('$\mathregular{M_{L}}$', fontsize=16)
+plt.ylabel('$\mathregular{M_{Brune}}$ - $\mathregular{M_{W(Conv)}}$', fontsize=16)
+plt.grid(which='both')
+plt.xlim([2.75,7])
+plt.ylim([-0.8,0.8])
+plt.text(2.3,0.98, '(c)', va='top', ha ='left', fontsize=16)
+
+#plt SA
+plt.subplot(224)
+plt.plot([2,7], [0,0], 'k--', lw=0.5)
+idx = where(mzone_array == 'SA')[0]
+sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
+plt.text(xloc, yloc, 'South Australia', va='top', ha ='left', fontsize=12, bbox=props)
+
+# get mean & std
+mean_res = nanmean(mw_res[idx])
+med_res = nanmedian(mw_res[idx])
+std_res = nanstd(mw_res[idx])
+stat_txt = r'$\mu$ = '+str('%0.2f' % mean_res) + '\n' \
+           + r'$\tilde{x}$ = '+str('%0.2f' % med_res) + '\n' \
+           + r'$\tau$ = '+str('%0.2f' % std_res)
+plt.text(xloc2, yloc2, stat_txt, va='bottom', ha ='right', fontsize=12, bbox=props)
+
+plt.xlabel('$\mathregular{M_{L}}$', fontsize=16)
+#plt.ylabel('$\mathregular{M_{Brune}}$', fontsize=16)#plt.ylabel('Brune $\mathregular{M_W}$', fontsize=18)
+plt.grid(which='both')
+plt.xlim([2.75,7])
+plt.ylim([-0.8,0.8])
+plt.text(2.3,0.98, '(d)', va='top', ha ='left', fontsize=16)
+#mag_res = ml_array - mw_array
+
+# make colourbar
+plt.gcf().subplots_adjust(right=0.85)
+cax = fig.add_axes([0.87,0.2,0.02,0.6]) # setup colorbar axes.
+norm = colors.Normalize(vmin=-0.7, vmax=1.7)
+cb = colorbar.ColorbarBase(cax, cmap=cm, norm=norm, orientation='vertical')
+
+logticks = cb.get_ticks()[0:]
+labels = [str('%0.1f' % 10**x) for x in logticks]
+labels[0] = str('%0.2f' % 10**logticks[0])
+labels[1] = str('%0.2f' % 10**logticks[1])
+labels[2] = str('%0.2f' % 10**logticks[2])
+labels[3] = str('%0.2f' % 10**logticks[3])
+labels[4] = str('%0.2f' % 10**logticks[4])
+
+cb.set_ticks(logticks)
+cb.set_ticklabels(labels)
+
+cb.set_label('Brune Stress Drop (MPa)', rotation=270, fontsize=16, labelpad=16)
+
+# now show figs 
+plt.savefig('mw_res_zone_with_ml.png', fmt='png', dpi=300, bbox_inches='tight')       
+plt.show()    
+
+
+##########################################################################################
 # plot ML-MW diff with SD
 fig = plt.figure(4, figsize=(10, 8))
 m_res = ml_array - mw_array
@@ -673,7 +802,8 @@ plt.semilogy(mw_array, sd_array, 'o', c='0.8', ms=6.5, label='Blind Ruptures')
 plt.semilogy(surf_rup_mag[sidx], surf_rup_sd[sidx], 'o', c='0.8', ms=6.5, mec='r', mew=0.75, label='Surface Ruptures')
 plt.semilogy(mplt, 10**splt, '--', c='k', lw=3)
 plt.ylabel(r"$\Delta\sigma$ (MPa)", fontsize=18)
-plt.xlabel('$\mathregular{M_{Brune}}$', fontsize=18)
+#plt.xlabel('$\mathregular{M_{Brune}}$', fontsize=18)
+plt.xlabel('M', fontsize=18, weight="bold")
 plt.grid(which='both') 
 plt.ylim([0.05, 100])
 plt.legend(loc=4, numpoints=1, fontsize=10)
@@ -683,6 +813,7 @@ xloc2 = 6.92
 yloc2 = get_log_xy_locs([0.05, 100], 0.21)
 
 stat_txt = r'$\mu$ = '+str('%0.2f' % 10**nanmean(log10(sd_array[idx]))) + '\n' \
+           + r'$\tilde{x}$ = '+str('%0.2f' % nanmedian(sd_array[idx])) + '\n' \
            + r'log $\tau$ = '+str('%0.2f' % nanstd(log10(sd_array[idx]))) + '\n' \
            + '$r^{2}$ = '+str('%0.3f' % c.rvalue**2)
 plt.text(xloc2, yloc2, stat_txt, va='bottom', ha ='right', fontsize=12, bbox=props)
