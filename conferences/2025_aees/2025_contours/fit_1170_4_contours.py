@@ -105,7 +105,7 @@ def plotConts(contour_list):
 # parse shapefile
 ################################################################################
 
-inshp = '1170.4_2025_PGA-0.033_lev_nat_contours_trimmed.shp'
+inshp = '1170.4_2025_PGA-0.033_0667_07_contours_0825_trimmed.shp'
 
 sf = shapefile.Reader(inshp)
 
@@ -129,9 +129,31 @@ for shape, level in zip(shapes, levels):
     
     fitted_contours.append(ellipse_fit)
 
+################################################################################
+# add Adelaide
+################################################################################
+
+inshp = '1170_4_2025_ADE_draft.shp'
+
+sf = shapefile.Reader(inshp)
+shapes = sf.shapes()
+ade_level = np.array([0.0825])
+levels = np.hstack((levels, ade_level))
+
+for shape, ade_level in zip(shapes, levels):
+    # convert tuple array to numpy
+    listarray = []
+    for pp in shape.points:
+        listarray.append([pp[0], pp[1]])
+    points = np.array(listarray)
+    
+    method = 1
+    params, ellipse_fit = fitEllipse(points, method)
+    
+    fitted_contours.append(ellipse_fit)
 
 ################################################################################
-# write shapefile
+# write ellipses
 ################################################################################
 
 # set shapefile to write to 
@@ -143,11 +165,34 @@ w.field('LEVELS','F', 5, 3)
 for fitted_contour, level in zip(fitted_contours, levels):
     new_contour = []
     for vert in fitted_contour:
-        point = Point(vert)
         new_contour.append(vert)
         
     w.record(level)
     w.line([fitted_contour])
+
+################################################################################
+# add Northern AU contours
+################################################################################
+
+inshp = '1170_4_2025_manual_draft.shp'
+
+sf = shapefile.Reader(inshp)
+
+shapes = sf.shapes()
+levels = get_field_data(sf, 'LEVELS', 'float')
+
+for shape, level in zip(shapes, levels):
+    w.record(level)
+    listarray = []
+    for pp in shape.points:
+        listarray.append([pp[0], pp[1]])
+    points = np.array(listarray)
+    w.line([points])
+
+
+################################################################################
+# write shp
+################################################################################
 
 w.close()
 
