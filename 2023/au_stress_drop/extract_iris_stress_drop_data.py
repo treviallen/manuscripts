@@ -22,6 +22,7 @@ from obspy import UTCDateTime
 ##############################################################################
 #gadat = parse_ga_event_query('earthquakes_export_2012-16_250.edit.csv')
 #recent_csv = 'au_ge_4.4_earthquakes_export_edit.csv'
+#recent_csv = 'au_ge_4.4_earthquakes_export_wa.csv'
 recent_csv = 'au_ge_4.4_earthquakes_export_recent.csv'
 #recent_csv = 'au_ge_4.4_earthquakes_export_bboo.csv'	
 gadat = parse_ga_event_query(recent_csv)
@@ -57,7 +58,7 @@ else:
 ##############################################################################
 
 networks = ['AU', 'S1', 'IU', 'II', 'G', '2O', 'M8', '3B', 'YW', 'WG', 'OZ']
-#networks = ['OZ']
+#networks = ['5G']
 #networks = ['S1', 'IU', 'II', 'G', '2O', 'M8']
 
 for network in networks:
@@ -115,7 +116,7 @@ for network in networks:
         dt = UTCDateTime(ev['datetime']) - 120
         dateTuple = (dt.year, dt.month, dt.day, dt.hour, dt.minute)
         
-        if dt >= UTCDateTime(2019, 7, 14, 22, 0):
+        if dt >= UTCDateTime(2020, 9, 3, 0, 0):
         
             # set string for dummy file
             evdate = str(UTCDateTime(dt.year, dt.month, dt.day, dt.hour, dt.minute)-240)[0:16].replace(':','.')
@@ -143,7 +144,10 @@ for network in networks:
                                 get_auspass_data(dateTuple, durn=1800, network='M8')
                                 getauspass = False
                             elif network == 'WG' and getauspass == True:
-                                get_auspass_data(dateTuple, durn=1800, network='WG')
+                                try:
+                                    get_auspass_data(dateTuple, durn=1800, network='WG')
+                                except:
+                                    print('No access ...')
                                 getauspass = False
                             elif network == '5G' and getauspass == True:
                                 #get_auspass_data(dateTuple, durn=1800, network='5G')

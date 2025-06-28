@@ -75,7 +75,12 @@ for rec in recs:
                 chan = rec['channels'][0]
                 snr = rec[chan]['sn_ratio'][f] # 1 Hz
                 
-                if snr >= 4.0 and rec['rhyp'] <= mag_dist:
+                if chan.startswith('EH') or chan.startswith('SH'):
+                    minfreq = 0.4
+                else:
+                    minfreq = 0.01
+                    
+                if snr >= 4.0 and rec['rhyp'] <= mag_dist and freq >= minfreq:
                     fcnt[f] += 1
                     
                     mag.append(rec['mag'])
@@ -116,6 +121,7 @@ ax.set_yticklabels(ylabels)
 #plt.legend(loc=2, numpoints=3)
 
 plt.savefig('freq_recs_gt_snr.png', fmt='png', dpi=300, bbox_inches='tight')
+plt.savefig('fig_03.eps', fmt='eps', dpi=300, bbox_inches='tight')
 
 plt.show()
 
@@ -192,6 +198,7 @@ plt.grid(which='both')
 #plt.legend(loc=2, numpoints=3)
 '''
 plt.savefig('data_mag_vs_dist.png', fmt='png', dpi=300, bbox_inches='tight')
+plt.savefig('fig_02.eps', fmt='eps', dpi=300, bbox_inches='tight')
 
 plt.show()
 
@@ -266,6 +273,7 @@ plt.ylim([8, 4000])
 
 
 plt.savefig('net_count.png', fmt='png', dpi=300, bbox_inches='tight')
+plt.savefig('fig_01.eps', fmt='eps', dpi=300, bbox_inches='tight')
 
 plt.show()
 

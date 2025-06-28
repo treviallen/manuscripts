@@ -325,6 +325,7 @@ cb.set_label('Brune Stress Drop (MPa)', rotation=0, fontsize=15, labelpad=5) #
 # finish
 ##########################################################################################
 
-plt.savefig('mapped_brune_stress_drops.png',fmt='png',dpi=300,bbox_inches='tight')
+#plt.savefig('mapped_brune_stress_drops.png',fmt='png',dpi=300,bbox_inches='tight')
+plt.savefig('mapped_brune_stress_drops.jpg',fmt='jpg',dpi=600,bbox_inches='tight')
 #plt.savefig('figures/fig_1.eps',fmt='pdf',dpi=300,bbox_inches='tight')
 plt.show()

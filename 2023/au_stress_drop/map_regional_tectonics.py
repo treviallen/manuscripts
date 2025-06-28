@@ -330,6 +330,8 @@ plt.text(x, y, 'Gippsland\nBasin', size=12, c='r', ha='center', weight='normal',
 leg1 = plt.legend(loc=3, fontsize=12)
 leg1.set_zorder(500)
 
-plt.savefig('figures/tectonic_setting.png',fmt='png',dpi=300,bbox_inches='tight')
+#plt.savefig('figures/tectonic_setting.png',fmt='png',dpi=300,bbox_inches='tight')
+plt.savefig('figures/tectonic_setting.jpg',fmt='jpg',dpi=600,bbox_inches='tight')
+
 #plt.savefig('figures/fig_1.eps',fmt='pdf',dpi=300,bbox_inches='tight')
 plt.show()

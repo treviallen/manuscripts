@@ -8,7 +8,11 @@ import numpy as np
 from mapping_tools import get_field_data
 mpl.style.use('classic')
 
-# this is just for getting a test ellipse
+'''
+################################################################################
+# generate test ellipse
+################################################################################
+
 def get_ellipse_path(lon, lat, ex, ey, angle):
     ellipse = Ellipse((lon, lat), width=ex, height=ey, angle=angle)
     
@@ -26,8 +30,9 @@ def get_ellipse_path(lon, lat, ex, ey, angle):
     return evertices
 
 evertices = get_ellipse_path(146.36, -38.41, 0.65, 0.4, 10.0)
+'''
 
-
+# from https://stackoverflow.com/questions/39693869/fitting-an-ellipse-to-a-set-of-data-points-in-python
 def fitEllipse(cont,method):
 
     x=cont[:,0]

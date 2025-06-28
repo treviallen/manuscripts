@@ -107,8 +107,9 @@ for i, rec in enumerate(recs):
 ###############################################################################
 # get stns res
 ###############################################################################
-dateRng = [UTCDateTime(1989,12,1).datetime, UTCDateTime(2023,1,1).datetime]
+dateRng = [UTCDateTime(1989,12,1).datetime, UTCDateTime(2025,6,30).datetime]
 fig = plt.figure(1, figsize=(19,11))
+fig.tight_layout()
 i = 1
 ii = 1
 residuals = []
@@ -160,6 +161,8 @@ for ev in events:
         
         if i == 1 or i == 3 or i == 5 or i == 7:
            plt.ylabel('log Obs - log Pred')
+        if i == 7 or i == 8:
+           plt.xlabel('Hypocentral Distance (km)')
         
         i += 1
     
@@ -168,6 +171,7 @@ for ev in events:
         i = 1
         ii += 1
         fig = plt.figure(ii, figsize=(19,11))
+        fig.tight_layout()
         
 plt.savefig('ev_res/ev_res_'+str(ii)+'.png', fmt='png', bbox_inches='tight')
 plt.show()

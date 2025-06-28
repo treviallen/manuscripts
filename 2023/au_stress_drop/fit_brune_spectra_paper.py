@@ -169,8 +169,6 @@ def fit_brune_model(c, f):
     #FittedCurve = C * omega / (1 + (f / c[1])**2)
     
     return FittedCurve
-
-
     
 def fit_brune_model_fixed_omega(c, f):
     from numpy import array, log
@@ -180,7 +178,7 @@ def fit_brune_model_fixed_omega(c, f):
     f    = frequency
     '''
     
-    fixed_omega = 4.5 # from dist corrected stacked spectra
+    fixed_omega = 4.2 # from dist corrected stacked spectra
     
     # set constants
     vs = 3.6 # km/s
@@ -460,7 +458,7 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
                                 elif i <= 19:
                                     h1, = plt.loglog(freqs, cor_fds_nan,'--', c=cs[i-10], lw=1, label='-'.join((rec['sta'],str('%0.0f' % rec['rhyp']))))
                                 elif i <= 29:
-                                    h1, = plt.loglog(freqs, cor_fds_nan,'-.', c=cs[i-20], lw=1, label='-'.join((rec['sta'],str('%0.0f' % rec['rhyp']))))
+                                    h1, = plt.loglog(freqs, cor_fds_nan,'-.', c=cs[i-20], lw=1) #, label='-'.join((rec['sta'],str('%0.0f' % rec['rhyp']))))
                                 elif i <= 39:
                                     linestyle = (0, (3, 5, 1, 5, 1, 5))
                                     h1, = plt.loglog(freqs, cor_fds_nan, linestyle=linestyle, c=cs[i-30], lw=1) #, label='-'.join((rec['sta'],str('%0.0f' % rec['rhyp']))))
@@ -497,7 +495,7 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
                             evmb = rec['mb']
                             evid = rec['gaid']
         
-        leg1 = plt.legend(handles=handles1, loc=3, fontsize=8, ncol=3)
+        leg1 = plt.legend(handles=handles1, loc=3, fontsize=9, ncol=2)
 	      
         # get mean spectra
         sd = -99
@@ -533,7 +531,7 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
                 odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
                 out = odr.run()
                 
-                fixed_omega = 4.5
+                fixed_omega = 4.2
                 omega0 = fixed_omega
                 f0 = abs(out.beta[0])
                 print('f0', f0)
@@ -625,7 +623,8 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
             # plot fitted curve
             fitted_curve = omega0 / (1 + (freqs / f0)**2)
             h3, = plt.loglog(freqs, fitted_curve, 'k-', lw=1.5, label='Fitted Brune Model')
-            plt.legend(handles=[h2, h3], loc=1, fontsize=11)
+            if sp == 1:
+                plt.legend(handles=[h2, h3], loc=1, fontsize=11)
             plt.yticks(fontsize=12)
             plt.xticks(fontsize=12)
             
@@ -637,7 +636,7 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
                 if sd < 10.:
                     plt.title('; '.join((str(event)[0:16], '$\mathregular{M}$ '+str('%0.2f' % mw), r"$\Delta\sigma$ = " +str('%0.2f' % sd)+' MPa')), fontsize=16, color='k')
                 else:
-                    plt.title('; '.join((str(event)[0:16], '$\mathregular{M}$ '+str('%0.1f' % mw), r"$\Delta\sigma$ = " +str('%0.2f' % sd)+' MPa')), fontsize=16, color='k')
+                    plt.title('; '.join((str(event)[0:16], '$\mathregular{M}$ '+str('%0.2f' % mw), r"$\Delta\sigma$ = " +str('%0.1f' % sd)+' MPa')), fontsize=16, color='k')
             
             if sp == 1 or sp == 3 or sp == 5:
                plt.ylabel('Fourier Displacement Spectra (m-s)', fontsize=15)
@@ -671,6 +670,7 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
         if sp == 6:
             fig.tight_layout()
             plt.savefig('figures/brune_fit_paper_'+str(ii)+'.png', fmt='png', bbox_inches='tight')
+            plt.savefig('figures/brune_fit_paper_'+str(ii)+'.eps', fmt='eps', bbox_inches='tight')
             sp = 0
             ii += 1
             fig = plt.figure(ii, figsize=(18,12))
@@ -684,7 +684,8 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
             '''
         events_dict.append(edict)
 
-plt.savefig('brune_fit/brune_fit_paper_'+str(ii)+'.png', fmt='png', dpi=150, bbox_inches='tight')
+plt.savefig('brune_fit/brune_fit_paper_'+str(ii)+'.png', fmt='png', dpi=300, bbox_inches='tight')
+plt.savefig('brune_fit/brune_fit_paper_'+str(ii)+'.eps', fmt='eps', dpi=300, bbox_inches='tight')
 
 
 ##########################################################################################

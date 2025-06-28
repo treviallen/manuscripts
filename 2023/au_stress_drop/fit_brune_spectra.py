@@ -179,7 +179,7 @@ def fit_brune_model_fixed_omega(c, f):
     f    = frequency
     '''
     
-    fixed_omega = 4.5 # from dist corrected stacked spectra
+    fixed_omega = 4.2 # from dist corrected stacked spectra
     
     # set constants
     vs = 3.6 # km/s
@@ -387,7 +387,7 @@ coeffs = pickle.load(open(pklfile, 'rb' ))
 # remove bad recs
 keep_nets = set(['AU', 'IU', 'S1', 'II', 'G', 'MEL', 'ME', '2O', 'AD', 'SR', 'UM', 'AB', 'VI', 'GM', 'M8', 'DU', 'WG', '4N', \
                  '1P', '1P', '2P', '6F', '7K', '7G', 'G', '7B', '4N', '7D', '', 'OZ', 'OA', 'WG', 'XX', 'AM', 'YW', '3B', '1K', \
-                 '1Q', '3O'])
+                 '1Q', '3O', '7F'])
                  
 
 # get stas to ignore
@@ -443,7 +443,7 @@ ii = 1
 for e, event in enumerate(events): #[::-1]): #[-2:-1]:
     
     # get upper & lower f for filtering
-    minf = 0.8
+    minf = 0.05
     maxf = 12
     qual = 1
     for fdat in filtdat:
@@ -605,12 +605,10 @@ for e, event in enumerate(events): #[::-1]): #[-2:-1]:
                 odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
                 out = odr.run()
                 
-                fixed_omega = 4.5
+                fixed_omega = 4.2
                 omega0 = fixed_omega
                 f0 = abs(out.beta[0])
                 print('f0', f0)
-            
-            
                 
             elif event == UTCDateTime('2021-11-13T13:05:52.663000Z'):
                 print('M5.3 Marble Bar')
@@ -854,7 +852,8 @@ for e, event in enumerate(events): #[::-1]): #[-2:-1]:
             # plot fitted curve
             fitted_curve = omega0 / (1 + (freqs / f0)**2)
             h3, = plt.loglog(freqs, fitted_curve, 'k-', lw=1.5, label='Fitted Brune Model')
-            plt.legend(handles=[h2, h3], loc=1, fontsize=8)
+            if sp == 1:
+                plt.legend(handles=[h2, h3], loc=1, fontsize=8)
             
             edict['fitted_spectra'] = fitted_curve
             

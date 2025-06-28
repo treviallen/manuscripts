@@ -121,6 +121,11 @@ for i, rec in enumerate(recs):
 coeffs_pkl = argv[2]
 coeffs = pickle.load(open(coeffs_pkl, 'rb' ))
 
+# get stas to ignore
+ignore_stas = open('sta_ignore.txt').readlines()
+#ignore_stas = open('sta_ignore.test').readlines()
+ignore_stas = set([x.strip() for x in ignore_stas])
+
 ###############################################################################
 # fix region - grrr!
 ###############################################################################
@@ -187,6 +192,7 @@ for line in lines:
 kappa_txt = 'STA,KAPPA,CNT\n'
 kappa_list = []
 kappa_cnt = []
+stas = []
 
 i = 1
 ii = 1
@@ -281,8 +287,11 @@ for sta in stations:
     if len(nidx) >= 5:
         kappa, kappa_intercept, ridx = regress_kappa(freqs, mean_fas, max_reg_f)
         kappa_txt += ','.join((sta, str('%0.6f' % kappa), str(cnt))) + '\n'
-        kappa_list.append(kappa)
-        kappa_cnt.append(cnt)
+        # only include stats if station not ignored
+        if not sta in ignore_stas:
+            stas.append(sta)
+            kappa_list.append(kappa)
+            kappa_cnt.append(cnt)
         print('kappa = ' + str('%0.4f' % kappa))
         
         # plot kappa
@@ -307,7 +316,7 @@ if pltTrue == True:
     plt.savefig('kappa/site_kappa_'+str(ii)+'.png', fmt='png', bbox_inches='tight')
     
 
-# add mean kappa to list
+# add mean kappa to list - excludes sites in sta_ignore
 mean_kappa = nanmedian(array(kappa_list))
 kappa_txt += ','.join(('MEDIAN_SITE', str('%0.6f' % mean_kappa), 'nan')) + '\n'
 
@@ -317,6 +326,16 @@ f = open(kapfile, 'w')
 f.write(kappa_txt)
 f.close()
 
+###############################################################################
+# print dodgy records
+print('\n')
+sumrec = 0
+for i, kappa in enumerate(kappa_list):
+    if kappa < -0.075 or kappa > 0.075:
+        if kappa_cnt[i] >= 3:
+            print(','.join((stas[i], str('%0.6f' % kappa), str(kappa_cnt[i]))))
+            sumrec += kappa_cnt[i]
+print(sumrec)        
 ###############################################################################
 # now plot histogram
 kappa_list = array(kappa_list)
@@ -329,8 +348,9 @@ bins = arange(-0.145,0.14,0.01)
 plt.hist(array(kappa_list[idx]), bins, color='0.8', ec='k')
 #plt.ylim([0,25])
 plt.xlabel(r"$\kappa_0$ (s)", fontsize=18)
-plt.ylabel('Count', fontsize=16)
-medtxt = 'Median = ' +str('%0.4f' % mean_kappa_trim)
-plt.text(-0.14, 96, medtxt, fontsize=14, va='top')
-plt.savefig('kappa_hist.png',fmt='png', dpi=300, bbox_inches='tight')
+plt.ylabel('Number of Stations', fontsize=16)
+medtxt = 'Median = ' +str('%0.3f' % mean_kappa_trim)
+plt.text(-0.14, 77, medtxt, fontsize=14, va='top')
+plt.savefig('figures/kappa_hist.png',fmt='png', dpi=300, bbox_inches='tight')
+plt.savefig('figures/kappa_hist.eps',fmt='eps', dpi=300, bbox_inches='tight')
 plt.show()

@@ -842,7 +842,8 @@ plt.tight_layout()
 #plt.subplots_adjust(wspace=0.07)
 
 # now show figs 
-plt.savefig('stressdrop_vs_mag.png', fmt='png', dpi=300, bbox_inches='tight')       
+plt.savefig('stressdrop_vs_mag.png', fmt='png', dpi=300, bbox_inches='tight') 
+plt.savefig('stressdrop_vs_mag.eps', fmt='eps', dpi=300, bbox_inches='tight')       
 plt.show() 
 
 ##########################################################################################
