@@ -2,7 +2,7 @@ import pickle
 from numpy import unique, array, arange, log, log10, exp, mean, nanmean, ndarray, std, sqrt, \
                   nanmedian, nanstd, vstack, pi, nan, isnan, interp, where, zeros_like, ones_like, floor, ceil, \
                   argsort, loadtxt, percentile
-from scipy.stats import linregress, trim_mean
+from scipy.stats import linregress, trim_mean, mstats
 from misc_tools import get_binned_stats, dictlist2array, get_mpl2_colourlist, get_log_xy_locs
 from mag_tools import nsha18_mb2mw, nsha18_ml2mw, get_au_ml_zone
 from mag_tools import m02mw
@@ -92,8 +92,10 @@ recs = pickle.load(open('wa_data.pkl', 'rb' ))
 ###############################################################################
 
 # remove bad recs
-keep_nets = set(['AU', 'IU', 'S1', 'II', 'G', 'MEL', 'ME', '2O', 'AD', 'SR', 'UM', 'AB', 'VI', 'GM' \
-                 '1P', '1P', '2P', '6F', '7K', '7G', 'G', '7B', '4N', '7D', '', 'OZ', 'OA', 'WG', 'XX'])
+keep_nets = set(['AU', 'IU', 'S1', 'II', 'G', 'MEL', 'ME', '2O', 'AD', 'SR', 'UM', 'AB', 'VI', 'GM', 'M8', 'DU', 'WG', '4N', \
+                 '1P', '1P', '2P', '6F', '7K', '7G', 'G', '7B', '4N', '7D', '', 'OZ', 'OA', 'WG', 'XX', 'AM', 'YW', '3B', '1K', \
+                 '1Q', '3O', '7F', '6K', '5G', '5C'])
+
 # get stas to ignore
 ignore_stas = open('sta_ignore.txt').readlines()
 #ignore_stas = open('sta_ignore.test').readlines()
@@ -119,7 +121,7 @@ events_dict = []
 
 sp = 0
 ii = 1	
-magcsv = 'EVENT,ML_2800,ML_2080,MW,SD,REG\n'
+magcsv = 'EVENT,ML_2800,ML_2800_STD,ML_2080,ML_2080_STD,MW,SD,REG\n'
 stacsv = 'EVENT,ML_REGION,STA,RHYP,ML_2800,ML_2080,MW\n'
 
 print('need to get mag region')
@@ -256,11 +258,16 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
     if len(mlm92_2080) >= 3:
         ml_2800 = trim_mean(array(prefml_2800), 0.1)
         ml_2080 = trim_mean(array(prefml_2080), 0.1)
+        ml_2800_std = mstats.trimmed_std(array(prefml_2800), limits=(0.1, 0.1))
+        ml_2080_std = mstats.trimmed_std(array(prefml_2080), limits=(0.1, 0.1))
     else:
         ml_2800 = nan
         ml_2080 = nan
+        ml_2800_std = nan
+        ml_2080_std = nan
 
-    magcsv += ','.join((str(event), str('%0.2f' % ml_2800), str('%0.2f' % ml_2080), \
+    magcsv += ','.join((str(event), str('%0.2f' % ml_2800), str('%0.2f' % ml_2800_std), \
+                        str('%0.2f' % ml_2080), str('%0.2f' % ml_2080_std), \
                         str('%0.2f' % mw), str('%0.5f' % sd), magzone[0])) + '\n'
     
     ml_array.append(ml_2800)

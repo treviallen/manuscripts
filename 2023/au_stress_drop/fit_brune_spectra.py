@@ -387,7 +387,7 @@ coeffs = pickle.load(open(pklfile, 'rb' ))
 # remove bad recs
 keep_nets = set(['AU', 'IU', 'S1', 'II', 'G', 'MEL', 'ME', '2O', 'AD', 'SR', 'UM', 'AB', 'VI', 'GM', 'M8', 'DU', 'WG', '4N', \
                  '1P', '1P', '2P', '6F', '7K', '7G', 'G', '7B', '4N', '7D', '', 'OZ', 'OA', 'WG', 'XX', 'AM', 'YW', '3B', '1K', \
-                 '1Q', '3O', '7F'])
+                 '1Q', '3O', '7F', '6K', '5G', '5C'])
                  
 
 # get stas to ignore
@@ -925,7 +925,7 @@ if ignorePoorQual == False:
                          str(ev['brune_f0']),str(ev['brune_f0_std']),str(ev['nrecs']), str(ev['minf']),str(ev['maxf']),str(ev['qual']))) + '\n'
     
     # write to file
-    f = open('brune_stats.csv', 'w')
+    f = open('../../2025/source_params_hazard_sensitivity/brune_stats.csv', 'w')
     f.write(txt)
     f.close()
     

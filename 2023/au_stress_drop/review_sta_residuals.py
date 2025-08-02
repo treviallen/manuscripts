@@ -130,7 +130,7 @@ for i, rec in enumerate(recs):
             mag_dist = mdist_lookup_dists[idx[-1]]
             
         if rec[channel]['sn_ratio'][fidx] >= 4. and rec['mag'] <= mag_dist:
-            rhyps.append(rec['rhyp'])
+            
             
             # get mag term
             magterm = get_magnitude_term(rec['mag'], c)
@@ -145,10 +145,11 @@ for i, rec in enumerate(recs):
             kapterm = get_kappa_term(rec['sta'], c['freq'])
             
             # get total correction
-            ypred = magterm + distterm + kapterm + regterm
+            ypred = magterm + distterm #+ kapterm + regterm
             
             yobs = log10(rec[channel]['swave_spec'][fidx])
             yres.append(yobs - ypred)
+            rhyps.append(rec['rhyp'])
             recs[i]['yres'] = yobs - ypred
             recs[i]['yobs'] = yobs
             recs[i]['ypred'] = ypred

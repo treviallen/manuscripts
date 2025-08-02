@@ -21,9 +21,9 @@ from obspy import UTCDateTime
 # parse eq list
 ##############################################################################
 #gadat = parse_ga_event_query('earthquakes_export_2012-16_250.edit.csv')
-#recent_csv = 'au_ge_4.4_earthquakes_export_edit.csv'
+recent_csv = 'au_ge_4.4_earthquakes_export_edit.csv'
 #recent_csv = 'au_ge_4.4_earthquakes_export_wa.csv'
-recent_csv = 'au_ge_4.4_earthquakes_export_recent.csv'
+#recent_csv = 'au_ge_4.4_earthquakes_export_recent.csv'
 #recent_csv = 'au_ge_4.4_earthquakes_export_bboo.csv'	
 gadat = parse_ga_event_query(recent_csv)
 
@@ -58,7 +58,7 @@ else:
 ##############################################################################
 
 networks = ['AU', 'S1', 'IU', 'II', 'G', '2O', 'M8', '3B', 'YW', 'WG', 'OZ']
-#networks = ['5G']
+networks = ['6K']
 #networks = ['S1', 'IU', 'II', 'G', '2O', 'M8']
 
 for network in networks:
@@ -85,6 +85,8 @@ for network in networks:
         iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/GSWA/wg-gmap-stations.txt')
     elif network == '5G':
         iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AUSPASS/5g-gmap-stations.txt')
+    elif network == '6K':
+        iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AUSPASS/6k-gmap-stations.txt')
     elif network == '4N':
         iris_sta_list = parse_iris_stationlist('/Users/trev/Documents/Networks/AUSPASS/4n-gmap-stations.txt')
     elif network == '4N':
@@ -97,7 +99,7 @@ for network in networks:
 ##############################################################################
     for ev in gadat: #[40:]:
         mindist = 0
-        if network == 'S1' or network == 'M8' or network == '5G' or network == 'OZ':
+        if network == 'S1' or network == 'M8' or network == '5G' or network == 'OZ' or network == '6K':
             maxdist = 800
             #maxdist = 750
         else:
@@ -116,7 +118,7 @@ for network in networks:
         dt = UTCDateTime(ev['datetime']) - 120
         dateTuple = (dt.year, dt.month, dt.day, dt.hour, dt.minute)
         
-        if dt >= UTCDateTime(2020, 9, 3, 0, 0):
+        if dt >= UTCDateTime(2018, 1, 1, 0, 0):
         
             # set string for dummy file
             evdate = str(UTCDateTime(dt.year, dt.month, dt.day, dt.hour, dt.minute)-240)[0:16].replace(':','.')
@@ -145,13 +147,17 @@ for network in networks:
                                 getauspass = False
                             elif network == 'WG' and getauspass == True:
                                 try:
-                                    get_auspass_data(dateTuple, durn=1800, network='WG')
+                                    get_swan_data(dateTuple, durn=1800, network='WG')
                                 except:
                                     print('No access ...')
                                 getauspass = False
                             elif network == '5G' and getauspass == True:
                                 #get_auspass_data(dateTuple, durn=1800, network='5G')
-                                get_swan_data(dateTuple, durn=1800, network='5G')
+                                get_auspass_data(dateTuple, durn=1800, network='5G')
+                                getauspass = False
+                            elif network == '6K' and getauspass == True:
+                                #get_auspass_data(dateTuple, durn=1800, network='5G')
+                                get_auspass_data(dateTuple, durn=1800, network='6K')
                                 getauspass = False
                             elif network == '4N' and getauspass == True:
                                 #get_auspass_data(dateTuple, durn=1800, network='4N')

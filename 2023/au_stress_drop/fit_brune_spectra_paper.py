@@ -495,7 +495,7 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
                             evmb = rec['mb']
                             evid = rec['gaid']
         
-        leg1 = plt.legend(handles=handles1, loc=3, fontsize=9, ncol=2)
+        leg1 = plt.legend(handles=handles1, loc=3, fontsize=10.5, ncol=2)
 	      
         # get mean spectra
         sd = -99

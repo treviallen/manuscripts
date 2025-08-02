@@ -42,7 +42,7 @@ def fit_regional_correction(medx, logmedamp):
     
 keep_nets = set(['AU', 'IU', 'S1', 'II', 'G', 'MEL', 'ME', '2O', 'AD', 'SR', 'UM', 'AB', 'VI', 'GM', 'M8', 'DU', 'WG', '4N', \
                  '1P', '1P', '2P', '6F', '7K', '7G', 'G', '7B', '4N', '7D', '', 'OZ', 'OA', 'WG', 'XX', 'AM', 'YW', '3B', '1K', \
-                 '1Q', '3O', '7F'])
+                 '1Q', '3O', '7F', '6K', '5G', '5C'])
 
 ignore_stas = open('sta_ignore.txt').readlines()
 #ignore_stas = open('sta_ignore.test').readlines()
@@ -371,7 +371,7 @@ cb.set_ticks(ticks)
 cb.set_ticklabels([str(x) for x in ticks])
 cb.set_label('Moment Magnitude', rotation=270, labelpad=20, fontsize=15)
 
-plt.savefig('sigma_model.png', fmt='png', bbox_inches='tight')       
+plt.savefig('sigma_model.png', fmt='png', dpi=600, bbox_inches='tight')       
 plt.show()
     
 

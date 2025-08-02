@@ -209,9 +209,6 @@ def response_corrected_fft(tr, pickDat):
         elif tr.stats.network == 'IU':
             paz = iu_parser.get_paz(seedid,start_time)
             staloc = iu_parser.get_coordinates(seedid,start_time)
-        elif tr.stats.network == 'S1':
-            paz = s1_parser.get_paz(seedid,start_time)
-            staloc = s1_parser.get_coordinates(seedid,start_time)
         elif tr.stats.network == '1K':
             paz = d1k_parser.get_paz(seedid,start_time)
             staloc = d1k_parser.get_coordinates(seedid,start_time)
@@ -276,6 +273,9 @@ def response_corrected_fft(tr, pickDat):
         elif tr.stats.network == '3O':
             paz = d3o_parser.get_response(seedid,start_time)
             staloc = d3o_parser.get_coordinates(seedid,start_time)
+        elif tr.stats.network == 'S1':
+            paz = ds1_parser.get_response(seedid,start_time)
+            staloc = ds1_parser.get_coordinates(seedid,start_time)
         elif tr.stats.network == 'AM':
             paz = dam_parser.get_response(seedid,start_time)
             staloc = dam_parser.get_coordinates(seedid,start_time)
@@ -287,6 +287,8 @@ def response_corrected_fft(tr, pickDat):
         # simulate response
         if tr.stats.network == '2P':
             tr.remove_response(inventory=d2p_parser)
+        elif tr.stats.network == 'S1':
+            tr.remove_response(inventory=ds1_parser)
         elif tr.stats.network == '5C':
             tr.remove_response(inventory=d5c_parser)
         elif tr.stats.network == '3O':
@@ -297,6 +299,8 @@ def response_corrected_fft(tr, pickDat):
             tr.remove_response(inventory=dam_parser)
         elif tr.stats.network == 'WG':
             tr.remove_response(inventory=dwg_parser)
+        elif tr.stats.network == '5C':
+            tr.remove_response(inventory=d5c_parser)
         elif tr.stats.network == '4N':
             tr.remove_response(inventory=d4n_parser)
         elif tr.stats.network == 'II':
@@ -307,6 +311,10 @@ def response_corrected_fft(tr, pickDat):
             tr.remove_response(inventory=d7m_parser)
         elif tr.stats.network == '7F':
             tr.remove_response(inventory=d7f_parser)
+        elif tr.stats.network == '6K':
+            tr.remove_response(inventory=d6k_parser)
+        elif tr.stats.network == '5G':
+            tr.remove_response(inventory=d5g_parser)
         else:
             if tr.stats.channel.endswith('SHZ') or tr.stats.channel.endswith('EHZ'):
                 tr = tr.simulate(paz_remove=paz, water_level=10) #  testing water level for SP instruments
@@ -513,10 +521,13 @@ else:
     dam_parser = read_inventory('/Users/trev/Documents/Networks/AM/R7AF5.xml')
     d4n_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/4n-inventory.xml')
     dwg_parser = read_inventory('/Users/trev/Documents/Networks/GSWA/wg-inventory.xml')
+    d5c_parser = read_inventory('/Users/trev/Documents/Networks/GSWA/5c-inventory.xml')
     dii_parser = read_inventory('/Users/trev/Documents/Networks/II/ii-inventory.xml')
     d1q_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/1q-inventory.xml')
     d7m_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/7m-inventory.xml')
-    dfm_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/7f-inventory.xml')
+    d7f_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/7f-inventory.xml')
+    d5g_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/5g-inventory.xml')
+    d6k_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/6k-inventory.xml')
 
 ################################################################################
 # look to see if need to update or append pkl

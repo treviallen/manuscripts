@@ -110,7 +110,9 @@ def plotConts(contour_list):
 # parse shapefile
 ################################################################################
 
-inshp = '1170.4_2025_PGA-0.033_0667_07_contours_0825_trimmed.shp'
+inshp = '1170.4_2025_PGA-0.033_0667_07_contours_0800_trimmed.shp' # modified
+inshp = '1170.4_2025_PGA-0.033_0667_07_contours_08.shp' # original
+#inshp = 'AS1170_4_fitted_modified_contours.shp'
 
 sf = shapefile.Reader(inshp)
 
@@ -130,6 +132,7 @@ for shape, level in zip(shapes, levels):
     points = np.array(listarray)
     
     method = 1
+    #print(points)
     params, ellipse_fit = fitEllipse(points, method)
     
     fitted_contours.append(ellipse_fit)
@@ -162,7 +165,7 @@ for shape, ade_level in zip(shapes, levels):
 ################################################################################
 
 # set shapefile to write to 
-outshp = 'AS1170_4_fitted_contours.shp'
+outshp = 'AS1170_4_fitted_original_contours.shp'
 w = shapefile.Writer(outshp)
 w.field('LEVELS','F', 5, 3)
 

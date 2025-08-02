@@ -336,28 +336,37 @@ def response_corrected_fft(tr, pickDat):
             staloc = ii_parser.get_coordinates(seedid,start_time)
         '''
         # simulate response
+        # simulate response
         if tr.stats.network == '2P':
             tr.remove_response(inventory=d2p_parser)
         elif tr.stats.network == '5C':
             tr.remove_response(inventory=d5c_parser)
+        elif tr.stats.network == '3O':
+            tr.remove_response(inventory=d3o_parser)
         elif tr.stats.network == 'M8':
             tr.remove_response(inventory=dm8_parser)
         elif tr.stats.network == 'AM':
             tr.remove_response(inventory=dam_parser)
-        elif tr.stats.network == '3O':
-            tr.remove_response(inventory=d3o_parser)
         elif tr.stats.network == 'WG':
             tr.remove_response(inventory=dwg_parser)
+        elif tr.stats.network == '5C':
+            tr.remove_response(inventory=d5c_parser)
         elif tr.stats.network == '4N':
-            tr.remove_response(inventory=d4n_parser)	
+            tr.remove_response(inventory=d4n_parser)
         elif tr.stats.network == 'II':
-            tr.remove_response(inventory=ii_parser)
+            tr.remove_response(inventory=dii_parser)
         elif tr.stats.network == '1Q':
             tr.remove_response(inventory=d1q_parser)
         elif tr.stats.network == '7M':
             tr.remove_response(inventory=d7m_parser)
+        elif tr.stats.network == '7F':
+            tr.remove_response(inventory=d7f_parser)
+        elif tr.stats.network == '6K':
+            tr.remove_response(inventory=d6k_parser)
+        elif tr.stats.network == '5G':
+            tr.remove_response(inventory=d5g_parser)
         elif tr.stats.network == 'S1':
-            tr.remove_response(inventory=s1_parser)
+            tr.remove_response(inventory=ds1_parser)
         else:
             if tr.stats.channel.endswith('SHZ') or tr.stats.channel.endswith('EHZ'):
                 tr = tr.simulate(paz_remove=paz, water_level=10) #  testing water level for SP instruments
@@ -474,19 +483,16 @@ if getcwd().startswith('/nas'):
     ii_parser = Parser('/nas/active/ops/community_safety/ehp/georisk_earthquake/hazard/Networks/II/II.IRIS.dataless')
     
 else:
-    
-    #print('test parsers')
     au_parser = Parser('/Users/trev/Documents/Networks/AU/AU.IRIS.dataless')
     cwb_parser = Parser('/Users/trev/Documents/Networks/AU/AU.cwb.dataless')
-    #s1_parser = Parser('/Users/trev/Documents/Networks/S1/S1.IRIS.dataless')
     iu_parser = Parser('/Users/trev/Documents/Networks/IU/IU.IRIS.dataless')
     #g_parser = Parser('/Users/trev/Documents/Networks/G/G.IRIS.dataless')
     #ii_parser = Parser('/Users/trev/Documents/Networks/II/II.IRIS.dataless')
-    
     d1h_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/1H_EAL2_2010.dataless')
     d1k_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/1K_ALFREX_2013.dataless')
     d1p_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/1P_BASS_2011.dataless')
-    d1q_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/1Q_AQT_2016.dataless')
+    #d1q_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/1Q_AQT_2016.dataless')
+    #d1q_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/1q-inventory.xml')
     d6f_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/6F_BILBY_2008.dataless')
     d7b_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/7B_SKIPPY_1993.dataless')
     d7d_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/7D_KIMBA97_1997.dataless')
@@ -507,10 +513,14 @@ else:
     dam_parser = read_inventory('/Users/trev/Documents/Networks/AM/R7AF5.xml')
     d4n_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/4n-inventory.xml')
     dwg_parser = read_inventory('/Users/trev/Documents/Networks/GSWA/wg-inventory.xml')
-    ii_parser = read_inventory('/Users/trev/Documents/Networks/II/ii-inventory.xml')
+    d5c_parser = read_inventory('/Users/trev/Documents/Networks/GSWA/5c-inventory.xml')
+    dii_parser = read_inventory('/Users/trev/Documents/Networks/II/ii-inventory.xml')
     d1q_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/1q-inventory.xml')
     d7m_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/7m-inventory.xml')
-    s1_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/s1-inventory.xml')
+    d7f_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/7f-inventory.xml')
+    d5g_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/5g-inventory.xml')
+    d6k_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/6k-inventory.xml')
+    ds1_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/s1-inventory.xml')
     
 ################################################################################
 # look to see if need to update or append pkl
@@ -540,7 +550,7 @@ if max_pick_time > max_pkl_time:
 else:
     append_pkl = False
     records = []
-#append_pkl = False
+append_pkl = False
 #records = []
 ################################################################################
 # loop through pick files
