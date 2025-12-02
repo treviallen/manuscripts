@@ -51,10 +51,10 @@ def parse_filtering_data():
     
     mwdat = []
     # read parameter file
-    lines = open('brune_stats.csv').readlines()[1:]
+    lines = open('../../2025/source_params_hazard_sensitivity/brune_stats.csv').readlines()[1:]
     for line in lines:
         dat = line.split(',')
-        filt = {'ev':dat[0], 'minf': float(dat[-3]), 'maxf': float(dat[-2]), 'qual':float(dat[-1]),
+        filt = {'ev':dat[0], 'minf': float(dat[-3]), 'maxf': float(dat[-2]), 'qual':float(dat[-1]), 'dep':float(dat[4]),
         	      'mw': float(dat[8]), 'sd': float(dat[10]), 'sd_std': float(dat[11]), 'surf_rup':0}
         
         # check if sface rupture
@@ -121,7 +121,7 @@ events_dict = []
 
 sp = 0
 ii = 1	
-magcsv = 'EVENT,ML_2800,ML_2800_STD,ML_2080,ML_2080_STD,MW,SD,REG\n'
+magcsv = 'EVENT,EVID,ML_2800,ML_2800_STD,ML_2080,ML_2080_STD,MW,SD,REG,NRECS\n'
 stacsv = 'EVENT,ML_REGION,STA,RHYP,ML_2800,ML_2080,MW\n'
 
 print('need to get mag region')
@@ -131,6 +131,7 @@ mw_array = []
 sd_array = []
 sd_std_array = []
 mzone_array = []
+deps_array = []
 
 for e, event in enumerate(events): # [::-1]): #[-2:-1]:
     print(event)
@@ -145,6 +146,7 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
             minf = fdat['minf']
             maxf = fdat['maxf']
             qual = fdat['qual']
+            dep = fdat['dep']
             if qual == 1.0:
                 mw = fdat['mw']
                 sd = fdat['sd']
@@ -165,7 +167,7 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
     gs86_2800 = []
     gs86_2080 = []
     evstas = []
-    
+    gaid = ''
     for rsi in rhyp_sort_idx:
         rec = recs[rsi]
         #for rec in recs:
@@ -175,6 +177,7 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
                     if rec['evdt'] == event and rec['rhyp'] <= 800:
                         print('   '+rec['sta'])
                         
+                        #gaid = rec['gaid']
                         # get NSHA23 preferred amp
                         if rec['mag'] < 4.0:
                             wa2800 = rec['wa_data']['wa_amp_2800_0.75']
@@ -266,22 +269,26 @@ for e, event in enumerate(events): # [::-1]): #[-2:-1]:
         ml_2800_std = nan
         ml_2080_std = nan
 
-    magcsv += ','.join((str(event), str('%0.2f' % ml_2800), str('%0.2f' % ml_2800_std), \
-                        str('%0.2f' % ml_2080), str('%0.2f' % ml_2080_std), \
-                        str('%0.2f' % mw), str('%0.5f' % sd), magzone[0])) + '\n'
+    magcsv += ','.join((str(event), gaid, str('%0.3f' % ml_2800), str('%0.3f' % ml_2800_std), \
+                        str('%0.3f' % ml_2080), str('%0.3f' % ml_2080_std), \
+                        str('%0.3f' % mw), str('%0.5f' % sd), magzone[0], str(len(mlm92_2080)))) + '\n'
     
     ml_array.append(ml_2800)
     mw_array.append(mw)
     sd_array.append(sd)
     sd_std_array.append(sd_std)
     mzone_array.append(mzone)
+    deps_array.append(dep)
 
 ml_array = array(ml_array)
 mw_array = array(mw_array)
 sd_array = array(sd_array)
 mzone_array = array(mzone_array)
+deps_array = array(deps_array)
 ##########################################################################################
 # plot
+min_dep = -99.
+
 fig = plt.figure(1, figsize=(10.5,9))
 
 plt.plot([2,7], [2,7], 'k--', lw=0.5, label='1:1')
@@ -293,14 +300,16 @@ s0, s1, s2 = loadtxt('mw-ml_coeffs_2800.csv', delimiter=',', skiprows=1)
 yplt_nsha23 = s0 * xplt**2 + s1 * xplt + s2
 
 cm = plt.cm.get_cmap('RdBu_r')
-sc = plt.scatter(ml_array, mw_array, c=log10(sd_array), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
+pc84 = percentile(sd_std_array, 84)
+
+idx = where((deps_array > min_dep) & (sd_std_array <= pc84))[0]
+sc = plt.scatter(ml_array[idx], mw_array[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
 
 # fit new data
 def ortho_quad_reg(c, x):
     return c[0] * x**2 + c[1] * x + c[2]
 
-pc84 = percentile(sd_std_array, 84)
-idx = where(sd_std_array <= pc84)[0]
+#idx = where(sd_std_array <= pc84)[0]
 data = odrpack.RealData(ml_array[idx], mw_array[idx])
 '''
 sx = interp(mw, [min(mw), max(mw)],[0.3, 0.1])
@@ -378,7 +387,6 @@ f = open('ml_sta_stats.csv', 'w')
 f.write(stacsv)
 f.close()
 
-
 # now show figs 
 plt.savefig('ml_vs_mw_brune.png', fmt='png', dpi=300, bbox_inches='tight')       
 plt.show()    
@@ -408,7 +416,7 @@ yloc = 6.82
 plt.subplot(311)
 plt.plot([2,7], [2,7], 'k--', lw=0.5, label='1:1')
 plt.plot(xplt, yplt, '-', lw=2, c='k', label='2023 Simulated (W-A 2800)')
-idx = where(mzone_array == 'EA')[0]
+idx = where((mzone_array == 'EA') & (deps_array > min_dep))[0]
 sc = plt.scatter(ml_array[idx], mw_array[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'Eastern Australia', va='top', ha ='left', fontsize=12, bbox=props)
 plt.xlabel('$\mathregular{M_{L(MLM92)}}$', fontsize=18)
@@ -422,7 +430,7 @@ plt.text(2.0,7.4, '(a)', va='top', ha ='left', fontsize=18)
 plt.subplot(312)
 plt.plot([2,7], [2,7], 'k--', lw=0.5, label='1:1')
 plt.plot(xplt, yplt, '-', lw=2, c='k', label='2023 Simulated (W-A 2800)')
-idx = where(mzone_array == 'WCA')[0]
+idx = where((mzone_array == 'WCA') & (deps_array > min_dep))[0]
 sc = plt.scatter(ml_array[idx], mw_array[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'Western and Central Australia', va='top', ha ='left', fontsize=12, bbox=props)
 plt.xlabel('$\mathregular{M_{L(GG91)}}$', fontsize=18)
@@ -436,7 +444,7 @@ plt.text(2.0,7.4, '(b)', va='top', ha ='left', fontsize=18)
 plt.subplot(313)
 plt.plot([2,7], [2,7], 'k--', lw=0.5, label='1:1')
 plt.plot(xplt, yplt, '-', lw=2, c='k', label='2023 Simulated (W-A 2800)')
-idx = where(mzone_array == 'SA')[0]
+idx = where((mzone_array == 'SA') & (deps_array > min_dep))[0]
 sc = plt.scatter(ml_array[idx], mw_array[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'South Australia', va='top', ha ='left', fontsize=12, bbox=props)
 plt.xlabel('$\mathregular{M_{L(GS86)}}$', fontsize=18)
@@ -486,7 +494,8 @@ fig = plt.figure(3, figsize=(14, 8.))
 #plt all data
 plt.subplot(221)
 plt.plot([2,7], [0,0], 'k--', lw=0.5)
-sc = plt.scatter(mw_array, mw_res, c=log10(sd_array), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
+idx = where(deps_array > min_dep)[0]
+sc = plt.scatter(mw_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
 #sc = plt.scatter(ml_array, mw_res, c=log10(sd_array), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'All Data', va='top', ha ='left', fontsize=12, bbox=props)
 plt.grid(which='both')
@@ -496,7 +505,7 @@ plt.ylim([-0.8,0.8])
 plt.text(2.3,0.98, '(a)', va='top', ha ='left', fontsize=16)
 
 # get mean & std
-mean_res = nanmean(mw_res)
+mean_res = nanmean(mw_res[idx])
 med_res = nanmedian(mw_res[idx])
 std_res = nanstd(mw_res)
 stat_txt = r'$\mu$ = '+str('%0.2f' % mean_res) + '\n' \
@@ -508,7 +517,7 @@ plt.text(xloc2, yloc2, stat_txt, va='bottom', ha ='right', fontsize=12, bbox=pro
 #plt EA
 plt.subplot(222)
 plt.plot([2,7], [0,0], 'k--', lw=0.5)
-idx = where(mzone_array == 'EA')[0]
+idx = where((mzone_array == 'EA') & (deps_array > min_dep))[0]
 sc = plt.scatter(mw_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
 #sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'Eastern Australia', va='top', ha ='left', fontsize=12, bbox=props)
@@ -532,7 +541,7 @@ plt.text(2.3,0.98, '(b)', va='top', ha ='left', fontsize=16)
 #plt WCA
 plt.subplot(223)
 plt.plot([2,7], [0,0], 'k--', lw=0.5)
-idx = where(mzone_array == 'WCA')[0]
+idx = where((mzone_array == 'WCA') & (deps_array > min_dep))[0]
 sc = plt.scatter(mw_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
 #sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'Western and Central Australia', va='top', ha ='left', fontsize=12, bbox=props)
@@ -556,7 +565,7 @@ plt.text(2.3,0.98, '(c)', va='top', ha ='left', fontsize=16)
 #plt SA
 plt.subplot(224)
 plt.plot([2,7], [0,0], 'k--', lw=0.5)
-idx = where(mzone_array == 'SA')[0]
+idx = where((mzone_array == 'SA') & (deps_array > min_dep))[0]
 sc = plt.scatter(mw_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'South Australia', va='top', ha ='left', fontsize=12, bbox=props)
 
@@ -804,6 +813,7 @@ print('Correlation Coef: '+str(c[2]))
 print('log mean: '+str(nanmean(log10(sd_array))))
 print('log std: '+str(nanstd(log10(sd_array))))
 print('Correlation Coef: '+str(c[2]))
+print(c)
 
 plt.semilogy(mw_array, sd_array, 'o', c='0.8', ms=6.5, label='Blind Ruptures')
 plt.semilogy(surf_rup_mag[sidx], surf_rup_sd[sidx], 'o', c='0.8', ms=6.5, mec='r', mew=0.75, label='Surface Ruptures')
@@ -891,6 +901,7 @@ plt.xlim([3, 7])
 ax = plt.subplot(122)
 idx = where(isnan(sd_array) == False)[0]
 c = linregress(mw_array[idx], log10(sd_array[idx]))
+
 mplt = array([3, 7])
 splt = c[0]*mplt + c[1]
 

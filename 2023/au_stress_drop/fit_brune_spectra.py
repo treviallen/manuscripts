@@ -60,7 +60,8 @@ def parse_filtering_data():
     
     filtdat = []
     # read parameter file
-    lines = open('brune_stats.csv').readlines()[1:]
+    #lines = open('brune_stats.csv').readlines()[1:]
+    lines = open('../../2025/source_params_hazard_sensitivity/brune_stats.csv').readlines()[1:]
     for line in lines:
         dat = line.split(',')
         filt = {'ev':UTCDateTime(dat[0]), 'minf': float(dat[15]), 'maxf': float(dat[16]), 'qual':float(dat[17])}

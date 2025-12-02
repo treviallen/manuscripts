@@ -178,10 +178,10 @@ shp1170_e = return_AS1170_4_shape(per1170, 'E')
 
 fig = plt.figure(1, figsize=(11, 6))
 
-plt.plot(periods, norm_meanUHS_b, lw=2.0, c=cs[1], label='NSHA23 SC Be') #'$\mathregular{NSHA23 SC B_e}$')
-plt.plot(periods, norm_meanUHS_b_84, ls=':', lw=2.0, c=cs[1], label='NSHA23 SC Be - 84th')
-plt.plot(per1170, shp1170_b, ls='--', lw=2.0, c=cs[0], label='AS1170.4:2024 SC Be')
-plt.plot(per1170, shp1170_b_2025, ls='-', lw=2.0, c=cs[2], label='AS1170.4:2024(2025 Amt) SC Be')
+plt.plot(periods, norm_meanUHS_b, lw=2.0, c='r', label='NSHA23 SC Be') #'$\mathregular{NSHA23 SC B_e}$')
+plt.plot(periods, norm_meanUHS_b_84, ls=':', lw=2.0, c='r', label='NSHA23 SC Be - 84th')
+plt.plot(per1170, shp1170_b, ls='--', lw=2.0, c=cs[1], label='AS1170.4:2024 SC Be')
+plt.plot(per1170, shp1170_b_2025, ls='-', lw=2.0, c='b', label='AS1170.4:2024(Amt 1, 2026) SC Be')
 '''
 plt.plot(periods, norm_meanUHS_c, lw=2.0, c=cs[3], label='NSHA23 SC C')
 plt.plot(periods, norm_meanUHS_c_84, ls=':', lw=2.0, c=cs[3], label='NSHA23 SC C - 84th')
@@ -193,6 +193,22 @@ plt.plot(periods, norm_meanUHS_e, lw=2.0, c=cs[7], label='NSHA23 SC E')
 plt.plot(periods, norm_meanUHS_e_84, ls=':', lw=2.0, c=cs[7], label='NSHA23 SC E - 84th')
 plt.plot(per1170, shp1170_e, ls='--', lw=2.0, c=cs[6], label='AS1170.4 SC E')
 '''
+
+# add Darwin UHS
+for uhs in uhsDict_b:
+    if uhs['lon'] == 130.83 and uhs['lat'] == -12.45:
+        meanDarwinPGA = uhs[probabilities[probkey3pc]][0]
+        normDarwinProb = uhs[probabilities[probkey3pc]] / meanDarwinPGA
+        
+plt.plot(periods, normDarwinProb, lw=2.0, c=cs[2], label='Darwin SC Be')
+
+# add Darwin UHS
+for uhs in uhsDict_b_84:
+    if uhs['lon'] == 130.83 and uhs['lat'] == -12.45:
+        normDarwinProb = uhs[probabilities[probkey3pc]] / meanDarwinPGA
+        
+plt.plot(periods, normDarwinProb, ls=':', lw=2.0, c=cs[2], label='Darwin SC Be - 84th')
+
 
 ###################################################################################
 # get 0.5 s ratio

@@ -252,16 +252,16 @@ for i, shapes in enumerate([irregular_shapes, fitted_shapes]):
             #print(edgecolor)
             if labeLegend == True:
                 if i == 0:
-                    plt.plot(xx,yy, '--', c=cols[0], linewidth=2, label='Raw Contours')
+                    plt.plot(xx,yy, 'k--', linewidth=2, label='Raw Contours')
                 else:
-                    plt.plot(xx,yy, '-', c=cols[1], linewidth=2, label='Fitted Contours')
+                    plt.plot(xx,yy, 'r-', linewidth=2, label='Fitted Contours')
                 
                 labeLegend = False
             else:
                 if i == 0:
-                    plt.plot(xx,yy, '--', c=cols[0], linewidth=2)
+                    plt.plot(xx,yy, 'k--', linewidth=2)
                 else:
-                    plt.plot(xx,yy, '-', c=cols[1], linewidth=2)
+                    plt.plot(xx,yy, 'r-', linewidth=2)
 
 ###########################################################################################
 # annotate cities

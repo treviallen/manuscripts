@@ -129,6 +129,8 @@ def response_corrected_fft(tr, pickDat):
         use_stationlist = True                       
     elif tr.stats.network == '5J':
         use_stationlist = True       
+    elif tr.stats.network == 'VW':
+        use_stationlist = True   
     elif tr.stats.station == 'AS32' or tr.stats.station == 'ARPS' or tr.stats.station == 'ARPS' \
          or tr.stats.network == 'MEL' or tr.stats.network == 'OZ': 
         use_stationlist = True
@@ -273,13 +275,13 @@ def response_corrected_fft(tr, pickDat):
         elif tr.stats.network == '3O':
             paz = d3o_parser.get_response(seedid,start_time)
             staloc = d3o_parser.get_coordinates(seedid,start_time)
-        elif tr.stats.network == 'S1':
-            paz = ds1_parser.get_response(seedid,start_time)
-            staloc = ds1_parser.get_coordinates(seedid,start_time)
         elif tr.stats.network == 'AM':
             paz = dam_parser.get_response(seedid,start_time)
             staloc = dam_parser.get_coordinates(seedid,start_time)
         '''
+        elif tr.stats.network == 'S1':
+            paz = ds1_parser.get_response(seedid,start_time)
+            staloc = ds1_parser.get_coordinates(seedid,start_time)
         elif tr.stats.network == 'G':
             paz = g_parser.get_paz(seedid,start_time)
             staloc = g_parser.get_coordinates(seedid,start_time)
@@ -434,7 +436,7 @@ def get_domain(lon, lat):
     
 ################################################################################
 
-lines = open('brune_stats.csv').readlines()[1:]
+lines = open('../../2025/source_params_hazard_sensitivity/brune_stats.csv').readlines()[1:]
 brunedat = []
 for line in lines:
     dat = line.strip().split(',')
@@ -454,8 +456,6 @@ def get_brune_deets(fft_datetime):
                
                
     return bruneStats
-
-
 
 ################################################################################
 # get pick files
@@ -528,6 +528,7 @@ else:
     d7f_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/7f-inventory.xml')
     d5g_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/5g-inventory.xml')
     d6k_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/6k-inventory.xml')
+    ds1_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/s1-inventory.xml')
 
 ################################################################################
 # look to see if need to update or append pkl

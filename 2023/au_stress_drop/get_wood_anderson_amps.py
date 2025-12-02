@@ -16,6 +16,8 @@ import matplotlib.pyplot as plt
 #import matplotlib as mpl
 #mpl.style.use('classic')
 
+#add ga id to pkl!
+
 # script to remove non trillium chans
 def remove_htt(st):
     cnt = 0
@@ -550,7 +552,7 @@ if max_pick_time > max_pkl_time:
 else:
     append_pkl = False
     records = []
-append_pkl = False
+#append_pkl = False
 #records = []
 ################################################################################
 # loop through pick files

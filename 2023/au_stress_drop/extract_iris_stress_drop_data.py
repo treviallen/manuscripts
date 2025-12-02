@@ -21,9 +21,9 @@ from obspy import UTCDateTime
 # parse eq list
 ##############################################################################
 #gadat = parse_ga_event_query('earthquakes_export_2012-16_250.edit.csv')
-recent_csv = 'au_ge_4.4_earthquakes_export_edit.csv'
+#recent_csv = 'au_ge_4.4_earthquakes_export_edit.csv'
 #recent_csv = 'au_ge_4.4_earthquakes_export_wa.csv'
-#recent_csv = 'au_ge_4.4_earthquakes_export_recent.csv'
+recent_csv = 'au_ge_4.4_earthquakes_export_recent.csv'
 #recent_csv = 'au_ge_4.4_earthquakes_export_bboo.csv'	
 gadat = parse_ga_event_query(recent_csv)
 
@@ -57,8 +57,8 @@ else:
 # loop through networks
 ##############################################################################
 
-networks = ['AU', 'S1', 'IU', 'II', 'G', '2O', 'M8', '3B', 'YW', 'WG', 'OZ']
-networks = ['6K']
+networks = ['AU', 'S1', 'IU', 'II', 'G', '2O', 'M8', 'OZ']
+#networks = ['YW']
 #networks = ['S1', 'IU', 'II', 'G', '2O', 'M8']
 
 for network in networks:

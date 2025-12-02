@@ -110,7 +110,7 @@ def plotConts(contour_list):
 # parse shapefile
 ################################################################################
 
-inshp = '1170.4_2025_PGA-0.033_0667_07_contours_0800_trimmed.shp' # modified
+#inshp = '1170.4_2025_PGA-0.033_0667_07_contours_0800_trimmed.shp' # modified
 inshp = '1170.4_2025_PGA-0.033_0667_07_contours_08.shp' # original
 #inshp = 'AS1170_4_fitted_modified_contours.shp'
 
