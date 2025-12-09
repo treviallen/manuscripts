@@ -1,7 +1,7 @@
 import pickle
 from numpy import unique, array, arange, log, log10, exp, mean, nanmean, ndarray, sqrt, \
                   nanmedian, hstack, pi, nan, isnan, interp, where, zeros_like, polyfit, \
-                  hstack, nanstd, loadtxt
+                  hstack, nanstd, loadtxt, nanmedian
 from misc_tools import get_binned_stats, dictlist2array, get_mpl2_colourlist, savitzky_golay, get_log_xy_locs
 from mag_tools import nsha18_mb2mw, nsha18_ml2mw
 from get_mag_dist_terms import get_distance_term, get_magnitude_term, get_kappa_term, get_regional_term
@@ -63,7 +63,7 @@ brunedat = []
 for line in lines:
     dat = line.strip().split(',')
     tmp = {'datetime':UTCDateTime(dat[0]), 'mw':float(dat[8]), 'qual':int(float(dat[-2])), \
-    	     'sd':float(dat[10]), 'cluster':int(float(dat[-1]))}
+           'lon':float(dat[2]), 'lat':float(dat[3]), 'sd':float(dat[10]), 'cluster':int(float(dat[-1]))}
     
     brunedat.append(tmp)
     
@@ -76,7 +76,9 @@ def get_brune_deets(fft_datetime):
            and fft_datetime < UTCDateTime(ev['datetime']+timedelta(seconds=300)):
             
                bruneStats = ev
-               
+    if isnan(bruneStats['mw']):
+        print('Event not found: ',fft_datetime)
+                       
     return bruneStats
 
 # load atten coeffs
@@ -230,13 +232,15 @@ def get_inter_event_terms(magType, recs):
                                 revdt.append(rec['evdt'])
                                 rsd.append(rec['sd'])
                                 
-                                resDict.append({'yres':array(yres), 'mags':array(rmags), 'ev':array(revent), \
-                                               'rhyps':array(rhyps), 'rsd':array(rsd), 'evdt':array(revdt)})
-
                         except:
                             # do nothing
                             dummy = 0
+    
+            resData = {'yres':array(yres), 'mags':array(rmags), 'ev':array(revent), \
+                       'rhyps':array(rhyps), 'rsd':array(rsd), 'evdt':array(revdt)}
             
+            resDict.append(resData)
+                    
     return resDict
     
 ###############################################################################
@@ -288,7 +292,8 @@ def get_inter_event_residuals(resDict):
         mags = array(resData['mags'])
         rhyps = array(resData['rhyps'])
         sds = array(resData['rsd'])
-        print(i, len(uevents))
+        #print(sds)
+        #print(i, len(uevents))
         
         yres_evterm = zeros_like(yres)
         
@@ -298,9 +303,11 @@ def get_inter_event_residuals(resDict):
         event_sds = []
         for ue in uevents:
             
+            print(ue)
             # get records for given event
             ridx = where(events == ue)[0]
             event_mag = mags[ridx][0]
+            print(event_mag)
             event_mags.append(event_mag)
             event_sds.append(sds[ridx][0])
             
@@ -352,6 +359,7 @@ plt_events1, plt_events2, plt_event_terms1, plt_event_mags1, plt_event_sds1, plt
 ax = plt.subplot(1,2,1)
 norm2 = mpl.colors.Normalize(vmin=3, vmax=7)
 plt.scatter(plt_event_sds1, plt_event_terms1, c=plt_event_mags1, marker='o', s=30, edgecolor='none', cmap='viridis_r', norm=norm2, alpha=1)
+#plt.scatter(plt_event_sds1, plt_event_terms1, c=clusters, marker='o', s=30, edgecolor='none', cmap='viridis_r', norm=norm2, alpha=1)
 ax.set_xscale('log')
 plt.xlim([0.05, 100])
 plt.ylim([-2, 2])
@@ -416,18 +424,57 @@ plt_event_terms_sd_corrected2 = plt_event_terms2 - (sdreg[0] * log10(plt_event_s
 ###############################################################################
 # get cluster correction
 ###############################################################################
-clusters = []
+# get clusters
+clusters1 = []
+clust_ev = []
+clust_lon = []
+clust_logsd = []
 for plt_event in plt_events1:
     bruneStats = get_brune_deets(UTCDateTime(plt_event))
-    clusters.append(bruneStats['cluster'])
+    clusters1.append(bruneStats['cluster'])
     
-uclusters = unique(array(clusters))
+    
+clusters2 = []
+for plt_event in plt_events2:
+    bruneStats = get_brune_deets(UTCDateTime(plt_event))
+    clusters2.append(bruneStats['cluster'])
+    clust_ev.append(bruneStats['datetime'])
+    clust_lon.append(bruneStats['lon'])
+    clust_logsd.append(log10(bruneStats['sd']))
 
-'''
+clusters1 = array(clusters1)
+clusters2 = array(clusters2)    
+uclusters = unique(clusters2)
+clust_logsd = array(clust_logsd)
+
+cluster_correction1 = []
+cluster_correction2 = []
 for cluster in uclusters:
-    idx = where(
-'''
+    idx = where(clusters1 == cluster)[0]
+    meancluster = nanmean(plt_event_terms1[idx])
+    cluster_correction1.append(meancluster)
     
+    idx = where(clusters2 == cluster)[0]
+    meancluster = nanmean(plt_event_terms2[idx])
+    cluster_correction2.append(meancluster)
+    meanlogstress = nanmean(clust_logsd[idx])
+    print(cluster+1, meancluster, meanlogstress, len(clust_logsd[idx]))
+
+# now make regional correction    
+plt_event_terms_cluster_cor1 = plt_event_terms1.copy()
+plt_event_terms_cluster_cor2 = plt_event_terms2.copy()
+
+for i, cluster in enumerate(uclusters):
+    idx = where(clusters1 == cluster)[0]
+    plt_event_terms_cluster_cor1[idx] = plt_event_terms1[idx] - cluster_correction1[i]
+    
+    idx = where(clusters2 == cluster)[0]
+    plt_event_terms_cluster_cor2[idx] = plt_event_terms2[idx] - cluster_correction2[i]
+    print(plt_event_terms2[idx])
+    print(cluster, cluster_correction2[i])
+    print(plt_event_terms_cluster_cor2[idx])
+    #print(clust_lon[idx])
+#crash    
 ###############################################################################
 # plot raw inter-event residuals
 ###############################################################################
@@ -498,7 +545,6 @@ norm1 = mpl.colors.Normalize(vmin=-1, vmax=1.8)
 plt.scatter(plt_event_mags1, plt_event_terms_sd_corrected1, c=log10(plt_event_sds1), marker='o', s=30, edgecolor='none', cmap='plasma_r', norm=norm1, alpha=1)
 plt.plot([3, 7],[0,0], 'k--', lw=1.)
 
-plt.xlabel('Moment Magnitude', fontsize=16)
 plt.ylabel('Between-Event\n(ln Residual)', fontsize=16)
 
 xticks = [3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0]
@@ -527,7 +573,6 @@ ax = plt.subplot(3,2,4)
 plt.scatter(plt_event_mags2, plt_event_terms_sd_corrected2, c=log10(plt_event_sds2), marker='o', s=30, edgecolor='none', cmap='plasma_r', norm=norm1, alpha=1)
 plt.plot([3, 7],[0,0], 'k--', lw=1.)
 
-plt.xlabel('Moment Magnitude', fontsize=16)
 #plt.ylabel('Between-Event\n(ln Residual)', fontsize=16)
 
 ax.set_xticks(xticks)
@@ -554,10 +599,10 @@ plt.text(xpos, ypos, pltlett[3], fontsize=20, va='bottom', ha='right')
 
 ax = plt.subplot(3,2,5)
 norm1 = mpl.colors.Normalize(vmin=-1, vmax=1.8)
-plt.scatter(plt_event_mags1, plt_event_terms1, c=log10(plt_event_sds1), marker='o', s=30, edgecolor='none', cmap='plasma_r', norm=norm1, alpha=1)
+plt.scatter(plt_event_mags1, plt_event_terms_cluster_cor1, c=log10(plt_event_sds1), marker='o', s=30, edgecolor='none', cmap='plasma_r', norm=norm1, alpha=1)
 plt.plot([3, 7],[0,0], 'k--', lw=1.)
 
-#plt.xlabel('Moment Magnitude', fontsize=16)
+plt.xlabel('Moment Magnitude', fontsize=16)
 plt.ylabel('Between-Event\n(ln Residual)', fontsize=16)
 
 xticks = [3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0]
@@ -566,9 +611,10 @@ ax.set_xticklabels([str(x) for x in xticks])
 
 plt.xlim([3, 7])
 plt.ylim([-2.5, 2.5])
+sigma = nanstd(plt_event_terms_cluster_cor1)
 insettxt = '$\mathregular{M_{Cluster}}$\n' \
             + 'f = 0.75 Hz\n' \
-            + r"$\tau$" + ' = ' + str('%0.2f' % sigma_be[0])
+            + r"$\tau$" + ' = ' + str('%0.2f' % sigma)
 
 xpos = get_log_xy_locs([3, 7], 0.98)
 ypos = (5*0.94) - 2.5
@@ -581,10 +627,10 @@ plt.text(xpos, ypos, pltlett[0], fontsize=20, va='bottom', ha='left')
 ###########
 
 ax = plt.subplot(3,2,6)
-plt.scatter(plt_event_mags2, plt_event_terms2, c=log10(plt_event_sds2), marker='o', s=30, edgecolor='none', cmap='plasma_r', norm=norm1, alpha=1)
+plt.scatter(plt_event_mags2, plt_event_terms_cluster_cor2, c=log10(plt_event_sds2), marker='o', s=30, edgecolor='none', cmap='plasma_r', norm=norm1, alpha=1)
 plt.plot([3, 7],[0,0], 'k--', lw=1.)
 
-#plt.xlabel('Moment Magnitude', fontsize=16)
+plt.xlabel('Moment Magnitude', fontsize=16)
 #plt.ylabel('Between-Event\n(ln Residual)', fontsize=16)
 
 ax.set_xticks(xticks)
@@ -592,9 +638,10 @@ ax.set_xticklabels([str(x) for x in xticks])
 
 plt.xlim([3, 7])
 plt.ylim([-2.5, 2.5])
+sigma = nanstd(plt_event_terms_cluster_cor2)
 insettxt = '$\mathregular{M_{Cluster}}$\n' \
             + 'f = 2.0 Hz\n' \
-            + r"$\tau$" + ' = ' + str('%0.2f' % sigma_be[1])
+            + r"$\tau$" + ' = ' + str('%0.2f' % sigma)
 
 xpos = get_log_xy_locs([3, 7], 0.98)
 ypos = (5*0.94) - 2.5
@@ -603,7 +650,6 @@ plt.text(xpos, ypos, insettxt, ha='right', va='top', fontsize=11, bbox=props)
 xpos = 3 - (7.-3.)*0.04
 ypos = 5*1.03 - 2.5
 plt.text(xpos, ypos, pltlett[1], fontsize=20, va='bottom', ha='right')
-
 
 
 # set cbars
@@ -621,7 +667,7 @@ plt.savefig('sigma_sensitivity2sd_correction.png', fmt='png', dpi=300, bbox_inch
 plt.show()
     
 ###############################################################################
-# plot  Clustered
+# test Clustered ML conversions
 ###############################################################################
 fig = plt.figure(3, figsize=(14,8))
 plt.rc('xtick',labelsize=14)
@@ -687,7 +733,7 @@ plt.text(xpos, ypos, pltlett[1], fontsize=20, va='bottom', ha='right')
 # plot  Clustered
 ###############################################################################
 
-plt_event_terms1, plt_event_mags1, plt_event_sds1, plt_event_terms2, plt_event_mags2, plt_event_sds2, sigma_be \
+plt_events1, plt_events2, plt_event_terms1, plt_event_mags1, plt_event_sds1, plt_event_terms2, plt_event_mags2, plt_event_sds2, sigma_be \
     = get_inter_event_residuals(resDictCluster)
 
 ax = plt.subplot(2,2,3)

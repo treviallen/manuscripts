@@ -104,7 +104,7 @@ plt.xlabel('Frequency (Hz)', fontsize=18)
 plt.ylabel('Count', fontsize=18)
 plt.grid(which='both')
 plt.xlim([0.02,40])
-plt.ylim([800,7000])
+plt.ylim([800,7500])
 maxf = freqs[argmax(fcnt)]
 print('Max Cnt: '+str(max(fcnt)))
 print('Max Freq: '+str(maxf))
@@ -163,7 +163,7 @@ def scatter_hist(x, y, ax, ax_histx, ax_histy, fc='0.7', mec='k'):
     ax_histx.grid(which='both')
     ax_histx.hist(x, bins=xbins, color=fc, lw=0.5)
     ax_histx.set_ylabel('Count', fontsize=15)
-    ax_histx.set_ylim([0,650])
+    #ax_histx.set_ylim([0,650])
     
     ybins = arange(3.35, 6.8, 0.1)
     ax_histy.grid(which='both')
@@ -216,7 +216,7 @@ for net in nets:
 for rec in recs:
     
     # get mag-dist look-up
-    idx = where(rec['mag'] >= mdist_lookup_mags)[0]
+    idx = where((rec['mag'] >= mdist_lookup_mags) & (rec['mag'] >= 3.75))[0]
     if len(idx) == 0:
         mag_dist = mdist_lookup_dists[0]
     else:
@@ -241,14 +241,14 @@ for i, net in enumerate(nets_dict):
     
 # merge SRC data
 nets_dict = array(nets_dict)
-nets_dict[36]['cnt'] = nets_dict[36]['cnt'] + nets_dict[23]['cnt'] + nets_dict[34]['cnt'] \
-                       + nets_dict[38]['cnt']
+nets_dict[39]['cnt'] = nets_dict[37]['cnt'] + nets_dict[26]['cnt'] + nets_dict[41]['cnt'] \
+                       + nets_dict[39]['cnt']
                        
 # merge 4N and XX data
 nets_dict = array(nets_dict)
 nets_dict[9]['cnt'] = nets_dict[9]['cnt'] + nets_dict[-2]['cnt']
 
-nets_dict = delete(nets_dict, [23, 34, 38, -2])
+nets_dict = delete(nets_dict, [37, 26, 41, -2])
 
 # get data for plotting
 net_lab = []

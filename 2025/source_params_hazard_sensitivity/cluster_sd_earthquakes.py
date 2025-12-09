@@ -3,6 +3,7 @@ print('!!!!! Use conda activate py311 !!!!!')
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
 from numpy import array, log10, where
+import numpy as np
 
 
 # load Brune data
@@ -32,15 +33,18 @@ for line in lines[1:]:
 lons = array(lons)
 lats = array(lats)
 logsd = log10(array(stressdrops))
+#logsd = array(stressdrops)
+sd = array(stressdrops)
 qual = array(qual)
 idx = where(qual == 1)[0]
 
 ################################################################################
 # do clustering
 print('Starting Cluster Analysis ...')
-data = list(zip(lons[idx], lats[idx], logsd[idx]))
+data = list(zip(logsd[idx], lons[idx], lats[idx]))
+#data = list(zip(sd[idx], lons[idx], lats[idx]))
 inertias = []
-
+'''
 n = 16
 for i in range(1,n):
     print('    N cluster = '+str(i))
@@ -53,13 +57,21 @@ plt.title('Elbow method')
 plt.xlabel('Number of clusters')
 plt.ylabel('Inertia')
 plt.show() 
-
+'''
 ################################################################################
 # plot clusters
-kmeans = KMeans(n_clusters=8, random_state=5)
+kmeans = KMeans(n_clusters=9, random_state=1)
+kmeans = KMeans(n_clusters=12, random_state=1)
 kmeans.fit(data)
 plt.scatter(lons[idx], lats[idx], c=kmeans.labels_)
-plt.show() 
+#plt.show() 
+
+################################################################################
+# export polygons
+
+Z_kmeans = kmeans.predict(np.c_[lons.ravel(), lats.ravel()])
+Z_kmeans = Z_kmeans.reshape(lons[idx].shape)
+plt.contourf(lons[idx], lats[idx], Z_kmeans, cmap=viridis, alpha=0.5)
 
 ################################################################################
 # write clusters

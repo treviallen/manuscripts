@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 from mpl_toolkits.basemap import Basemap
 from matplotlib.colors import LightSource, ListedColormap
-from numpy import arange, mean, percentile, array, unique, where, argsort, floor, sqrt, delete, argsort, log10, unique
+from numpy import arange, mean, percentile, array, unique, where, argsort, floor, sqrt, delete, argsort, log10, unique, nanmean, nanstd
 from netCDF4 import Dataset as NetCDFFile
 from gmt_tools import cpt2colormap, remove_last_cmap_colour, remove_first_cmap_colour
 from os import path, walk, system
@@ -275,20 +275,30 @@ logstress = log10(array(stressdrops))
 cluster = array(cluster)
 lons = array(lons)
 lats = array(lats)
+qual = array(qual)
 
 unique_clusters = unique(cluster)
 
 # map clusters
 cols = get_mpl2_colourlist()
 for i, uc in enumerate(unique_clusters):
-    idx = where(cluster == uc)[0]
+    idx = where((cluster == uc) & (qual == 1))[0]
     x, y = m(lons[idx], lats[idx])
     m.plot(x, y, 'o', ms=8, c=cols[i], label='Cluster '+str(i+1))
+    
+    meanlogstress = nanmean(logstress[idx])
+    stdlogstress = nanstd(logstress[idx])
+    print(uc+1, meanlogstress, stdlogstress, len(logstress[idx]))
 
 plt.legend(loc=3, numpoints=1, fontsize=12	)
 
 #########################################################################################
 # finish
+
+https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.Voronoi.html
+https://www.geeksforgeeks.org/machine-learning/plotting-boundaries-of-cluster-zone-with-scikit-learn/
+	
+	
 ##########################################################################################
 
 plt.savefig('mapped_event_clusters.png',fmt='png',dpi=300,bbox_inches='tight')

@@ -7,7 +7,7 @@ from scipy.stats import linregress, trim_mean
 from misc_tools import get_binned_stats, dictlist2array, get_mpl2_colourlist
 from mag_tools import nsha18_mb2mw, nsha18_ml2mw
 from mag_tools import m02mw
-from mapping_tools import distance
+from mapping_tools import distance, drawshapepoly
 from scipy.odr import Data, Model, ODR, models
 import scipy.odr.odrpack as odrpack
 from ltsfit import lts_linefit
@@ -28,7 +28,7 @@ import shapefile
 from shapely.geometry import Point, Polygon
 from mapping_tools import get_field_data
 
-shpfile = '/Users/trev/Documents/Geoscience_Australia/NSHA2023/source_models/zones/shapefiles/NSHA13_Background/NSHA13_BACKGROUND_NSHA18_May2016.shp'
+shpfile = 'WAarray_ply2025.shp'
 
 sf = shapefile.Reader(shpfile)
 shapes = sf.shapes()
@@ -36,9 +36,6 @@ polygons = []
 for poly in shapes:
     polygons.append(Polygon(poly.points))
 
-zone_code = get_field_data(sf, 'CODE', 'str')
-zone_trt = get_field_data(sf, 'TRT', 'str')
-used_zones = set(['EBGZ', 'CBGZ', 'NCCZ'])
 
     
 def parse_filtering_data():
@@ -590,6 +587,9 @@ m.drawparallels(arange(-90.,90.,3.), labels=[1,0,0,0],fontsize=12, dashes=[2, 2]
 m.drawmeridians(arange(0.,360.,4.), labels=[0,0,0,1], fontsize=12, dashes=[2, 2], color='0.5', linewidth=0.75)
 m.fillcontinents(color='w', lake_color='0.9') #, zorder=0)
 m.drawmapboundary(fill_color='0.9')
+
+# add phase polys
+drawshapepoly(m, plt, sf, edgecolor='k', alpha=1, cmap=-99, zorder=1, lw=1)
 
 syms = ['^','v','s','d','H','<']
 nets = ['WG','2P','AU','S1','Other']
