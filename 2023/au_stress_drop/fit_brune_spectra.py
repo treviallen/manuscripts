@@ -46,7 +46,7 @@ def parse_kappa_data(coeffs_pkl):
     kapfile = 'site_kappa_'+coeffs_pkl[13:-4]+'.csv'
     kapdat = []
     # read parameter file
-    lines = open('site_kappa.csv').readlines()[1:]
+    lines = open('site_kappa_1.3_5km.csv').readlines()[1:]
     for line in lines:
         dat = line.split(',')
         #kap = {'sta':dat[0], 'kappa_0': float(dat[1]), 'kappa_r': float(dat[2])}
