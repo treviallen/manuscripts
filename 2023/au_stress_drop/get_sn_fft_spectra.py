@@ -561,8 +561,14 @@ else:
     append_pkl = False
     records = []
 
-#append_pkl = False 
-#records = []   
+append_pkl = True 
+#records = [] 
+'''
+# get stas to ignore
+ignore_stas = open('sta_ignore.txt').readlines()
+ignore_stas = set([x.strip() for x in ignore_stas])
+'''  
+newmseed = set(['1996-06-21T14.57.AU.CAA.mseed','1996-06-21T14.57.AU.GOO.mseed','1996-06-21T14.57.AU.TRI.mseed'])
 ################################################################################
 # loop through pick files
 ################################################################################
@@ -581,6 +587,10 @@ for p, pf in enumerate(pickfiles[start_idx:]):
     if not isnan(pickDat['mag']):
         if append_pkl == True and pickDat['origintime'] <= max_pkl_time:
             skipRec = True
+
+        # if new record in set not prev used 
+        if append_pkl == True and pickDat['mseed_path'] in newmseed:
+            skipRec = False
     
     if isnan(pickDat['mag']) == False:
         #if pickDat['starttime'].year == 2024 and pickDat['starttime'].month == 10: # or pickDat['starttime'].year == 2001: # and pf == '1997-03-05T06.15.00.AD.WHY.picks':

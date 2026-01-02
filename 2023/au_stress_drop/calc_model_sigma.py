@@ -57,7 +57,7 @@ chan = recs[0]['channels'][0]
 freqs = recs[0][chan]['freqs']
 
 # load final Mw estimates
-lines = open('brune_stats.csv').readlines()[1:]
+lines = open('../../2025/source_params_hazard_sensitivity/brune_stats.csv').readlines()[1:]
 brunedat = []
 for line in lines:
     dat = line.strip().split(',')
@@ -95,7 +95,7 @@ stla = dictlist2array(recs, 'stla')
 '''
 
 ### !!! COMMENT OUT AFTER FIRST RUN !!!!
-"""
+
 # set brune mags
 print('Setting brune mags ...')
 for i, rec in enumerate(recs):
@@ -183,7 +183,7 @@ for f, c in enumerate(coeffs):
 pklfile = open('residual_data.pkl', 'wb')
 pickle.dump(resDict, pklfile, protocol=-1)
 pklfile.close()
-"""
+
 resDict = pickle.load(open('residual_data.pkl', 'rb' ))
 
 ###############################################################################
@@ -268,11 +268,20 @@ ax.set_xticks(xticks)
 ax.set_xticklabels([str(x) for x in xticks])
 
 plt.xlim([3, 7])
-plt.ylim([-3, 3])
+plt.ylim([-2.5, 2.5])
+'''
 pertxt = 'f = 0.75 Hz'
 xpos = get_log_xy_locs([3, 7], 0.04)
 ypos = (6*0.94) - 3
 plt.text(xpos, ypos, pertxt, ha='left', va='top', fontsize=16, bbox=props)
+'''
+sigma_be = nanstd(plt_event_terms1)
+insettxt = '$\mathregular{M_{Brune}}$\n' \
+            + 'f = 0.75 Hz\n' \
+            + r"$\tau$" + ' = ' + str('%0.2f' % sigma_be)
+xpos = get_log_xy_locs([3, 7], 0.98)
+ypos = (5*0.94) - 2.5
+plt.text(xpos, ypos, insettxt, ha='right', va='top', fontsize=11, bbox=props)
 
 xpos = 3 - (7.-3.)*0.04
 ypos = 6*1.05 - 3.
@@ -292,11 +301,20 @@ ax.set_xticks(xticks)
 ax.set_xticklabels([str(x) for x in xticks])
 
 plt.xlim([3, 7])
-plt.ylim([-3, 3])
+plt.ylim([-2.5, 2.5])
+'''
 pertxt = 'f = 2.0 Hz'
 xpos = get_log_xy_locs([3, 7], 0.04)
 ypos = (6*0.94) - 3
 plt.text(xpos, ypos, pertxt, ha='left', va='top', fontsize=16, bbox=props)
+'''
+sigma_be = nanstd(plt_event_terms2)
+insettxt = '$\mathregular{M_{Brune}}$\n' \
+            + 'f = 2.0 Hz\n' \
+            + r"$\tau$" + ' = ' + str('%0.2f' % sigma_be)
+xpos = get_log_xy_locs([3, 7], 0.98)
+ypos = (5*0.94) - 2.5
+plt.text(xpos, ypos, insettxt, ha='right', va='top', fontsize=11, bbox=props)
 
 xpos = 3 - (7.-3.)*0.04
 ypos = 6*1.05 - 3.
@@ -313,11 +331,22 @@ plt.xlabel('Hypocentral Distance (km)', fontsize=16)
 plt.ylabel('Within-Event\n(ln Residual)', fontsize=16)
 
 plt.xlim([0, 2000])
-plt.ylim([-3, 3])
+plt.ylim([-2.5, 2.5])
+'''
 pertxt = 'f = 0.75 Hz'
 xpos = get_log_xy_locs([0, 2000], 0.04)
 ypos = (6*0.92) - 3
 plt.text(xpos, ypos, pertxt, ha='left', va='top', fontsize=16, bbox=props)
+'''
+sigma_we = nanstd(plt_yres_evterm1)
+insettxt = '$\mathregular{M_{Brune}}$\n' \
+            + 'f = 0.75 Hz\n' \
+            + r"$\phi" + ' = ' + str('%0.2f' % sigma_we)
+
+xpos = 2000 * 0.98
+ypos = (5*0.94) - 2.5
+plt.text(xpos, ypos, insettxt, ha='right', va='top', fontsize=11, bbox=props)
+
 
 xpos = -2000*0.04
 ypos = 6*1.05 - 3.
@@ -337,11 +366,20 @@ plt.xlabel('Hypocentral Distance (km)', fontsize=16)
 plt.ylabel('Within-Event\n(ln Residual)', fontsize=16)
 
 plt.xlim([0, 2000])
-plt.ylim([-3, 3])
+plt.ylim([-2.5, 2.5])
+'''
 pertxt = 'f = 2.0 Hz'
 xpos = get_log_xy_locs([0, 2000], 0.04)
 ypos = (6*0.92) - 3
 plt.text(xpos, ypos, pertxt, ha='left', va='top', fontsize=16, bbox=props)
+'''
+sigma_we = nanstd(plt_yres_evterm2)
+insettxt = '$\mathregular{M_{Brune}}$\n' \
+            + 'f = 2.0 Hz\n' \
+            + r"$\phi" + ' = ' + str('%0.2f' % sigma_we)
+xpos = 2000 * 0.98
+ypos = (5*0.94) - 2.5
+plt.text(xpos, ypos, insettxt, ha='right', va='top', fontsize=11, bbox=props)
 
 xpos = -2000*0.04
 ypos = 6*1.05 - 3.

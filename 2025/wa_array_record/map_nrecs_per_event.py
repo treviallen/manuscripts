@@ -670,4 +670,5 @@ titlestr = 'Number of Records per Station'
 cb.set_label(titlestr, fontsize=14)
 
 plt.savefig('recs_per_event.png', fmt='png', dpi=300, bbox_inches='tight')
+plt.savefig('recs_per_event.pdf', fmt='pdf', dpi=300, bbox_inches='tight')
 plt.show()

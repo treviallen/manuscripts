@@ -271,9 +271,9 @@ plt.xlim([xlim[0]-0.25, xlim[1]+0.25])
 plt.ylim([8, 4000])
 
 
-
 plt.savefig('net_count.png', fmt='png', dpi=300, bbox_inches='tight')
-plt.savefig('fig_01.eps', fmt='eps', dpi=300, bbox_inches='tight')
+#plt.savefig('fig_01.eps', fmt='eps', dpi=300, bbox_inches='tight')
+plt.savefig('fig_01.pdf', fmt='pdf', dpi=300, bbox_inches='tight')
 
 plt.show()
 

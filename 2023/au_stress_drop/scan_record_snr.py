@@ -346,7 +346,17 @@ for mseedfile in mseedfiles:
             rngkm, azim, baz = distance(eqla, eqlo, sta_data['stla'], sta_data['stlo'])
             rngdeg = km2deg(rngkm)
             
-            if rngkm < 2250.:
+            passDistance = True
+            if rngkm > 2250.:
+                passDistance = False
+                
+            if rngkm > 800. and st[0].stats.network == 'WG':
+                passDistance = False
+                
+            if rngkm > 800. and st[0].stats.network == 'M8':
+                passDistance = False
+            
+            if passDistance == True:
             
                 # get arrivals
                 if eqdp < 0:
