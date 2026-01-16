@@ -15,7 +15,7 @@ mpl.style.use('classic')
 plt.rcParams['pdf.fonttype'] = 42
 import warnings
 warnings.filterwarnings("ignore")
-
+plt.clf()
 ###############################################################################
 # load pickle 
 ###############################################################################
@@ -120,8 +120,8 @@ ax.set_yticks(yticks)
 ax.set_yticklabels(ylabels)
 #plt.legend(loc=2, numpoints=3)
 
-plt.savefig('freq_recs_gt_snr.png', fmt='png', dpi=300, bbox_inches='tight')
-plt.savefig('fig_03.eps', fmt='eps', dpi=300, bbox_inches='tight')
+plt.savefig('freq_recs_gt_snr.png', dpi=300, bbox_inches='tight')
+plt.savefig('fig_03.eps',  dpi=300, bbox_inches='tight')
 
 plt.show()
 
@@ -198,8 +198,8 @@ plt.semilogx(rhyp, mag, 'r+', lw=0.5)
 plt.grid(which='both')
 #plt.legend(loc=2, numpoints=3)
 '''
-plt.savefig('data_mag_vs_dist.png', fmt='png', dpi=300, bbox_inches='tight')
-plt.savefig('fig_02.eps', fmt='eps', dpi=300, bbox_inches='tight')
+plt.savefig('data_mag_vs_dist.png', dpi=300, bbox_inches='tight')
+plt.savefig('fig_02.eps', dpi=300, bbox_inches='tight')
 
 plt.show()
 
@@ -278,9 +278,9 @@ plt.xlim([xlim[0]-0.25, xlim[1]+0.25])
 plt.ylim([8, 4000])
 
 
-plt.savefig('net_count.png', fmt='png', dpi=300, bbox_inches='tight')
+plt.savefig('net_count.png', dpi=300, bbox_inches='tight')
 #plt.savefig('fig_01.eps', fmt='eps', dpi=300, bbox_inches='tight')
-plt.savefig('fig_01.pdf', fmt='pdf', dpi=300, bbox_inches='tight')
+plt.savefig('fig_01.pdf', dpi=300, bbox_inches='tight')
 
 plt.show()
 

@@ -13,6 +13,7 @@ import scipy.odr.odrpack as odrpack
 #from ltsfit import lts_linefit
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+#mpl.use('TkAgg')
 from matplotlib import colors, colorbar
 from obspy import UTCDateTime
 from mpl_toolkits.basemap import Basemap
@@ -27,6 +28,8 @@ warnings.filterwarnings("ignore")
 import shapefile
 from shapely.geometry import Point, Polygon
 from mapping_tools import get_field_data
+
+print('run map_nrecs_per_event.py ../../2023/au_stress_drop/fft_data.pkl True')
 
 shpfile = 'WAarray_ply2025.shp'
 
@@ -520,9 +523,15 @@ lon_0 = mean([llcrnrlon, urcrnrlon])
 lat_1 = percentile([llcrnrlat, urcrnrlat], 25)
 lat_2 = percentile([llcrnrlat, urcrnrlat], 75)
 
-fig = plt.figure(figsize=(12,8))
-plt.tick_params(labelsize=14)
-ax = plt.subplot(121)
+plt.clf()
+fig, (ax1, ax2) = plt.subplots(1,2)
+fig.set_size_inches(12,8)
+#plt.figure(figsize=(12,8))
+plt.tick_params(labelsize=12)
+plt.sca(ax1)
+#ax1 = plt.subplot(121)
+
+#ax = plt.subplot(111)
 
 m = Basemap(projection='lcc',lat_1=lat_1,lat_2=lat_2,lon_0=lon_0,\
             llcrnrlon=llcrnrlon,llcrnrlat=llcrnrlat, \
@@ -572,8 +581,9 @@ bounds = array([1, 3, 5, 10, 15, 20, 30, 50, 1000])
 bounds = array([1, 3, 5, 10, 20, 1000])
 cmap = plt.get_cmap('plasma_r', len(bounds))
 cs = (cmap(arange(len(bounds))))
-
-ax = plt.subplot(122)
+#plt.cla()
+#ax2 = plt.subplot(122)
+plt.sca(ax2)
 
 m = Basemap(projection='lcc',lat_1=lat_1,lat_2=lat_2,lon_0=lon_0,\
             llcrnrlon=llcrnrlon,llcrnrlat=llcrnrlat, \
@@ -669,6 +679,6 @@ cb.ax.tick_params(labelsize=12)
 titlestr = 'Number of Records per Station'
 cb.set_label(titlestr, fontsize=14)
 
-plt.savefig('recs_per_event.png', fmt='png', dpi=300, bbox_inches='tight')
-plt.savefig('recs_per_event.pdf', fmt='pdf', dpi=300, bbox_inches='tight')
+plt.savefig('recs_per_event.png', format='png', dpi=300, bbox_inches='tight')
+plt.savefig('recs_per_event.pdf', format='pdf', dpi=300, bbox_inches='tight')
 plt.show()
