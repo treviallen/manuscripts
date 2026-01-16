@@ -156,10 +156,11 @@ def get_wa_amp(displacement_trace, sensitivity, start_idx, end_idx):
     #disp_wa.plot()
     try:
         ampl = max(abs(disp_wa.data[start_idx:end_idx]))
+        noise = max(abs(disp_wa.data[0:start_idx]))
     except:
         ampl = nan
 
-    return ampl * 1000.
+    return ampl * 1000., noise * 1000
 
 def response_corrected_fft(tr, pickDat):
     import matplotlib.pyplot as plt
@@ -349,8 +350,10 @@ def response_corrected_fft(tr, pickDat):
             tr.remove_response(inventory=dm8_parser)
         elif tr.stats.network == 'AM':
             tr.remove_response(inventory=dam_parser)
-        elif tr.stats.network == 'WG':
-            tr.remove_response(inventory=dwg_parser)
+        elif tr.stats.network == 'WG' and tr.stats.starttime <= UTCDateTime(2024,2,1):
+            tr.remove_response(inventory=dwg1_parser)
+        elif tr.stats.network == 'WG' and tr.stats.starttime > UTCDateTime(2024,2,1) and tr.stats.starttime <= UTCDateTime(2025,2,28):
+            tr.remove_response(inventory=dwg2_parser)
         elif tr.stats.network == '5C':
             tr.remove_response(inventory=d5c_parser)
         elif tr.stats.network == '4N':
@@ -514,7 +517,8 @@ else:
     d3o_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/3o-inventory.xml')
     dam_parser = read_inventory('/Users/trev/Documents/Networks/AM/R7AF5.xml')
     d4n_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/4n-inventory.xml')
-    dwg_parser = read_inventory('/Users/trev/Documents/Networks/GSWA/wg-inventory.xml')
+    dwg1_parser = read_inventory('/Users/trev/Documents/Networks/GSWA/wg1-inventory.xml')
+    dwg2_parser = read_inventory('/Users/trev/Documents/Networks/GSWA/wg2-inventory.xml')
     d5c_parser = read_inventory('/Users/trev/Documents/Networks/GSWA/5c-inventory.xml')
     dii_parser = read_inventory('/Users/trev/Documents/Networks/II/ii-inventory.xml')
     d1q_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/1q-inventory.xml')
@@ -699,11 +703,16 @@ for p, pf in enumerate(pickfiles[start_idx:]):
                             # get W-A amp
                             start_idx = pickDat['sidx']
                             end_idx = pickDat['eidx']
-                            wa_amp = get_wa_amp(tr_filt, wa_sensitivity, start_idx, end_idx)
+                            wa_amp, wa_noise = get_wa_amp(tr_filt, wa_sensitivity, start_idx, end_idx)
                     
                             tr_key = '_'.join(('wa_amp', str(wa_sensitivity), str(hpf)))
             
                             traceDat[tr_key] = wa_amp
+                            
+                            # add noise
+                            tr_key = '_'.join(('wa_noise', str(wa_sensitivity), str(hpf)))
+            
+                            traceDat[tr_key] = wa_noise
                     
                     #####################################################################
                     # add trace data to recDat

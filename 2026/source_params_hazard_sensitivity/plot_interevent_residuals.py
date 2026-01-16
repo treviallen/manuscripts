@@ -52,8 +52,8 @@ ignore_stas = set([x.strip() for x in ignore_stas])
 # load datasets 
 ###############################################################################
 
-#recs = pickle.load(open('../../2023/au_stress_drop/fft_data.pkl', 'rb' ))
-recs = pickle.load(open('fft_data_mag_match.pkl', 'rb' ))
+recs = pickle.load(open('../../2023/au_stress_drop/fft_data.pkl', 'rb' ))
+#recs = pickle.load(open('fft_data_mag_match.pkl', 'rb' ))
 chan = recs[0]['channels'][0]
 freqs = recs[0][chan]['freqs']
 
@@ -95,11 +95,12 @@ s0, s1, s2 = loadtxt('../../2023/au_stress_drop/mw-ml_coeffs_2800.csv', delimite
 cdata = loadtxt('ml_mw_bias_cluster.csv', delimiter=',', skiprows=1) 
 cmean = cdata[:,1]
 
-def get_ml2mw_cluster(ml, cluster):
-    return s0 * ml**2 + s1 * ml + s2 + cmean[cluster+1] # add 1 because first row is all data
+def get_ml2mw_cluster(ml, cluster=0):
+    #print(ml)
+    return s0 * ml**2 + s1 * ml + s2 - cmean[cluster+1], cmean[cluster+1] # add 1 because first row is all data
 
 
-# load ml-mw data
+# load ml-mw data from "get_cluster_ml_mw_bias.py"
 csvfile = '../../2023/au_stress_drop/ml_mw_stats.csv'
 
 print(csvfile)
@@ -151,13 +152,13 @@ for i, rec in enumerate(recs):
 def get_inter_event_terms(magType, recs):
     '''
     magType: 1 = Brune mags
-             2 = ML-MW cluster
-             3 = SD correction with Brune
+             2 = ML-MW cluster correction (MW - dMW) where dMW from mean MW - MW(conv)
+             3 = Use converted magnitude
     '''
     resDict = []
     for f, c in enumerate(coeffs):
     
-        if f == 69 or f == 100:
+        if f == 69 or f == 99:
             print("Coeffs Freq = " +str('%0.3f' % c['freq']))
                 
             chan = recs[0]['channels'][0]
@@ -179,7 +180,9 @@ def get_inter_event_terms(magType, recs):
             revdt = []
             for i, rec in enumerate(recs):
                 
+                # if qual == 1, "mag" is Mwb
                 if rec['net'] in keep_nets and rec['qual'] == 1:
+                    
                     if not rec['sta'] in ignore_stas:
                         try:
                             channel = rec['channels'][0]
@@ -201,11 +204,14 @@ def get_inter_event_terms(magType, recs):
                     
                                 #magterm = get_magnitude_term(bruneStats['mw'], c)
                                 if magType == 1:
-                                    prefmw = rec['mwb']
+                                    prefmw = rec['mag']
                                 elif magType == 2:
-                                    prefmw = get_ml2mw_cluster(rec['ml'], rec['mag_cluster'])
+                                    mwconv, cor = get_ml2mw_cluster(rec['ml2800'], cluster=rec['cluster']) # only use to get correction
+                                    prefmw = rec['mag'] - cor 
+                                    #print(rec['mag'], cor, prefmw, rec['cluster'],rec['evdt'])
+                                    
                                 elif magType == 3:
-                                    prefmw = get_ml2mw_cluster(rec['ml'], 0)
+                                    prefmw, cor = get_ml2mw_cluster(rec['ml2800'], -1) # subtract 1 as we want index 0
                                     
                                     
                                 # get mag term
@@ -227,15 +233,15 @@ def get_inter_event_terms(magType, recs):
                     
                                 yobs = log10(rec[channel]['swave_spec'][f])
                                 yres.append(yobs - ypred)
-                                rmags.append(rec['mwb'])
+                                rmags.append(rec['mag'])
                                 revent.append(rec['ev'])
                                 revdt.append(rec['evdt'])
                                 rsd.append(rec['sd'])
-                                
                         except:
                             # do nothing
                             dummy = 0
-    
+                            
+                        
             resData = {'yres':array(yres), 'mags':array(rmags), 'ev':array(revent), \
                        'rhyps':array(rhyps), 'rsd':array(rsd), 'evdt':array(revdt)}
             
@@ -254,8 +260,8 @@ pklfile = open('residual_data.pkl', 'wb')
 pickle.dump(resDict, pklfile, protocol=-1)
 pklfile.close()
 
-# ML2MW using cluser corrections
-print('Getting ml2mw residual data ...')
+#  mw using regional correction
+print('Getting cluster mag residual data ...')
 resDict = get_inter_event_terms(2, recs)
 pklfile = open('residual_ml_cluster_data.pkl', 'wb')
 pickle.dump(resDict, pklfile, protocol=-1)
@@ -301,15 +307,18 @@ def get_inter_event_residuals(resDict):
         event_terms = []
         event_mags = []
         event_sds = []
+        uevdt = []
         for ue in uevents:
             
-            print(ue)
+            #print(ue)
             # get records for given event
             ridx = where(events == ue)[0]
             event_mag = mags[ridx][0]
-            print(event_mag)
+            
+            #print(event_mag)
             event_mags.append(event_mag)
             event_sds.append(sds[ridx][0])
+            uevdt.append(evdt[ridx][0])
             
             # get event terms
             event_term = nanmean(log(10**yres[ridx]))
@@ -509,7 +518,7 @@ insettxt = '$\mathregular{M_{Brune}}$\n' \
 
 xpos = 3 + 4 * 0.97
 ypos = (5*0.95) - 2.5
-plt.text(xpos, ypos, insettxt, ha='right', va='top', fontsize=11, bbox=props)
+plt.text(xpos, ypos, insettxt, ha='right', va='top', fontsize=12, bbox=props)
 
 xpos = 3 - (7.-3.)*0.04
 ypos = 5*1.03 - 2.5
@@ -530,12 +539,12 @@ ax.set_xticklabels([str(x) for x in xticks])
 plt.xlim([3, 7])
 plt.ylim([-2.5, 2.5])
 insettxt = '$\mathregular{M_{Brune}}$\n' \
-            + 'f = 2.0 Hz\n' \
+            + 'f = 3.0 Hz\n' \
             + r"$\tau$" + ' = ' + str('%0.2f' % sigma_be[1])
 
 xpos = 3 + 4 * 0.97
 ypos = (5*0.95) - 2.5
-plt.text(xpos, ypos, insettxt, ha='right', va='top', fontsize=11, bbox=props)
+plt.text(xpos, ypos, insettxt, ha='right', va='top', fontsize=12, bbox=props)
 
 xpos = 3 - (7.-3.)*0.04
 ypos = 5*1.03 - 2.5
@@ -563,7 +572,7 @@ insettxt = '$\mathregular{M_{Brune}}$\n' \
 
 xpos = 2000 * 0.97
 ypos = (6*0.95) - 3
-plt.text(xpos, ypos, insettxt, ha='right', va='top', fontsize=11, bbox=props)
+plt.text(xpos, ypos, insettxt, ha='right', va='top', fontsize=12, bbox=props)
 
 xpos = -2000*0.04
 ypos = 6*1.05 - 3.
@@ -588,23 +597,23 @@ plt.ylim([-3, 3])
 
 sigma_we = nanstd(plt_yres_weterm2)
 insettxt = '$\mathregular{M_{Brune}}$\n' \
-            + 'f = 2.0 Hz\n' \
+            + 'f = 3.0 Hz\n' \
             + r"$\phi$" + ' = ' + str('%0.2f' % sigma_we)
 
 xpos = 2000 * 0.97
 ypos = (6*0.95) - 3
-plt.text(xpos, ypos, insettxt, ha='right', va='top', fontsize=11, bbox=props)
+plt.text(xpos, ypos, insettxt, ha='right', va='top', fontsize=12, bbox=props)
 
 xpos = -2000*0.04
 ypos = 6*1.05 - 3.
-plt.text(xpos, ypos, pltlett[2], fontsize=18, va='bottom', ha='right')
+plt.text(xpos, ypos, pltlett[3], fontsize=18, va='bottom', ha='right')
 
 '''
 xticks = [0, 500, 700, 1000, 1500, 2000]
 ax.set_xticks(xticks)
 ax.set_xticklabels([str(x) for x in xticks])
 '''
-plt.subplots_adjust(hspace=0.4)
+plt.subplots_adjust(hspace=0.3)
 
 #############
 # make colorbars
@@ -630,13 +639,20 @@ plt.savefig('figures/ergodic_within-between_residuals.png', fmt='png', dpi=300, 
 plt.show()
 
 ###############################################################################
-# plot inter-event residuals with a priori info
+# plot event-specific inter-event residuals 
 ###############################################################################
+# gget data using MW converted from ML
+plt_events1, plt_events2, plt_event_terms1, plt_event_mags1, plt_event_sds1, plt_event_terms2, \
+plt_event_mags2, plt_event_sds2, sigma_be, plt_rhyps1, plt_rhyps2, plt_yres_weterm1, plt_yres_weterm2, plt_mags1, plt_mags2 \
+    = get_inter_event_residuals(resDictNoCluster)
 
-crash
-ax = plt.subplot(3,2,3)
+fig = plt.figure(3, figsize=(14,8))
+plt.rc('xtick',labelsize=14)
+plt.rc('ytick',labelsize=14)
+
+ax = plt.subplot(2,2,1)
 norm1 = mpl.colors.Normalize(vmin=-1, vmax=1.8)
-plt.scatter(plt_event_mags1, plt_event_terms_sd_corrected1, c=log10(plt_event_sds1), marker='o', s=30, edgecolor='none', cmap='plasma_r', norm=norm1, alpha=1)
+plt.scatter(plt_event_mags1, plt_event_terms1, c=log10(plt_event_sds1), marker='o', s=30, edgecolor='none', cmap='plasma_r', norm=norm1, alpha=1)
 plt.plot([3, 7],[0,0], 'k--', lw=1.)
 
 plt.ylabel('Between-Event\n(ln Residual)', fontsize=14)
@@ -648,23 +664,27 @@ ax.set_xticklabels([str(x) for x in xticks])
 plt.xlim([3, 7])
 plt.ylim([-2.5, 2.5])
 
-tau = nanstd(plt_event_terms_sd_corrected1)
-insettxt = '$\mathregular{M_{SD-Corrected}}$\n' \
-            + 'f = 0.75 Hz\n' \
-            + r"$\tau$" + ' = ' + str('%0.2f' % tau)
+# = nanstd(plt_event_terms_sd_corrected1)
 
-xpos = get_log_xy_locs([3, 7], 0.98)
-ypos = (5*0.94) - 2.5
-plt.text(xpos, ypos, insettxt, ha='right', va='top', fontsize=11, bbox=props)
+plt.xlim([3, 7])
+plt.ylim([-2.5, 2.5])
+insettxt = '$\mathregular{M_{conv}}$\n' \
+            + 'f = 0.75 Hz\n' \
+            + r"$\tau$" + ' = ' + str('%0.2f' % sigma_be[0])
+
+xpos = 3 + 4 * 0.97
+ypos = (5*0.95) - 2.5
+plt.text(xpos, ypos, insettxt, ha='right', va='top', fontsize=12, bbox=props)
 
 xpos = 3 - (7.-3.)*0.04
 ypos = 5*1.03 - 2.5
-plt.text(xpos, ypos, pltlett[2], fontsize=18, va='bottom', ha='left')
+plt.text(xpos, ypos, pltlett[0], fontsize=18, va='bottom', ha='right')
+
 
 ###########
 
-ax = plt.subplot(3,2,4)
-plt.scatter(plt_event_mags2, plt_event_terms_sd_corrected2, c=log10(plt_event_sds2), marker='o', s=30, edgecolor='none', cmap='plasma_r', norm=norm1, alpha=1)
+ax = plt.subplot(2,2,2)
+plt.scatter(plt_event_mags2, plt_event_terms2, c=log10(plt_event_sds2), marker='o', s=30, edgecolor='none', cmap='plasma_r', norm=norm1, alpha=1)
 plt.plot([3, 7],[0,0], 'k--', lw=1.)
 
 #plt.ylabel('Between-Event\n(ln Residual)', fontsize=14)
@@ -675,23 +695,177 @@ ax.set_xticklabels([str(x) for x in xticks])
 plt.xlim([3, 7])
 plt.ylim([-2.5, 2.5])
 
-tau = nanstd(plt_event_terms_sd_corrected2)
-insettxt = '$\mathregular{M_{SD-Corrected}}$\n' \
-            + 'f = 2.0 Hz\n' \
-            + r"$\tau$" + ' = ' + str('%0.2f' % tau)
+insettxt = '$\mathregular{M_{conv}}$\n' \
+            + 'f = 3.0 Hz\n' \
+            + r"$\tau$" + ' = ' + str('%0.2f' % sigma_be[1])
+
+xpos = 3 + 4 * 0.97
+ypos = (5*0.95) - 2.5
+plt.text(xpos, ypos, insettxt, ha='right', va='top', fontsize=12, bbox=props)
+
+xpos = 3 - (7.-3.)*0.04
+ypos = 5*1.03 - 2.5
+plt.text(xpos, ypos, pltlett[1], fontsize=18, va='bottom', ha='right')
+
+
+####################
+# do SD-inter-event
+
+# re-read ergodic data to correct
+plt_events1, plt_events2, plt_event_terms1, plt_event_mags1, plt_event_sds1, plt_event_terms2, \
+plt_event_mags2, plt_event_sds2, sigma_be, plt_rhyps1, plt_rhyps2, plt_yres_weterm1, plt_yres_weterm2, plt_mags1, plt_mags2 \
+    = get_inter_event_residuals(resDictRaw)
+
+
+ax = plt.subplot(2,2,3)
+norm1 = mpl.colors.Normalize(vmin=-1, vmax=1.8)
+plt.scatter(plt_event_mags1, plt_event_terms_sd_corrected1, c=log10(plt_event_sds1), marker='o', s=30, edgecolor='none', cmap='plasma_r', norm=norm1, alpha=1)
+plt.plot([3, 7],[0,0], 'k--', lw=1.)
+
+plt.xlabel('Moment Magnitude', fontsize=14)
+plt.ylabel('Between-Event\n(ln Residual)', fontsize=14)
+
+xticks = [3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0]
+ax.set_xticks(xticks)
+ax.set_xticklabels([str(x) for x in xticks])
+
+plt.xlim([3, 7])
+plt.ylim([-2.5, 2.5])
+sigma = nanstd(plt_event_terms_sd_corrected1)
+# r"raw string Mathtext: $\alpha > \beta$"
+insettxt = r"$\Delta\sigma_i$ adjustment" + '\n' \
+            + 'f = 0.75 Hz\n' \
+            + r"$\tau$" + ' = ' + str('%0.2f' % sigma)
 
 xpos = get_log_xy_locs([3, 7], 0.98)
-ypos = (5*0.94) - 2.5
-plt.text(xpos, ypos, insettxt, ha='right', va='top', fontsize=11, bbox=props)
+ypos = (5*0.95) - 2.5
+plt.text(xpos, ypos, insettxt, ha='right', va='top', fontsize=12, bbox=props)
+
+xpos = 3 - (7.-3.)*0.04
+ypos = 5*1.03 - 2.5
+plt.text(xpos, ypos, pltlett[2], fontsize=18, va='bottom', ha='left')
+
+###########
+
+ax = plt.subplot(2,2,4)
+plt.scatter(plt_event_mags2, plt_event_terms_sd_corrected2, c=log10(plt_event_sds2), marker='o', s=30, edgecolor='none', cmap='plasma_r', norm=norm1, alpha=1)
+plt.plot([3, 7],[0,0], 'k--', lw=1.)
+
+plt.xlabel('Moment Magnitude', fontsize=14)
+#plt.ylabel('Between-Event\n(ln Residual)', fontsize=14)
+
+ax.set_xticks(xticks)
+ax.set_xticklabels([str(x) for x in xticks])
+
+plt.xlim([3, 7])
+plt.ylim([-2.5, 2.5])
+sigma = nanstd(plt_event_terms_sd_corrected2)
+insettxt = r"$\Delta\sigma_i$ adjustment" + '\n' \
+            + 'f = 3.0 Hz\n' \
+            + r"$\tau$" + ' = ' + str('%0.2f' % sigma)
+
+xpos = get_log_xy_locs([3, 7], 0.98)
+ypos = (5*0.95) - 2.5
+plt.text(xpos, ypos, insettxt, ha='right', va='top', fontsize=12, bbox=props)
 
 xpos = 3 - (7.-3.)*0.04
 ypos = 5*1.03 - 2.5
 plt.text(xpos, ypos, pltlett[3], fontsize=18, va='bottom', ha='right')
 
+plt.subplots_adjust(hspace=0.3)
 
-#!!!!! Add clustered corrections here !!!!!
+# set cbars
+plt.rc('xtick',labelsize=13)
+plt.rc('ytick',labelsize=13)
+cax = fig.add_axes([0.93,0.25,0.02,0.5]) # setup colorbar axes.
+cb = colorbar.ColorbarBase(cax, cmap=plt.cm.plasma_r, orientation='vertical', alpha=1, norm=norm1)
+ticks = [-1. , -0.5,  0. ,  0.5,  1. ,  1.5]
+cb.set_ticks(ticks)
+cb.set_ticklabels([str('%0.1f' % 10**x) for x in ticks])
+cb.set_label('Stress Drop (MPa)', rotation=270, labelpad=20, fontsize=15)
 
-ax = plt.subplot(3,2,5)
+
+plt.savefig('figures/interevent_event-specific.png', fmt='png', dpi=300, bbox_inches='tight')       
+plt.show()
+
+###############################################################################
+# plot inter-event residuals with clustering
+###############################################################################
+
+plt_events1, plt_events2, plt_event_terms1, plt_event_mags1, plt_event_sds1, plt_event_terms2, \
+plt_event_mags2, plt_event_sds2, sigma_be, plt_rhyps1, plt_rhyps2, plt_yres_weterm1, plt_yres_weterm2, plt_mags1, plt_mags2 \
+    = get_inter_event_residuals(resDictCluster)
+
+fig = plt.figure(4, figsize=(14,8))
+plt.rc('xtick',labelsize=14)
+plt.rc('ytick',labelsize=14)
+
+ax = plt.subplot(2,2,1)
+norm1 = mpl.colors.Normalize(vmin=-1, vmax=1.8)
+plt.scatter(plt_event_mags1, plt_event_terms1, c=log10(plt_event_sds1), marker='o', s=30, edgecolor='none', cmap='plasma_r', norm=norm1, alpha=1)
+plt.plot([3, 7],[0,0], 'k--', lw=1.)
+
+plt.ylabel('Between-Event\n(ln Residual)', fontsize=14)
+
+xticks = [3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0]
+ax.set_xticks(xticks)
+ax.set_xticklabels([str(x) for x in xticks])
+
+plt.xlim([3, 7])
+plt.ylim([-2.5, 2.5])
+
+# = nanstd(plt_event_terms_sd_corrected1)
+
+plt.xlim([3, 7])
+plt.ylim([-2.5, 2.5])
+insettxt = r"M($\Delta$" + '$\mathregular{M_k}$' + ') adjustment\n' \
+            + 'f = 0.75 Hz\n' \
+            + r"$\tau$" + ' = ' + str('%0.2f' % sigma_be[0])
+
+xpos = 3 + 4 * 0.97
+ypos = (5*0.95) - 2.5
+plt.text(xpos, ypos, insettxt, ha='right', va='top', fontsize=12, bbox=props)
+
+xpos = 3 - (7.-3.)*0.04
+ypos = 5*1.03 - 2.5
+plt.text(xpos, ypos, pltlett[0], fontsize=18, va='bottom', ha='right')
+
+
+###########
+
+ax = plt.subplot(2,2,2)
+plt.scatter(plt_event_mags2, plt_event_terms2, c=log10(plt_event_sds2), marker='o', s=30, edgecolor='none', cmap='plasma_r', norm=norm1, alpha=1)
+plt.plot([3, 7],[0,0], 'k--', lw=1.)
+
+#plt.ylabel('Between-Event\n(ln Residual)', fontsize=14)
+
+ax.set_xticks(xticks)
+ax.set_xticklabels([str(x) for x in xticks])
+
+plt.xlim([3, 7])
+plt.ylim([-2.5, 2.5])
+
+insettxt = r"M($\Delta$" + '$\mathregular{M_k}$' + ') adjustment\n' \
+            + 'f = 3.0 Hz\n' \
+            + r"$\tau$" + ' = ' + str('%0.2f' % sigma_be[1])
+
+xpos = 3 + 4 * 0.97
+ypos = (5*0.95) - 2.5
+plt.text(xpos, ypos, insettxt, ha='right', va='top', fontsize=12, bbox=props)
+
+xpos = 3 - (7.-3.)*0.04
+ypos = 5*1.03 - 2.5
+plt.text(xpos, ypos, pltlett[1], fontsize=18, va='bottom', ha='right')
+
+
+####################
+# do SD-inter-event
+# re-read ergodic data to correct
+plt_events1, plt_events2, plt_event_terms1, plt_event_mags1, plt_event_sds1, plt_event_terms2, \
+plt_event_mags2, plt_event_sds2, sigma_be, plt_rhyps1, plt_rhyps2, plt_yres_weterm1, plt_yres_weterm2, plt_mags1, plt_mags2 \
+    = get_inter_event_residuals(resDictRaw)
+
+ax = plt.subplot(2,2,3)
 norm1 = mpl.colors.Normalize(vmin=-1, vmax=1.8)
 plt.scatter(plt_event_mags1, plt_event_terms_cluster_cor1, c=log10(plt_event_sds1), marker='o', s=30, edgecolor='none', cmap='plasma_r', norm=norm1, alpha=1)
 plt.plot([3, 7],[0,0], 'k--', lw=1.)
@@ -706,21 +880,22 @@ ax.set_xticklabels([str(x) for x in xticks])
 plt.xlim([3, 7])
 plt.ylim([-2.5, 2.5])
 sigma = nanstd(plt_event_terms_cluster_cor1)
-insettxt = '$\mathregular{M_{Cluster}}$\n' \
+# r"raw string Mathtext: $\alpha > \beta$"
+insettxt = r"$\Delta\sigma_k$ adjustment" + '\n' \
             + 'f = 0.75 Hz\n' \
             + r"$\tau$" + ' = ' + str('%0.2f' % sigma)
 
 xpos = get_log_xy_locs([3, 7], 0.98)
-ypos = (5*0.94) - 2.5
-plt.text(xpos, ypos, insettxt, ha='right', va='top', fontsize=11, bbox=props)
+ypos = (5*0.95) - 2.5
+plt.text(xpos, ypos, insettxt, ha='right', va='top', fontsize=12, bbox=props)
 
 xpos = 3 - (7.-3.)*0.04
 ypos = 5*1.03 - 2.5
-plt.text(xpos, ypos, pltlett[0], fontsize=18, va='bottom', ha='left')
+plt.text(xpos, ypos, pltlett[2], fontsize=18, va='bottom', ha='left')
 
 ###########
 
-ax = plt.subplot(3,2,6)
+ax = plt.subplot(2,2,4)
 plt.scatter(plt_event_mags2, plt_event_terms_cluster_cor2, c=log10(plt_event_sds2), marker='o', s=30, edgecolor='none', cmap='plasma_r', norm=norm1, alpha=1)
 plt.plot([3, 7],[0,0], 'k--', lw=1.)
 
@@ -733,157 +908,24 @@ ax.set_xticklabels([str(x) for x in xticks])
 plt.xlim([3, 7])
 plt.ylim([-2.5, 2.5])
 sigma = nanstd(plt_event_terms_cluster_cor2)
-insettxt = '$\mathregular{M_{Cluster}}$\n' \
-            + 'f = 2.0 Hz\n' \
+
+a = 'M'
+b = "$\Delta$"
+#fstr = f"M_{{s}{a}}"
+
+insettxt =  r"$\Delta\sigma_k$ adjustment" + '\n' \
+            + 'f = 3.0 Hz\n' \
             + r"$\tau$" + ' = ' + str('%0.2f' % sigma)
 
 xpos = get_log_xy_locs([3, 7], 0.98)
-ypos = (5*0.94) - 2.5
-plt.text(xpos, ypos, insettxt, ha='right', va='top', fontsize=11, bbox=props)
-
-xpos = 3 - (7.-3.)*0.04
-ypos = 5*1.03 - 2.5
-plt.text(xpos, ypos, pltlett[1], fontsize=18, va='bottom', ha='right')
-
-
-# set cbars
-plt.rc('xtick',labelsize=13)
-plt.rc('ytick',labelsize=13)
-cax = fig.add_axes([0.93,0.25,0.02,0.5]) # setup colorbar axes.
-cb = colorbar.ColorbarBase(cax, cmap=plt.cm.plasma_r, orientation='vertical', alpha=1, norm=norm1)
-ticks = [-1. , -0.5,  0. ,  0.5,  1. ,  1.5]
-cb.set_ticks(ticks)
-cb.set_ticklabels([str('%0.1f' % 10**x) for x in ticks])
-cb.set_label('Stress Drop (MPa)', rotation=270, labelpad=20, fontsize=15)
-
-
-plt.savefig('sigma_sensitivity2sd_correction.png', fmt='png', dpi=300, bbox_inches='tight')       
-plt.show()
-    
-###############################################################################
-# test Clustered ML conversions
-###############################################################################
-fig = plt.figure(3, figsize=(14,8))
-plt.rc('xtick',labelsize=14)
-plt.rc('ytick',labelsize=14)
-
-plt_events1, plt_events2, plt_event_terms1, plt_event_mags1, plt_event_sds1, plt_event_terms2, plt_event_mags2, plt_event_sds2, sigma_be \
-    = get_inter_event_residuals(resDictNoCluster)
-
-ax = plt.subplot(2,2,1)
-norm1 = mpl.colors.Normalize(vmin=-1, vmax=1.8)
-plt.scatter(plt_event_mags1, plt_event_terms1, c=log10(plt_event_sds1), marker='o', s=30, edgecolor='none', cmap='plasma_r', norm=norm1, alpha=1)
-plt.plot([3, 7],[0,0], 'k--', lw=1.)
-
-#plt.xlabel('Moment Magnitude', fontsize=14)
-plt.ylabel('Between-Event\n(ln Residual)', fontsize=14)
-
-xticks = [3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0]
-ax.set_xticks(xticks)
-ax.set_xticklabels([str(x) for x in xticks])
-
-plt.xlim([3, 7])
-plt.ylim([-2.5, 2.5])
-insettxt = '$\mathregular{M_{ML-Converted}}$\n' \
-            + 'f = 0.75 Hz\n' \
-            + r"$\tau$" + ' = ' + str('%0.2f' % sigma_be[0])
-
-xpos = get_log_xy_locs([3, 7], 0.98)
-ypos = (5*0.94) - 2.5
-plt.text(xpos, ypos, insettxt, ha='right', va='top', fontsize=11, bbox=props)
-
-xpos = 3 - (7.-3.)*0.04
-ypos = 5*1.03 - 2.5
-plt.text(xpos, ypos, pltlett[0], fontsize=18, va='bottom', ha='right')
-
-###########
-
-ax = plt.subplot(2,2,2)
-plt.scatter(plt_event_mags2, plt_event_terms2, c=log10(plt_event_sds2), marker='o', s=30, edgecolor='none', cmap='plasma_r', norm=norm1, alpha=1)
-plt.plot([3, 7],[0,0], 'k--', lw=1.)
-
-#plt.xlabel('Moment Magnitude', fontsize=14)
-#plt.ylabel('Between-Event\n(ln Residual)', fontsize=14)
-
-xticks = [3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0]
-ax.set_xticks(xticks)
-ax.set_xticklabels([str(x) for x in xticks])
-
-plt.xlim([3, 7])
-plt.ylim([-2.5, 2.5])
-insettxt = '$\mathregular{M_{ML-Converted}}$\n' \
-            + 'f = 2.0 Hz\n' \
-            + r"$\tau$" + ' = ' + str('%0.2f' % sigma_be[1])
-
-xpos = get_log_xy_locs([3, 7], 0.98)
-ypos = (5*0.94) - 2.5
-plt.text(xpos, ypos, insettxt, ha='right', va='top', fontsize=11, bbox=props)
-
-xpos = 3 - (7.-3.)*0.04
-ypos = 5*1.03 - 2.5
-plt.text(xpos, ypos, pltlett[1], fontsize=18, va='bottom', ha='right')
-
-###############################################################################
-# plot  Clustered
-###############################################################################
-
-plt_events1, plt_events2, plt_event_terms1, plt_event_mags1, plt_event_sds1, plt_event_terms2, plt_event_mags2, plt_event_sds2, sigma_be \
-    = get_inter_event_residuals(resDictCluster)
-
-ax = plt.subplot(2,2,3)
-norm1 = mpl.colors.Normalize(vmin=-1, vmax=1.8)
-plt.scatter(plt_event_mags1, plt_event_terms1, c=log10(plt_event_sds1), marker='o', s=30, edgecolor='none', cmap='plasma_r', norm=norm1, alpha=1)
-plt.plot([3, 7],[0,0], 'k--', lw=1.)
-
-plt.xlabel('Moment Magnitude', fontsize=14)
-plt.ylabel('Between-Event\n(ln Residual)', fontsize=14)
-
-xticks = [3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0]
-ax.set_xticks(xticks)
-ax.set_xticklabels([str(x) for x in xticks])
-
-plt.xlim([3, 7])
-plt.ylim([-2.5, 2.5])
-insettxt = '$\mathregular{M_{ML-Cluster}}$\n' \
-            + 'f = 0.75 Hz\n' \
-            + r"$\tau$" + ' = ' + str('%0.2f' % sigma_be[0])
-
-xpos = get_log_xy_locs([3, 7], 0.98)
-ypos = (5*0.94) - 2.5
-plt.text(xpos, ypos, insettxt, ha='right', va='top', fontsize=11, bbox=props)
-
-xpos = 3 - (7.-3.)*0.04
-ypos = 5*1.03 - 2.5
-plt.text(xpos, ypos, pltlett[2], fontsize=18, va='bottom', ha='right')
-
-###########
-
-ax = plt.subplot(2,2,4)
-plt.scatter(plt_event_mags2, plt_event_terms2, c=log10(plt_event_sds2), marker='o', s=30, edgecolor='none', cmap='plasma_r', norm=norm1, alpha=1)
-plt.plot([3, 7],[0,0], 'k--', lw=1.)
-
-plt.xlabel('Moment Magnitude', fontsize=14)
-#plt.ylabel('Between-Event\n(ln Residual)', fontsize=14)
-
-xticks = [3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0]
-ax.set_xticks(xticks)
-ax.set_xticklabels([str(x) for x in xticks])
-
-plt.xlim([3, 7])
-plt.ylim([-2.5, 2.5])
-insettxt = '$\mathregular{M_{ML-Cluster}}$\n' \
-            + 'f = 2.0 Hz\n' \
-            + r"$\tau$" + ' = ' + str('%0.2f' % sigma_be[1])
-
-xpos = get_log_xy_locs([3, 7], 0.98)
-ypos = (5*0.94) - 2.5
-plt.text(xpos, ypos, insettxt, ha='right', va='top', fontsize=11, bbox=props)
+ypos = (5*0.95) - 2.5
+plt.text(xpos, ypos, insettxt, ha='right', va='top', fontsize=12, bbox=props)
 
 xpos = 3 - (7.-3.)*0.04
 ypos = 5*1.03 - 2.5
 plt.text(xpos, ypos, pltlett[3], fontsize=18, va='bottom', ha='right')
 
-###########
+plt.subplots_adjust(hspace=0.3)
 
 # set cbars
 plt.rc('xtick',labelsize=13)
@@ -895,6 +937,6 @@ cb.set_ticks(ticks)
 cb.set_ticklabels([str('%0.1f' % 10**x) for x in ticks])
 cb.set_label('Stress Drop (MPa)', rotation=270, labelpad=20, fontsize=15)
 
-plt.savefig('sigma_sensitivity2ml_conversions.png', fmt='png', dpi=300, bbox_inches='tight')       
+
+plt.savefig('figures/interevent_clustering.png', fmt='png', dpi=300, bbox_inches='tight')       
 plt.show()
-    

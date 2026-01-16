@@ -71,16 +71,17 @@ scaled_data = scaler.fit_transform(data)
 #print(scaled_data)
 
 # scale sd data
-scaled_data[:,0] /= 5.
+scaled_data[:,0] /= 7.
+scaled_data[:,0] /= 2
 
 ################################################################################
 # plot clusters
 n_clusters = 10
-#kmeans = KMeans(n_clusters=9, random_state=1)
-kmeans = KMeans(n_clusters=n_clusters, random_state=1)
+#kmeans = KMeans(n_clusters=9, random_state=1) 10
+kmeans = KMeans(n_clusters=n_clusters, random_state=20)
 kmeans.fit(data)
 kmeans.fit(scaled_data)
-plt.scatter(lons[idx], lats[idx], c=kmeans.labels_, zorder=10)
+plt.scatter(lons[idx], lats[idx], c=kmeans.labels_, s=30, zorder=10)
 
 ################################################################################
 # export polygons
@@ -136,7 +137,7 @@ polys = []
 for voronoi_polygon in voronoi_polygons:
     polys.append(voronoi_polygon.buffer(0).intersection(polygon))
  
-print(aligned_polygon)
+#print(aligned_polygon)
 
 ################################################################################
 # write to shapefile

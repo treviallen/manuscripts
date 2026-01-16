@@ -6,7 +6,7 @@ import matplotlib as mpl
 from mpl_toolkits.basemap import Basemap
 from matplotlib.colors import LightSource, ListedColormap
 from numpy import arange, mean, percentile, array, unique, where, argsort, floor, sqrt, delete, argsort, log10, unique, nanmean, nanstd
-from netCDF4 import Dataset as NetCDFFile
+#from netCDF4 import Dataset as NetCDFFile
 from gmt_tools import cpt2colormap, remove_last_cmap_colour, remove_first_cmap_colour
 from os import path, walk, system
 from shapely.geometry import Polygon, Point
@@ -32,7 +32,8 @@ lat_2 = percentile([llcrnrlat, urcrnrlat], 75)
 
 fig = plt.figure(figsize=(18,10))
 plt.tick_params(labelsize=13)
-ax = fig.add_subplot(111)
+#ax = fig.add_subplot(111)
+ax = plt.subplot(111)
 
 m = Basemap(projection='lcc',lat_1=lat_1,lat_2=lat_2,lon_0=lon_0,\
             llcrnrlon=llcrnrlon,llcrnrlat=llcrnrlat, \
@@ -240,7 +241,7 @@ cptfile = '//Users//trev//Documents//DATA//GMT//cpt//keshet.cpt'
 cmap, zvals = cpt2colormap(cptfile, ncols+1, rev=True)
 cmap = remove_first_cmap_colour(cmap)
 
-cs = (cmap(arange(ncols)))
+cols = (cmap(arange(ncols)))
 '''
 cmap = plt.get_cmap('viridis_r', len(logstressbins))
 cs = (cmap(arange(len(logstressbins))))
@@ -280,27 +281,49 @@ qual = array(qual)
 unique_clusters = unique(cluster)
 
 # map clusters
-cols = get_mpl2_colourlist()
+#cols = get_mpl2_colourlist()
+clust_stats = 'Cluster,Region,log10 SD +- STD,N\n'
+
+# get national average
+meanlogstress = nanmean(logstress)
+stdlogstress = nanstd(logstress)
+clust_stats += '0,National,' + str('%0.2f' % meanlogstress) + ' +- ' \
+                   + str('%0.2f' % stdlogstress) + ',' + str(len(logstress)) + '\n'
+
+
+syms = ['o', 's', 'd', 'H', '^', 'p', 'o', 's', 'd', 'H', '^', 'p']
 for i, uc in enumerate(unique_clusters):
     idx = where((cluster == uc) & (qual == 1))[0]
     x, y = m(lons[idx], lats[idx])
-    m.plot(x, y, 'o', ms=8, c=cols[i], label='Cluster '+str(i+1))
+    
+    if i == 1 or i == 7:
+        ms = 8
+    else:
+        ms = 9
+    m.plot(x, y, ls='none', marker=syms[i], ms=ms, c=cols[i], label='Cluster '+str(i+1))
     
     meanlogstress = nanmean(logstress[idx])
     stdlogstress = nanstd(logstress[idx])
     print(uc+1, meanlogstress, stdlogstress, len(logstress[idx]))
+    
+    clust_stats += str(uc+1) + ',,' + str('%0.3f' % meanlogstress) + ' +- ' \
+                   + str('%0.3f' % stdlogstress) + ',' + str(len(logstress[idx])) + '\n'
 
-plt.legend(loc=3, numpoints=1, fontsize=12	)
+plt.legend(loc=3, numpoints=1, fontsize=14, ncol=2)
 
 #########################################################################################
 # finish
-
+'''
 https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.Voronoi.html
 https://www.geeksforgeeks.org/machine-learning/plotting-boundaries-of-cluster-zone-with-scikit-learn/
-	
+'''
 	
 ##########################################################################################
 
-plt.savefig('mapped_event_clusters.png',fmt='png',dpi=300,bbox_inches='tight')
+f = open('cluster_stats.csv','w')
+f.write(clust_stats)
+f.close()
+
+plt.savefig('figures/mapped_event_clusters.png',format='png',dpi=300,bbox_inches='tight')
 #plt.savefig('figures/fig_1.eps',fmt='pdf',dpi=300,bbox_inches='tight')
 plt.show()

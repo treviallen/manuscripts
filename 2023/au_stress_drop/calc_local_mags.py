@@ -51,7 +51,7 @@ def parse_filtering_data():
     
     mwdat = []
     # read parameter file
-    lines = open('../../2025/source_params_hazard_sensitivity/brune_stats.csv').readlines()[1:]
+    lines = open('../../2026/source_params_hazard_sensitivity/brune_stats.csv').readlines()[1:]
     for line in lines:
         dat = line.split(',')
         filt = {'ev':dat[0], 'minf': float(dat[-3]), 'maxf': float(dat[-2]), 'qual':float(dat[-1]), 'dep':float(dat[4]),
@@ -289,7 +289,7 @@ deps_array = array(deps_array)
 # plot
 min_dep = -99.
 
-fig = plt.figure(1, figsize=(10.5,9))
+fig = plt.figure(1, figsize=(7.5,6))
 
 plt.plot([2,7], [2,7], 'k--', lw=0.5, label='1:1')
 #plt.plot(ml_array, mw_array, 'o', c='darkorange', label='Data')
@@ -300,10 +300,14 @@ s0, s1, s2 = loadtxt('mw-ml_coeffs_2800.csv', delimiter=',', skiprows=1)
 yplt_nsha23 = s0 * xplt**2 + s1 * xplt + s2
 
 cm = plt.cm.get_cmap('RdBu_r')
-pc84 = percentile(sd_std_array, 84)
+
+sd_std_array = array(sd_std_array)
+idx = where(isnan(sd_std_array) == False)[0]
+pc84 = percentile(sd_std_array[idx], 84)
 
 idx = where((deps_array > min_dep) & (sd_std_array <= pc84))[0]
-sc = plt.scatter(ml_array[idx], mw_array[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
+sc = plt.scatter(ml_array[idx], mw_array[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=28, \
+                 edgecolor='0.5', linewidths=0.25, cmap=cm, label='Data')
 
 # fit new data
 def ortho_quad_reg(c, x):
@@ -337,11 +341,11 @@ plt.plot(xplt, yplt, '--', lw=2, c='k', label='Present Study')
 
 plt.xlim([2.5,7])
 plt.ylim([2.5,7])
-plt.xlabel('$\mathregular{M_{L(2800)}}$', fontsize=18)
-plt.ylabel('$\mathregular{M_{Brune}}$', fontsize=18)
-plt.xticks(fontsize=14)
-plt.yticks(fontsize=14)
-plt.legend(loc=2, fontsize=14)
+plt.xlabel('$\mathregular{M_{L(2800)}}$', fontsize=15)
+plt.ylabel('$\mathregular{M_{Brune}}$', fontsize=15)
+plt.xticks(fontsize=12)
+plt.yticks(fontsize=12)
+plt.legend(loc=2, fontsize=12)
 plt.grid(which='both')
 
 # make colourbar
@@ -359,7 +363,7 @@ labels[4] = str('%0.2f' % 10**logticks[4])
 cb.set_ticks(logticks)
 cb.set_ticklabels(labels)
 
-cb.set_label('Brune Stress Drop (MPa)', rotation=270, fontsize=18, labelpad=22) # 
+cb.set_label('Brune Stress Drop (MPa)', rotation=270, fontsize=15, labelpad=20) # 
 
 
 """                        
@@ -390,7 +394,7 @@ f.close()
 # now show figs 
 plt.savefig('ml_vs_mw_brune.png', fmt='png', dpi=300, bbox_inches='tight')       
 plt.show()    
-
+#crash
 ##########################################################################################
 # plot regional
 
@@ -417,7 +421,7 @@ plt.subplot(311)
 plt.plot([2,7], [2,7], 'k--', lw=0.5, label='1:1')
 plt.plot(xplt, yplt, '-', lw=2, c='k', label='2023 Simulated (W-A 2800)')
 idx = where((mzone_array == 'EA') & (deps_array > min_dep))[0]
-sc = plt.scatter(ml_array[idx], mw_array[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
+sc = plt.scatter(ml_array[idx], mw_array[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'Eastern Australia', va='top', ha ='left', fontsize=12, bbox=props)
 plt.xlabel('$\mathregular{M_{L(MLM92)}}$', fontsize=18)
 #plt.ylabel('Brune $\mathregular{M_W}$', fontsize=18)
@@ -428,10 +432,10 @@ plt.text(2.0,7.4, '(a)', va='top', ha ='left', fontsize=18)
 
 #plt WCA
 plt.subplot(312)
-plt.plot([2,7], [2,7], 'k--', lw=0.5, label='1:1')
+plt.plot([2,7], [2	,7], 'k--', lw=0.5, label='1:1')
 plt.plot(xplt, yplt, '-', lw=2, c='k', label='2023 Simulated (W-A 2800)')
 idx = where((mzone_array == 'WCA') & (deps_array > min_dep))[0]
-sc = plt.scatter(ml_array[idx], mw_array[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
+sc = plt.scatter(ml_array[idx], mw_array[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'Western and Central Australia', va='top', ha ='left', fontsize=12, bbox=props)
 plt.xlabel('$\mathregular{M_{L(GG91)}}$', fontsize=18)
 plt.ylabel('$\mathregular{M_{Brune}}$', fontsize=18)
@@ -445,7 +449,7 @@ plt.subplot(313)
 plt.plot([2,7], [2,7], 'k--', lw=0.5, label='1:1')
 plt.plot(xplt, yplt, '-', lw=2, c='k', label='2023 Simulated (W-A 2800)')
 idx = where((mzone_array == 'SA') & (deps_array > min_dep))[0]
-sc = plt.scatter(ml_array[idx], mw_array[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
+sc = plt.scatter(ml_array[idx], mw_array[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'South Australia', va='top', ha ='left', fontsize=12, bbox=props)
 plt.xlabel('$\mathregular{M_{L(GS86)}}$', fontsize=18)
 #plt.ylabel('Brune $\mathregular{M_W}$', fontsize=18)
@@ -460,7 +464,7 @@ plt.text(2.0,7.4, '(c)', va='top', ha ='left', fontsize=18)
 #ticks = arange(0,len(logstressbins))
 plt.gcf().subplots_adjust(right=0.85)
 cax = fig.add_axes([0.88,0.3,0.05,0.4]) # setup colorbar axes.
-norm = colors.Normalize(vmin=-0.7, vmax=1.7)
+norm = colors.Normalize(vmin=-0.9, vmax=1.7)
 cb = colorbar.ColorbarBase(cax, cmap=cm, norm=norm, orientation='vertical')
 
 logticks = cb.get_ticks()[0:]
@@ -495,8 +499,8 @@ fig = plt.figure(3, figsize=(14, 8.))
 plt.subplot(221)
 plt.plot([2,7], [0,0], 'k--', lw=0.5)
 idx = where(deps_array > min_dep)[0]
-sc = plt.scatter(mw_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
-#sc = plt.scatter(ml_array, mw_res, c=log10(sd_array), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
+sc = plt.scatter(mw_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, label='Data')
+#sc = plt.scatter(ml_array, mw_res, c=log10(sd_array), vmin=-0.9, vmax=1.7, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'All Data', va='top', ha ='left', fontsize=12, bbox=props)
 plt.grid(which='both')
 plt.ylabel('$\mathregular{M_{Brune}}$ - $\mathregular{M_{W(Conv)}}$', fontsize=16)
@@ -518,8 +522,8 @@ plt.text(xloc2, yloc2, stat_txt, va='bottom', ha ='right', fontsize=12, bbox=pro
 plt.subplot(222)
 plt.plot([2,7], [0,0], 'k--', lw=0.5)
 idx = where((mzone_array == 'EA') & (deps_array > min_dep))[0]
-sc = plt.scatter(mw_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
-#sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
+sc = plt.scatter(mw_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, label='Data')
+#sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'Eastern Australia', va='top', ha ='left', fontsize=12, bbox=props)
 #plt.xlabel('$\mathregular{M_{L(MLM92)}}$', fontsize=18)
 #plt.ylabel('Brune $\mathregular{M_W}$', fontsize=18)
@@ -542,8 +546,8 @@ plt.text(2.3,0.98, '(b)', va='top', ha ='left', fontsize=16)
 plt.subplot(223)
 plt.plot([2,7], [0,0], 'k--', lw=0.5)
 idx = where((mzone_array == 'WCA') & (deps_array > min_dep))[0]
-sc = plt.scatter(mw_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
-#sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
+sc = plt.scatter(mw_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, label='Data')
+#sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'Western and Central Australia', va='top', ha ='left', fontsize=12, bbox=props)
 
 # get mean & std
@@ -566,7 +570,7 @@ plt.text(2.3,0.98, '(c)', va='top', ha ='left', fontsize=16)
 plt.subplot(224)
 plt.plot([2,7], [0,0], 'k--', lw=0.5)
 idx = where((mzone_array == 'SA') & (deps_array > min_dep))[0]
-sc = plt.scatter(mw_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
+sc = plt.scatter(mw_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'South Australia', va='top', ha ='left', fontsize=12, bbox=props)
 
 # get mean & std
@@ -589,7 +593,7 @@ plt.text(2.3,0.98, '(d)', va='top', ha ='left', fontsize=16)
 # make colourbar
 plt.gcf().subplots_adjust(right=0.85)
 cax = fig.add_axes([0.87,0.2,0.02,0.6]) # setup colorbar axes.
-norm = colors.Normalize(vmin=-0.7, vmax=1.7)
+#norm = colors.Normalize(vmin=-0.9, vmax=1.7)
 cb = colorbar.ColorbarBase(cax, cmap=cm, norm=norm, orientation='vertical')
 
 logticks = cb.get_ticks()[0:]
@@ -615,7 +619,7 @@ mw_pred = c0 * ml_array**2 + c1 * ml_array + c2 # NSHA23
 mw_res = mw_array - mw_pred
 xloc = 2.87
 yloc = 0.736        
-xloc2 = 6.63
+xloc2 = 2.75 + (7 - 2.75) * 0.98
 yloc2 = -0.736
 
 fig = plt.figure(10, figsize=(14, 8.))
@@ -623,8 +627,8 @@ fig = plt.figure(10, figsize=(14, 8.))
 #plt all data
 plt.subplot(221)
 plt.plot([2,7], [0,0], 'k--', lw=0.5)
-sc = plt.scatter(ml_array, mw_res, c=log10(sd_array), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
-#sc = plt.scatter(ml_array, mw_res, c=log10(sd_array), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
+sc = plt.scatter(ml_array, mw_res, c=log10(sd_array), vmin=-0.9, vmax=1.7, s=36, cmap=cm, label='Data')
+#sc = plt.scatter(ml_array, mw_res, c=log10(sd_array), vmin=-0.9, vmax=1.7, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'All Data', va='top', ha ='left', fontsize=12, bbox=props)
 plt.grid(which='both')
 plt.ylabel('$\mathregular{M_{Brune}}$ - $\mathregular{M_{W(Conv)}}$', fontsize=16)
@@ -646,8 +650,8 @@ plt.text(xloc2, yloc2, stat_txt, va='bottom', ha ='right', fontsize=12, bbox=pro
 plt.subplot(222)
 plt.plot([2,7], [0,0], 'k--', lw=0.5)
 idx = where(mzone_array == 'EA')[0]
-sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
-#sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
+sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, label='Data')
+#sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'Eastern Australia', va='top', ha ='left', fontsize=12, bbox=props)
 #plt.xlabel('$\mathregular{M_{L(MLM92)}}$', fontsize=18)
 #plt.ylabel('Brune $\mathregular{M_W}$', fontsize=18)
@@ -670,8 +674,8 @@ plt.text(2.3,0.98, '(b)', va='top', ha ='left', fontsize=16)
 plt.subplot(223)
 plt.plot([2,7], [0,0], 'k--', lw=0.5)
 idx = where(mzone_array == 'WCA')[0]
-sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
-#sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
+sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, label='Data')
+#sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'Western and Central Australia', va='top', ha ='left', fontsize=12, bbox=props)
 
 # get mean & std
@@ -683,7 +687,7 @@ stat_txt = r'$\mu$ = '+str('%0.2f' % mean_res) + '\n' \
            + r'$\tau$ = '+str('%0.2f' % std_res)
 plt.text(xloc2, yloc2, stat_txt, va='bottom', ha ='right', fontsize=12, bbox=props)
 
-plt.xlabel('$\mathregular{M_{L}}$', fontsize=16)
+plt.xlabel('$\mathregular{M_{L(2800)}}$', fontsize=16)
 plt.ylabel('$\mathregular{M_{Brune}}$ - $\mathregular{M_{W(Conv)}}$', fontsize=16)
 plt.grid(which='both')
 plt.xlim([2.75,7])
@@ -694,7 +698,7 @@ plt.text(2.3,0.98, '(c)', va='top', ha ='left', fontsize=16)
 plt.subplot(224)
 plt.plot([2,7], [0,0], 'k--', lw=0.5)
 idx = where(mzone_array == 'SA')[0]
-sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.7, vmax=1.7, s=36, cmap=cm, label='Data')
+sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'South Australia', va='top', ha ='left', fontsize=12, bbox=props)
 
 # get mean & std
@@ -706,7 +710,7 @@ stat_txt = r'$\mu$ = '+str('%0.2f' % mean_res) + '\n' \
            + r'$\tau$ = '+str('%0.2f' % std_res)
 plt.text(xloc2, yloc2, stat_txt, va='bottom', ha ='right', fontsize=12, bbox=props)
 
-plt.xlabel('$\mathregular{M_{L}}$', fontsize=16)
+plt.xlabel('$\mathregular{M_{L(2800)}}$', fontsize=16)
 #plt.ylabel('$\mathregular{M_{Brune}}$', fontsize=16)#plt.ylabel('Brune $\mathregular{M_W}$', fontsize=18)
 plt.grid(which='both')
 plt.xlim([2.75,7])
@@ -717,7 +721,7 @@ plt.text(2.3,0.98, '(d)', va='top', ha ='left', fontsize=16)
 # make colourbar
 plt.gcf().subplots_adjust(right=0.85)
 cax = fig.add_axes([0.87,0.2,0.02,0.6]) # setup colorbar axes.
-norm = colors.Normalize(vmin=-0.7, vmax=1.7)
+#norm = colors.Normalize(vmin=-0.9, vmax=1.7)
 cb = colorbar.ColorbarBase(cax, cmap=cm, norm=norm, orientation='vertical')
 
 logticks = cb.get_ticks()[0:]

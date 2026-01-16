@@ -262,6 +262,7 @@ mseedfiles = listdir_extension('iris_dump', 'mseed')
 #mseedfiles = listdir_extension('mseed_test', 'mseed')
 
 m = 1
+#mseedfiles = ['2024-08-06T17.46.VW.TYHS.mseed']
 for mseedfile in mseedfiles:
     
 ###############################################################################
@@ -272,7 +273,7 @@ for mseedfile in mseedfiles:
     
     # check if pick file exists
     if not path.isfile(pick_path):
-        
+        print('pick_path')
         # fix stream channels
         #fix_stream_channels(path.join('iris_dump', mseedfile))
     
@@ -437,4 +438,7 @@ for mseedfile in mseedfiles:
            #remove(path.join('mseed_dump', mseedfile))
            
         m += 1
-        
+    '''
+    else:
+        print('Pick path found:' + pick_path)
+    '''

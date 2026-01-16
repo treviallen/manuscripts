@@ -61,7 +61,7 @@ def parse_filtering_data():
     filtdat = []
     # read parameter file
     #lines = open('brune_stats.csv').readlines()[1:]
-    lines = open('../../2025/source_params_hazard_sensitivity/brune_stats.csv').readlines()[1:]
+    lines = open('../../2026/source_params_hazard_sensitivity/brune_stats.csv').readlines()[1:]
     for line in lines:
         dat = line.split(',')
         filt = {'ev':UTCDateTime(dat[0]), 'minf': float(dat[15]), 'maxf': float(dat[16]), 'qual':float(dat[17])}
@@ -70,13 +70,13 @@ def parse_filtering_data():
     
     return filtdat
     
-def correct_atten(rec, coeffs, kapdat):
+def correct_atten(rec, coeffs, kapdat, sn_thresh=4.):
     channel = rec['channels'][0]
     raw_fds = rec[channel]['swave_spec']#[:-8]
     sn_ratio = rec[channel]['sn_ratio']#[:-8]
     freqs = rec[channel]['freqs']#[:-8]
     
-    sn_thresh = 4. # used 4 in model regression
+    #sn_thresh = 4. # used 4 in model regression
     
     # loop thru freqs
     distterms = []
@@ -108,6 +108,7 @@ def correct_atten(rec, coeffs, kapdat):
     
     # get data exceeding SN ratio
     idx = where(sn_ratio < sn_thresh)[0]
+    idx = where(sn_ratio < 1)[0]
     cor_fds_nan = cor_fds.copy()
     cor_fds_nan[idx] = nan
     
@@ -442,7 +443,8 @@ events_dict = []
 sp = 0
 ii = 1	
 for e, event in enumerate(events): #[::-1]): #[-2:-1]:
-    
+  
+    print(event)
     # get upper & lower f for filtering
     minf = 0.05
     maxf = 12
@@ -506,8 +508,11 @@ for e, event in enumerate(events): #[::-1]): #[-2:-1]:
                                 skip_sta = True
                             #print(skip_sta, rec['rhyp'], rec['mag'], mag_dist)
                             if skip_sta == False:
-                            
-                                cor_fds, cor_fds_nan, freqs = correct_atten(rec, coeffs, kapdat)
+                                if UTCDateTime(event) > UTCDateTime(2019,7,14,6,0) \
+                                  and UTCDateTime(event) < UTCDateTime(2019,7,14,7,0):
+                                    cor_fds, cor_fds_nan, freqs = correct_atten(rec, coeffs, kapdat, sn_thresh=1)
+                                else:
+                                    cor_fds, cor_fds_nan, freqs = correct_atten(rec, coeffs, kapdat, sn_thresh=4)
                                 
                                 # get max/min
                                 if ceil(max(log10(cor_fds[30:120]))) > ceil_log_fds:
@@ -926,7 +931,7 @@ if ignorePoorQual == False:
                          str(ev['brune_f0']),str(ev['brune_f0_std']),str(ev['nrecs']), str(ev['minf']),str(ev['maxf']),str(ev['qual']))) + '\n'
     
     # write to file
-    f = open('../../2025/source_params_hazard_sensitivity/brune_stats.csv', 'w')
+    f = open('../../2026/source_params_hazard_sensitivity/brune_stats.csv', 'w')
     f.write(txt)
     f.close()
     

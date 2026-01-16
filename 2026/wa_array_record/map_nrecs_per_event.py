@@ -10,7 +10,7 @@ from mag_tools import m02mw
 from mapping_tools import distance, drawshapepoly
 from scipy.odr import Data, Model, ODR, models
 import scipy.odr.odrpack as odrpack
-from ltsfit import lts_linefit
+#from ltsfit import lts_linefit
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 from matplotlib import colors, colorbar
@@ -43,7 +43,7 @@ def parse_filtering_data():
     filtdat = []
     # read parameter file
     #lines = open('brune_stats.csv').readlines()[1:]
-    lines = open('../../2025/source_params_hazard_sensitivity/brune_stats.csv').readlines()[1:]
+    lines = open('../../2026/source_params_hazard_sensitivity/brune_stats.csv').readlines()[1:]
     for line in lines:
         dat = line.split(',')
         filt = {'ev':UTCDateTime(dat[0]), 'mw':float(dat[8]), 'minf': float(dat[15]), \

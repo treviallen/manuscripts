@@ -1,7 +1,7 @@
 #import matplotlib as mpl
 #mpl.style.use('classic')
 import matplotlib.pyplot as plt
-from numpy import array, arange, nan, zeros_like, where, nanmean, nanstd, loadtxt
+from numpy import array, arange, nan, zeros_like, where, nanmean, nanstd, loadtxt, unique
 plt.rcParams['pdf.fonttype'] = 42
 import warnings
 warnings.filterwarnings("ignore")
@@ -38,6 +38,7 @@ stressdrops = array(stressdrops)
 qual = array(qual)
 mw = array(mw)
 cluster = array(cluster)
+n = len(unique(cluster))
 
 ################################################################################
 # load ml data
@@ -79,7 +80,6 @@ yplt_nsha23 = s0 * xplt**2 + s1 * xplt + s2
 
 ################################################################################
 # loop thru clusters and get average residual
-n = 8
 cluster_txt = 'CLUSTER,MEAN,STD\n'
 
 # get mean for all events
@@ -110,7 +110,7 @@ for i in range(0,n):
     mw_res_std = nanstd(mw_res)
     print(i, mw_res_mean, mw_res_std)
     
-    cluster_txt += ','.join((str(i), str(mw_res_mean), str(mw_res_std))) + '\n'
+    cluster_txt += ','.join((str(i+1), str('%0.2f' % mw_res_mean), str(mw_res_std))) + '\n'
     
 f = open('ml_mw_bias_cluster.csv', 'w')
 f.write(cluster_txt)

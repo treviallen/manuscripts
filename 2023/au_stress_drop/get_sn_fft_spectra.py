@@ -299,8 +299,10 @@ def response_corrected_fft(tr, pickDat):
             tr.remove_response(inventory=dm8_parser)
         elif tr.stats.network == 'AM':
             tr.remove_response(inventory=dam_parser)
-        elif tr.stats.network == 'WG':
-            tr.remove_response(inventory=dwg_parser)
+        elif tr.stats.network == 'WG' and tr.stats.starttime <= UTCDateTime(2024,2,1):
+            tr.remove_response(inventory=dwg1_parser)
+        elif tr.stats.network == 'WG' and tr.stats.starttime > UTCDateTime(2024,2,1) and tr.stats.starttime <= UTCDateTime(2025,2,28):
+            tr.remove_response(inventory=dwg2_parser)
         elif tr.stats.network == '5C':
             tr.remove_response(inventory=d5c_parser)
         elif tr.stats.network == '4N':
@@ -436,7 +438,7 @@ def get_domain(lon, lat):
     
 ################################################################################
 
-lines = open('../../2025/source_params_hazard_sensitivity/brune_stats.csv').readlines()[1:]
+lines = open('../../2026/source_params_hazard_sensitivity/brune_stats.csv').readlines()[1:]
 brunedat = []
 for line in lines:
     dat = line.strip().split(',')
@@ -520,7 +522,8 @@ else:
     d3o_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/3o-inventory.xml')
     dam_parser = read_inventory('/Users/trev/Documents/Networks/AM/R7AF5.xml')
     d4n_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/4n-inventory.xml')
-    dwg_parser = read_inventory('/Users/trev/Documents/Networks/GSWA/wg-inventory.xml')
+    dwg1_parser = read_inventory('/Users/trev/Documents/Networks/GSWA/wg1-inventory.xml')
+    dwg2_parser = read_inventory('/Users/trev/Documents/Networks/GSWA/wg2-inventory.xml')
     d5c_parser = read_inventory('/Users/trev/Documents/Networks/GSWA/5c-inventory.xml')
     dii_parser = read_inventory('/Users/trev/Documents/Networks/II/ii-inventory.xml')
     d1q_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/1q-inventory.xml')
@@ -547,7 +550,6 @@ for pf in pickfiles:
 max_pkl_time = UTCDateTime(1900,1,1)    
 recs = pickle.load(open('fft_data.pkl', 'rb' ))
 
-
 # get max time
 for i, rec in enumerate(recs):
     if rec['evdt'] > max_pkl_time:
@@ -561,21 +563,27 @@ else:
     append_pkl = False
     records = []
 
-append_pkl = True 
-#records = [] 
 '''
 # get stas to ignore
 ignore_stas = open('sta_ignore.txt').readlines()
 ignore_stas = set([x.strip() for x in ignore_stas])
 '''  
-newmseed = set(['1996-06-21T14.57.AU.CAA.mseed','1996-06-21T14.57.AU.GOO.mseed','1996-06-21T14.57.AU.TRI.mseed'])
+'''
+append_pkl = True
+records = recs
+'''
+from misc_tools import listdir_file_segment
+filelist = listdir_file_segment('iris_dump','2024-08-06T17.46.VW.')
+newmseed = set(filelist)
+print(newmseed)
+#newmseed = set(['1996-06-21T14.57.AU.CAA.mseed','1996-06-21T14.57.AU.GOO.mseed','1996-06-21T14.57.AU.TRI.mseed'])
 ################################################################################
 # loop through pick files
 ################################################################################
 
 f = 0
 start_idx = 0
-#pickfiles = ['2023-01-05T05.08.AU.ONGER.picks']
+#pickfiles = ['2022-02-01T10.39.2P.SWN25.picks']
 for p, pf in enumerate(pickfiles[start_idx:]):
     skipRec = False
     tr = nan
@@ -583,16 +591,19 @@ for p, pf in enumerate(pickfiles[start_idx:]):
     
     pickDat = parse_pickfile(pf)
     
-    # if appending
+    # if appending 
     if not isnan(pickDat['mag']):
         if append_pkl == True and pickDat['origintime'] <= max_pkl_time:
             skipRec = True
-
-        # if new record in set not prev used 
-        if append_pkl == True and pickDat['mseed_path'] in newmseed:
+        
+        '''
+         if new record in set not prev used 
+        if append_pkl == True and path.split(pickDat['mseed_path'])[-1] in newmseed:
             skipRec = False
-    
+        '''
     if isnan(pickDat['mag']) == False:
+        #if pf.find('20031211')>=0:
+        #print(pf)
         #if pickDat['starttime'].year == 2024 and pickDat['starttime'].month == 10: # or pickDat['starttime'].year == 2001: # and pf == '1997-03-05T06.15.00.AD.WHY.picks':
         #print(pf)
         channels = []
@@ -611,24 +622,28 @@ for p, pf in enumerate(pickfiles[start_idx:]):
             #mseedfile = path.join('iris_dump', path.split(pickDat['mseed_path'])[-1])
             mseedfile = pickDat['mseed_path']
             st = read(mseedfile)
-            
-            
-                
+            #print('Progress -2', skipRec)
         except:
             try:
                 mseedfile = path.split(pickDat['mseed_path'])[-1]
                 st = read(path.join('iris_dump', mseedfile))
-                
+                #print('Progress -1')
                 if mseedfile.find('.MEL.') >= 0 and st[0].stats.network == 'UM':
                     fix_stream_network(path.join('iris_dump', mseedfile), 'VW')
                     # reparse
                     st = read(path.join('iris_dump', mseedfile))
+                    
+                elif st[0].stats.network == 'UM':
+                    fix_stream_network(path.join('iris_dump', mseedfile), 'VW')
+                    # reparse
+                    st = read(path.join('iris_dump', mseedfile))
+                    
             except:
                 print('Skipping: '+pickDat['mseed_path'])
                 skipRec = True
-        
+        #print('Progress 0', skipRec)
         if skipRec == False:
-            
+            #print('Progress 1')
             # fix DU network if in filename
             if mseedfile.find('.DU.') >= 0:
                 fix_stream_network(path.join('iris_dump', mseedfile), 'DU')
@@ -698,7 +713,7 @@ for p, pf in enumerate(pickfiles[start_idx:]):
             #eidx = int(round(0.95*st_filt[-1].stats.npts))
             
             #st_filt.filter('bandpass', freqmin=0.5, freqmax=10, corners=2, zerophase=True)
-                    
+            #print('Progress 2')        
             print('\n'+str(p)+' Reading mseed file:', path.split(pickDat['mseed_path'])[-1])
                 
             #####################################################################
@@ -902,6 +917,7 @@ for p, pf in enumerate(pickfiles[start_idx:]):
             #####################################################################
             # populate record dictionary
             #####################################################################
+            #print('Progress 4')
             recDat['channels'] = chandict
             #recDat['sta'] = tr.stats.station.encode('ascii','ignore')
             recDat['sta'] = tr.stats.station
