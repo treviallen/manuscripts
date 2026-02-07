@@ -2,7 +2,8 @@
 
 #wadat = pickle.load(open('wa_recs.pkl','rb'))
 #bkndat = pickle.load(open('wa_eqSource.pkl','rb'))
-
+import matplotlib as mpl
+mpl.use('Qt5Agg')
 from obspy import read, Trace, Stream, UTCDateTime
 from obspy.taup import TauPyModel
 from readwaves import return_data, readeqwave, readbkn
@@ -16,7 +17,7 @@ from os import path, getcwd, remove
 from numpy import asarray, ceil, log10, array
 import matplotlib.pyplot as plt
 plt.ion()
-import matplotlib as mpl
+#import matplotlib as mpl
 mpl.style.use('classic')
 
 
@@ -187,6 +188,8 @@ def plt_trace(tr, plt, ax, reftime):
     else:
         #plt.xlim([pTravelTime-60, pTravelTime+1500])
         x1, x2 = [pTravelTime-60, pTravelTime+1500]
+    
+    x1 -= 0
         
     if tr.stats.station == 'PIG4' or tr.stats.station == 'CVQOZ':
         #plt.xlim([pTravelTime-120, pTravelTime+180])
@@ -238,6 +241,7 @@ model = TauPyModel(model="iasp91")
 ##############################################################################
 #gadat = parse_ga_event_query('earthquakes_export_2012-16_250.edit.csv')
 evdict = parse_ga_event_query('au_ge_4.4_earthquakes_export_edit.csv')
+#evdict = parse_ga_event_query('earthquakes_export_tamworth.csv')
 
 ##############################################################################
 # read ga sta list

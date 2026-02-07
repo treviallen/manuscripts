@@ -92,8 +92,18 @@ coeffs = pickle.load(open(coeff_pkl, 'rb' ))
  
 s0, s1, s2 = loadtxt('../../2023/au_stress_drop/mw-ml_coeffs_2800.csv', delimiter=',', skiprows=1)   
 
+lines = open('ml_mw_bias_cluster.csv').readlines()
+cmean = []
+for line in lines[1:]:
+    dat = line.strip().split(' +- ')[0].split(',')
+    cmean.append(float(dat[1]))
+    
+print(cmean)
+
+'''
 cdata = loadtxt('ml_mw_bias_cluster.csv', delimiter=',', skiprows=1) 
 cmean = cdata[:,1]
+'''
 
 def get_ml2mw_cluster(ml, cluster=0):
     #print(ml)
@@ -356,13 +366,14 @@ def get_inter_event_residuals(resDict):
 ###############################################################################
 # get stress drop correction
 ###############################################################################
-fig = plt.figure(1, figsize=(14,4))
+plt.clf()
+fig = plt.figure(figsize=(14,4))
 plt.rc('xtick',labelsize=12)
 plt.rc('ytick',labelsize=12)
 #plt.tight_layout() 
 props = dict(boxstyle='round', facecolor='w', alpha=1)
 
-pltlett = ['a)', 'b)', 'c)', 'd)', 'e)', 'f)']
+pltlett = ['(a)', '(b)', '(c)', '(d)', '(e)', '(f)']
 
 plt_events1, plt_events2, plt_event_terms1, plt_event_mags1, plt_event_sds1, plt_event_terms2, \
 plt_event_mags2, plt_event_sds2, sigma_be, plt_rhyps1, plt_rhyps2, plt_yres_weterm1, plt_yres_weterm2, plt_mags1, plt_mags2 \
@@ -393,6 +404,11 @@ xpos = get_log_xy_locs([0.05, 100], 0.04)
 ypos = (4*0.94) - 2
 plt.text(xpos, ypos, insettxt, ha='left', va='top', fontsize=14, bbox=props)
 
+# add letter
+xpos = 0.05
+ypos = 4*1.03 - 2
+plt.text(xpos, ypos, pltlett[0], fontsize=18, va='bottom', ha='left')
+
 # correct event terms for SD
 plt_event_terms_sd_corrected1 = plt_event_terms1 - (sdreg[0] * log10(plt_event_sds1) + sdreg[1])
 
@@ -418,6 +434,12 @@ insettxt = '$\mathregular{r^2}$' + ' = '+  str('%0.2f' % sdreg[2])
 xpos = get_log_xy_locs([0.05, 100], 0.04)
 ypos = (4*0.94) - 2
 plt.text(xpos, ypos, insettxt, ha='left', va='top', fontsize=14, bbox=props)
+
+# add letter
+xpos = 0.05
+ypos = 4*1.03 - 2
+plt.text(xpos, ypos, pltlett[1], fontsize=18, va='bottom', ha='left')
+
 
 # set cbars
 cax = fig.add_axes([0.91,0.15,0.02,0.7]) # setup colorbar axes.
@@ -490,13 +512,12 @@ for i, cluster in enumerate(uclusters):
 ###############################################################################
 # plot ergodic inter-event residuals
 ###############################################################################
-fig = plt.figure(2, figsize=(14,8))
+plt.clf()
+fig = plt.figure(figsize=(14,8))
 plt.rc('xtick',labelsize=14)
 plt.rc('ytick',labelsize=14)
 #plt.tight_layout() 
 props = dict(boxstyle='round', facecolor='w', alpha=1)
-
-pltlett = ['a)', 'b)', 'c)', 'd)', 'e)', 'f)']
 
 ax = plt.subplot(2,2,1)
 norm1 = mpl.colors.Normalize(vmin=-1, vmax=1.8)

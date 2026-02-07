@@ -60,7 +60,7 @@ def parse_filtering_data():
     
     filtdat = []
     # read parameter file
-    #lines = open('brune_stats.csv').readlines()[1:]
+    #lines = open('brune_statfs.csv').readlines()[1:]
     lines = open('../../2026/source_params_hazard_sensitivity/brune_stats.csv').readlines()[1:]
     for line in lines:
         dat = line.split(',')
@@ -205,7 +205,7 @@ def fit_brune_model_fixed_omega_petermann(c, f):
     f    = frequency
     '''
     
-    fixed_omega = 0.69 # from dist corrected stacked spectra
+    fixed_omega = 0.53 # from dist corrected stacked spectra
     
     # set constants
     vs = 3.6 # km/s
@@ -243,7 +243,7 @@ def fit_brune_model_fixed_omega_murrayville(c, f):
 def fit_brune_model_fixed_omega_carnarvon(c, f):
     from numpy import array, log
     
-    fixed_omega = 0.6 # from dist corrected stacked spectra
+    fixed_omega = 0.45 # from dist corrected stacked spectra
     
     # set constants
     vs = 3.6 # km/s
@@ -281,7 +281,7 @@ def fit_brune_model_fixed_omega_leongatha(c, f):
 def fit_brune_model_fixed_omega_marblebar(c, f):
     from numpy import array, log
     
-    fixed_omega = 0.038 # from dist corrected stacked spectra
+    fixed_omega = 0.03 # from dist corrected stacked spectra
     
     # set constants
     vs = 3.6 # km/s
@@ -389,7 +389,7 @@ coeffs = pickle.load(open(pklfile, 'rb' ))
 # remove bad recs
 keep_nets = set(['AU', 'IU', 'S1', 'II', 'G', 'MEL', 'ME', '2O', 'AD', 'SR', 'UM', 'AB', 'VI', 'GM', 'M8', 'DU', 'WG', '4N', \
                  '1P', '1P', '2P', '6F', '7K', '7G', 'G', '7B', '4N', '7D', '', 'OZ', 'OA', 'WG', 'XX', 'AM', 'YW', '3B', '1K', \
-                 '1Q', '3O', '7F', '6K', '5G', '5C'])
+                 '1Q', '3O', '7F', '6K', '5G', '5C', 'VW'])
                  
 
 # get stas to ignore
@@ -442,7 +442,8 @@ events_dict = []
 
 sp = 0
 ii = 1	
-for e, event in enumerate(events): #[::-1]): #[-2:-1]:
+#events = [events[293]]
+for e, event in enumerate(events): #[-2:-1]:
   
     print(event)
     # get upper & lower f for filtering
@@ -506,6 +507,9 @@ for e, event in enumerate(events): #[::-1]): #[-2:-1]:
                             
                             if rec['rhyp'] > mag_dist:
                                 skip_sta = True
+                            if rec['sta'] == 'FITZ' and UTCDateTime(event) < UTCDateTime(2006,1,1):
+                                skip_sta = True
+                                
                             #print(skip_sta, rec['rhyp'], rec['mag'], mag_dist)
                             if skip_sta == False:
                                 if UTCDateTime(event) > UTCDateTime(2019,7,14,6,0) \
@@ -623,7 +627,7 @@ for e, event in enumerate(events): #[::-1]): #[-2:-1]:
                 odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
                 out = odr.run()
                 
-                fixed_omega = 0.038
+                fixed_omega = 0.03
                 omega0 = fixed_omega
                 f0 = abs(out.beta[0])
                 print('f0', f0)    
@@ -635,7 +639,7 @@ for e, event in enumerate(events): #[::-1]): #[-2:-1]:
                 odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
                 out = odr.run()
                 
-                fixed_omega = 0.69
+                fixed_omega = 0.53
                 omega0 = fixed_omega
                 f0 = abs(out.beta[0])
                 print('f0', f0)    
@@ -647,7 +651,7 @@ for e, event in enumerate(events): #[::-1]): #[-2:-1]:
                 odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
                 out = odr.run()
                 
-                fixed_omega = 0.6
+                fixed_omega = 0.45
                 omega0 = fixed_omega
                 f0 = abs(out.beta[0])
                 print('f0', f0)  
@@ -663,6 +667,7 @@ for e, event in enumerate(events): #[::-1]): #[-2:-1]:
                 omega0 = fixed_omega
                 f0 = abs(out.beta[0])
                 print('f0', f0)  
+            '''
             elif event == UTCDateTime('2024-02-08T13:49:37.456000Z'):
                 print('Leongatha')
                 fitted_brune = odrpack.Model(fit_brune_model_fixed_omega_leongatha)
@@ -674,7 +679,7 @@ for e, event in enumerate(events): #[::-1]): #[-2:-1]:
                 omega0 = fixed_omega
                 f0 = abs(out.beta[0])
                 print('f0', f0)    
-                
+            '''    
             else:
             
                 fitted_brune = odrpack.Model(fit_brune_model)
@@ -929,6 +934,7 @@ if ignorePoorQual == False:
         txt += ','.join((str(ev['evdt']),ev['evid'],str(ev['lon']),str(ev['lat']),str(ev['dep']),str(ev['omag']),ev['omag_type'],str(ev['mb']), \
                          str(ev['brune_mw']),str(ev['brune_mw_std']),str(ev['brune_sd']),str(ev['log_brune_sd_std']), \
                          str(ev['brune_f0']),str(ev['brune_f0_std']),str(ev['nrecs']), str(ev['minf']),str(ev['maxf']),str(ev['qual']))) + '\n'
+    
     
     # write to file
     f = open('../../2026/source_params_hazard_sensitivity/brune_stats.csv', 'w')

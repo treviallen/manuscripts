@@ -11,6 +11,7 @@ from numpy import arange, sqrt, pi, exp, log, logspace, interp, nan, where, isna
 from datetime import datetime, timedelta
 import pickle
 import warnings
+import shutil
 warnings.filterwarnings("ignore")
 #import matplotlib.pyplot as plt
 #import matplotlib as mpl
@@ -544,9 +545,11 @@ for pf in pickfiles:
     if not isnan(pickDat['mag']):
         if pickDat['origintime'] > max_pick_time:
             max_pick_time = pickDat['origintime']
+
+# let's make a copy of the pkl to be safe!
+shutil.copy('fft_data.pkl', 'fft_data.pkl.hold')
         
 # now get max time in pkl
-
 max_pkl_time = UTCDateTime(1900,1,1)    
 recs = pickle.load(open('fft_data.pkl', 'rb' ))
 
@@ -568,15 +571,16 @@ else:
 ignore_stas = open('sta_ignore.txt').readlines()
 ignore_stas = set([x.strip() for x in ignore_stas])
 '''  
+
+from misc_tools import listdir_file_segment
+filelist = listdir_file_segment('iris_dump','2023-10-21T18')
+#newmseed = set(filelist)
+#print(newmseed)
+#newmseed = set(['1996-06-21T14.57.AU.CAA.mseed','1996-06-21T14.57.AU.GOO.mseed','1996-06-21T14.57.AU.TRI.mseed'])
 '''
 append_pkl = True
 records = recs
 '''
-from misc_tools import listdir_file_segment
-filelist = listdir_file_segment('iris_dump','2024-08-06T17.46.VW.')
-newmseed = set(filelist)
-print(newmseed)
-#newmseed = set(['1996-06-21T14.57.AU.CAA.mseed','1996-06-21T14.57.AU.GOO.mseed','1996-06-21T14.57.AU.TRI.mseed'])
 ################################################################################
 # loop through pick files
 ################################################################################
@@ -596,11 +600,12 @@ for p, pf in enumerate(pickfiles[start_idx:]):
         if append_pkl == True and pickDat['origintime'] <= max_pkl_time:
             skipRec = True
         
-        '''
-         if new record in set not prev used 
+        '''        
+        # if new record in set not prev used 
         if append_pkl == True and path.split(pickDat['mseed_path'])[-1] in newmseed:
             skipRec = False
         '''
+        
     if isnan(pickDat['mag']) == False:
         #if pf.find('20031211')>=0:
         #print(pf)

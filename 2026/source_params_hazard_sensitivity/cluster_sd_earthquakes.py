@@ -12,7 +12,7 @@ import shapefile
 
 # load Brune data
 csvfile = 'brune_stats.csv'
-#data = loadtxt(csvfile, delimiter=',', skiprows=1)
+#data = load	txt(csvfile, delimiter=',', skiprows=1)
 
 print(csvfile)
 lines = open(csvfile).readlines()
@@ -79,6 +79,8 @@ scaled_data[:,0] /= 2
 n_clusters = 10
 #kmeans = KMeans(n_clusters=9, random_state=1) 10
 kmeans = KMeans(n_clusters=n_clusters, random_state=20)
+#kmeans = KMeans(n_clusters=n_clusters, random_state=5)
+kmeans = KMeans(n_clusters=n_clusters, random_state=10)
 kmeans.fit(data)
 kmeans.fit(scaled_data)
 plt.scatter(lons[idx], lats[idx], c=kmeans.labels_, s=30, zorder=10)
@@ -177,5 +179,6 @@ f = open('brune_stats_cluster.csv', 'w')
 f.write(text)
 f.close()
 
+plt.savefig('figures/cluster_initial.png', format='png', bbox_inches='tight')
 plt.show() 
 

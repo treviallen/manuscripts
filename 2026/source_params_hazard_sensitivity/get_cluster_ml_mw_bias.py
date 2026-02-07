@@ -80,7 +80,7 @@ yplt_nsha23 = s0 * xplt**2 + s1 * xplt + s2
 
 ################################################################################
 # loop thru clusters and get average residual
-cluster_txt = 'CLUSTER,MEAN,STD\n'
+cluster_txt = 'CLUSTER,MEAN +- STD\n'
 
 # get mean for all events
 nsha23_mw = s0 * ml_match**2 + s1 * ml_match + s2
@@ -110,7 +110,7 @@ for i in range(0,n):
     mw_res_std = nanstd(mw_res)
     print(i, mw_res_mean, mw_res_std)
     
-    cluster_txt += ','.join((str(i+1), str('%0.2f' % mw_res_mean), str(mw_res_std))) + '\n'
+    cluster_txt += ','.join((str(i+1), str('%0.2f' %  mw_res_mean)+ ' +- '+str('%0.2f' % mw_res_std))) + '\n'
     
 f = open('ml_mw_bias_cluster.csv', 'w')
 f.write(cluster_txt)

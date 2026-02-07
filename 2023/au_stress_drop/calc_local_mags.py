@@ -421,7 +421,7 @@ plt.subplot(311)
 plt.plot([2,7], [2,7], 'k--', lw=0.5, label='1:1')
 plt.plot(xplt, yplt, '-', lw=2, c='k', label='2023 Simulated (W-A 2800)')
 idx = where((mzone_array == 'EA') & (deps_array > min_dep))[0]
-sc = plt.scatter(ml_array[idx], mw_array[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, label='Data')
+sc = plt.scatter(ml_array[idx], mw_array[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, edgecolor='0.5', linewidths=0.25, label='Data')
 plt.text(xloc, yloc, 'Eastern Australia', va='top', ha ='left', fontsize=12, bbox=props)
 plt.xlabel('$\mathregular{M_{L(MLM92)}}$', fontsize=18)
 #plt.ylabel('Brune $\mathregular{M_W}$', fontsize=18)
@@ -435,7 +435,7 @@ plt.subplot(312)
 plt.plot([2,7], [2	,7], 'k--', lw=0.5, label='1:1')
 plt.plot(xplt, yplt, '-', lw=2, c='k', label='2023 Simulated (W-A 2800)')
 idx = where((mzone_array == 'WCA') & (deps_array > min_dep))[0]
-sc = plt.scatter(ml_array[idx], mw_array[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, label='Data')
+sc = plt.scatter(ml_array[idx], mw_array[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, edgecolor='0.5', linewidths=0.25, label='Data')
 plt.text(xloc, yloc, 'Western and Central Australia', va='top', ha ='left', fontsize=12, bbox=props)
 plt.xlabel('$\mathregular{M_{L(GG91)}}$', fontsize=18)
 plt.ylabel('$\mathregular{M_{Brune}}$', fontsize=18)
@@ -449,7 +449,7 @@ plt.subplot(313)
 plt.plot([2,7], [2,7], 'k--', lw=0.5, label='1:1')
 plt.plot(xplt, yplt, '-', lw=2, c='k', label='2023 Simulated (W-A 2800)')
 idx = where((mzone_array == 'SA') & (deps_array > min_dep))[0]
-sc = plt.scatter(ml_array[idx], mw_array[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, label='Data')
+sc = plt.scatter(ml_array[idx], mw_array[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, edgecolor='0.5', linewidths=0.25, label='Data')
 plt.text(xloc, yloc, 'South Australia', va='top', ha ='left', fontsize=12, bbox=props)
 plt.xlabel('$\mathregular{M_{L(GS86)}}$', fontsize=18)
 #plt.ylabel('Brune $\mathregular{M_W}$', fontsize=18)
@@ -499,11 +499,11 @@ fig = plt.figure(3, figsize=(14, 8.))
 plt.subplot(221)
 plt.plot([2,7], [0,0], 'k--', lw=0.5)
 idx = where(deps_array > min_dep)[0]
-sc = plt.scatter(mw_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, label='Data')
+sc = plt.scatter(mw_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, edgecolor='0.5', linewidths=0.25,label='Data')
 #sc = plt.scatter(ml_array, mw_res, c=log10(sd_array), vmin=-0.9, vmax=1.7, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'All Data', va='top', ha ='left', fontsize=12, bbox=props)
 plt.grid(which='both')
-plt.ylabel('$\mathregular{M_{Brune}}$ - $\mathregular{M_{W(Conv)}}$', fontsize=16)
+plt.ylabel('$\mathregular{M_{Brune}}$ - $\mathregular{M_{conv}}$', fontsize=16)
 plt.xlim([2.75,6.75])
 plt.ylim([-0.8,0.8])
 plt.text(2.3,0.98, '(a)', va='top', ha ='left', fontsize=16)
@@ -522,7 +522,7 @@ plt.text(xloc2, yloc2, stat_txt, va='bottom', ha ='right', fontsize=12, bbox=pro
 plt.subplot(222)
 plt.plot([2,7], [0,0], 'k--', lw=0.5)
 idx = where((mzone_array == 'EA') & (deps_array > min_dep))[0]
-sc = plt.scatter(mw_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, label='Data')
+sc = plt.scatter(mw_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, edgecolor='0.5', linewidths=0.25,label='Data')
 #sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'Eastern Australia', va='top', ha ='left', fontsize=12, bbox=props)
 #plt.xlabel('$\mathregular{M_{L(MLM92)}}$', fontsize=18)
@@ -546,7 +546,7 @@ plt.text(2.3,0.98, '(b)', va='top', ha ='left', fontsize=16)
 plt.subplot(223)
 plt.plot([2,7], [0,0], 'k--', lw=0.5)
 idx = where((mzone_array == 'WCA') & (deps_array > min_dep))[0]
-sc = plt.scatter(mw_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, label='Data')
+sc = plt.scatter(mw_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, edgecolor='0.5', linewidths=0.25,label='Data')
 #sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'Western and Central Australia', va='top', ha ='left', fontsize=12, bbox=props)
 
@@ -560,7 +560,7 @@ stat_txt = r'$\mu$ = '+str('%0.2f' % mean_res) + '\n' \
 plt.text(xloc2, yloc2, stat_txt, va='bottom', ha ='right', fontsize=12, bbox=props)
 
 plt.xlabel('$\mathregular{M_{Brune}}$', fontsize=16)
-plt.ylabel('$\mathregular{M_{Brune}}$ - $\mathregular{M_{W(Conv)}}$', fontsize=16)
+plt.ylabel('$\mathregular{M_{Brune}}$ - $\mathregular{M_{conv}}$', fontsize=16)
 plt.grid(which='both')
 plt.xlim([2.75,6.75])
 plt.ylim([-0.8,0.8])
@@ -570,7 +570,7 @@ plt.text(2.3,0.98, '(c)', va='top', ha ='left', fontsize=16)
 plt.subplot(224)
 plt.plot([2,7], [0,0], 'k--', lw=0.5)
 idx = where((mzone_array == 'SA') & (deps_array > min_dep))[0]
-sc = plt.scatter(mw_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, label='Data')
+sc = plt.scatter(mw_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, edgecolor='0.5', linewidths=0.25,label='Data')
 plt.text(xloc, yloc, 'South Australia', va='top', ha ='left', fontsize=12, bbox=props)
 
 # get mean & std
@@ -623,6 +623,7 @@ xloc2 = 2.75 + (7 - 2.75) * 0.98
 yloc2 = -0.736
 
 fig = plt.figure(10, figsize=(14, 8.))
+plt.clf()
 
 #plt all data
 plt.subplot(221)
@@ -631,7 +632,7 @@ sc = plt.scatter(ml_array, mw_res, c=log10(sd_array), vmin=-0.9, vmax=1.7, s=36,
 #sc = plt.scatter(ml_array, mw_res, c=log10(sd_array), vmin=-0.9, vmax=1.7, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'All Data', va='top', ha ='left', fontsize=12, bbox=props)
 plt.grid(which='both')
-plt.ylabel('$\mathregular{M_{Brune}}$ - $\mathregular{M_{W(Conv)}}$', fontsize=16)
+plt.ylabel('$\mathregular{M_{Brune}}$ - $\mathregular{M_{conv}}$', fontsize=16)
 plt.xlim([2.75,7])
 plt.ylim([-0.8,0.8])
 plt.text(2.3,0.98, '(a)', va='top', ha ='left', fontsize=16)
@@ -688,7 +689,7 @@ stat_txt = r'$\mu$ = '+str('%0.2f' % mean_res) + '\n' \
 plt.text(xloc2, yloc2, stat_txt, va='bottom', ha ='right', fontsize=12, bbox=props)
 
 plt.xlabel('$\mathregular{M_{L(2800)}}$', fontsize=16)
-plt.ylabel('$\mathregular{M_{Brune}}$ - $\mathregular{M_{W(Conv)}}$', fontsize=16)
+plt.ylabel('$\mathregular{M_{Brune}}$ - $\mathregular{M_{conv}}$', fontsize=16)
 plt.grid(which='both')
 plt.xlim([2.75,7])
 plt.ylim([-0.8,0.8])
@@ -870,7 +871,8 @@ plt.show()
 ##########################################################################################
 # plot SD vs ML and ML
 fig = plt.figure(5, figsize=(14, 4))
-
+pltlett = ['(a)', '(b)', '(c)', '(d)', '(e)', '(f)']
+plt.clf()
 plt.subplot(121)
 #plt.plot([.1, 200], [0,0], 'k--')  '#1f77b4', '#ff7f0e'
 #sc = plt.scatter(sd_array, m_res, c=mw_array, vmin=3, vmax=6.5, s=36, cmap=cm, label='Data')
@@ -900,8 +902,11 @@ stat_txt = r'$r^{2}$ = '+str('%0.3f' % c.rvalue**2)
 plt.text(xloc2, yloc2, stat_txt, va='bottom', ha ='right', fontsize=14, bbox=props)
 plt.xlim([3, 7])
 
+xpos = 2.6
+ypos = 220
+plt.text(xpos, ypos, pltlett[0], fontsize=20, va='bottom', ha='left')
 
-# now plot hist
+# now plot MW
 ax = plt.subplot(122)
 idx = where(isnan(sd_array) == False)[0]
 c = linregress(mw_array[idx], log10(sd_array[idx]))
@@ -926,6 +931,11 @@ plt.ylim([0.05, 100])
 stat_txt = r'$r^{2}$ = '+str('%0.3f' % c.rvalue**2)
 plt.text(xloc2, yloc2, stat_txt, va='bottom', ha ='right', fontsize=14, bbox=props)
 plt.xlim([3, 7])
+
+xpos = 2.6
+ypos = 220
+plt.text(xpos, ypos, pltlett[1], fontsize=20, va='bottom', ha='left')
+
 plt.tight_layout() 
 
 # now show figs 

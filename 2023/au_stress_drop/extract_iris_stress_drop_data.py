@@ -24,6 +24,7 @@ from obspy import UTCDateTime
 #recent_csv = 'au_ge_4.4_earthquakes_export_edit.csv'
 #recent_csv = 'au_ge_4.4_earthquakes_export_wa.csv'
 recent_csv = 'au_ge_4.4_earthquakes_export_recent.csv'
+evdict = 'earthquakes_export_tamworth.csv'
 #recent_csv = 'au_ge_4.4_earthquakes_export_bboo.csv'	
 gadat = parse_ga_event_query(recent_csv)
 
@@ -113,7 +114,7 @@ for network in networks:
         #maxdist = 200 # already got 200 - 2200 km
         
         dt = ev['datetime']
-        print(dt)
+        print(network, dt)
         # allow 2 mins pre-event - subs realised "get_iris_data" already pads by 2 mins, so have 4 mins
         dt = UTCDateTime(ev['datetime']) - 120
         dateTuple = (dt.year, dt.month, dt.day, dt.hour, dt.minute)
