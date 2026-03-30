@@ -124,6 +124,8 @@ def response_corrected_fft(tr, pickDat):
         use_stationlist = True
     elif tr.stats.network == 'AU' and tr.stats.channel.startswith('SH'):
         use_stationlist = True
+    elif tr.stats.network == 'WG' and tr.stats.station.startswith('GNOW'):
+        use_stationlist = True
     elif tr.stats.network == '' and tr.stats.channel.startswith('EN'): # for DRS
         use_stationlist = True  
     elif tr.stats.network == '7M':
@@ -573,14 +575,14 @@ ignore_stas = set([x.strip() for x in ignore_stas])
 '''  
 
 from misc_tools import listdir_file_segment
-filelist = listdir_file_segment('iris_dump','2023-10-21T18')
-#newmseed = set(filelist)
-#print(newmseed)
+filelist = listdir_file_segment('iris_dump','2026-03-11T08.05.OZ')
+newmseed = set(filelist)
+print(newmseed)
 #newmseed = set(['1996-06-21T14.57.AU.CAA.mseed','1996-06-21T14.57.AU.GOO.mseed','1996-06-21T14.57.AU.TRI.mseed'])
-'''
+
 append_pkl = True
 records = recs
-'''
+
 ################################################################################
 # loop through pick files
 ################################################################################
@@ -600,11 +602,11 @@ for p, pf in enumerate(pickfiles[start_idx:]):
         if append_pkl == True and pickDat['origintime'] <= max_pkl_time:
             skipRec = True
         
-        '''        
+                
         # if new record in set not prev used 
         if append_pkl == True and path.split(pickDat['mseed_path'])[-1] in newmseed:
             skipRec = False
-        '''
+        
         
     if isnan(pickDat['mag']) == False:
         #if pf.find('20031211')>=0:
@@ -640,6 +642,11 @@ for p, pf in enumerate(pickfiles[start_idx:]):
                     
                 elif st[0].stats.network == 'UM':
                     fix_stream_network(path.join('iris_dump', mseedfile), 'VW')
+                    # reparse
+                    st = read(path.join('iris_dump', mseedfile))
+                    
+                elif st[0].stats.station.startswith('GNOW'):
+                    fix_stream_network(path.join('iris_dump', mseedfile), 'WG')
                     # reparse
                     st = read(path.join('iris_dump', mseedfile))
                     

@@ -556,7 +556,8 @@ if max_pick_time > max_pkl_time:
 else:
     append_pkl = False
     records = []
-#append_pkl = False
+append_pkl = True
+records = recs
 #records = []
 ################################################################################
 # loop through pick files

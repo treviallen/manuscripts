@@ -443,7 +443,7 @@ events_dict = []
 sp = 0
 ii = 1	
 #events = [events[293]]
-for e, event in enumerate(events): #[-2:-1]:
+for e, event in enumerate(events): #[::-1]):
   
     print(event)
     # get upper & lower f for filtering
@@ -667,19 +667,19 @@ for e, event in enumerate(events): #[-2:-1]:
                 omega0 = fixed_omega
                 f0 = abs(out.beta[0])
                 print('f0', f0)  
-            '''
-            elif event == UTCDateTime('2024-02-08T13:49:37.456000Z'):
-                print('Leongatha')
-                fitted_brune = odrpack.Model(fit_brune_model_fixed_omega_leongatha)
-                odr = odrpack.ODR(data, fitted_brune, beta0=[0.3])
-                odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
-                out = odr.run()
-                
-                fixed_omega = 0.01
-                omega0 = fixed_omega
-                f0 = abs(out.beta[0])
-                print('f0', f0)    
-            '''    
+                '''
+                elif event == UTCDateTime('2024-02-08T13:49:37.456000Z'):
+                    print('Leongatha')
+                    fitted_brune = odrpack.Model(fit_brune_model_fixed_omega_leongatha)
+                    odr = odrpack.ODR(data, fitted_brune, beta0=[0.3])
+                    odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
+                    out = odr.run()
+                    
+                    fixed_omega = 0.01
+                    omega0 = fixed_omega
+                    f0 = abs(out.beta[0])
+                    print('f0', f0)    
+                '''    
             else:
             
                 fitted_brune = odrpack.Model(fit_brune_model)
