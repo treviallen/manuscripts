@@ -54,7 +54,7 @@ def parse_filtering_data():
     lines = open('../../2026/source_params_hazard_sensitivity/brune_stats.csv').readlines()[1:]
     for line in lines:
         dat = line.split(',')
-        filt = {'ev':dat[0], 'minf': float(dat[-3]), 'maxf': float(dat[-2]), 'qual':float(dat[-1]), 'dep':float(dat[4]),
+        filt = {'ev':dat[0], 'minf': float(dat[-6]), 'maxf': float(dat[-5]), 'qual':float(dat[-4]), 'dep':float(dat[4]),
         	      'mw': float(dat[8]), 'sd': float(dat[10]), 'sd_std': float(dat[11]), 'surf_rup':0}
         
         # check if sface rupture
@@ -486,7 +486,8 @@ plt.show()
 
 ##########################################################################################
 # plot regional residual
-mw_pred = c0 * ml_array**2 + c1 * ml_array + c2 # NSHA23
+#mw_pred = c0 * ml_array**2 + c1 * ml_array + c2 # regression
+mw_pred = s0 * ml_array**2 + s1 * ml_array + s2 # NSHA23
 mw_res = mw_array - mw_pred
 xloc = 2.87
 yloc = 0.736        
@@ -615,7 +616,8 @@ plt.show()
 
 ##########################################################################################
 # plot regional residual with ML
-mw_pred = c0 * ml_array**2 + c1 * ml_array + c2 # NSHA23
+#mw_pred = c0 * ml_array**2 + c1 * ml_array + c2 # regression
+mw_pred = s0 * ml_array**2 + s1 * ml_array + s2 # NSHA23
 mw_res = mw_array - mw_pred
 xloc = 2.87
 yloc = 0.736        

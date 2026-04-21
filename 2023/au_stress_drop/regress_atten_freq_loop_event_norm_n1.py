@@ -185,7 +185,8 @@ def normalise_data(p, recs, sn_ratio, events):
                             mrhyps.append(rec['rhyp'])
                             mmags.append(rec['mag'])
                             mstas.append(rec['sta'])
-                            mamps.append(rec[channel]['swave_spec'][fidx[p]])
+                            #mamps.append(rec[channel]['swave_spec'][fidx[p]])
+                            mamps.append(rec[channel]['p-swave_spec'][fidx[p]]) # changed 2026-04-05 after reveiew of Paper 2
                         
         
         mrhyps = array(mrhyps)
@@ -539,8 +540,8 @@ ignore_stas = set([x.strip() for x in ignore_stas])
 ###############################################################################
 # parse preliminary Mw and assign as mag
 ###############################################################################
-
-lines = open('brune_stats.csv').readlines()[1:]
+lines = open('../../2026/source_params_hazard_sensitivity/brune_stats.csv').readlines()[1:]
+#lines = open('brune_stats.csv').readlines()[1:]
 
 brune_ev = []
 brune_mw = []
@@ -662,7 +663,7 @@ if pltTrue == 'False':
 else:
     fig = plt.figure(1, figsize=(18,11))
     fidx=arange(0,90,8)+19 # for testing
-    fidx = [20, 30, 50, 60, 69, 76, 80, 99, 110] #.75 & 5 Hz
+    #fidx = [20, 30, 50, 60, 69, 76, 80, 99, 110] #.75 & 5 Hz
     #fidx=arange(0,12,1)+0 # for testing
     pltTrue = True
     #fidx = fidx[0:2]
@@ -680,14 +681,14 @@ r2 = 200
 
 r3 = maxDist
 n0str = argv[1]
-n0 = -1 * float(argv[1]) #-1.3
+n0 = -1 * abs(float(argv[1])) #-1.3
 sn_ratio = 4
 
 if pltTrue == True:
     sg_window = 3
     sg_poly = 1
 else:
-    sg_window = 41
+    sg_window = 51
     sg_poly = 3
     
     #sg_window = 11
@@ -721,7 +722,10 @@ smooth_nc0 = savitzky_golay(nc0_array, sg_window, sg_poly) # mid-slope
 for i, c in enumerate(coeffs):
     coeffs[i]['nc0s'] = smooth_nc0[i]
     #coeffs[i]['nc1f'] = fitted_nc1[i]
-'''   
+'''
+
+print('Comment out normDict loop when not using new data') 
+"""   
 normDict = [] 
 for p, freq in enumerate(freqs[fidx]):
     if pltTrue == True:
@@ -740,11 +744,36 @@ for p, freq in enumerate(freqs[fidx]):
     
     coeffs.append({'nc0': n0, 'nc0s': n0, 'n1': n1, 'r1': r1, 'r2': r2, 'nref':nref, 'freq':freq})
     
-    nc0_array.append(n0)
-    nc1_array.append(n1[0])
+"""
+# some hacks required here to stop regenerating dataset
+if pltTrue == False:
+    '''
+##############################
+
+    # save pkls
+    
+    pklfile = open('normDict.pkl', 'wb')
+    pickle.dump(normDict, pklfile, protocol=-1)
+    pklfile.close()
+    
+    pklfile = open('tmp_coeffs.pkl', 'wb')
+    pickle.dump(coeffs, pklfile, protocol=-1)
+    pklfile.close()
+    '''
+    ##############################
+    # open pkls
+
+    normDict = pickle.load(open('normDict.pkl', 'rb' ))
+    coeffs = pickle.load(open('tmp_coeffs.pkl', 'rb' ))
+    
+    
+for i, c in enumerate(coeffs):
+    nc0_array.append(c['nc0']) 
+    nc1_array.append(c['nc1']) 
 
 nc1_array = array(nc1_array)    
 smooth_nc1 = savitzky_golay(nc1_array, sg_window, sg_poly) # mid-slope
+
 
 # fit with quadratic
 if pltTrue == False:
@@ -756,8 +785,14 @@ if pltTrue == False:
     # try cubic
     qc = polyfit(log10(freqs[fidx][17:]), smooth_nc1[17:], 3)
     fitted_nc1 = qc[0]*log10(freqs[fidx])**3 + qc[1]*log10(freqs[fidx])**2 + qc[2]*log10(freqs[fidx]) + qc[3]
+    
+    hybrid_nc1 = nc1_array
+    idx = where(freqs < 0.15)[0]
+    hybrid_nc1[idx] = min(nc1_array)
+    
 else:
     fitted_nc1 = nc1_array
+    
 
 # set to coeffs
 xrng_nf = log10(arange(1, r1+1))
@@ -765,10 +800,13 @@ for i, c in enumerate(coeffs):
     coeffs[i]['nc1'] = nc1_array[i]
     coeffs[i]['nc1s'] = smooth_nc1[i]
     coeffs[i]['nc1f'] = fitted_nc1[i]
+    coeffs[i]['nc1h'] = hybrid_nc1[i]
     
     D1 = sqrt((10**xrng_nf)**2 + nref**2)
     #print(n1)
-    yrng_nf = coeffs[i]['nc0'] * log10(D1) + coeffs[i]['nc1f']
+    #yrng_nf = coeffs[i]['nc0'] * log10(D1) + coeffs[i]['nc1f']
+    #yrng_nf = coeffs[i]['nc0'] * log10(D1) + coeffs[i]['nc1s']
+    yrng_nf = coeffs[i]['nc0'] * log10(D1) + coeffs[i]['nc1h']
     
     if pltTrue == True:
         fig = plt.figure(1, figsize=(18,11))
@@ -808,8 +846,8 @@ for p, freq in enumerate(freqs[fidx]):
     
     # set n0 - use smoothed vals
     n0 = coeffs[p]['nc0s']
-    #n1 = coeffs[p]['nc1s']
-    n1 = coeffs[p]['nc1f']
+    n1 = coeffs[p]['nc1s']
+    n1 = coeffs[p]['nc1h']
     #mc0_fix = coeffs[p]['mc0s']
     #print('n0 '+str(n0)) 
     
@@ -870,14 +908,13 @@ smooth_mc1 = savitzky_golay(mc1_array, sg_window, sg_poly) # mid-slope
 interp_mc1 = interp(freqs[fidx], freqs[fidx], smooth_mc1)
 
 # make hybrid
-idx = where(freqs[fidx] < 5.0)[0]
+idx = where(freqs[fidx] < 3.0)[0]
 mean_m1 = nanmean(mc1_array[idx])
 hybrid_mc1 = mc1_array
 hybrid_mc1[idx] = mean_m1
 
 # smooth
 smooth_hybrid_mc1 = savitzky_golay(hybrid_mc1, sg_window, sg_poly) # mid-slope
-
 
 # now fit with trilinear
 '''
@@ -1084,8 +1121,9 @@ for p, freq in enumerate(freqs[fidx]):
         mc1 = coeffs[p]['mc1h']
     else:
         mc0 = coeffs[p]['mc0f']
-        mc1 = coeffs[p]['mc1h'] # using hybrid
-    nc1 = coeffs[p]['nc1f']
+        #mc1 = coeffs[p]['mc1h'] # using hybrid
+        mc1 = coeffs[p]['mc1s'] # using hybrid
+    nc1 = coeffs[p]['nc1h']
     #print(nc1, mc0, mc1)
     
     xrng_nf = log10(arange(1, r1+1))
@@ -1161,9 +1199,10 @@ for p, freq in enumerate(freqs[fidx]):
         plt.subplot(3,4,p+1)
     
     mc0 = coeffs[p]['mc0f']
-    #mc1 = coeffs[p]['mc1fs']
-    mc1 = coeffs[p]['mc1h']
-    nc1 = coeffs[p]['nc1f']
+    mc1 = coeffs[p]['mc1s']
+    #mc1 = coeffs[p]['mc1h']
+    #nc1 = coeffs[p]['nc1f']
+    nc1 = coeffs[p]['nc1h']
     fc0 = coeffs[p]['fc0s']
     fc1 = coeffs[p]['fc1s']
     
@@ -1201,8 +1240,14 @@ for p, freq in enumerate(freqs[fidx]):
         plt.plot(mags, logres, '+', c='0.6', lw=0.5, ms=6)
         plt.ylabel(str(freq), fontsize=8)    
     
+    # select data
+    if freq < 0.75:
+        midx = where(mags >= 4.0)[0]
+    else:
+        midx = where(mags >= 3.5)[0]
+    
     # bin data
-    logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(mrng, mags, logres)
+    logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(mrng, mags[midx], logres[midx])
     
     # fit mag linear
     magc = polyfit(medx, logmedamp, 1)
@@ -1300,6 +1345,188 @@ for p in range(0, len(coeffs)):
 '''
 coeff_f = dictlist2array(coeffs, 'freq')
 idx = where(coeff_f <= 0.1)[0]
+'''
+print('Starting mag loop...')
+for p, freq in enumerate(freqs[fidx]):
+    if pltTrue == True:
+        fig = plt.figure(1, figsize=(18,11))
+        plt.subplot(3,4,p+1)
+    
+    mc0 = coeffs[p]['mc0f']
+    #mc1 = coeffs[p]['mc1fs']
+    mc1 = coeffs[p]['mc1h']
+    nc1 = coeffs[p]['nc1f']
+    fc0 = coeffs[p]['fc0s']
+    fc1 = coeffs[p]['fc1s']
+    
+    # get normalised amplitudes
+    #log_norm_amps, norm_rhyps, mags, logamps, stas = normalise_data(p, recs, sn_ratio, events)
+    log_norm_amps = normDict[p]['log_norm_amps']
+    norm_rhyps = normDict[p]['norm_rhyps']
+    logamps = normDict[p]['logamps']
+    mags = normDict[p]['mags']
+
+    # get residual for mag regression
+    D1 = sqrt(norm_rhyps**2 + nref**2)
+    distterm = n0 * log10(D1)
+    
+    # set mid-field
+    idx = where((norm_rhyps > r1) & (norm_rhyps <= r2))[0]
+    D1 = sqrt(r1**2 + nref**2)
+    distterm[idx] = n0 * log10(D1) \
+                    +  mc1 * (norm_rhyps[idx] - r1) #mc0 * log10(norm_rhyps[idx] / r1) +
+    
+    # set far-field
+    idx = where(norm_rhyps > r2)[0]
+    
+    distterm[idx] = n0 * log10(D1) \
+                    + mc1 * (r2 - r1) \
+                    + fc0 * log10(norm_rhyps[idx] / r2) + fc1 * (norm_rhyps[idx] - r2)
+    
+    #distterm[idx] = nan    
+    # get residuals
+    logres = logamps - distterm
+        
+    if pltTrue == True:
+        fig = plt.figure(2, figsize=(18,11))
+        plt.subplot(3,4,p+1)
+        plt.plot(mags, logres, '+', c='0.6', lw=0.5, ms=6)
+        plt.ylabel(str(freq), fontsize=8)    
+    
+    # select data
+    if freq < 0.75:
+        midx = where(mags >= 4.0)[0]
+    else:
+        midx = where(mags >= 3.5)[0]
+    
+    # bin data
+    logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(mrng, mags[midx], logres[midx])
+    
+    # fit mag linear
+    magc = polyfit(medx, logmedamp, 1)
+    
+    if pltTrue == True:
+        plt.plot(medx, logmedamp, 'rs', ms=6.5)
+
+    # plot mag fit
+    if pltTrue == True:
+        yrng = magc[0] * mrng + magc[1]
+        plt.plot(mrng, yrng, 'k-', lw=2)
+
+    
+    # get mag term
+    magterm = magc[0] * mags + magc[1]
+    
+    # get total prediction
+    ypred = magterm + distterm
+    
+    # get mag & dist corrected residual
+    yres = logamps - ypred
+    
+    # get final far-field fix 
+    bins = arange(log10(1), log10(2200), 0.1)
+    logmedamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, log10(norm_rhyps), yres)
+ 
+    # fit 100 km+
+    ffc_dist = 400
+    
+    def correct_far_field(c, x):
+        from numpy import sqrt, log10
+
+        log_cor_dist = log10(ffc_dist)
+
+        ans = c[0] * (x - log_cor_dist)
+
+        return ans
+    
+    # get data > r2 and < 1500 km
+    idx = where((10**medx >= ffc_dist) & (10**medx <= 2200))[0]
+    data = odrpack.RealData(medx[idx], logmedamp[idx])
+
+    # fit all as free params
+    afit = odrpack.Model(correct_far_field)
+    odr = odrpack.ODR(data, afit, beta0=[0.0])
+
+    odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
+    out = odr.run()
+    ffc = out.beta
+    
+    ###############################################################################
+    # make coeffs dict
+    ###############################################################################
+    
+    #coeffs[p]['fc2'] = ffc[0] # ff correction
+    coeffs[p]['magc0'] = magc[0]
+    coeffs[p]['magc1'] = magc[1]
+    coeffs[p]['ffc'] = ffc[0]
+    coeffs[p]['ffc_dist'] = ffc_dist
+    coeffs[p]['freq'] = freq
+    
+if pltTrue == True:
+    fig = plt.figure(1, figsize=(18,11))
+    plt.savefig('norm_geom_spread.png', fmt='png', dpi=150, bbox_inches='tight')
+    #plt.show()
+    
+    fig = plt.figure(2, figsize=(18,11))
+    plt.savefig('mag_scaling.png', fmt='png', dpi=150, bbox_inches='tight')
+    plt.show()
+
+###############################################################################
+# smooth far-field and mag coeffs
+###############################################################################
+
+#fc2_array = dictlist2array(coeffs, 'fc2')
+mag0_array = dictlist2array(coeffs, 'magc0')
+mag1_array = dictlist2array(coeffs, 'magc1')
+ffc_array = dictlist2array(coeffs, 'ffc')
+
+#smooth_fc2 = savitzky_golay(fc2_array, sg_window, sg_poly)
+smooth_mag0 = savitzky_golay(mag0_array, sg_window, sg_poly)
+smooth_mag1 = savitzky_golay(mag1_array, sg_window, sg_poly)
+smooth_ffc = savitzky_golay(ffc_array, sg_window, sg_poly)
+
+# add to coeffs
+for p in range(0, len(coeffs)):
+    #coeffs[p]['fc2s'] = smooth_fc2[p]
+    coeffs[p]['magc0s'] = smooth_mag0[p]
+    coeffs[p]['magc1s'] = smooth_mag1[p]
+    coeffs[p]['ffcs'] = smooth_ffc[p]
+
+###############################################################################
+# given coeff bugs, set f < 0.1 Hz to 0.1
+###############################################################################
+'''
+coeff_f = dictlist2array(coeffs, 'freq')
+idx = where(coeff_f <= 0.1)[0]
+'''
+
+###############################################################################
+# write params
+###############################################################################
+if pltTrue == False:
+    pklfile = open('atten_coeffs_'+n0str+'_'+str(nref)+'km.pkl', 'wb')
+    pickle.dump(coeffs, pklfile, protocol=-1)
+    pklfile.close()
+
+'''
+txt = 'ln Y = m0 + (m1-4) * M^2 +(m2-4) * M + r1 * log10(sqrt(rhyp^2 + r2^2)) | rhyp <= '+str(r1)+'\n'
+txt += 'ln Y = m0 + (m1-4) * M^2 +(m2-4) * M + r1 * log10(sqrt(rref^2 + r2^2)) + r4 * log10(rhyp / rref) + r5 * (rhyp - rref) | rhyp > '+str(r1)+'\n'
+txt += 'm0' + '\t' + str(m0) + '\n'
+txt += 'm1' + '\t' + str(m1) + '\n'
+txt += 'm2' + '\t' + str(m2) + '\n'
+txt += 'r1' + '\t' + str(n0) + '\n'
+txt += 'r2' + '\t' + str(nc[2]) + '\n'
+txt += 'r3' + '\t' + str(n1) + '\n'
+txt += 'r4' + '\t' + str(fc[0]) + '\n'
+txt += 'r5' + '\t' + str(fc[1]) + '\n'
+txt += 'rref' + '\t' + str(r1) + '\n'
+txt += 'f' + '\t' + str('%0.3f' % freq) + '\n'
+txt += 'fidx' + '\t' + str(fidx)
+
+#print('!!!!!!!! REMEMEBR TO UPDATE OUTPUT !!!!!!!!')
+f = open('basic_atten_coeffs_tmp.txt', 'w')
+f.write(txt)
+f.close()
 '''
 
 ###############################################################################

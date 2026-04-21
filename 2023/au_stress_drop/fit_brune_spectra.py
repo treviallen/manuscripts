@@ -565,13 +565,21 @@ for e, event in enumerate(events): #[::-1]):
                             
                             # set evmag
                             evmag = rec['omag']
-                            evmagtype = rec['oMagType']
+                            evmagtype = rec['oMagType']  
+                            try:
+                                ml2800 = rec['ml2800']
+                                ml2080 = rec['ml2080']
+                            except:
+                                ml2800 = nan
+                                ml2080 = nan
+
                             evlon = rec['eqlo']
                             evlat = rec['eqla']
                             evdep = rec['eqdp']
                             evdt = rec['evdt']
                             evmb = rec['mb']
                             evid = rec['gaid']
+                            eqdom = rec['eqdom']
         
         leg1 = plt.legend(handles=handles1, loc=3, fontsize=6, ncol=4)
 	      
@@ -615,35 +623,37 @@ for e, event in enumerate(events): #[::-1]):
                 odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
                 out = odr.run()
                 
-                fixed_omega = 4.2
+                fixed_omega = 3.7
                 omega0 = fixed_omega
                 f0 = abs(out.beta[0])
                 print('f0', f0)
                 
-            elif event == UTCDateTime('2021-11-13T13:05:52.663000Z'):
-                print('M5.3 Marble Bar')
-                fitted_brune = odrpack.Model(fit_brune_model_fixed_omega_marblebar)
-                odr = odrpack.ODR(data, fitted_brune, beta0=[0.3])
-                odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
-                out = odr.run()
-                
-                fixed_omega = 0.03
-                omega0 = fixed_omega
-                f0 = abs(out.beta[0])
-                print('f0', f0)    
-            
-            elif event == UTCDateTime('2016-05-20T18:14:02.000000Z'):
-                print('M6.0 Petermann')
-                fitted_brune = odrpack.Model(fit_brune_model_fixed_omega_petermann)
-                odr = odrpack.ODR(data, fitted_brune, beta0=[0.3])
-                odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
-                out = odr.run()
-                
-                fixed_omega = 0.53
-                omega0 = fixed_omega
-                f0 = abs(out.beta[0])
-                print('f0', f0)    
-                
+                '''
+                elif event == UTCDateTime('2021-11-13T13:05:52.663000Z'):
+                    print('M5.3 Marble Bar')
+                    fitted_brune = odrpack.Model(fit_brune_model_fixed_omega_marblebar)
+                    odr = odrpack.ODR(data, fitted_brune, beta0=[0.3])
+                    odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
+                    out = odr.run()
+                    
+                    fixed_omega = 0.03
+                    omega0 = fixed_omega
+                    f0 = abs(out.beta[0])
+                    print('f0', f0)    
+                '''
+                '''
+                elif event == UTCDateTime('2016-05-20T18:14:02.000000Z'):
+                    print('M6.0 Petermann')
+                    fitted_brune = odrpack.Model(fit_brune_model_fixed_omega_petermann)
+                    odr = odrpack.ODR(data, fitted_brune, beta0=[0.3])
+                    odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
+                    out = odr.run()
+                    
+                    fixed_omega = 0.53
+                    omega0 = fixed_omega
+                    f0 = abs(out.beta[0])
+                    print('f0', f0)    
+                '''    
             elif event == UTCDateTime('2018-12-16T14:26:21.333000Z'):
                 print('Carnarvon')
                 fitted_brune = odrpack.Model(fit_brune_model_fixed_omega_carnarvon)
@@ -656,17 +666,19 @@ for e, event in enumerate(events): #[::-1]):
                 f0 = abs(out.beta[0])
                 print('f0', f0)  
             
-            elif event == UTCDateTime('2021-10-08T16:47:26.216000Z'):
-                print('Murrayville')
-                fitted_brune = odrpack.Model(fit_brune_model_fixed_omega_murrayville)
-                odr = odrpack.ODR(data, fitted_brune, beta0=[0.3])
-                odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
-                out = odr.run()
+                '''
+                elif event == UTCDateTime('2021-10-08T16:47:26.216000Z'):
+                    print('Murrayville')
+                    fitted_brune = odrpack.Model(fit_brune_model_fixed_omega_murrayville)
+                    odr = odrpack.ODR(data, fitted_brune, beta0=[0.3])
+                    odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq
+                    out = odr.run()
                 
-                fixed_omega = 0.0095
-                omega0 = fixed_omega
-                f0 = abs(out.beta[0])
-                print('f0', f0)  
+                    fixed_omega = 0.0095
+                    omega0 = fixed_omega
+                    f0 = abs(out.beta[0])
+                    print('f0', f0)  
+                '''
                 '''
                 elif event == UTCDateTime('2024-02-08T13:49:37.456000Z'):
                     print('Leongatha')
@@ -771,7 +783,10 @@ for e, event in enumerate(events): #[::-1]):
             edict['lon'] = evlon
             edict['lat'] = evlat
             edict['dep'] = evdep
+            edict['eqdom'] = eqdom
             edict['omag'] = evmag
+            edict['ml2800'] = ml2800
+            edict['ml2080'] = ml2080
             edict['omag_type'] = evmagtype
             edict['mb'] = evmb
             edict['brune_mw'] = mw
@@ -928,12 +943,13 @@ if ignorePoorQual == False:
     pklfile.close()
     
     # write csv
-    txt = 'EVENT,GAID,LON,LAT,DEP,OMAG,OMAG_TYPE,MB,BRUNE_MAG,BRUNE_MAG_STD,STRESS_DROP,LOG_STRESS_DROP_STD,CORN_FREQ,CORN_FREQ_STD,NRECS,FMIN,FMAX,QUALITY\n'
+    txt = 'EVENT,GAID,LON,LAT,DEP,OMAG,OMAG_TYPE,MB,BRUNE_MAG,BRUNE_MAG_STD,STRESS_DROP,LOG_STRESS_DROP_STD,CORN_FREQ,CORN_FREQ_STD,NRECS,FMIN,FMAX,QUALITY,ML2800,ML2080,DOMAIN\n'
     
     for ev in events_dict:
         txt += ','.join((str(ev['evdt']),ev['evid'],str(ev['lon']),str(ev['lat']),str(ev['dep']),str(ev['omag']),ev['omag_type'],str(ev['mb']), \
                          str(ev['brune_mw']),str(ev['brune_mw_std']),str(ev['brune_sd']),str(ev['log_brune_sd_std']), \
-                         str(ev['brune_f0']),str(ev['brune_f0_std']),str(ev['nrecs']), str(ev['minf']),str(ev['maxf']),str(ev['qual']))) + '\n'
+                         str(ev['brune_f0']),str(ev['brune_f0_std']),str(ev['nrecs']), str(ev['minf']),str(ev['maxf']),str(ev['qual']), \
+                         str(ev['ml2800']),str(ev['ml2080']),ev['eqdom'])) + '\n'
     
     
     # write to file

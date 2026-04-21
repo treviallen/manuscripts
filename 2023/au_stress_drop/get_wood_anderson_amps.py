@@ -556,8 +556,12 @@ if max_pick_time > max_pkl_time:
 else:
     append_pkl = False
     records = []
+
 append_pkl = True
 records = recs
+
+#newmseed = set(['2026-03-11T08.05.M8.AUANU.picks'])
+
 #records = []
 ################################################################################
 # loop through pick files
@@ -578,6 +582,12 @@ for p, pf in enumerate(pickfiles[start_idx:]):
         if append_pkl == True and pickDat['origintime'] <= max_pkl_time:
             skipRec = True    
     
+        '''
+        # if new record in set not prev used 
+        if append_pkl == True and path.split(pickDat['mseed_path'])[-1] in newmseed:
+            skipRec = False
+        '''
+        
     if isnan(pickDat['mag']) == False: # and pf == '1997-03-05T06.15.00.AD.WHY.picks':
         
         channels = []

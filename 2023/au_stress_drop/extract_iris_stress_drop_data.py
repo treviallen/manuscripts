@@ -59,7 +59,7 @@ else:
 ##############################################################################
 
 networks = ['AU', 'S1', 'IU', 'II', 'G', '2O', 'M8', 'OZ']
-networks = ['OZ']
+#networks = ['2O']
 #networks = ['S1', 'IU', 'II', 'G', '2O', 'M8']
 
 for network in networks:
@@ -101,7 +101,7 @@ for network in networks:
     for ev in gadat: #[40:]:
         mindist = 0
         if network == 'S1' or network == 'M8' or network == '5G' or network == 'OZ' or network == '6K':
-            maxdist = 800
+            maxdist = 1500
             #maxdist = 750
         else:
             if ev['mag'] >= 4.5:
@@ -114,7 +114,7 @@ for network in networks:
         #maxdist = 200 # already got 200 - 2200 km
         
         dt = ev['datetime']
-        print(network, dt)
+        #print(network, dt)
         # allow 2 mins pre-event - subs realised "get_iris_data" already pads by 2 mins, so have 4 mins
         dt = UTCDateTime(ev['datetime']) - 120
         dateTuple = (dt.year, dt.month, dt.day, dt.hour, dt.minute)
@@ -128,7 +128,7 @@ for network in networks:
             #iris_sta_list = [{'CAAN']
             getauspass = True
             for isl in iris_sta_list:
-                
+                #print(isl)
                 # check if station is open
                 if isl['starttime'] <= dt and isl['stoptime'] >= dt: # and dt.year >= 2020:
                     #if isl['starttime'] <= dt and isl['stoptime'] < dt: # and dt.year >= 2020:

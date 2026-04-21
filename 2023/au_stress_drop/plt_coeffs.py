@@ -295,13 +295,13 @@ plt.semilogx(freqs, fc1, 'ro')
 plt.semilogx(freqs, fc1s, 'bo')
 plt.ylabel('mag1')
 
+plt.savefig('coeff_plt1.png',bbox_inches='tight')
 
-plt.show()
 
 ######################################
 # Plot regional FF corrections
 
-fig = plt.figure(1, figsize=(14, 10))
+fig = plt.figure(2, figsize=(14, 10))
 
 ffc = dictlist2array(coeffs, 'ffc') 
 NCCZ = dictlist2array(coeffs, 'NCCZ_rc')
@@ -328,4 +328,7 @@ plt.semilogx(freqs, ffc, 'ro')
 #plt.ylim([-2,0])
 plt.ylabel('ffc')
 
+plt.show()
+
+plt.savefig('coeff_plt2.png',bbox_inches='tight')
 plt.show()

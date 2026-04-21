@@ -4,7 +4,7 @@ from numpy import unique, array, arange, log, log10, exp, mean, nanmean, ndarray
                   hstack
 from misc_tools import get_binned_stats, dictlist2array, get_mpl2_colourlist, savitzky_golay
 from mag_tools import nsha18_mb2mw, nsha18_ml2mw
-from get_mag_dist_terms import get_distance_term, get_magnitude_term, get_kappa_term
+from get_mag_dist_terms_2026 import get_distance_term, get_magnitude_term, get_kappa_term
 from scipy.stats import linregress
 import scipy.odr.odrpack as odrpack
 from obspy import UTCDateTime
@@ -36,7 +36,7 @@ def fit_regional_correction(medx, logmedamp):
     
 keep_nets = set(['AU', 'IU', 'S1', 'II', 'G', 'MEL', 'ME', '2O', 'AD', 'SR', 'UM', 'AB', 'VI', 'GM', 'M8', 'DU', 'WG', '4N', \
                  '1P', '1P', '2P', '6F', '7K', '7G', 'G', '7B', '4N', '7D', '', 'OZ', 'OA', 'WG', 'XX', 'AM', 'YW', '3B', '1K', \
-                 '1Q', '3O'])
+                 '1Q', '3O', '7F', '6K', '5G', '5C', 'VW'])
 
 ignore_stas = open('sta_ignore.txt').readlines()
 #ignore_stas = open('sta_ignore.test').readlines()
@@ -136,7 +136,7 @@ for f, c in enumerate(coeffs):
                             # get total correction
                             ypred = magterm + distterm #+ kapterm
                 
-                            yobs = log10(rec[channel]['swave_spec'][f])
+                            yobs = log10(rec[channel]['p-swave_spec'][f])
                             yres.append(yobs - ypred)
                             recs[i]['yres'] = yobs - ypred
                 

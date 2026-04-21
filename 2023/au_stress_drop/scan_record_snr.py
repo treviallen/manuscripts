@@ -358,7 +358,7 @@ for mseedfile in mseedfiles:
             if rngkm > 800. and st[0].stats.network == 'WG':
                 passDistance = False
                 
-            if rngkm > 800. and st[0].stats.network == 'M8':
+            if rngkm > 1800. and st[0].stats.network == 'M8':
                 passDistance = False
             
             if passDistance == True:

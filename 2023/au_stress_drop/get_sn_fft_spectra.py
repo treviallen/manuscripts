@@ -445,7 +445,7 @@ lines = open('../../2026/source_params_hazard_sensitivity/brune_stats.csv').read
 brunedat = []
 for line in lines:
     dat = line.strip().split(',')
-    tmp = {'datetime':UTCDateTime(dat[0]), 'mw':float(dat[8]), 'qual':int(float(dat[-1]))}
+    tmp = {'datetime':UTCDateTime(dat[0]), 'mw':float(dat[8]), 'qual':int(float(dat[-4]))}
     
     brunedat.append(tmp)
     
@@ -497,7 +497,7 @@ else:
     print('test parsers')
     au_parser = Parser('/Users/trev/Documents/Networks/AU/AU.IRIS.dataless')
     cwb_parser = Parser('/Users/trev/Documents/Networks/AU/AU.cwb.dataless')
-    s1_parser = Parser('/Users/trev/Documents/Networks/S1/S1.IRIS.dataless')
+    #s1_parser = Parser('/Users/trev/Documents/Networks/S1/S1.IRIS.dataless')
     iu_parser = Parser('/Users/trev/Documents/Networks/IU/IU.IRIS.dataless')
     #g_parser = Parser('/Users/trev/Documents/Networks/G/G.IRIS.dataless')
     #ii_parser = Parser('/Users/trev/Documents/Networks/II/II.IRIS.dataless')
@@ -520,7 +520,8 @@ else:
     d7t_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/7T_SEAL2_2007.dataless')
     d8k_parser = Parser('/Users/trev/Documents/Networks/AUSPASS/8K_CAPRICORNHPS_2014.dataless')
     dm8_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/m8-inventory.xml')
-    d2p_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/2p-inventory-edit.xml')
+    #d2p_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/2p-inventory-edit.xml')
+    d2p_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/2p-inventory.xml') # try this - 2026-04-07
     d5c_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/5c-inventory.xml')
     d3o_parser = read_inventory('/Users/trev/Documents/Networks/AUSPASS/3o-inventory.xml')
     dam_parser = read_inventory('/Users/trev/Documents/Networks/AM/R7AF5.xml')
@@ -554,8 +555,11 @@ shutil.copy('fft_data.pkl', 'fft_data.pkl.hold')
 # now get max time in pkl
 max_pkl_time = UTCDateTime(1900,1,1)    
 recs = pickle.load(open('fft_data.pkl', 'rb' ))
+records = []
+append_pkl = False
 
 # get max time
+
 for i, rec in enumerate(recs):
     if rec['evdt'] > max_pkl_time:
         max_pkl_time = rec['evdt']
@@ -575,10 +579,13 @@ ignore_stas = set([x.strip() for x in ignore_stas])
 '''  
 
 from misc_tools import listdir_file_segment
+
+'''
 filelist = listdir_file_segment('iris_dump','2026-03-11T08.05.OZ')
 newmseed = set(filelist)
 print(newmseed)
-#newmseed = set(['1996-06-21T14.57.AU.CAA.mseed','1996-06-21T14.57.AU.GOO.mseed','1996-06-21T14.57.AU.TRI.mseed'])
+'''
+#newmseed = set(['2026-03-11T08.05.M8.AUANU.picks'])
 
 append_pkl = True
 records = recs
@@ -603,10 +610,11 @@ for p, pf in enumerate(pickfiles[start_idx:]):
             skipRec = True
         
                 
+        '''
         # if new record in set not prev used 
         if append_pkl == True and path.split(pickDat['mseed_path'])[-1] in newmseed:
             skipRec = False
-        
+        '''
         
     if isnan(pickDat['mag']) == False:
         #if pf.find('20031211')>=0:
@@ -825,7 +833,7 @@ for p, pf in enumerate(pickfiles[start_idx:]):
                     '''
                     
                     sttr = tr.stats.starttime + pickDat['pidx'] * tr.stats.delta - 10. # allow buffer
-                    ettr = tr.stats.starttime + pickDat['eidx'] * tr.stats.delta + 10. # allow buffer
+                    ettr = tr.stats.starttime + pickDat['eidx'] * tr.stats.delta + 0.5 # allow buffer
                     
                     pstr_trim = tr_proc.copy()
                     pstr_trim.trim(sttr, ettr)
@@ -847,7 +855,7 @@ for p, pf in enumerate(pickfiles[start_idx:]):
                     '''
                     
                     sttr = tr.stats.starttime + pickDat['sidx'] * tr.stats.delta - 5. # allow buffer
-                    ettr = tr.stats.starttime + pickDat['eidx'] * tr.stats.delta + 5. # allow buffer
+                    ettr = tr.stats.starttime + pickDat['eidx'] * tr.stats.delta + 0.5 # allow buffer
                     
                     str_trim = tr_proc.copy()
                     str_trim.trim(sttr, ettr)
@@ -870,7 +878,7 @@ for p, pf in enumerate(pickfiles[start_idx:]):
                     '''
                     # get SN-Ratio
                     '''
-                    sn_ratio = traceDat['swave_spec'] / traceDat['noise_spec']
+                    sn_ratio = traceDat['p-swave_spec'] / traceDat['noise_spec']
                     
                     # now set frequency limits - use 1 Hz as centre
                     sn_thresh = 5.
