@@ -28,7 +28,7 @@ for line in lines[1:]:
     lons.append(float(dat[2]))
     lats.append(float(dat[3]))
     mags.append(float(dat[8]))
-    qual.append(float(dat[-1]))
+    qual.append(float(dat[-4]))
     stressdrops.append(float(dat[10]))
     
     if qual[-1] == 1:

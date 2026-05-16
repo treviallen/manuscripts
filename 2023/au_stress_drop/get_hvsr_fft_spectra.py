@@ -1,7 +1,7 @@
 from obspy import read, UTCDateTime
 from spectral_analysis import calc_fft, prep_psa_simple, calc_response_spectra, get_cor_velocity
 from data_fmt_tools import remove_low_sample_data, return_sta_data, remove_acceleration_data, \
-                           fix_src_stream_channels, fix_stream_channels_bb2sp, fix_stream_network
+                           fix_src_stream_channels, fix_stream_channels_bb2sp, fix_stream_network, fix_CH_stream_channels
 from response import get_response_info, paz_response, deconvolve_instrument
 from misc_tools import listdir_extension, savitzky_golay
 from mapping_tools import distance
@@ -595,7 +595,8 @@ append_pkl = False
 ################################################################################
 
 f = 0
-start_idx = 0
+start_idx = 620
+
 #pickfiles = ['2022-02-01T10.39.2P.SWN25.picks']
 for p, pf in enumerate(pickfiles[start_idx:]):
     skipRec = False
@@ -631,7 +632,6 @@ for p, pf in enumerate(pickfiles[start_idx:]):
         
         channels = set(channels)
         
-        
         try:
             # look and file size and skip if too big    
             #print(pickDat['mseed_path'])
@@ -648,19 +648,21 @@ for p, pf in enumerate(pickfiles[start_idx:]):
                 #print('Progress -1')
                 if mseedfile.find('.MEL.') >= 0 and st[0].stats.network == 'UM':
                     fix_stream_network(path.join('iris_dump', mseedfile), 'VW')
-                    # reparse
                     st = read(path.join('iris_dump', mseedfile))
                     
                 elif st[0].stats.network == 'UM':
                     fix_stream_network(path.join('iris_dump', mseedfile), 'VW')
-                    # reparse
                     st = read(path.join('iris_dump', mseedfile))
                     
                 elif st[0].stats.station.startswith('GNOW'):
                     fix_stream_network(path.join('iris_dump', mseedfile), 'WG')
-                    # reparse
                     st = read(path.join('iris_dump', mseedfile))
                     
+                '''
+                elif st[0].stats.network == '2P':
+                    fix_CH_stream_channels(path.join('iris_dump', mseedfile), '2P')
+                    st = read(path.join('iris_dump', mseedfile))
+                '''
             except:
                 print('Skipping: '+pickDat['mseed_path'])
                 skipRec = True
@@ -709,6 +711,10 @@ for p, pf in enumerate(pickfiles[start_idx:]):
                 # reparse
                 st = read(path.join('iris_dump', mseedfile))
                 
+            if st[0].stats.network == '2P' and st[0].stats.channel.startswith == 'HH':
+                    fix_CH_stream_channels(path.join('iris_dump', mseedfile))
+                    st = read(path.join('iris_dump', mseedfile))
+                
             # check if channel bonkers
             if st[0].stats.channel[1] == 'Y' or st[0].stats.channel.startswith('EL'):
                 fix_src_stream_channels(path.join('iris_dump', mseedfile))
@@ -754,13 +760,10 @@ for p, pf in enumerate(pickfiles[start_idx:]):
             # loop thru traces
             #####################################################################
             
-            
-            
             chandict = []
             for tr in new_st:
-                # only do Z channel
+                # only do channel in channels
                 if tr.stats.channel in channels:
-                    
                     
                     traceDat = {}
                     seedid = tr.get_id()
@@ -890,17 +893,13 @@ for p, pf in enumerate(pickfiles[start_idx:]):
                     
                     traceDat['swave_spec'] = smoothed_interp_disp
                     
-                    #plt.loglog(freqs, s_disp_amp, 'r-', lw=0.3)
-                    #plt.xlim([0.05, 10])
-                    #plt.show()
-                    
                     '''
                     # get SN-Ratio
                     '''
                     sn_ratio = traceDat['p-swave_spec'] / traceDat['noise_spec']
                     
                     # now set frequency limits - use 1 Hz as centre
-                    sn_thresh = 5.
+                    sn_thresh = 4.
                     
                     # find nan ratios
                     nanidx = where(isnan(sn_ratio))[0]

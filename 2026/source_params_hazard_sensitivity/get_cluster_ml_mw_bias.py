@@ -1,7 +1,9 @@
 #import matplotlib as mpl
 #mpl.style.use('classic')
 import matplotlib.pyplot as plt
-from numpy import array, arange, nan, zeros_like, where, nanmean, nanstd, loadtxt, unique
+from numpy import array, arange, nan, zeros_like, where, nanmean, nanstd, loadtxt, unique, log10
+import matplotlib as mpl
+mpl.style.use('classic')
 plt.rcParams['pdf.fonttype'] = 42
 import warnings
 warnings.filterwarnings("ignore")
@@ -28,7 +30,7 @@ for line in lines[1:]:
     lons.append(float(dat[2]))
     lats.append(float(dat[3]))
     mw.append(float(dat[8]))
-    qual.append(float(dat[-2]))
+    qual.append(float(dat[-5]))
     cluster.append(float(dat[-1]))
     stressdrops.append(float(dat[10]))
     
@@ -94,6 +96,18 @@ mw_res_std = nanstd(mw_res)
 print(-1, mw_res_mean, mw_res_std) # all clusters
 
 cluster_txt += ','.join(('-1', str(mw_res_mean), str(mw_res_std))) + '\n'
+
+plt.cla()
+plt.clf()
+fig = plt.figure(1, figsize=(6, 15))
+plt.rc('xtick',labelsize=8)
+plt.rc('ytick',labelsize=8)
+
+bins = arange(-1.3, 2.5, 0.2)
+plt.subplot(4,3,1)
+plt.hist(log10(stressdrops), bins=bins, facecolor='0.8') #, width=0.8)
+plt.title('All Data', fontsize=10)
+plt.ylabel('Count')
  
 for i in range(0,n):
     idx = where((cluster == i) & (qual == 1))[0]
@@ -112,9 +126,24 @@ for i in range(0,n):
     
     cluster_txt += ','.join((str(i+1), str('%0.2f' %  mw_res_mean)+ ' +- '+str('%0.2f' % mw_res_std))) + '\n'
     
+    # now plot hist
+    plt.subplot(4,3,i+2)
+    plt.hist(log10(stressdrops[idx]), bins=bins, facecolor='0.8') #, width=0.8)
+    plt.title('Cluster '+str(i+1), fontsize=10)
+    
+    if i == 2 or i == 5 or i == 8:
+        plt.ylabel('Count')
+    if i >= 8:
+        plt.xlabel('log SD')
+    
 f = open('ml_mw_bias_cluster.csv', 'w')
 f.write(cluster_txt)
 f.close()
+
+# save fig
+plt.tight_layout()
+plt.savefig('figures/cluster_sd_histograms.png', format='png', dpi=300, bbox_inches='tight')       
+plt.show()
 
 
 

@@ -10,13 +10,20 @@ from calculate_magnitudes import calc_R35, calc_HB87, calc_MLM92, calc_BJ84, cal
 from mapping_tools import distance
 from scipy.odr import Data, Model, ODR, models
 import scipy.odr.odrpack as odrpack
-from ltsfit import lts_linefit
+#from ltsfit import lts_linefit
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 from matplotlib import colorbar, colors #, cm
 import cmcrameri.cm as cmc
 mpl.style.use('classic')
 plt.rcParams['pdf.fonttype'] = 42
+#plt.rcParams["font.family"] = "sans-serif"
+#plt.rcParams["font.sans-serif"] = ["DejaVu Sans"] + plt.rcParams["font.sans-serif"]
+#plt.rc('text', usetex=True)
+plt.rcParams['font.sans-serif'] = ['DejaVu Sans']
+plt.rcParams['font.family'] = 'sans-serif'
+
+
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -342,7 +349,7 @@ plt.plot(xplt, yplt, '--', lw=2, c='k', label='Present Study')
 plt.xlim([2.5,7])
 plt.ylim([2.5,7])
 plt.xlabel('$\mathregular{M_{L(2800)}}$', fontsize=15)
-plt.ylabel('$\mathregular{M_{Brune}}$', fontsize=15)
+plt.ylabel("Moment Magnitude (M)", fontsize=15)
 plt.xticks(fontsize=12)
 plt.yticks(fontsize=12)
 plt.legend(loc=2, fontsize=12)
@@ -392,7 +399,7 @@ f.write(stacsv)
 f.close()
 
 # now show figs 
-plt.savefig('ml_vs_mw_brune.png', fmt='png', dpi=300, bbox_inches='tight')       
+plt.savefig('ml_vs_mw_brune.png', dpi=300, bbox_inches='tight')       
 plt.show()    
 #crash
 ##########################################################################################
@@ -481,7 +488,7 @@ cb.set_ticklabels(labels)
 cb.set_label('Brune Stress Drop (MPa)', rotation=270, fontsize=18, labelpad=18)
 
 # now show figs 
-plt.savefig('mw_vs_ml_zone.png', fmt='png', dpi=300, bbox_inches='tight')       
+plt.savefig('mw_vs_ml_zone.png', dpi=300, bbox_inches='tight')       
 plt.show()    
 
 ##########################################################################################
@@ -504,7 +511,7 @@ sc = plt.scatter(mw_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.9, 
 #sc = plt.scatter(ml_array, mw_res, c=log10(sd_array), vmin=-0.9, vmax=1.7, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'All Data', va='top', ha ='left', fontsize=12, bbox=props)
 plt.grid(which='both')
-plt.ylabel('$\mathregular{M_{Brune}}$ - $\mathregular{M_{conv}}$', fontsize=16)
+plt.ylabel('$\mathbf{M}$ - $\mathregular{M_{conv}}$', fontsize=16)
 plt.xlim([2.75,6.75])
 plt.ylim([-0.8,0.8])
 plt.text(2.3,0.98, '(a)', va='top', ha ='left', fontsize=16)
@@ -560,8 +567,8 @@ stat_txt = r'$\mu$ = '+str('%0.2f' % mean_res) + '\n' \
            + r'$\tau$ = '+str('%0.2f' % std_res)
 plt.text(xloc2, yloc2, stat_txt, va='bottom', ha ='right', fontsize=12, bbox=props)
 
-plt.xlabel('$\mathregular{M_{Brune}}$', fontsize=16)
-plt.ylabel('$\mathregular{M_{Brune}}$ - $\mathregular{M_{conv}}$', fontsize=16)
+plt.xlabel('$\mathbf{M}$', fontsize=16)
+plt.ylabel('$\mathbf{M}$ - $\mathregular{M_{conv}}$', fontsize=16)
 plt.grid(which='both')
 plt.xlim([2.75,6.75])
 plt.ylim([-0.8,0.8])
@@ -611,7 +618,7 @@ cb.set_ticklabels(labels)
 cb.set_label('Brune Stress Drop (MPa)', rotation=270, fontsize=16, labelpad=16)
 
 # now show figs 
-plt.savefig('mw_res_zone.png', fmt='png', dpi=300, bbox_inches='tight')       
+plt.savefig('mw_res_zone.png', dpi=300, bbox_inches='tight')       
 plt.show()    
 
 ##########################################################################################
@@ -630,11 +637,12 @@ plt.clf()
 #plt all data
 plt.subplot(221)
 plt.plot([2,7], [0,0], 'k--', lw=0.5)
-sc = plt.scatter(ml_array, mw_res, c=log10(sd_array), vmin=-0.9, vmax=1.7, s=36, cmap=cm, label='Data')
+sc = plt.scatter(ml_array, mw_res, c=log10(sd_array), vmin=-0.9, vmax=1.7, s=36, cmap=cm, edgecolor='0.5', linewidths=0.25,label='Data')
+
 #sc = plt.scatter(ml_array, mw_res, c=log10(sd_array), vmin=-0.9, vmax=1.7, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'All Data', va='top', ha ='left', fontsize=12, bbox=props)
 plt.grid(which='both')
-plt.ylabel('$\mathregular{M_{Brune}}$ - $\mathregular{M_{conv}}$', fontsize=16)
+plt.ylabel('$\mathregular{M}$ - $\mathregular{M_{conv}}$', fontsize=16)
 plt.xlim([2.75,7])
 plt.ylim([-0.8,0.8])
 plt.text(2.3,0.98, '(a)', va='top', ha ='left', fontsize=16)
@@ -653,7 +661,8 @@ plt.text(xloc2, yloc2, stat_txt, va='bottom', ha ='right', fontsize=12, bbox=pro
 plt.subplot(222)
 plt.plot([2,7], [0,0], 'k--', lw=0.5)
 idx = where(mzone_array == 'EA')[0]
-sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, label='Data')
+sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, edgecolor='0.5', linewidths=0.25,label='Data')
+
 #sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, label='Data')
 plt.text(xloc, yloc, 'Eastern Australia', va='top', ha ='left', fontsize=12, bbox=props)
 #plt.xlabel('$\mathregular{M_{L(MLM92)}}$', fontsize=18)
@@ -677,8 +686,7 @@ plt.text(2.3,0.98, '(b)', va='top', ha ='left', fontsize=16)
 plt.subplot(223)
 plt.plot([2,7], [0,0], 'k--', lw=0.5)
 idx = where(mzone_array == 'WCA')[0]
-sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, label='Data')
-#sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, label='Data')
+sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, edgecolor='0.5', linewidths=0.25,label='Data')
 plt.text(xloc, yloc, 'Western and Central Australia', va='top', ha ='left', fontsize=12, bbox=props)
 
 # get mean & std
@@ -691,7 +699,7 @@ stat_txt = r'$\mu$ = '+str('%0.2f' % mean_res) + '\n' \
 plt.text(xloc2, yloc2, stat_txt, va='bottom', ha ='right', fontsize=12, bbox=props)
 
 plt.xlabel('$\mathregular{M_{L(2800)}}$', fontsize=16)
-plt.ylabel('$\mathregular{M_{Brune}}$ - $\mathregular{M_{conv}}$', fontsize=16)
+plt.ylabel('$\mathregular{M}$ - $\mathregular{M_{conv}}$', fontsize=16)
 plt.grid(which='both')
 plt.xlim([2.75,7])
 plt.ylim([-0.8,0.8])
@@ -701,7 +709,7 @@ plt.text(2.3,0.98, '(c)', va='top', ha ='left', fontsize=16)
 plt.subplot(224)
 plt.plot([2,7], [0,0], 'k--', lw=0.5)
 idx = where(mzone_array == 'SA')[0]
-sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, label='Data')
+sc = plt.scatter(ml_array[idx], mw_res[idx], c=log10(sd_array[idx]), vmin=-0.9, vmax=1.7, s=36, cmap=cm, edgecolor='0.5', linewidths=0.25,label='Data')
 plt.text(xloc, yloc, 'South Australia', va='top', ha ='left', fontsize=12, bbox=props)
 
 # get mean & std
@@ -741,7 +749,7 @@ cb.set_ticklabels(labels)
 cb.set_label('Brune Stress Drop (MPa)', rotation=270, fontsize=16, labelpad=16)
 
 # now show figs 
-plt.savefig('mw_res_zone_with_ml.png', fmt='png', dpi=300, bbox_inches='tight')       
+plt.savefig('mw_res_zone_with_ml.png', dpi=300, bbox_inches='tight')       
 plt.show()    
 
 
@@ -769,7 +777,7 @@ cb = colorbar.ColorbarBase(cax, cmap=cm, norm=norm, orientation='vertical')
 cb.set_label('$\mathregular{M_{Brune}}$', rotation=270, fontsize=18, labelpad=20)
 
 # now show figs 
-plt.savefig('mw_ml_res_vs_stressdrop.png', fmt='png', dpi=300, bbox_inches='tight')       
+plt.savefig('mw_ml_res_vs_stressdrop.png', dpi=300, bbox_inches='tight')       
 plt.show()    
 
 ##########################################################################################
@@ -796,7 +804,7 @@ cb = colorbar.ColorbarBase(cax, cmap=cm, norm=norm, orientation='vertical')
 cb.set_label(r"log $\Delta\sigma$ STD (MPa)", rotation=270, fontsize=18, labelpad=20)
 
 # now show figs 
-plt.savefig('mw_ml_res_vs_stressdrop_std.png', fmt='png', dpi=300, bbox_inches='tight')       
+plt.savefig('mw_ml_res_vs_stressdrop_std.png', dpi=300, bbox_inches='tight')       
 plt.show()    
 
 ##########################################################################################
@@ -866,11 +874,36 @@ plt.tight_layout()
 #plt.subplots_adjust(wspace=0.07)
 
 # now show figs 
-plt.savefig('stressdrop_vs_mag.png', fmt='png', dpi=300, bbox_inches='tight') 
-plt.savefig('stressdrop_vs_mag.eps', fmt='eps', dpi=300, bbox_inches='tight')       
+plt.savefig('stressdrop_vs_mag.png', dpi=300, bbox_inches='tight') 
+plt.savefig('stressdrop_vs_mag.eps', dpi=300, bbox_inches='tight')       
 plt.show() 
 
 ##########################################################################################
+# get probabilities of SD in distribution
+def weighted_lsq_regression(x, y):
+    from scipy.stats import gaussian_kde
+    import statsmodels.api as sm
+    
+    kde = gaussian_kde(x)
+    
+    # Density at a specific value (e.g., 2.0)
+    density = kde.evaluate(x)
+    weight = 1/density
+    weight /= sum(weight)
+    #weight = 1/len(x) # temp - equal weights
+    
+    # regress weighted model
+    X = sm.add_constant(x)
+    model = sm.WLS(y, X, weights=weight)
+    results = model.fit()
+    
+    # Print regression results
+    print(results.summary())
+    
+    return results
+
+##########################################################################################
+magregtxt = 'reg,a,b,r2\n'
 # plot SD vs ML and ML
 fig = plt.figure(5, figsize=(14, 4))
 pltlett = ['(a)', '(b)', '(c)', '(d)', '(e)', '(f)']
@@ -883,6 +916,16 @@ c = linregress(ml_array[idx], log10(sd_array[idx]))
 mplt = array([3, 7])
 splt = c[0]*mplt + c[1]
 
+magregtxt += ','.join(('ML_LSQ',str(c[0]),str(c[1]), str(c.rvalue**2))) + '\n'
+
+# do weighted regression
+results = weighted_lsq_regression(ml_array[idx], log10(sd_array[idx]))
+wc1 = results.params[0]
+wc0 = results.params[1]
+wplt = wc0*mplt + wc1
+
+magregtxt += ','.join(('ML_WLSQ',str(wc0),str(wc1), str(results.rsquared))) + '\n'
+
 print('Correlation Coef: '+str(c[2]))
 print('log mean: '+str(nanmean(log10(sd_array))))
 print('log std: '+str(nanstd(log10(sd_array))))
@@ -890,6 +933,7 @@ print('Correlation Coef: '+str(c[2]))
 
 plt.semilogy(ml_array, sd_array, 'o', c='0.8', ms=6.5)
 plt.semilogy(mplt, 10**splt, '--', c='k', lw=3)
+plt.semilogy(mplt, 10**wplt, '--', c='0.6', lw=3)
 plt.ylabel(r"$\Delta\sigma$ (MPa)", fontsize=18)
 plt.xlabel('$\mathregular{M_{L(2800)}}$', fontsize=18)
 plt.grid(which='both') 
@@ -900,7 +944,8 @@ plt.ylim([0.05, 100])
 xloc2 = 6.9
 yloc2 = get_log_xy_locs([0.05, 100], 0.04)
 
-stat_txt = r'$r^{2}$ = '+str('%0.3f' % c.rvalue**2)
+stat_txt = r'$r^{2}$(LSQ) = '+str('%0.3f' % c.rvalue**2)+ '\n' \
+           r'$r^{2}$(WLSQ) = '+str('%0.3f' % results.rsquared)
 plt.text(xloc2, yloc2, stat_txt, va='bottom', ha ='right', fontsize=14, bbox=props)
 plt.xlim([3, 7])
 
@@ -913,8 +958,19 @@ ax = plt.subplot(122)
 idx = where(isnan(sd_array) == False)[0]
 c = linregress(mw_array[idx], log10(sd_array[idx]))
 
+magregtxt += ','.join(('MW_LSQ',str(c[0]),str(c[1]), str(c.rvalue**2))) + '\n'
+
+
 mplt = array([3, 7])
 splt = c[0]*mplt + c[1]
+
+# do weighted regression
+results = weighted_lsq_regression(mw_array[idx], log10(sd_array[idx]))
+wc1 = results.params[0]
+wc0 = results.params[1]
+wplt = wc0*mplt + wc1
+
+magregtxt += ','.join(('MW_WLSQ',str(wc0),str(wc1), str(results.rsquared)))
 
 print('Correlation Coef: '+str(c[2]))
 print('log mean: '+str(nanmean(log10(sd_array))))
@@ -923,6 +979,7 @@ print('Correlation Coef: '+str(c[2]))
 
 plt.semilogy(mw_array, sd_array, 'o', c='0.8', ms=6.5)
 plt.semilogy(mplt, 10**splt, '--', c='k', lw=3)
+plt.semilogy(mplt, 10**wplt, '--', c='0.6', lw=3)
 #plt.ylabel(r"$\Delta\sigma$ (MPa)", fontsize=18)
 plt.xlabel('M', fontsize=18, weight="bold")
 plt.grid(which='both') 
@@ -930,7 +987,8 @@ plt.ylim([0.05, 100])
 #plt.legend(loc=4, numpoints=1, fontsize=10)
 
 # annotate
-stat_txt = r'$r^{2}$ = '+str('%0.3f' % c.rvalue**2)
+stat_txt = r'$r^{2}$(LSQ) = '+str('%0.3f' % c.rvalue**2)+ '\n' \
+           r'$r^{2}$(WLSQ) = '+str('%0.3f' % results.rsquared)
 plt.text(xloc2, yloc2, stat_txt, va='bottom', ha ='right', fontsize=14, bbox=props)
 plt.xlim([3, 7])
 
@@ -940,6 +998,11 @@ plt.text(xpos, ypos, pltlett[1], fontsize=20, va='bottom', ha='left')
 
 plt.tight_layout() 
 
+# export regressions
+f = open('sd-mag-regressions.csv', 'w')
+f.write(magregtxt)
+f.close()
+
 # now show figs 
-plt.savefig('stressdrop_vs_ml_mw.png', fmt='png', dpi=300, bbox_inches='tight')       
+plt.savefig('stressdrop_vs_ml_mw.png', dpi=300, bbox_inches='tight')       
 plt.show() 

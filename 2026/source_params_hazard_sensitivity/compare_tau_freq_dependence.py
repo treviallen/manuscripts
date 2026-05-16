@@ -1,11 +1,11 @@
 import pickle
 from numpy import unique, array, arange, log, log10, exp, mean, nanmean, ndarray, sqrt, \
                   nanmedian, hstack, pi, nan, isnan, interp, where, zeros_like, polyfit, \
-                  hstack, nanstd, loadtxt, nanmedian
+                  hstack, nanstd, loadtxt, nanmedian, nanvar
 from misc_tools import get_binned_stats, dictlist2array, get_mpl2_colourlist, savitzky_golay, get_log_xy_locs
 from mag_tools import nsha18_mb2mw, nsha18_ml2mw
 from get_mag_dist_terms import get_distance_term, get_magnitude_term, get_kappa_term, get_regional_term
-from scipy.stats import linregress
+from scipy.stats import linregress, median_abs_deviation, f
 import scipy.odr.odrpack as odrpack
 from obspy import UTCDateTime
 from datetime import timedelta
@@ -63,13 +63,13 @@ lines = open('brune_stats_cluster.csv').readlines()[1:]
 brunedat = []
 for line in lines:
     dat = line.strip().split(',')
-    tmp = {'datetime':UTCDateTime(dat[0]), 'mw':float(dat[8]), 'qual':int(float(dat[-2])), \
+    tmp = {'datetime':UTCDateTime(dat[0]), 'mw':float(dat[8]), 'qual':int(float(dat[-5])), \
            'lon':float(dat[2]), 'lat':float(dat[3]), 'sd':float(dat[10]), 'cluster':int(float(dat[-1]))}
     
     brunedat.append(tmp)
     
 def get_brune_deets(fft_datetime):
-    bruneStats = {'mw':nan, 'qual':0}
+    bruneStats = {'mw':nan, 'qual':0, 'cluster':nan, 'datetime':UTCDateTime(2599,12,31), 'lon':nan, 'sd':nan}
     for evnum, ev in enumerate(brunedat): 
         #ev['datetime'] = UTCDateTime(2024,2,27,16,4,9)
         
@@ -162,7 +162,7 @@ for i, rec in enumerate(recs):
 ###############################################################################
 fidxs = arange(49, 135,3)
 
-def get_inter_event_terms(magType, recs):
+def get_inter_event_terms(magType, recs, maxdist):
     '''
     magType: 1 = Brune mags
              2 = ML-MW cluster correction (MW - dMW) where dMW from mean MW - MW(conv)
@@ -194,7 +194,7 @@ def get_inter_event_terms(magType, recs):
             for i, rec in enumerate(recs):
                 
                 # if qual == 1, "mag" is Mwb
-                if rec['net'] in keep_nets and rec['qual'] == 1:
+                if rec['net'] in keep_nets and rec['qual'] == 1 and rec['rhyp'] < maxdist:
                     
                     if not rec['sta'] in ignore_stas:
                         try:
@@ -253,7 +253,6 @@ def get_inter_event_terms(magType, recs):
                         except:
                             # do nothing
                             dummy = 0
-                            
                         
             resData = {'yres':array(yres), 'mags':array(rmags), 'ev':array(revent), \
                        'rhyps':array(rhyps), 'rsd':array(rsd), 'evdt':array(revdt)}
@@ -261,36 +260,109 @@ def get_inter_event_terms(magType, recs):
             resDict.append(resData)
                     
     return resDict
+
+###############################################################################
+# functions for trilinear fit
+###############################################################################
+
+def highside(x, hx):
+    from numpy import zeros_like
+    xmod = zeros_like(x)
     
+    idx = x >= hx
+    xmod[idx] = 1
+    return xmod
+    
+def midside(x, hx1, hx2):
+    from numpy import zeros_like, where
+    xmod = zeros_like(x)
+    
+    idx = where((x >= hx1) & (x < hx2))[0]
+    xmod[idx] = 1
+    return xmod
+
+def lowside(x, hx):
+    from numpy import zeros_like
+    xmod = zeros_like(x)
+    
+    idx = x < hx
+    xmod[idx] = 1
+    return xmod
+
+def trilinear_reg_fix_intercept_slope(c, x):
+    from numpy import zeros_like
+    hx1 = c[1] # hinge magnitude
+    hx2 = c[2] # hinge magnitude
+    #print(hx1, hx2)
+    ans3 = zeros_like(x)
+    ans2 = zeros_like(x)
+    ans1 = zeros_like(x)
+    
+    modx_lo = lowside(x, hx1)
+    modx_md = midside(x, hx1, hx2)
+    modx_hi = highside(x, hx2)
+    
+    ans1 = modx_lo * 0.0
+    hy1 = 0.0
+    ans2 = modx_md * (c[0] * (x-hx1) + hy1)
+    hy2 = c[0] * (hx2-hx1)
+    ans3 = modx_hi * hy2
+    
+    return ans1 + ans2 + ans3
+    
+trifitx = arange(3., 7.01, 0.01)
+
+def regress_mbias(plt_event_mags, plt_event_terms_sd_corrected, trifitx):
+    bins = arange(3.8, 6.8, 0.2)
+    medamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, plt_event_mags, plt_event_terms_sd_corrected)
+    realData = odrpack.RealData(medx, medamp)
+    
+    afit = odrpack.Model(trilinear_reg_fix_intercept_slope)
+    odr = odrpack.ODR(realData, afit, beta0=[-0.3, 4.75, 5.75])
+    
+    odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
+    out = odr.run()
+    c = out.beta
+    
+    trifity = zeros_like(trifitx)
+    idx = where((trifitx >= c[1]) & (trifitx < c[2]))[0]
+    trifity[idx] = c[0] * (trifitx[idx]-c[1])
+    hy = c[0] * (c[2]-c[1])
+    idx = trifitx >= c[2]
+    trifity[idx] = hy
+
+    return trifity, c
+        
 ###############################################################################
 # calculate different scenarios
 ###############################################################################
+maxdist = 2000
 '''
 # ergodic
 print('Getting raw residual data ...')
-resDict = get_inter_event_terms(1, recs)
-pklfile = open('residual_data_fdep.pkl', 'wb')
+resDict = get_inter_event_terms(1, recs, maxdist)
+pklfile = open('residual_data_fdep_'+str(maxdist)+'.pkl', 'wb')
 pickle.dump(resDict, pklfile, protocol=-1)
 pklfile.close()
 
 #  mw using regional correction
 print('Getting cluster mag residual data ...')
-resDict = get_inter_event_terms(2, recs)
-pklfile = open('residual_ml_cluster_data_fdep.pkl', 'wb')
+resDict = get_inter_event_terms(2, recs, maxdist)
+pklfile = open('residual_ml_cluster_data_fdep_'+str(maxdist)+'.pkl', 'wb')
 pickle.dump(resDict, pklfile, protocol=-1)
 pklfile.close()
 
 # ML2MW no corrections
 print('Getting ml2mw residual data ...')
-resDict = get_inter_event_terms(3, recs)
-pklfile = open('residual_ml_nocluster_data_fdep.pkl', 'wb')
+resDict = get_inter_event_terms(3, recs, maxdist)
+pklfile = open('residual_ml_nocluster_data_fdep_'+str(maxdist)+'.pkl', 'wb')
 pickle.dump(resDict, pklfile, protocol=-1)
 pklfile.close()
 '''
 
-resDictRaw = pickle.load(open('residual_data_fdep.pkl', 'rb' ))
-resDictCluster = pickle.load(open('residual_ml_cluster_data_fdep.pkl', 'rb' ))
-resDictNoCluster = pickle.load(open('residual_ml_nocluster_data_fdep.pkl', 'rb' ))
+resDictRaw = pickle.load(open('residual_data_fdep_'+str(maxdist)+'.pkl', 'rb' ))
+resDictCluster = pickle.load(open('residual_ml_cluster_data_fdep_'+str(maxdist)+'.pkl', 'rb' ))
+resDictNoCluster = pickle.load(open('residual_ml_nocluster_data_fdep_'+str(maxdist)+'.pkl', 'rb' ))
 
 ###############################################################################
 # get within event sigmas
@@ -348,12 +420,54 @@ def get_inter_event_residuals(resDict):
         
         sigma_be.append(nanstd(array(event_terms)))
         sigma_we.append(nanstd(array(yres_weterm)))   
+        
+        #sigma_be.append(median_abs_deviation(array(event_terms), nan_policy='omit'))
+        #sigma_we.append(median_abs_deviation(array(yres_weterm), nan_policy='omit'))   
+        
         mags_list.append(array(event_mags))
         sds_list.append(array(event_sds)) 
         ev_list.append(array(uevdt)) 
         ev_term_list.append(array(event_terms))
                 
     return sigma_be, sigma_we, mags_list, sds_list, ev_list, ev_term_list
+
+###############################################################################
+# function for f-test
+###############################################################################
+
+def f_test(group1, group2):
+    import scipy.stats as stats
+    
+    '''
+    in this case, group1 is the ergodic case and group2 is the alternative
+    '''
+    
+    # Calculate the sample variances
+    variance1 = nanvar(group1, ddof=1)
+    variance2 = nanvar(group2, ddof=1)
+    
+    # Calculate the F-statistic
+    f_value = variance1 / variance2
+    
+    # Calculate the degrees of freedom
+    df1 = len(group1) - 1
+    df2 = len(group2) - 1
+    
+    # two-tailed Calculate the p-value
+    #p_value = stats.f.cdf(f_value, df1, df2)
+    
+    # Upper one-tailed p-value
+    p_value = stats.f.sf(f_value, df1, df2)
+
+    
+    # Print the results
+    '''
+    print('Degree of freedom 1:',df1)
+    print('Degree of freedom 2:',df2)
+    print("F-statistic:", f_value)
+    print("p-value:", p_value)
+    '''
+    return p_value
     
 ###############################################################################
 # get stress drop correction
@@ -361,7 +475,7 @@ def get_inter_event_residuals(resDict):
 
 plt_freqs = freqs[fidxs]
 
-sigma_be_list, sigma_we_list, mags_list, sds_list, ev_list, ev_term_list \
+sigma_be_list, sigma_we_list, mags_list, sds_list, ev_list, ergodic_ev_term_list \
     = get_inter_event_residuals(resDictRaw)
 
 sdreg_coeffs = []  
@@ -369,20 +483,64 @@ sd_corrected_event_terms = []
 sd_corrected_tau = []
 clust_sd_corrected_tau = []
 ergodic_tau = []
+ergodic_ftest_data = []
+sd_corrected_ftest = []
+clust_sd_corrected_ftest = []
+sd_mag_corrected_tau = []
+sd_mag_corrected_ftest = []
+
+# get f-dependent dBe vs SD
+dBe_sd_r2 = []
+
 for i, f in enumerate(plt_freqs):
 
     # regress
-    idx = where(isnan(ev_term_list[i]) == False)[0]
+    idx = where(isnan(ergodic_ev_term_list[i]) == False)[0]
     
-    ergodic_tau.append(nanstd(ev_term_list[i][idx]))
+    ergodic_tau.append(nanstd(ergodic_ev_term_list[i][idx]))
+    ergodic_ev_terms = ergodic_ev_term_list[i][idx]
+    #ergodic_tau.append(median_abs_deviation(ev_term_list[i][idx], nan_policy='omit'))
     
-    sdreg = linregress(log10(sds_list[i][idx]), ev_term_list[i][idx])
+    sdreg = linregress(log10(sds_list[i][idx]), ergodic_ev_terms)
     
     sdreg_coeffs.append(sdreg)
+    dBe_sd_r2.append(sdreg[2]**2)
     
     # correct event terms for SD
-    sd_corrected_event_terms.append(ev_term_list[i][idx] - (sdreg[0] * log10(sds_list[i][idx]) + sdreg[1]))
-    sd_corrected_tau.append(nanstd(ev_term_list[i][idx] - (sdreg[0] * log10(sds_list[i][idx]) + sdreg[1])))
+    sd_corrected_event_terms = ergodic_ev_term_list[i][idx] - (sdreg[0] * log10(sds_list[i][idx]) + sdreg[1])
+    
+    sd_corrected_tau.append(nanstd(ergodic_ev_term_list[i][idx] - (sdreg[0] * log10(sds_list[i][idx]) + sdreg[1])))
+    #sdct = median_abs_deviation((ev_term_list[i][idx] - (sdreg[0] * log10(sds_list[i][idx]) + sdreg[1])), \
+    #                            nan_policy='omit')
+    #sd_corrected_tau.append(sdct)
+    
+    sd_corrected_ftest.append(f_test(ergodic_ev_terms, sd_corrected_event_terms))
+    
+    ###############################################################################
+    # get mag bias correction
+    ###############################################################################
+    sd_mag_corrected_event_terms, tc = regress_mbias(mags_list[i][idx], sd_corrected_event_terms, trifitx)
+    print(f, tc)
+    
+    # do some checks
+    if tc[0] < -1.0:
+        tc[0] = 0
+        tc[2] = tc[1]
+    elif tc[2] < tc[1]:
+        tc[0] = 0
+        tc[2] = tc[1]
+    
+    # correct data for mag bias
+    fmags_list = mags_list[i][idx]
+    sd_mag_corrected_event_terms = sd_corrected_event_terms
+    midx = where((fmags_list >= tc[1]) & (fmags_list < tc[2]))[0]
+    sd_mag_corrected_event_terms[midx] -= tc[0] * (fmags_list[midx]-tc[1])
+    hy = tc[0] * (tc[2]-tc[1])
+    midx = fmags_list >= tc[2]
+    sd_mag_corrected_event_terms[midx] -= hy
+
+    sd_mag_corrected_tau.append(nanstd(sd_mag_corrected_event_terms))
+    sd_mag_corrected_ftest.append(f_test(ergodic_ev_terms, sd_mag_corrected_event_terms))
     
     ###############################################################################
     # get cluster SD correction
@@ -404,73 +562,134 @@ for i, f in enumerate(plt_freqs):
         mean_cluster_log_sd.append(nanmean(log10(sds_list[i][idx])))
 
     # now get regional correction    
-    ev_term = ev_term_list[i].copy()
+    ev_term = ergodic_ev_term_list[i].copy()
     sd_clust_cor = zeros_like(ev_term)
     for j, cluster in enumerate(uclusters):
         idx = where(clusters == cluster)[0]
         sd_clust_cor[idx] = ev_term[idx] - (sdreg[0] * mean_cluster_log_sd[j] + sdreg[1])
         
-    clust_sd_corrected_tau.append(nanstd(sd_clust_cor))
-
+    clust_sd_corrected_tau.append(nanstd(sd_clust_cor))  
+    #clust_sd_corrected_tau.append(median_abs_deviation(sd_clust_cor, nan_policy='omit'))
+    
+    clust_sd_corrected_ftest.append(f_test(ergodic_ev_terms, sd_clust_cor))
+    
 ###############################################################################
 # now get alt mag clusterd taus
 ###############################################################################
 
-
-sigma_be_list, sigma_we_list, mags_list, sds_list, ev_list, ev_term_list \
+sigma_be_list, sigma_we_list, mags_list, sds_list, ev_list, mconv_ev_term_list \
     = get_inter_event_residuals(resDictNoCluster)
 
 mconv_tau = []
+mconv_ftest = []
 for i, f in enumerate(plt_freqs):
 
     # regress
-    idx = where(isnan(ev_term_list[i]) == False)[0]
+    idx = where(isnan(mconv_ev_term_list[i]) == False)[0]
     
-    mconv_tau.append(nanstd(ev_term_list[i][idx])) 
+    mconv_tau.append(nanstd(mconv_ev_term_list[i][idx])) 
+    mconv_ev_terms = mconv_ev_term_list[i][idx]
+    #mconv_tau.append(median_abs_deviation(ev_term_list[i][idx], nan_policy='omit'))
+    
+    mconv_ftest.append(f_test(ergodic_ev_term_list[i], mconv_ev_terms))
 
 
-sigma_be_list, sigma_we_list, mags_list, sds_list, ev_list, ev_term_list \
+sigma_be_list, sigma_we_list, mags_list, sds_list, ev_list, m_clust_ev_term_list \
     = get_inter_event_residuals(resDictCluster)
 
 delta_m_tau = []
+delta_m_ftest = []
 for i, f in enumerate(plt_freqs):
 
     # regress
-    idx = where(isnan(ev_term_list[i]) == False)[0]
+    idx = where(isnan(m_clust_ev_term_list[i]) == False)[0]
     
-    delta_m_tau.append(nanstd(ev_term_list[i][idx])) 
+    delta_m_tau.append(nanstd(m_clust_ev_term_list[i][idx])) 
+    m_clust_ev_terms = m_clust_ev_term_list[i][idx]
+    #delta_m_tau.append(median_abs_deviation(ev_term_list[i][idx], nan_policy='omit'))
+    
+    delta_m_ftest.append(f_test(ergodic_ev_term_list[i], m_clust_ev_terms))
     
 ###############################################################################
 # now plot
 ###############################################################################
-ncols = 6
+ncols = 7
 cptfile = '/Users/trev/Documents/DATA/GMT/cpt/keshet.cpt'
 cmap, zvals = cpt2colormap(cptfile, ncols)
 cs = (cmap(arange(ncols)))
 
-syms = ['o', '^', 's', 'd', 'v', '<', 'h', '>', 'p']
+syms = ['o', '^', 's', 'd', 'v', 'h', '<', '>', 'p']
 
 plt.clf()
-fig = plt.figure(figsize=(6,4))
-plt.rc('xtick',labelsize=12)
-plt.rc('ytick',labelsize=12)
+fig = plt.figure(1, figsize=(5,6))
+plt.rc('xtick',labelsize=10)
+plt.rc('ytick',labelsize=10)
 
+plt.subplot(211)
+plt.cla()
 plt.semilogx(plt_freqs, ergodic_tau, syms[0], ls='-', c=cs[0], lw=2, \
              ms=6, mec=cs[0], mfc='w', mew=2, markevery=2, label='Ergodic')
 plt.semilogx(plt_freqs, mconv_tau, syms[1], ls='-', c=cs[1], lw=2, \
              ms=6, mec=cs[1], mfc='w', mew=2, markevery=2, label='$\mathregular{M_{conv}}$')
 plt.semilogx(plt_freqs, sd_corrected_tau, syms[2], ls='-', c=cs[2], lw=2, \
              ms=6, mec=cs[2], mfc='w', mew=2, markevery=2, label=r"$\Delta\sigma_i$ adjustment")
-plt.semilogx(plt_freqs, delta_m_tau, syms[3], ls='-', c=cs[3], lw=2, \
-             ms=6, mec=cs[3], mfc='w', mew=2, markevery=2, label=r"M($\Delta$" + '$\mathregular{M_k}$' + ') adjustment')
-plt.semilogx(plt_freqs, clust_sd_corrected_tau, syms[4], ls='-', c=cs[4], lw=2, \
-             ms=6, mec=cs[4], mfc='w', mew=2, markevery=2, label=r"$\Delta\sigma_k$ adjustment")
+plt.semilogx(plt_freqs, sd_mag_corrected_tau, syms[3], ls='-', c=cs[3], lw=2, \
+             ms=6, mec=cs[3], mfc='w', mew=2, markevery=2, label=r"$\Delta\sigma_{i,M}$ adjustment")
+plt.semilogx(plt_freqs, delta_m_tau, syms[4], ls='-', c=cs[4], lw=2, \
+             ms=6, mec=cs[4], mfc='w', mew=2, markevery=2, label=r"M($\Delta$" + '$\mathregular{M_k}$' + ') adjustment')
+plt.semilogx(plt_freqs, clust_sd_corrected_tau, syms[5], ls='-', c=cs[5], lw=2, \
+             ms=6, mec=cs[5], mfc='w', mew=2, markevery=2, label=r"$\Delta\sigma_k$ adjustment")
 
-plt.xlabel('Frequency (Hz)', fontsize=15)
-plt.ylabel(r"$\tau$", weight='bold', fontsize=18)
-plt.legend(loc=2, fontsize=10, ncol=2, numpoints=1)
+#plt.xlabel('Frequency (Hz)', fontsize=15)
+plt.ylabel(r"$\tau$", weight='bold', fontsize=15)
+plt.legend(loc=2, fontsize=8, ncol=3, numpoints=1)
 plt.grid(which='both')
 plt.xlim([0.3, 10])
 plt.ylim([0.2, 1.0])
-plt.savefig('figures/freq_vs_tau.png', fmt='png', dpi=300, bbox_inches='tight')       
+
+
+# plot f-test p-value
+plt.subplot(212)
+plt.cla()
+plt.semilogx([plt_freqs[0], plt_freqs[-1]], [0.05, 0.05], 'k--', lw=2)
+plt.semilogx(plt_freqs, mconv_ftest, syms[1], ls='-', c=cs[1], lw=2, \
+             ms=6, mec=cs[1], mfc='w', mew=2, markevery=2)
+plt.semilogx(plt_freqs, sd_corrected_ftest, syms[2], ls='-', c=cs[2], lw=2, \
+             ms=6, mec=cs[2], mfc='w', mew=2, markevery=2)
+plt.semilogx(plt_freqs, sd_mag_corrected_ftest, syms[3], ls='-', c=cs[3], lw=2, \
+             ms=6, mec=cs[3], mfc='w', mew=2, markevery=2)
+plt.semilogx(plt_freqs, delta_m_ftest, syms[4], ls='-', c=cs[4], lw=2, \
+             ms=6, mec=cs[4], mfc='w', mew=2, markevery=2)
+plt.semilogx(plt_freqs, clust_sd_corrected_ftest, syms[5], ls='-', c=cs[5], lw=2, \
+             ms=6, mec=cs[5], mfc='w', mew=2, markevery=2)
+
+plt.xlabel('Frequency (Hz)', fontsize=12)
+plt.ylabel('p-value', fontsize=12)
+#plt.legend(loc=2, fontsize=10, ncol=2, numpoints=1)
+plt.grid(which='both')
+plt.xlim([0.3, 10])
+plt.ylim([-0.05, 1.05])
+
+plt.savefig('figures/freq_vs_tau_f-test_'+str(maxdist)+'.png', format='png', dpi=300, bbox_inches='tight')       
 plt.show()
+
+
+# plot dBe vs SD regression
+plt.clf()
+plt.cla()
+#plt.rcdefaults()
+plt.figure(2, figsize=(4,2))
+fig = plt.gcf()
+fig.set_size_inches(4, 2.5)
+plt.rc('xtick',labelsize=11)
+plt.rc('ytick',labelsize=11)
+plt.semilogx(plt_freqs, dBe_sd_r2, 'ko')
+plt.grid(which='both')
+plt.ylabel('$\mathregular{r^2}$', fontsize=14)
+plt.xlabel('Frequency (Hz)', fontsize=14)
+plt.xlim([0.2, 20])
+plt.ylim([0, 0.85])
+
+plt.savefig('figures/r_squared_vs_dBe_SD_reg_'+str(maxdist)+'.png', format='png', dpi=300, bbox_inches='tight')       
+plt.show()
+

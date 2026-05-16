@@ -59,7 +59,7 @@ else:
 ##############################################################################
 
 networks = ['AU', 'S1', 'IU', 'II', 'G', '2O', 'M8', 'OZ']
-#networks = ['2O']
+networks = ['OZ']
 #networks = ['S1', 'IU', 'II', 'G', '2O', 'M8']
 
 for network in networks:
@@ -101,7 +101,7 @@ for network in networks:
     for ev in gadat: #[40:]:
         mindist = 0
         if network == 'S1' or network == 'M8' or network == '5G' or network == 'OZ' or network == '6K':
-            maxdist = 1500
+            maxdist = 800
             #maxdist = 750
         else:
             if ev['mag'] >= 4.5:
@@ -111,7 +111,7 @@ for network in networks:
             else:
                 maxdist = 800
         #maxdist = 1500
-        #maxdist = 200 # already got 200 - 2200 km
+        #maxdist = 200 # already got 200 - 2200 kms
         
         dt = ev['datetime']
         #print(network, dt)

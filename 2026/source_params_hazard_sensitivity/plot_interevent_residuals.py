@@ -5,8 +5,9 @@ from numpy import unique, array, arange, log, log10, exp, mean, nanmean, ndarray
 from misc_tools import get_binned_stats, dictlist2array, get_mpl2_colourlist, savitzky_golay, get_log_xy_locs
 from mag_tools import nsha18_mb2mw, nsha18_ml2mw
 from get_mag_dist_terms import get_distance_term, get_magnitude_term, get_kappa_term, get_regional_term
-from scipy.stats import linregress
-import scipy.odr.odrpack as odrpack
+from scipy.stats import linregress, median_abs_deviation
+import scipy.odr.odrpack as odrpack 
+from scipy.odr import Data, Model, ODR, models
 from obspy import UTCDateTime
 from datetime import timedelta
 from response import stationlist2dict
@@ -62,13 +63,13 @@ lines = open('brune_stats_cluster.csv').readlines()[1:]
 brunedat = []
 for line in lines:
     dat = line.strip().split(',')
-    tmp = {'datetime':UTCDateTime(dat[0]), 'mw':float(dat[8]), 'qual':int(float(dat[-2])), \
+    tmp = {'datetime':UTCDateTime(dat[0]), 'mw':float(dat[8]), 'qual':int(float(dat[-5])), \
            'lon':float(dat[2]), 'lat':float(dat[3]), 'sd':float(dat[10]), 'cluster':int(float(dat[-1]))}
     
     brunedat.append(tmp)
     
 def get_brune_deets(fft_datetime):
-    bruneStats = {'mw':nan, 'qual':0}
+    bruneStats = {'mw':nan, 'qual':0, 'cluster':nan, 'datetime':UTCDateTime(2599,12,31), 'lon':nan, 'sd':nan}
     for evnum, ev in enumerate(brunedat): 
         #ev['datetime'] = UTCDateTime(2024,2,27,16,4,9)
         
@@ -241,7 +242,7 @@ def get_inter_event_terms(magType, recs):
                                 ypred = magterm + distterm + kapterm + regterm
                                 #print(ypred)
                     
-                                yobs = log10(rec[channel]['swave_spec'][f])
+                                yobs = log10(rec[channel]['p-swave_spec'][f])
                                 yres.append(yobs - ypred)
                                 rmags.append(rec['mag'])
                                 revent.append(rec['ev'])
@@ -340,6 +341,9 @@ def get_inter_event_residuals(resDict):
         sigma_be.append(nanstd(array(event_terms)))
         sigma_we.append(nanstd(array(yres_weterm)))    
         
+        #sigma_be.append(median_abs_deviation(array(event_terms), nan_policy='omit'))
+        #sigma_we.append(median_abs_deviation(array(yres_weterm), nan_policy='omit')) 
+        
         # keep some data for plotting
         if i == 0:
             plt_event_terms1 = event_terms
@@ -393,12 +397,12 @@ plt.xlabel('Stress Drop (MPa)', fontsize=14)
 # regress
 idx = where(isnan(plt_event_terms1) == False)[0]
 sdreg = linregress(log10(plt_event_sds1[idx]), plt_event_terms1[idx])
-print(sdreg)
+#print(sdreg)
 xfit = array([log10(0.05), 2])
 yfit = sdreg[0] * xfit + sdreg[1]
 plt.semilogx(10**xfit, yfit, 'k--', lw = 3)
 
-insettxt = '$\mathregular{r^2}$' + ' = '+  str('%0.2f' % sdreg[2])
+insettxt = '$\mathregular{r^2}$' + ' = '+  str('%0.2f' % sdreg[2]**2)
 
 xpos = get_log_xy_locs([0.05, 100], 0.04)
 ypos = (4*0.94) - 2
@@ -424,7 +428,7 @@ plt.xlabel('Stress Drop (MPa)', fontsize=14)
 # regress
 idx = where(isnan(plt_event_terms2) == False)[0]
 sdreg = linregress(log10(plt_event_sds2[idx]), plt_event_terms2[idx])
-print(sdreg)
+#print(sdreg)
 xfit = array([log10(0.05), 2])
 yfit = sdreg[0] * xfit + sdreg[1]
 plt.semilogx(10**xfit, yfit, 'k--', lw = 3)
@@ -449,7 +453,7 @@ cb.set_ticks(ticks)
 cb.set_ticklabels([str(x) for x in ticks])
 cb.set_label('Moment Magnitude', rotation=270, labelpad=20, fontsize=15)
 
-plt.savefig('figures/event_term_vs_stressdrop.png', fmt='png', dpi=300, bbox_inches='tight')       
+plt.savefig('figures/event_term_vs_stressdrop.png', format='png', dpi=300, bbox_inches='tight')       
 plt.show()
 
 # correct event terms for SD
@@ -483,12 +487,14 @@ clust_logsd = array(clust_logsd)
 
 cluster_correction1 = []
 cluster_correction2 = []
+#blah!
+mmx = 7.
 for cluster in uclusters:
-    idx = where(clusters1 == cluster)[0]
+    idx = where((clusters1 == cluster) & (plt_event_mags1 <= mmx))[0]
     meancluster = nanmean(plt_event_terms1[idx])
     cluster_correction1.append(meancluster)
     
-    idx = where(clusters2 == cluster)[0]
+    idx = where((clusters2 == cluster) & (plt_event_mags2 <= mmx))[0]
     meancluster = nanmean(plt_event_terms2[idx])
     cluster_correction2.append(meancluster)
     meanlogstress = nanmean(clust_logsd[idx])
@@ -587,6 +593,7 @@ plt.xlim([0, 2000])
 plt.ylim([-3, 3])
 
 sigma_we = nanstd(plt_yres_weterm1)
+#sigma_we = median_abs_deviation(plt_yres_weterm1, nan_policy='omit')
 insettxt = '$\mathregular{M_{Brune}}$\n' \
             + 'f = 0.75 Hz\n' \
             + r"$\phi$" + ' = ' + str('%0.2f' % sigma_we)
@@ -617,6 +624,7 @@ plt.xlim([0, 2000])
 plt.ylim([-3, 3])
 
 sigma_we = nanstd(plt_yres_weterm2)
+#sigma_we = median_abs_deviation(plt_yres_weterm2, nan_policy='omit')
 insettxt = '$\mathregular{M_{Brune}}$\n' \
             + 'f = 3.0 Hz\n' \
             + r"$\phi$" + ' = ' + str('%0.2f' % sigma_we)
@@ -656,22 +664,117 @@ cb.set_ticks(ticks)
 cb.set_ticklabels([str(x) for x in ticks])
 cb.set_label('Moment Magnitude', rotation=270, labelpad=20, fontsize=14)
 
-plt.savefig('figures/ergodic_within-between_residuals.png', fmt='png', dpi=300, bbox_inches='tight')       
+plt.savefig('figures/ergodic_within-between_residuals.png', format='png', dpi=300, bbox_inches='tight')       
 plt.show()
 
 ###############################################################################
 # plot event-specific inter-event residuals 
 ###############################################################################
-# gget data using MW converted from ML
+
+def highside(x, hx):
+    from numpy import zeros_like
+    xmod = zeros_like(x)
+    
+    idx = x >= hx
+    xmod[idx] = 1
+    return xmod
+    
+def midside(x, hx1, hx2):
+    from numpy import zeros_like, where
+    xmod = zeros_like(x)
+    
+    idx = where((x >= hx1) & (x < hx2))[0]
+    xmod[idx] = 1
+    return xmod
+
+def lowside(x, hx):
+    from numpy import zeros_like
+    xmod = zeros_like(x)
+    
+    idx = x < hx
+    xmod[idx] = 1
+    return xmod
+
+def bilinear_reg_fix_intercept_slope1(c, x):
+    '''
+    x is dict with keys 'xvalues', 'intercept', 'slope1'
+    '''
+    
+    from numpy import zeros_like
+    hx = c[1] # hinge magnitude
+    ans2 = zeros_like(x)
+    ans1 = zeros_like(x)
+    
+    modx_lo = lowside(x, hx)
+    modx_hi = highside(x, hx)
+    
+    ans1 = modx_lo * (0.0 * x + 0.0)
+    hy = 0.0 * hx + 0.0
+    ans2 = modx_hi * (c[0] * (x-hx) + hy)
+    
+    return ans1 + ans2
+    
+def trilinear_reg_fix_intercept_slope(c, x):
+    from numpy import zeros_like
+    hx1 = c[1] # hinge magnitude
+    hx2 = c[2] # hinge magnitude
+    #print(hx1, hx2)
+    ans3 = zeros_like(x)
+    ans2 = zeros_like(x)
+    ans1 = zeros_like(x)
+    
+    modx_lo = lowside(x, hx1)
+    modx_md = midside(x, hx1, hx2)
+    modx_hi = highside(x, hx2)
+    
+    ans1 = modx_lo * 0.0
+    hy1 = 0.0
+    ans2 = modx_md * (c[0] * (x-hx1) + hy1)
+    hy2 = c[0] * (hx2-hx1)
+    ans3 = modx_hi * hy2
+    
+    return ans1 + ans2 + ans3
+
+
+'''
+fit mag-dependent bias
+'''
+trifitx = arange(3., 7.01, 0.01)
+
+def regress_mbias(plt_event_mags, plt_event_terms_sd_corrected, trifitx):
+    bins = arange(3.8, 6.8, 0.2)
+    medamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, plt_event_mags, plt_event_terms_sd_corrected)
+    realData = odrpack.RealData(medx, medamp)
+    
+    afit = odrpack.Model(trilinear_reg_fix_intercept_slope)
+    odr = odrpack.ODR(realData, afit, beta0=[-0.3, 4.75, 5.75])
+    
+    odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
+    out = odr.run()
+    c = out.beta
+    
+    trifity = zeros_like(trifitx)
+    idx = where((trifitx >= c[1]) & (trifitx < c[2]))[0]
+    trifity[idx] = c[0] * (trifitx[idx]-c[1])
+    hy = c[0] * (c[2]-c[1])
+    idx = trifitx >= c[2]
+    trifity[idx] = hy
+
+    return trifity, c
+
+# get data using MW converted from ML
 plt_events1, plt_events2, plt_event_terms1, plt_event_mags1, plt_event_sds1, plt_event_terms2, \
 plt_event_mags2, plt_event_sds2, sigma_be, plt_rhyps1, plt_rhyps2, plt_yres_weterm1, plt_yres_weterm2, plt_mags1, plt_mags2 \
     = get_inter_event_residuals(resDictNoCluster)
 
-fig = plt.figure(3, figsize=(14,8))
+fig = plt.figure(3, figsize=(14,12))
+fig = plt.gcf()
+plt.clf()
+fig.set_size_inches(14,12)
 plt.rc('xtick',labelsize=14)
 plt.rc('ytick',labelsize=14)
 
-ax = plt.subplot(2,2,1)
+ax = plt.subplot(3,2,1)
 norm1 = mpl.colors.Normalize(vmin=-1, vmax=1.8)
 plt.scatter(plt_event_mags1, plt_event_terms1, c=log10(plt_event_sds1), marker='o', s=30, edgecolor='none', cmap='plasma_r', norm=norm1, alpha=1)
 plt.plot([3, 7],[0,0], 'k--', lw=1.)
@@ -701,10 +804,9 @@ xpos = 3 - (7.-3.)*0.04
 ypos = 5*1.03 - 2.5
 plt.text(xpos, ypos, pltlett[0], fontsize=18, va='bottom', ha='right')
 
-
 ###########
 
-ax = plt.subplot(2,2,2)
+ax = plt.subplot(3,2,2)
 plt.scatter(plt_event_mags2, plt_event_terms2, c=log10(plt_event_sds2), marker='o', s=30, edgecolor='none', cmap='plasma_r', norm=norm1, alpha=1)
 plt.plot([3, 7],[0,0], 'k--', lw=1.)
 
@@ -728,22 +830,28 @@ xpos = 3 - (7.-3.)*0.04
 ypos = 5*1.03 - 2.5
 plt.text(xpos, ypos, pltlett[1], fontsize=18, va='bottom', ha='right')
 
-
 ####################
+
 # do SD-inter-event
 
 # re-read ergodic data to correct
 plt_events1, plt_events2, plt_event_terms1, plt_event_mags1, plt_event_sds1, plt_event_terms2, \
 plt_event_mags2, plt_event_sds2, sigma_be, plt_rhyps1, plt_rhyps2, plt_yres_weterm1, plt_yres_weterm2, plt_mags1, plt_mags2 \
     = get_inter_event_residuals(resDictRaw)
+    
 
+# regress data for mag correction
+trifity1, tc1 = regress_mbias(plt_event_mags1, plt_event_terms_sd_corrected1, trifitx)
+trifity2, tc2 = regress_mbias(plt_event_mags2, plt_event_terms_sd_corrected2, trifitx)
 
-ax = plt.subplot(2,2,3)
+# now plot
+ax = plt.subplot(3,2,3)
 norm1 = mpl.colors.Normalize(vmin=-1, vmax=1.8)
 plt.scatter(plt_event_mags1, plt_event_terms_sd_corrected1, c=log10(plt_event_sds1), marker='o', s=30, edgecolor='none', cmap='plasma_r', norm=norm1, alpha=1)
 plt.plot([3, 7],[0,0], 'k--', lw=1.)
 
-plt.xlabel('Moment Magnitude', fontsize=14)
+
+#plt.xlabel('Moment Magnitude', fontsize=14)
 plt.ylabel('Between-Event\n(ln Residual)', fontsize=14)
 
 xticks = [3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0]
@@ -753,6 +861,7 @@ ax.set_xticklabels([str(x) for x in xticks])
 plt.xlim([3, 7])
 plt.ylim([-2.5, 2.5])
 sigma = nanstd(plt_event_terms_sd_corrected1)
+#sigma = median_abs_deviation(plt_event_terms_sd_corrected1, nan_policy='omit')
 # r"raw string Mathtext: $\alpha > \beta$"
 insettxt = r"$\Delta\sigma_i$ adjustment" + '\n' \
             + 'f = 0.75 Hz\n' \
@@ -762,17 +871,20 @@ xpos = get_log_xy_locs([3, 7], 0.98)
 ypos = (5*0.95) - 2.5
 plt.text(xpos, ypos, insettxt, ha='right', va='top', fontsize=12, bbox=props)
 
-xpos = 3 - (7.-3.)*0.04
+xpos = 3 - (7.-3.)*0.1
 ypos = 5*1.03 - 2.5
 plt.text(xpos, ypos, pltlett[2], fontsize=18, va='bottom', ha='left')
 
+# plot fit
+plt.plot(trifitx, trifity1, 'k-', lw=2.0)
+
 ###########
 
-ax = plt.subplot(2,2,4)
+ax = plt.subplot(3,2,4)
 plt.scatter(plt_event_mags2, plt_event_terms_sd_corrected2, c=log10(plt_event_sds2), marker='o', s=30, edgecolor='none', cmap='plasma_r', norm=norm1, alpha=1)
 plt.plot([3, 7],[0,0], 'k--', lw=1.)
 
-plt.xlabel('Moment Magnitude', fontsize=14)
+#plt.xlabel('Moment Magnitude', fontsize=14)
 #plt.ylabel('Between-Event\n(ln Residual)', fontsize=14)
 
 ax.set_xticks(xticks)
@@ -781,6 +893,7 @@ ax.set_xticklabels([str(x) for x in xticks])
 plt.xlim([3, 7])
 plt.ylim([-2.5, 2.5])
 sigma = nanstd(plt_event_terms_sd_corrected2)
+#sigma = median_abs_deviation(plt_event_terms_sd_corrected2, nan_policy='omit')
 insettxt = r"$\Delta\sigma_i$ adjustment" + '\n' \
             + 'f = 3.0 Hz\n' \
             + r"$\tau$" + ' = ' + str('%0.2f' % sigma)
@@ -792,6 +905,86 @@ plt.text(xpos, ypos, insettxt, ha='right', va='top', fontsize=12, bbox=props)
 xpos = 3 - (7.-3.)*0.04
 ypos = 5*1.03 - 2.5
 plt.text(xpos, ypos, pltlett[3], fontsize=18, va='bottom', ha='right')
+
+# plot fit
+plt.plot(trifitx, trifity2, 'k-', lw=2.0)
+
+####################
+# do SD and mag-inter-event
+
+# correct data for mag bias
+plt_event_terms_sd_mag_corrected1 = plt_event_terms_sd_corrected1
+idx = where((plt_event_mags1 >= tc1[1]) & (plt_event_mags1 < tc1[2]))[0]
+plt_event_terms_sd_mag_corrected1[idx] -= tc1[0] * (plt_event_mags1[idx]-tc1[1])
+hy = tc1[0] * (tc1[2]-tc1[1])
+idx = plt_event_mags1 >= tc1[2]
+plt_event_terms_sd_mag_corrected1[idx] -= hy
+
+plt_event_terms_sd_mag_corrected2 = plt_event_terms_sd_corrected2
+idx = where((plt_event_mags2 >= tc2[1]) & (plt_event_mags2 < tc2[2]))[0]
+plt_event_terms_sd_mag_corrected2[idx] -= tc2[0] * (plt_event_mags2[idx]-tc2[1])
+hy = tc2[0] * (tc2[2]-tc2[1])
+idx = plt_event_mags2 >= tc2[2]
+plt_event_terms_sd_mag_corrected2[idx] -= hy
+
+# now plot
+ax = plt.subplot(3,2,5)
+norm1 = mpl.colors.Normalize(vmin=-1, vmax=1.8)
+plt.scatter(plt_event_mags1, plt_event_terms_sd_mag_corrected1, c=log10(plt_event_sds1), marker='o', s=30, edgecolor='none', cmap='plasma_r', norm=norm1, alpha=1)
+plt.plot([3, 7],[0,0], 'k--', lw=1.)
+
+
+plt.xlabel('Moment Magnitude', fontsize=14)
+plt.ylabel('Between-Event\n(ln Residual)', fontsize=14)
+
+xticks = [3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0]
+ax.set_xticks(xticks)
+ax.set_xticklabels([str(x) for x in xticks])
+
+plt.xlim([3, 7])
+plt.ylim([-2.5, 2.5])
+sigma = nanstd(plt_event_terms_sd_mag_corrected1)
+#sigma = median_abs_deviation(plt_event_terms_sd_corrected1, nan_policy='omit')
+# r"raw string Mathtext: $\alpha > \beta$"
+insettxt = r"$\Delta\sigma_{i,M}$ adjustment" + '\n' \
+            + 'f = 0.75 Hz\n' \
+            + r"$\tau$" + ' = ' + str('%0.2f' % sigma)
+
+xpos = get_log_xy_locs([3, 7], 0.98)
+ypos = (5*0.94) - 2.5
+plt.text(xpos, ypos, insettxt, ha='right', va='top', fontsize=12, bbox=props)
+
+xpos = 3 - (7.-3.)*0.1
+ypos = 5*1.03 - 2.5
+plt.text(xpos, ypos, pltlett[4], fontsize=18, va='bottom', ha='left')
+
+###########
+
+ax = plt.subplot(3,2,6)
+plt.scatter(plt_event_mags2, plt_event_terms_sd_mag_corrected2, c=log10(plt_event_sds2), marker='o', s=30, edgecolor='none', cmap='plasma_r', norm=norm1, alpha=1)
+plt.plot([3, 7],[0,0], 'k--', lw=1.)
+
+plt.xlabel('Moment Magnitude', fontsize=14)
+#plt.ylabel('Between-Event\n(ln Residual)', fontsize=14)
+
+ax.set_xticks(xticks)
+ax.set_xticklabels([str(x) for x in xticks])
+
+plt.xlim([3, 7])
+plt.ylim([-2.5, 2.5])
+sigma = nanstd(plt_event_terms_sd_mag_corrected2)
+#sigma = median_abs_deviation(plt_event_terms_sd_corrected2, nan_policy='omit')
+insettxt = r"$\Delta\sigma_{i,M}$ adjustment" + '\n' \
+            + 'f = 3.0 Hz\n' \
+            + r"$\tau$" + ' = ' + str('%0.2f' % sigma)
+
+xpos = get_log_xy_locs([3, 7], 0.98)
+ypos = (5*0.94) - 2.5
+plt.text(xpos, ypos, insettxt, ha='right', va='top', fontsize=12, bbox=props)
+
+xpos = 3 - (7.-3.)*0.04
+ypos = 5*1.03 - 2.5
+plt.text(xpos, ypos, pltlett[5], fontsize=18, va='bottom', ha='right')
 
 plt.subplots_adjust(hspace=0.3)
 
@@ -805,8 +998,7 @@ cb.set_ticks(ticks)
 cb.set_ticklabels([str('%0.1f' % 10**x) for x in ticks])
 cb.set_label('Stress Drop (MPa)', rotation=270, labelpad=20, fontsize=15)
 
-
-plt.savefig('figures/interevent_event-specific.png', fmt='png', dpi=300, bbox_inches='tight')       
+plt.savefig('figures/interevent_event-specific.png', format='png', dpi=300, bbox_inches='tight')       
 plt.show()
 
 ###############################################################################
@@ -818,6 +1010,10 @@ plt_event_mags2, plt_event_sds2, sigma_be, plt_rhyps1, plt_rhyps2, plt_yres_wete
     = get_inter_event_residuals(resDictCluster)
 
 fig = plt.figure(4, figsize=(14,8))
+fig = plt.gcf()
+plt.clf()
+fig.set_size_inches(14,8)
+
 plt.rc('xtick',labelsize=14)
 plt.rc('ytick',labelsize=14)
 
@@ -901,6 +1097,7 @@ ax.set_xticklabels([str(x) for x in xticks])
 plt.xlim([3, 7])
 plt.ylim([-2.5, 2.5])
 sigma = nanstd(plt_event_terms_cluster_cor1)
+#sigma = median_abs_deviation(plt_event_terms_cluster_cor1, nan_policy='omit')
 # r"raw string Mathtext: $\alpha > \beta$"
 insettxt = r"$\Delta\sigma_k$ adjustment" + '\n' \
             + 'f = 0.75 Hz\n' \
@@ -929,6 +1126,7 @@ ax.set_xticklabels([str(x) for x in xticks])
 plt.xlim([3, 7])
 plt.ylim([-2.5, 2.5])
 sigma = nanstd(plt_event_terms_cluster_cor2)
+#sigma = median_abs_deviation(plt_event_terms_cluster_cor2, nan_policy='omit')
 
 a = 'M'
 b = "$\Delta$"
@@ -959,5 +1157,5 @@ cb.set_ticklabels([str('%0.1f' % 10**x) for x in ticks])
 cb.set_label('Stress Drop (MPa)', rotation=270, labelpad=20, fontsize=15)
 
 
-plt.savefig('figures/interevent_clustering.png', fmt='png', dpi=300, bbox_inches='tight')       
+plt.savefig('figures/interevent_clustering.png', format='png', dpi=300, bbox_inches='tight')       
 plt.show()

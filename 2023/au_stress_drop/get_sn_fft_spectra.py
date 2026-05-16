@@ -1,7 +1,8 @@
 from obspy import read, UTCDateTime
 from spectral_analysis import calc_fft, prep_psa_simple, calc_response_spectra, get_cor_velocity
 from data_fmt_tools import remove_low_sample_data, return_sta_data, remove_acceleration_data, \
-                           fix_src_stream_channels, fix_stream_channels_bb2sp, fix_stream_network
+                           fix_src_stream_channels, fix_stream_channels_bb2sp, fix_stream_network, \
+                           fix_CH_stream_channels
 from response import get_response_info, paz_response, deconvolve_instrument
 from misc_tools import listdir_extension, savitzky_golay
 from mapping_tools import distance
@@ -554,12 +555,12 @@ shutil.copy('fft_data.pkl', 'fft_data.pkl.hold')
         
 # now get max time in pkl
 max_pkl_time = UTCDateTime(1900,1,1)    
-recs = pickle.load(open('fft_data.pkl', 'rb' ))
+#recs = pickle.load(open('fft_data.pkl', 'rb' ))
 records = []
 append_pkl = False
 
 # get max time
-
+'''
 for i, rec in enumerate(recs):
     if rec['evdt'] > max_pkl_time:
         max_pkl_time = rec['evdt']
@@ -571,7 +572,7 @@ if max_pick_time > max_pkl_time:
 else:
     append_pkl = False
     records = []
-
+'''
 '''
 # get stas to ignore
 ignore_stas = open('sta_ignore.txt').readlines()
@@ -587,8 +588,9 @@ print(newmseed)
 '''
 #newmseed = set(['2026-03-11T08.05.M8.AUANU.picks'])
 
-append_pkl = True
-records = recs
+append_pkl = False
+#records = recs # True
+records = [] # False
 
 ################################################################################
 # loop through pick files
@@ -698,6 +700,19 @@ for p, pf in enumerate(pickfiles[start_idx:]):
             # check if channel bonkers
             if st[0].stats.channel[1] == 'Y' or st[0].stats.channel.startswith('EL'):
                 fix_src_stream_channels(path.join('iris_dump', mseedfile))
+                # reparse
+                st = read(path.join('iris_dump', mseedfile))
+            
+            if st[0].stats.channel[1] == 'HH' or st[0].stats.station.startswith('SWN'):
+                try:
+                	  seedid = st[0].get_id()
+                	  paz = d2p_parser.get_response(seedid,start_time)
+                except:
+                    fix_CH_stream_channels(path.join('iris_dump', mseedfile))
+                    st = read(path.join('iris_dump', mseedfile))
+                    
+                
+                fix_CH_stream_channels(path.join('iris_dump', mseedfile))
                 # reparse
                 st = read(path.join('iris_dump', mseedfile))
             
