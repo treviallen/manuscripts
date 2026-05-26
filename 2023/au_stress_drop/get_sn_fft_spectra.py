@@ -555,12 +555,12 @@ shutil.copy('fft_data.pkl', 'fft_data.pkl.hold')
         
 # now get max time in pkl
 max_pkl_time = UTCDateTime(1900,1,1)    
-#recs = pickle.load(open('fft_data.pkl', 'rb' ))
+recs = pickle.load(open('fft_data.pkl', 'rb' ))
 records = []
 append_pkl = False
 
 # get max time
-'''
+
 for i, rec in enumerate(recs):
     if rec['evdt'] > max_pkl_time:
         max_pkl_time = rec['evdt']
@@ -572,7 +572,7 @@ if max_pick_time > max_pkl_time:
 else:
     append_pkl = False
     records = []
-'''
+
 '''
 # get stas to ignore
 ignore_stas = open('sta_ignore.txt').readlines()
@@ -588,9 +588,9 @@ print(newmseed)
 '''
 #newmseed = set(['2026-03-11T08.05.M8.AUANU.picks'])
 
-append_pkl = False
-#records = recs # True
-records = [] # False
+append_pkl = True
+records = recs # True
+#records = [] # False
 
 ################################################################################
 # loop through pick files

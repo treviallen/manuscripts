@@ -108,7 +108,7 @@ cmean = cdata[:,1]
 
 def get_ml2mw_cluster(ml, cluster=0):
     #print(ml)
-    return s0 * ml**2 + s1 * ml + s2 - cmean[cluster+1], cmean[cluster+1] # add 1 because first row is all data
+    return s0 * ml**2 + s1 * ml + s2 - cmean[cluster], cmean[cluster] 
 
 
 # load ml-mw data from "get_cluster_ml_mw_bias.py"
@@ -160,7 +160,8 @@ for i, rec in enumerate(recs):
 ###############################################################################
 # loop thru freqs
 ###############################################################################
-fidxs = arange(49, 135,3)
+fidxs = arange(48, 135,3)
+#fidxs = [69,99]
 
 def get_inter_event_terms(magType, recs, maxdist):
     '''
@@ -194,10 +195,13 @@ def get_inter_event_terms(magType, recs, maxdist):
             for i, rec in enumerate(recs):
                 
                 # if qual == 1, "mag" is Mwb
-                if rec['net'] in keep_nets and rec['qual'] == 1 and rec['rhyp'] < maxdist:
+                if rec['net'] in keep_nets and rec['qual'] == 1 \
+                    and rec['rhyp'] < maxdist \
+                    and freq >= rec['ev_fmin'] and freq <= rec['ev_fmax']:
                     
                     if not rec['sta'] in ignore_stas:
-                        try:
+                        if len(rec['channels']) > 0:     
+                        	  #try:
                             channel = rec['channels'][0]
                     
                             # filter by instrument type
@@ -220,11 +224,12 @@ def get_inter_event_terms(magType, recs, maxdist):
                                     prefmw = rec['mag']
                                 elif magType == 2:
                                     mwconv, cor = get_ml2mw_cluster(rec['ml2800'], cluster=rec['cluster']) # only use to get correction
+                                    #print(rec['cluster'], cor)
                                     prefmw = rec['mag'] - cor 
-                                    #print(rec['mag'], cor, prefmw, rec['cluster'],rec['evdt'])
-                                    
+                                    #print(rec['mag'], cor, prefmw, mwconv, rec['cluster'],rec['evdt'])
+                                                                        
                                 elif magType == 3:
-                                    prefmw, cor = get_ml2mw_cluster(rec['ml2800'], -1) # subtract 1 as we want index 0
+                                    prefmw, cor = get_ml2mw_cluster(rec['ml2800'], 0) # subtract 1 as we want index 0
                                     
                                     
                                 # get mag term
@@ -244,15 +249,16 @@ def get_inter_event_terms(magType, recs, maxdist):
                                 ypred = magterm + distterm + kapterm + regterm
                                 #print(ypred)
                     
-                                yobs = log10(rec[channel]['swave_spec'][f])
+                                yobs = log10(rec[channel]['p-swave_spec'][f])
+                                #yobs = log10(rec[channel]['swave_spec'][f])
                                 yres.append(yobs - ypred)
                                 rmags.append(rec['mag'])
                                 revent.append(rec['ev'])
                                 revdt.append(rec['evdt'])
                                 rsd.append(rec['sd'])
-                        except:
-                            # do nothing
-                            dummy = 0
+                                #except:
+                                #    # do nothing
+                                #    dummy = 0
                         
             resData = {'yres':array(yres), 'mags':array(rmags), 'ev':array(revent), \
                        'rhyps':array(rhyps), 'rsd':array(rsd), 'evdt':array(revdt)}
@@ -309,7 +315,31 @@ def trilinear_reg_fix_intercept_slope(c, x):
     ans3 = modx_hi * hy2
     
     return ans1 + ans2 + ans3
+
+mx1 = 4.75
+mx2 = 5.5
     
+def trilinear_reg_fix_intercept_slope_mags(c, x):
+    from numpy import zeros_like
+    hx1 = mx1 # hinge magnitude - average from 0.75-10 Hz
+    hx2 = mx2 # hinge magnitude - average from 0.75-10 Hz
+    #print(hx1, hx2)
+    ans3 = zeros_like(x)
+    ans2 = zeros_like(x)
+    ans1 = zeros_like(x)
+    
+    modx_lo = lowside(x, hx1)
+    modx_md = midside(x, hx1, hx2)
+    modx_hi = highside(x, hx2)
+    
+    ans1 = modx_lo * 0.0
+    hy1 = 0.0
+    ans2 = modx_md * (c[0] * (x-hx1) + hy1)
+    hy2 = c[0] * (hx2-hx1)
+    ans3 = modx_hi * hy2
+    
+    return ans1 + ans2 + ans3
+        
 trifitx = arange(3., 7.01, 0.01)
 
 def regress_mbias(plt_event_mags, plt_event_terms_sd_corrected, trifitx):
@@ -317,21 +347,23 @@ def regress_mbias(plt_event_mags, plt_event_terms_sd_corrected, trifitx):
     medamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, plt_event_mags, plt_event_terms_sd_corrected)
     realData = odrpack.RealData(medx, medamp)
     
-    afit = odrpack.Model(trilinear_reg_fix_intercept_slope)
-    odr = odrpack.ODR(realData, afit, beta0=[-0.3, 4.75, 5.75])
+    afit = odrpack.Model(trilinear_reg_fix_intercept_slope_mags)
+    odr = odrpack.ODR(realData, afit, beta0=[-0.3])
     
     odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
     out = odr.run()
     c = out.beta
     
     trifity = zeros_like(trifitx)
-    idx = where((trifitx >= c[1]) & (trifitx < c[2]))[0]
-    trifity[idx] = c[0] * (trifitx[idx]-c[1])
-    hy = c[0] * (c[2]-c[1])
-    idx = trifitx >= c[2]
+    idx = where((trifitx >= mx1) & (trifitx < mx2))[0]
+    trifity[idx] = c[0] * (trifitx[idx]-mx1)
+    hy = c[0] * (mx2-mx1)
+    idx = trifitx >= mx2
     trifity[idx] = hy
 
     return trifity, c
+    
+
         
 ###############################################################################
 # calculate different scenarios
@@ -417,7 +449,12 @@ def get_inter_event_residuals(resDict):
             
             # remove event terms
             yres_weterm[ridx] = log(10**yres[ridx]) - event_term
-        
+            
+            '''
+            print(event_mag, sds[ridx][0], event_term)
+            print(10**yres[ridx])
+            print(rhyps[ridx])
+            '''
         sigma_be.append(nanstd(array(event_terms)))
         sigma_we.append(nanstd(array(yres_weterm)))   
         
@@ -478,6 +515,16 @@ plt_freqs = freqs[fidxs]
 sigma_be_list, sigma_we_list, mags_list, sds_list, ev_list, ergodic_ev_term_list \
     = get_inter_event_residuals(resDictRaw)
 
+etl =''
+for et, sd in zip(ergodic_ev_term_list[1], sds_list[1]):
+	etl += ','.join((str(sd), str(et)+'\n'))
+	
+f = open('etl.csv','w')
+f.write(etl)
+f.close()
+
+#crash
+
 sdreg_coeffs = []  
 sd_corrected_event_terms = []  
 sd_corrected_tau = []
@@ -491,6 +538,8 @@ sd_mag_corrected_ftest = []
 
 # get f-dependent dBe vs SD
 dBe_sd_r2 = []
+mmax = []
+mmin = []
 
 for i, f in enumerate(plt_freqs):
 
@@ -502,9 +551,11 @@ for i, f in enumerate(plt_freqs):
     #ergodic_tau.append(median_abs_deviation(ev_term_list[i][idx], nan_policy='omit'))
     
     sdreg = linregress(log10(sds_list[i][idx]), ergodic_ev_terms)
+    #print(sdreg)
     
     sdreg_coeffs.append(sdreg)
     dBe_sd_r2.append(sdreg[2]**2)
+    #print(f, sdreg[2]**2)
     
     # correct event terms for SD
     sd_corrected_event_terms = ergodic_ev_term_list[i][idx] - (sdreg[0] * log10(sds_list[i][idx]) + sdreg[1])
@@ -520,7 +571,11 @@ for i, f in enumerate(plt_freqs):
     # get mag bias correction
     ###############################################################################
     sd_mag_corrected_event_terms, tc = regress_mbias(mags_list[i][idx], sd_corrected_event_terms, trifitx)
-    print(f, tc)
+    '''
+    if f >= 0.75 and f <= 10:
+        mmin.append(tc[1])
+        mmax.append(tc[2])
+        print(f, tc)
     
     # do some checks
     if tc[0] < -1.0:
@@ -529,14 +584,14 @@ for i, f in enumerate(plt_freqs):
     elif tc[2] < tc[1]:
         tc[0] = 0
         tc[2] = tc[1]
-    
+    '''
     # correct data for mag bias
     fmags_list = mags_list[i][idx]
     sd_mag_corrected_event_terms = sd_corrected_event_terms
-    midx = where((fmags_list >= tc[1]) & (fmags_list < tc[2]))[0]
-    sd_mag_corrected_event_terms[midx] -= tc[0] * (fmags_list[midx]-tc[1])
-    hy = tc[0] * (tc[2]-tc[1])
-    midx = fmags_list >= tc[2]
+    midx = where((fmags_list >= mx1) & (fmags_list < mx2))[0]
+    sd_mag_corrected_event_terms[midx] -= tc[0] * (fmags_list[midx]-mx1)
+    hy = tc[0] * (mx2-mx1)
+    midx = fmags_list >= mx2
     sd_mag_corrected_event_terms[midx] -= hy
 
     sd_mag_corrected_tau.append(nanstd(sd_mag_corrected_event_terms))
@@ -621,9 +676,12 @@ cs = (cmap(arange(ncols)))
 syms = ['o', '^', 's', 'd', 'v', 'h', '<', '>', 'p']
 
 plt.clf()
-fig = plt.figure(1, figsize=(5,6))
-plt.rc('xtick',labelsize=10)
-plt.rc('ytick',labelsize=10)
+fig = plt.figure(1, figsize=(8,9))
+plt.rc('xtick',labelsize=12)
+plt.rc('ytick',labelsize=12)
+fig = plt.gcf()
+plt.clf()
+fig.set_size_inches(8,9)
 
 plt.subplot(211)
 plt.cla()
@@ -641,11 +699,11 @@ plt.semilogx(plt_freqs, clust_sd_corrected_tau, syms[5], ls='-', c=cs[5], lw=2, 
              ms=6, mec=cs[5], mfc='w', mew=2, markevery=2, label=r"$\Delta\sigma_k$ adjustment")
 
 #plt.xlabel('Frequency (Hz)', fontsize=15)
-plt.ylabel(r"$\tau$", weight='bold', fontsize=15)
-plt.legend(loc=2, fontsize=8, ncol=3, numpoints=1)
+plt.ylabel(r"$\tau$", weight='bold', fontsize=16)
+plt.legend(loc=2, fontsize=9.5, ncol=3, numpoints=1)
 plt.grid(which='both')
 plt.xlim([0.3, 10])
-plt.ylim([0.2, 1.0])
+plt.ylim([0.2, 0.7])
 
 
 # plot f-test p-value
@@ -663,13 +721,14 @@ plt.semilogx(plt_freqs, delta_m_ftest, syms[4], ls='-', c=cs[4], lw=2, \
 plt.semilogx(plt_freqs, clust_sd_corrected_ftest, syms[5], ls='-', c=cs[5], lw=2, \
              ms=6, mec=cs[5], mfc='w', mew=2, markevery=2)
 
-plt.xlabel('Frequency (Hz)', fontsize=12)
-plt.ylabel('p-value', fontsize=12)
+plt.xlabel('Frequency (Hz)', fontsize=14)
+plt.ylabel('f-test p-value', fontsize=14)
 #plt.legend(loc=2, fontsize=10, ncol=2, numpoints=1)
 plt.grid(which='both')
 plt.xlim([0.3, 10])
 plt.ylim([-0.05, 1.05])
 
+plt.tight_layout()
 plt.savefig('figures/freq_vs_tau_f-test_'+str(maxdist)+'.png', format='png', dpi=300, bbox_inches='tight')       
 plt.show()
 
@@ -687,9 +746,11 @@ plt.semilogx(plt_freqs, dBe_sd_r2, 'ko')
 plt.grid(which='both')
 plt.ylabel('$\mathregular{r^2}$', fontsize=14)
 plt.xlabel('Frequency (Hz)', fontsize=14)
-plt.xlim([0.2, 20])
-plt.ylim([0, 0.85])
+plt.xlim([0.2, 10])
+plt.ylim([0, 0.9])
 
 plt.savefig('figures/r_squared_vs_dBe_SD_reg_'+str(maxdist)+'.png', format='png', dpi=300, bbox_inches='tight')       
 plt.show()
 
+print('Mmin', mean(array(mmin)))
+print('Mmax', mean(array(mmax)))

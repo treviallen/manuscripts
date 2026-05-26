@@ -48,7 +48,7 @@ print('Starting Cluster Analysis ...')
 data = list(zip(logsd[idx], lons[idx], lats[idx]))
 #data = list(zip(sd[idx], lons[idx], lats[idx]))
 inertias = []
-'''
+
 n = 16
 for i in range(1,n):
     print('    N cluster = '+str(i))
@@ -56,12 +56,17 @@ for i in range(1,n):
     kmeans.fit(data)
     inertias.append(kmeans.inertia_)
 
+fig = plt.figure(1, figsize=(5,4))
+fig = plt.gcf()
+plt.clf()
+fig.set_size_inches(5,4)
+
 plt.plot(range(1,n), inertias, marker='o')
 plt.title('Elbow method')
 plt.xlabel('Number of clusters')
 plt.ylabel('Inertia')
+plt.savefig('figures/elbow_plot.png',bbox_inches='tight')
 plt.show() 
-'''
 
 ################################################################################
 # standardise data
@@ -71,18 +76,29 @@ scaled_data = scaler.fit_transform(data)
 #print(scaled_data)
 
 # scale sd data
-scaled_data[:,0] /= 7.
-scaled_data[:,0] /= 2
+#scaled_data[:,0] /= 7.
+scaled_data[:,0] /= 4
+scaled_data[:,0] /= 1
+scaled_data[:,0] *= 1.25
 
 ################################################################################
 # plot clusters
-n_clusters = 10
+n_clusters = 8
+#n_clusters = 9
 #kmeans = KMeans(n_clusters=9, random_state=1) 10
-kmeans = KMeans(n_clusters=n_clusters, random_state=20)
+#kmeans = KMeans(n_clusters=n_clusters, random_state=20)
 #kmeans = KMeans(n_clusters=n_clusters, random_state=5)
-kmeans = KMeans(n_clusters=n_clusters, random_state=10)
+#kmeans = KMeans(n_clusters=n_clusters, random_state=6)
+#kmeans = KMeans(n_clusters=n_clusters, random_state=12345)
+kmeans = KMeans(n_clusters=n_clusters, random_state=5)
+kmeans = KMeans(n_clusters=n_clusters, random_state=12345)
 kmeans.fit(data)
 kmeans.fit(scaled_data)
+
+fig = plt.figure(2, figsize=(10,7))
+fig = plt.gcf()
+plt.clf()
+fig.set_size_inches(10,7)
 plt.scatter(lons[idx], lats[idx], c=kmeans.labels_, s=30, zorder=10)
 
 ################################################################################
@@ -173,7 +189,7 @@ f.close()
 text = lines[0].strip()+',CLUSTER\n'
 
 for i, line in enumerate(temptextlist):
-    text += line.strip() + ',' + str(kmeans.labels_[i]) + '\n'
+    text += line.strip() + ',' + str(kmeans.labels_[i]+1) + '\n'
     
 f = open('brune_stats_cluster.csv', 'w')
 f.write(text)

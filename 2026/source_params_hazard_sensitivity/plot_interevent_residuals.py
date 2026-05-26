@@ -64,7 +64,8 @@ brunedat = []
 for line in lines:
     dat = line.strip().split(',')
     tmp = {'datetime':UTCDateTime(dat[0]), 'mw':float(dat[8]), 'qual':int(float(dat[-5])), \
-           'lon':float(dat[2]), 'lat':float(dat[3]), 'sd':float(dat[10]), 'cluster':int(float(dat[-1]))}
+           'lon':float(dat[2]), 'lat':float(dat[3]), 'sd':float(dat[10]), 'fmin':int(float(dat[-7])), \
+           'cluster':int(float(dat[-1]))}
     
     brunedat.append(tmp)
     
@@ -107,8 +108,8 @@ cmean = cdata[:,1]
 '''
 
 def get_ml2mw_cluster(ml, cluster=0):
-    #print(ml)
-    return s0 * ml**2 + s1 * ml + s2 - cmean[cluster+1], cmean[cluster+1] # add 1 because first row is all data
+    #print(ml, cluster, cmean[cluster])
+    return s0 * ml**2 + s1 * ml + s2 - cmean[cluster], cmean[cluster] 
 
 
 # load ml-mw data from "get_cluster_ml_mw_bias.py"
@@ -157,10 +158,11 @@ for i, rec in enumerate(recs):
             #print(ml_match)
     recs[i]['ml'] = ml_match
 '''
+maxdist = 2000
 ###############################################################################
 # loop thru freqs
 ###############################################################################
-def get_inter_event_terms(magType, recs):
+def get_inter_event_terms(magType, recs, maxdist):
     '''
     magType: 1 = Brune mags
              2 = ML-MW cluster correction (MW - dMW) where dMW from mean MW - MW(conv)
@@ -168,6 +170,8 @@ def get_inter_event_terms(magType, recs):
     '''
     resDict = []
     for f, c in enumerate(coeffs):
+        cnt = 0
+        cnt2 = 0
     
         if f == 69 or f == 99:
             print("Coeffs Freq = " +str('%0.3f' % c['freq']))
@@ -192,10 +196,13 @@ def get_inter_event_terms(magType, recs):
             for i, rec in enumerate(recs):
                 
                 # if qual == 1, "mag" is Mwb
-                if rec['net'] in keep_nets and rec['qual'] == 1:
-                    
+                if rec['net'] in keep_nets and rec['qual'] == 1 \
+                    and freq >= rec['ev_fmin'] and freq <= rec['ev_fmax'] \
+                    and rec['rhyp'] < maxdist:
+                    	
                     if not rec['sta'] in ignore_stas:
-                        try:
+                        if len(rec['channels']) > 0:    
+                            #try:
                             channel = rec['channels'][0]
                     
                             # filter by instrument type
@@ -211,19 +218,26 @@ def get_inter_event_terms(magType, recs):
                                 addData = False
                                 
                             if rec[channel]['sn_ratio'][f] >= 4. and addData == True:
+                                cnt+=1
+                                #print(cnt)
+                    
                                 rhyps.append(rec['rhyp'])
                     
                                 #magterm = get_magnitude_term(bruneStats['mw'], c)
                                 if magType == 1:
                                     prefmw = rec['mag']
                                 elif magType == 2:
+                                    #crash
                                     mwconv, cor = get_ml2mw_cluster(rec['ml2800'], cluster=rec['cluster']) # only use to get correction
+                                    #print(rec['cluster'], cor, rec['mag'])
                                     prefmw = rec['mag'] - cor 
-                                    #print(rec['mag'], cor, prefmw, rec['cluster'],rec['evdt'])
+                                    #print(prefmw)
+                                    #print(rec['mag'], cor, prefmw, mwconv, rec['cluster'],rec['evdt'])
+                                    #5.209940749 -0.12 5.329940749 4.94121472763 6 2015-08-01T04:46:26.000000Z
                                     
                                 elif magType == 3:
-                                    prefmw, cor = get_ml2mw_cluster(rec['ml2800'], -1) # subtract 1 as we want index 0
-                                    
+                                    prefmw, cor = get_ml2mw_cluster(rec['ml2800'], 0) 
+                                    #print(cor)
                                     
                                 # get mag term
                                 magterm = get_magnitude_term(prefmw, c)
@@ -232,7 +246,7 @@ def get_inter_event_terms(magType, recs):
                                 # get distance term
                                 distterm = get_distance_term(rec['rhyp'], c)
                                 
-                                #	get distance independent kappa
+                                #	get distance indefpendent kappa
                                 kapterm = get_kappa_term(rec['sta'], c['freq'])
                                 
                                 #	get regional term
@@ -248,39 +262,46 @@ def get_inter_event_terms(magType, recs):
                                 revent.append(rec['ev'])
                                 revdt.append(rec['evdt'])
                                 rsd.append(rec['sd'])
-                        except:
-                            # do nothing
-                            dummy = 0
-                            
+                                
+                                cnt2 +=1
+                                '''
+                                except:
+                                    # do nothing
+                                    dummy = 0
+                                    print('Record failed: '+rec['ev']+' '+str(i))
+                                    #print(rec)
+                                '''    
                         
             resData = {'yres':array(yres), 'mags':array(rmags), 'ev':array(revent), \
                        'rhyps':array(rhyps), 'rsd':array(rsd), 'evdt':array(revdt)}
             
             resDict.append(resData)
+            print('cnt ',cnt, cnt2)
+            print(len(unique(revdt)))
                     
     return resDict
     
 ###############################################################################
 # calculate different scenarios
 ###############################################################################
-'''
+
 # raw
 print('Getting raw residual data ...')
-resDict = get_inter_event_terms(1, recs)
+resDict = get_inter_event_terms(1, recs, maxdist)
 pklfile = open('residual_data.pkl', 'wb')
 pickle.dump(resDict, pklfile, protocol=-1)
 pklfile.close()
-
+'''
 #  mw using regional correction
 print('Getting cluster mag residual data ...')
-resDict = get_inter_event_terms(2, recs)
+resDict = get_inter_event_terms(2, recs, maxdist)
 pklfile = open('residual_ml_cluster_data.pkl', 'wb')
 pickle.dump(resDict, pklfile, protocol=-1)
 pklfile.close()
 
 # ML2MW no corrections
 print('Getting ml2mw residual data ...')
-resDict = get_inter_event_terms(3, recs)
+resDict = get_inter_event_terms(3, recs, maxdist)
 pklfile = open('residual_ml_nocluster_data.pkl', 'wb')
 pickle.dump(resDict, pklfile, protocol=-1)
 pklfile.close()
@@ -310,7 +331,7 @@ def get_inter_event_residuals(resDict):
         rhyps = array(resData['rhyps'])
         sds = array(resData['rsd'])
         #print(sds)
-        #print(i, len(uevents))
+        print(i, len(uevents))
         
         yres_weterm = zeros_like(yres)
         
@@ -319,6 +340,7 @@ def get_inter_event_residuals(resDict):
         event_mags = []
         event_sds = []
         uevdt = []
+        #print(len(uevents))
         for ue in uevents:
             
             #print(ue)
@@ -337,7 +359,11 @@ def get_inter_event_residuals(resDict):
             
             # remove event terms
             yres_weterm[ridx] = log(10**yres[ridx]) - event_term
-        
+            '''
+            print(event_mag, sds[ridx][0], event_term)
+            print(10**yres[ridx])
+            print(rhyps[ridx])
+            '''
         sigma_be.append(nanstd(array(event_terms)))
         sigma_we.append(nanstd(array(yres_weterm)))    
         
@@ -362,6 +388,7 @@ def get_inter_event_residuals(resDict):
             plt_rhyps2 = rhyps
             plt_events2 = uevdt
     
+    print(len(plt_events1), len(plt_events2))
     return plt_events1, plt_events2, array(plt_event_terms1), array(plt_event_mags1), array(plt_event_sds1), \
            array(plt_event_terms2), array(plt_event_mags2), array(plt_event_sds2), array(sigma_be), \
            array(plt_rhyps1), array(plt_rhyps2), array(plt_yres_weterm1), array(plt_yres_weterm2), \
@@ -402,14 +429,14 @@ xfit = array([log10(0.05), 2])
 yfit = sdreg[0] * xfit + sdreg[1]
 plt.semilogx(10**xfit, yfit, 'k--', lw = 3)
 
-insettxt = '$\mathregular{r^2}$' + ' = '+  str('%0.2f' % sdreg[2]**2)
+insettxt = '$\mathregular{r^2}$' + ' = '+  str('%0.2f' % (sdreg[2]**2))
 
 xpos = get_log_xy_locs([0.05, 100], 0.04)
 ypos = (4*0.94) - 2
 plt.text(xpos, ypos, insettxt, ha='left', va='top', fontsize=14, bbox=props)
 
 # add letter
-xpos = 0.05
+xpos = 0.015
 ypos = 4*1.03 - 2
 plt.text(xpos, ypos, pltlett[0], fontsize=18, va='bottom', ha='left')
 
@@ -428,22 +455,30 @@ plt.xlabel('Stress Drop (MPa)', fontsize=14)
 # regress
 idx = where(isnan(plt_event_terms2) == False)[0]
 sdreg = linregress(log10(plt_event_sds2[idx]), plt_event_terms2[idx])
+print(sdreg)
 #print(sdreg)
 xfit = array([log10(0.05), 2])
 yfit = sdreg[0] * xfit + sdreg[1]
 plt.semilogx(10**xfit, yfit, 'k--', lw = 3)
 
-insettxt = '$\mathregular{r^2}$' + ' = '+  str('%0.2f' % sdreg[2])
+insettxt = '$\mathregular{r^2}$' + ' = '+  str('%0.2f' % (sdreg[2]**2))
 
 xpos = get_log_xy_locs([0.05, 100], 0.04)
 ypos = (4*0.94) - 2
 plt.text(xpos, ypos, insettxt, ha='left', va='top', fontsize=14, bbox=props)
 
 # add letter
-xpos = 0.05
+xpos = 0.015
 ypos = 4*1.03 - 2
 plt.text(xpos, ypos, pltlett[1], fontsize=18, va='bottom', ha='left')
 
+etl =''
+for et, sd in zip(plt_event_terms2, plt_event_sds2):
+	etl += ','.join((str(sd), str(et)+'\n'))
+	
+f = open('etl2.csv','w')
+f.write(etl)
+f.close()
 
 # set cbars
 cax = fig.add_axes([0.91,0.15,0.02,0.7]) # setup colorbar axes.
@@ -498,7 +533,7 @@ for cluster in uclusters:
     meancluster = nanmean(plt_event_terms2[idx])
     cluster_correction2.append(meancluster)
     meanlogstress = nanmean(clust_logsd[idx])
-    print(cluster+1, meancluster, meanlogstress, len(clust_logsd[idx]))
+    print(cluster, meancluster, meanlogstress, len(clust_logsd[idx]))
 
 # now make regional correction    
 plt_event_terms_cluster_cor1 = plt_event_terms1.copy()
@@ -510,9 +545,9 @@ for i, cluster in enumerate(uclusters):
     
     idx = where(clusters2 == cluster)[0]
     plt_event_terms_cluster_cor2[idx] = plt_event_terms2[idx] - cluster_correction2[i]
-    print(plt_event_terms2[idx])
     print(cluster, cluster_correction2[i])
-    print(plt_event_terms_cluster_cor2[idx])
+    print(nanmean(plt_event_terms2[idx]))
+    print(nanmean(plt_event_terms_cluster_cor2[idx]))
     #print(clust_lon[idx])
 
 ###############################################################################
@@ -539,7 +574,8 @@ ax.set_xticklabels([str(x) for x in xticks])
 
 plt.xlim([3, 7])
 plt.ylim([-2.5, 2.5])
-insettxt = '$\mathregular{M_{Brune}}$\n' \
+#insettxt = '$\mathregular{M_{Brune}}$\n' \
+insettxt = 'Ergodic\n' \
             + 'f = 0.75 Hz\n' \
             + r"$\tau$" + ' = ' + str('%0.2f' % sigma_be[0])
 
@@ -548,6 +584,7 @@ ypos = (5*0.95) - 2.5
 plt.text(xpos, ypos, insettxt, ha='right', va='top', fontsize=12, bbox=props)
 
 xpos = 3 - (7.-3.)*0.04
+xpos = 3 - (7.-3.)*0.1
 ypos = 5*1.03 - 2.5
 plt.text(xpos, ypos, pltlett[0], fontsize=20, va='bottom', ha='left')
 
@@ -565,7 +602,7 @@ ax.set_xticklabels([str(x) for x in xticks])
 
 plt.xlim([3, 7])
 plt.ylim([-2.5, 2.5])
-insettxt = '$\mathregular{M_{Brune}}$\n' \
+insettxt = 'Ergodic\n' \
             + 'f = 3.0 Hz\n' \
             + r"$\tau$" + ' = ' + str('%0.2f' % sigma_be[1])
 
@@ -594,7 +631,7 @@ plt.ylim([-3, 3])
 
 sigma_we = nanstd(plt_yres_weterm1)
 #sigma_we = median_abs_deviation(plt_yres_weterm1, nan_policy='omit')
-insettxt = '$\mathregular{M_{Brune}}$\n' \
+insettxt = 'Ergodic\n' \
             + 'f = 0.75 Hz\n' \
             + r"$\phi$" + ' = ' + str('%0.2f' % sigma_we)
 
@@ -625,7 +662,7 @@ plt.ylim([-3, 3])
 
 sigma_we = nanstd(plt_yres_weterm2)
 #sigma_we = median_abs_deviation(plt_yres_weterm2, nan_policy='omit')
-insettxt = '$\mathregular{M_{Brune}}$\n' \
+insettxt = 'Ergodic\n' \
             + 'f = 3.0 Hz\n' \
             + r"$\phi$" + ' = ' + str('%0.2f' % sigma_we)
 
@@ -735,29 +772,55 @@ def trilinear_reg_fix_intercept_slope(c, x):
     
     return ans1 + ans2 + ans3
 
+mx1 = 4.75
+mx2 = 5.5
+    
+def trilinear_reg_fix_intercept_slope_mags(c, x):
+    from numpy import zeros_like
+    hx1 = mx1 # hinge magnitude - average from 0.75-10 Hz
+    hx2 = mx2 # hinge magnitude - average from 0.75-10 Hz
+    #print(hx1, hx2)
+    ans3 = zeros_like(x)
+    ans2 = zeros_like(x)
+    ans1 = zeros_like(x)
+    
+    modx_lo = lowside(x, hx1)
+    modx_md = midside(x, hx1, hx2)
+    modx_hi = highside(x, hx2)
+    
+    ans1 = modx_lo * 0.0
+    hy1 = 0.0
+    ans2 = modx_md * (c[0] * (x-hx1) + hy1)
+    hy2 = c[0] * (hx2-hx1)
+    ans3 = modx_hi * hy2
+    
+    return ans1 + ans2 + ans3
 
+#crash
 '''
 fit mag-dependent bias
 '''
 trifitx = arange(3., 7.01, 0.01)
-
 def regress_mbias(plt_event_mags, plt_event_terms_sd_corrected, trifitx):
     bins = arange(3.8, 6.8, 0.2)
     medamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, plt_event_mags, plt_event_terms_sd_corrected)
     realData = odrpack.RealData(medx, medamp)
     
-    afit = odrpack.Model(trilinear_reg_fix_intercept_slope)
-    odr = odrpack.ODR(realData, afit, beta0=[-0.3, 4.75, 5.75])
+    #afit = odrpack.Model(trilinear_reg_fix_intercept_slope)
+    #odr = odrpack.ODR(realData, afit, beta0=[-0.3, 4.75, 5.75])
+    
+    afit = odrpack.Model(trilinear_reg_fix_intercept_slope_mags)
+    odr = odrpack.ODR(realData, afit, beta0=[-0.3])
     
     odr.set_job(fit_type=2) #if set fit_type=2, returns the same as leastsq, 0=ODR
     out = odr.run()
     c = out.beta
     
     trifity = zeros_like(trifitx)
-    idx = where((trifitx >= c[1]) & (trifitx < c[2]))[0]
-    trifity[idx] = c[0] * (trifitx[idx]-c[1])
-    hy = c[0] * (c[2]-c[1])
-    idx = trifitx >= c[2]
+    idx = where((trifitx >= mx1) & (trifitx < mx2))[0]
+    trifity[idx] = c[0] * (trifitx[idx]-mx1)
+    hy = c[0] * (mx2-mx1)
+    idx = trifitx >= mx2
     trifity[idx] = hy
 
     return trifity, c
@@ -850,7 +913,6 @@ norm1 = mpl.colors.Normalize(vmin=-1, vmax=1.8)
 plt.scatter(plt_event_mags1, plt_event_terms_sd_corrected1, c=log10(plt_event_sds1), marker='o', s=30, edgecolor='none', cmap='plasma_r', norm=norm1, alpha=1)
 plt.plot([3, 7],[0,0], 'k--', lw=1.)
 
-
 #plt.xlabel('Moment Magnitude', fontsize=14)
 plt.ylabel('Between-Event\n(ln Residual)', fontsize=14)
 
@@ -914,17 +976,17 @@ plt.plot(trifitx, trifity2, 'k-', lw=2.0)
 
 # correct data for mag bias
 plt_event_terms_sd_mag_corrected1 = plt_event_terms_sd_corrected1
-idx = where((plt_event_mags1 >= tc1[1]) & (plt_event_mags1 < tc1[2]))[0]
-plt_event_terms_sd_mag_corrected1[idx] -= tc1[0] * (plt_event_mags1[idx]-tc1[1])
-hy = tc1[0] * (tc1[2]-tc1[1])
-idx = plt_event_mags1 >= tc1[2]
+idx = where((plt_event_mags1 >= mx1) & (plt_event_mags1 < mx2))[0]
+plt_event_terms_sd_mag_corrected1[idx] -= tc1[0] * (plt_event_mags1[idx]-mx1)
+hy = tc1[0] * (mx2-mx1)
+idx = plt_event_mags1 >= mx2
 plt_event_terms_sd_mag_corrected1[idx] -= hy
 
 plt_event_terms_sd_mag_corrected2 = plt_event_terms_sd_corrected2
-idx = where((plt_event_mags2 >= tc2[1]) & (plt_event_mags2 < tc2[2]))[0]
-plt_event_terms_sd_mag_corrected2[idx] -= tc2[0] * (plt_event_mags2[idx]-tc2[1])
-hy = tc2[0] * (tc2[2]-tc2[1])
-idx = plt_event_mags2 >= tc2[2]
+idx = where((plt_event_mags2 >= mx1) & (plt_event_mags2 < mx2))[0]
+plt_event_terms_sd_mag_corrected2[idx] -= tc2[0] * (plt_event_mags2[idx]-mx1)
+hy = tc2[0] * (mx2-mx1)
+idx = plt_event_mags2 >= mx2
 plt_event_terms_sd_mag_corrected2[idx] -= hy
 
 # now plot
@@ -1108,6 +1170,7 @@ ypos = (5*0.95) - 2.5
 plt.text(xpos, ypos, insettxt, ha='right', va='top', fontsize=12, bbox=props)
 
 xpos = 3 - (7.-3.)*0.04
+xpos = 3 - (7.-3.)*0.1
 ypos = 5*1.03 - 2.5
 plt.text(xpos, ypos, pltlett[2], fontsize=18, va='bottom', ha='left')
 

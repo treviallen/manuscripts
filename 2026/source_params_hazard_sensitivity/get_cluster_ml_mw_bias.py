@@ -88,14 +88,15 @@ cluster_txt = 'CLUSTER,MEAN +- STD\n'
 nsha23_mw = s0 * ml_match**2 + s1 * ml_match + s2
 
 # get mw residual
+#crash
 mw_res = mw - nsha23_mw
 
 # get mean & std
 mw_res_mean = nanmean(mw_res)
 mw_res_std = nanstd(mw_res)
-print(-1, mw_res_mean, mw_res_std) # all clusters
+print(0, mw_res_mean, mw_res_std) # all clusters
 
-cluster_txt += ','.join(('-1', str(mw_res_mean), str(mw_res_std))) + '\n'
+cluster_txt += ','.join(('0', str('%0.2f' %  mw_res_mean), str('%0.2f' %  mw_res_std))) + '\n'
 
 plt.cla()
 plt.clf()
@@ -110,7 +111,7 @@ plt.title('All Data', fontsize=10)
 plt.ylabel('Count')
  
 for i in range(0,n):
-    idx = where((cluster == i) & (qual == 1))[0]
+    idx = where((cluster == i+1) & (qual == 1))[0]
     
     # get predicted mw from rrelationship
     #print(ml_match[idx])
@@ -122,7 +123,7 @@ for i in range(0,n):
     # get mean & std
     mw_res_mean = nanmean(mw_res)
     mw_res_std = nanstd(mw_res)
-    print(i, mw_res_mean, mw_res_std)
+    print(i+1, mw_res_mean, mw_res_std)
     
     cluster_txt += ','.join((str(i+1), str('%0.2f' %  mw_res_mean)+ ' +- '+str('%0.2f' % mw_res_std))) + '\n'
     

@@ -58,21 +58,17 @@ m.drawmeridians(arange(0.,360.,6.), labels=[0,0,0,1], fontsize=13, dashes=[2, 2]
 ##########################################################################################
 
 # get stress range
-logstressbins = arange(-.7, 1.7, 0.2)
+'''logstressbins = arange(-.7, 1.7, 0.2)
 logstressrng = logstressbins[-1] - logstressbins[0]
 
 ncols = len(logstressbins) - 1
 
 #logstressrng = float(round(maxstress - minstress))
-
+'''
 cptfile = '/Users/trev/Documents/DATA/GMT/cpt/temperature.cpt'
 cptfile = '//Users//trev//Documents//DATA//GMT//cpt//keshet.cpt'
 #cptfile = '//Users//trev//Documents//DATA//GMT//cpt//plasma.cpt'
 
-cmap, zvals = cpt2colormap(cptfile, ncols+1, rev=True)
-cmap = remove_first_cmap_colour(cmap)
-
-cols = (cmap(arange(ncols)))
 '''
 cmap = plt.get_cmap('viridis_r', len(logstressbins))
 cs = (cmap(arange(len(logstressbins))))
@@ -99,7 +95,7 @@ for line in lines:
     lons.append(float(dat[2]))
     lats.append(float(dat[3]))
     mags.append(float(dat[8]))
-    qual.append(float(dat[-2]))
+    qual.append(float(dat[-5]))
     stressdrops.append(float(dat[10]))
     cluster.append(int(float(dat[-1])))
 
@@ -110,6 +106,12 @@ lats = array(lats)
 qual = array(qual)
 
 unique_clusters = unique(cluster)
+ncols = len(unique_clusters)
+cmap, zvals = cpt2colormap(cptfile, ncols+2, rev=True)
+cmap = remove_first_cmap_colour(cmap)
+
+cols = (cmap(arange(ncols+1)))
+cols = cols[1:]
 
 # map clusters
 #cols = get_mpl2_colourlist()
@@ -118,8 +120,8 @@ clust_stats = 'Cluster,Region,log10 SD +- STD,N\n'
 # get national average
 meanlogstress = nanmean(logstress)
 stdlogstress = nanstd(logstress)
-clust_stats += '0,National,' + str('%0.2f' % meanlogstress) + ' +- ' \
-                   + str('%0.2f' % stdlogstress) + ',' + str(len(logstress)) + '\n'
+clust_stats += '0,National,' + str('%0.3f' % meanlogstress) + ' +- ' \
+                   + str('%0.3f' % stdlogstress) + ',' + str(len(logstress)) + '\n'
 
 
 syms = ['o', 's', 'd', 'H', '^', 'p', 'o', 's', 'd', 'H', '^', 'p']
@@ -135,14 +137,22 @@ for i, uc in enumerate(unique_clusters):
     
     meanlogstress = nanmean(logstress[idx])
     stdlogstress = nanstd(logstress[idx])
-    print(uc+1, meanlogstress, stdlogstress, len(logstress[idx]))
+    print(uc, meanlogstress, stdlogstress, len(logstress[idx]))
     
-    clust_stats += str(uc+1) + ',,' + str('%0.3f' % meanlogstress) + ' +- ' \
+    clust_stats += str(uc) + ',,' + str('%0.3f' % meanlogstress) + ' +- ' \
                    + str('%0.3f' % stdlogstress) + ',' + str(len(logstress[idx])) + '\n'
 
 plt.legend(loc=3, numpoints=1, fontsize=14, ncol=2)
 
 #########################################################################################
+##########################################################################################
+# add shp
+
+shpfile = '../../2019/nac_attenuation/shapefiles/adj_neotectonic_domains.shp'
+sf = shapefile.Reader(shpfile)
+
+drawshapepoly(m, plt, sf, edgecolor='r', alpha=1, lw=0.5, ls='-', zorder=100)
+
 # finish
 '''
 https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.Voronoi.html
