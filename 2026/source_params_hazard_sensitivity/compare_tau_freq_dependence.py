@@ -676,12 +676,12 @@ cs = (cmap(arange(ncols)))
 syms = ['o', '^', 's', 'd', 'v', 'h', '<', '>', 'p']
 
 plt.clf()
-fig = plt.figure(1, figsize=(8,9))
+fig = plt.figure(1, figsize=(8,8))
 plt.rc('xtick',labelsize=12)
 plt.rc('ytick',labelsize=12)
 fig = plt.gcf()
 plt.clf()
-fig.set_size_inches(8,9)
+fig.set_size_inches(8,8)
 
 plt.subplot(211)
 plt.cla()
@@ -729,7 +729,8 @@ plt.xlim([0.3, 10])
 plt.ylim([-0.05, 1.05])
 
 plt.tight_layout()
-plt.savefig('figures/freq_vs_tau_f-test_'+str(maxdist)+'.png', format='png', dpi=300, bbox_inches='tight')       
+plt.savefig('figures/freq_vs_tau_f-test_'+str(maxdist)+'.png', format='png', dpi=300, bbox_inches='tight')
+plt.savefig('figures/freq_vs_tau_f-test_'+str(maxdist)+'.eps', format='eps', dpi=300, bbox_inches='tight')
 plt.show()
 
 
@@ -749,7 +750,8 @@ plt.xlabel('Frequency (Hz)', fontsize=14)
 plt.xlim([0.2, 10])
 plt.ylim([0, 0.9])
 
-plt.savefig('figures/r_squared_vs_dBe_SD_reg_'+str(maxdist)+'.png', format='png', dpi=300, bbox_inches='tight')       
+plt.savefig('figures/r_squared_vs_dBe_SD_reg_'+str(maxdist)+'.png', format='png', dpi=300, bbox_inches='tight')
+plt.savefig('figures/r_squared_vs_dBe_SD_reg_'+str(maxdist)+'.eps', format='eps', dpi=300, bbox_inches='tight')
 plt.show()
 
 print('Mmin', mean(array(mmin)))

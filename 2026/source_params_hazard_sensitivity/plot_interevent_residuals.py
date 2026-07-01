@@ -488,7 +488,8 @@ cb.set_ticks(ticks)
 cb.set_ticklabels([str(x) for x in ticks])
 cb.set_label('Moment Magnitude', rotation=270, labelpad=20, fontsize=15)
 
-plt.savefig('figures/event_term_vs_stressdrop.png', format='png', dpi=300, bbox_inches='tight')       
+plt.savefig('figures/event_term_vs_stressdrop.png', format='png', dpi=300, bbox_inches='tight')
+plt.savefig('figures/event_term_vs_stressdrop.eps', format='eps', dpi=300, bbox_inches='tight')     
 plt.show()
 
 # correct event terms for SD
@@ -701,7 +702,8 @@ cb.set_ticks(ticks)
 cb.set_ticklabels([str(x) for x in ticks])
 cb.set_label('Moment Magnitude', rotation=270, labelpad=20, fontsize=14)
 
-plt.savefig('figures/ergodic_within-between_residuals.png', format='png', dpi=300, bbox_inches='tight')       
+plt.savefig('figures/ergodic_within-between_residuals.png', format='png', dpi=300, bbox_inches='tight')  
+plt.savefig('figures/ergodic_within-between_residuals.eps', format='eps', dpi=300, bbox_inches='tight')       
 plt.show()
 
 ###############################################################################
@@ -1060,7 +1062,8 @@ cb.set_ticks(ticks)
 cb.set_ticklabels([str('%0.1f' % 10**x) for x in ticks])
 cb.set_label('Stress Drop (MPa)', rotation=270, labelpad=20, fontsize=15)
 
-plt.savefig('figures/interevent_event-specific.png', format='png', dpi=300, bbox_inches='tight')       
+plt.savefig('figures/interevent_event-specific.png', format='png', dpi=300, bbox_inches='tight')    
+plt.savefig('figures/interevent_event-specific.eps', format='eps', dpi=300, bbox_inches='tight')       
 plt.show()
 
 ###############################################################################
@@ -1220,5 +1223,6 @@ cb.set_ticklabels([str('%0.1f' % 10**x) for x in ticks])
 cb.set_label('Stress Drop (MPa)', rotation=270, labelpad=20, fontsize=15)
 
 
-plt.savefig('figures/interevent_clustering.png', format='png', dpi=300, bbox_inches='tight')       
+plt.savefig('figures/interevent_clustering.png', format='png', dpi=300, bbox_inches='tight')
+plt.savefig('figures/interevent_clustering.eps', format='eps', dpi=300, bbox_inches='tight')       
 plt.show()

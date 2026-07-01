@@ -46,9 +46,9 @@ m = Basemap(projection='lcc',lat_1=lat_1,lat_2=lat_2,lon_0=lon_0,\
 #m.etopo()
 m.drawmapboundary(fill_color='0.8')
 m.fillcontinents(color='w', lake_color='0.8') #, zorder=0)
-m.drawcoastlines()
-m.drawstates()
-m.drawcountries()
+m.drawcoastlines(linewidth=0.25)
+#m.drawstates()
+m.drawcountries(linewidth=0.25)
 m.drawparallels(arange(-90.,90.,4.), labels=[1,0,0,0],fontsize=13, dashes=[2, 2], color='0.5', linewidth=0.75)
 m.drawmeridians(arange(0.,360.,6.), labels=[0,0,0,1], fontsize=13, dashes=[2, 2], color='0.5', linewidth=0.75)
 #m.drawmapscale(144, -34.8, 146., -38.5, 400, fontsize = 16, barstyle='fancy', zorder=100)
@@ -151,7 +151,7 @@ plt.legend(loc=3, numpoints=1, fontsize=14, ncol=2)
 shpfile = '../../2019/nac_attenuation/shapefiles/adj_neotectonic_domains.shp'
 sf = shapefile.Reader(shpfile)
 
-drawshapepoly(m, plt, sf, edgecolor='r', alpha=1, lw=0.5, ls='-', zorder=100)
+drawshapepoly(m, plt, sf, edgecolor='0.6', alpha=1, lw=1.2, ls='-', zorder=100)
 
 # finish
 '''

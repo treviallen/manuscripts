@@ -8,6 +8,8 @@ import numpy as np
 from mapping_tools import get_field_data
 mpl.style.use('classic')
 
+print('Manually remove bad contours and save as: AS1170_4_fitted_modified_contours.shp')
+
 '''
 ################################################################################
 # generate test ellipse
@@ -33,8 +35,10 @@ evertices = get_ellipse_path(146.36, -38.41, 0.65, 0.4, 10.0)
 '''
 
 # from https://stackoverflow.com/questions/39693869/fitting-an-ellipse-to-a-set-of-data-points-in-python
-def fitEllipse(cont,method):
-
+def fitEllipse(cont,method,yass):
+    
+    # if Yass poly, yass = 1, else = 0
+    
     x=cont[:,0]
     y=cont[:,1]
 
@@ -66,6 +70,12 @@ def fitEllipse(cont,method):
     down2=(b*b-a*c)*( (a-c)*np.sqrt(1+4*b*b/((a-c)*(a-c)))-(c+a))
     a=np.sqrt(abs(up/down1))
     b=np.sqrt(abs(up/down2))
+    #print(a,b)
+    
+    # for Yass poly, pad by 0.05 degrees - post public commeent amendment
+    if yass == 1:
+        a += 0.05
+        b += 0.05
 
     #---------------------Get path---------------------
     ell=Ellipse((cx,cy),a*2.,b*2.,angle)
@@ -124,6 +134,8 @@ levels = get_field_data(sf, 'LEVELS', 'float')
 ################################################################################
 
 fitted_contours = []
+i = 0
+yassPoly = 21
 for shape, level in zip(shapes, levels):
     # convert tuple array to numpy
     listarray = []
@@ -133,9 +145,14 @@ for shape, level in zip(shapes, levels):
     
     method = 1
     #print(points)
-    params, ellipse_fit = fitEllipse(points, method)
+    if i == yassPoly:
+        params, ellipse_fit = fitEllipse(points, method, 1)
+    else:
+        params, ellipse_fit = fitEllipse(points, method, 0)
     
     fitted_contours.append(ellipse_fit)
+    
+    i += 1
 
 ################################################################################
 # add Adelaide
@@ -156,7 +173,7 @@ for shape, ade_level in zip(shapes, levels):
     points = np.array(listarray)
     
     method = 1
-    params, ellipse_fit = fitEllipse(points, method)
+    params, ellipse_fit = fitEllipse(points, method, 0)
     
     fitted_contours.append(ellipse_fit)
 

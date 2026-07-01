@@ -401,7 +401,8 @@ f.write(stacsv)
 f.close()
 
 # now show figs 
-plt.savefig('ml_vs_mw_brune.png', dpi=300, bbox_inches='tight')       
+plt.savefig('ml_vs_mw_brune.png', dpi=300, bbox_inches='tight')
+plt.savefig('ml_vs_mw_brune.eps', fmt='eps', dpi=300, bbox_inches='tight')     
 plt.show()    
 #crash
 ##########################################################################################
@@ -751,7 +752,8 @@ cb.set_ticklabels(labels)
 cb.set_label('Brune Stress Drop (MPa)', rotation=270, fontsize=16, labelpad=16)
 
 # now show figs 
-plt.savefig('mw_res_zone_with_ml.png', dpi=300, bbox_inches='tight')       
+plt.savefig('mw_res_zone_with_ml.png', dpi=300, bbox_inches='tight')
+plt.savefig('mw_res_zone_with_ml.eps', fmt='eps', dpi=300, bbox_inches='tight')
 plt.show()    
 
 
@@ -1006,5 +1008,6 @@ f.write(magregtxt)
 f.close()
 
 # now show figs 
-plt.savefig('stressdrop_vs_ml_mw.png', dpi=300, bbox_inches='tight')       
+plt.savefig('stressdrop_vs_ml_mw.png', dpi=300, bbox_inches='tight')
+plt.savefig('stressdrop_vs_ml_mw.eps', fmt='eps', dpi=300, bbox_inches='tight')
 plt.show() 
