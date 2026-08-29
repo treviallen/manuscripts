@@ -67,6 +67,17 @@ for x in xrng:
 points = array(points)
 
 ###############################################################################
+# load neodom b-values
+###############################################################################
+shpfile = '/Users/trev/Documents/Geoscience_Australia/NSHA2023/source_models/zones/2023_mw/Domains_multi_mc/shapefiles/Domains_NSHA23_MFD.shp'
+sfd = shapefile.Reader(shpfile)
+
+# get bvalue data
+shp_bvals_nd = get_field_data(sfd, 'BVAL_BEST', 'float')
+shp_bvals_low_nd = get_field_data(sfd, 'BVAL_LOWER', 'float')
+nd_shapes = sfd.shapes()
+
+###############################################################################
 # loop thru shapfiles
 ###############################################################################
 
@@ -116,9 +127,27 @@ for deg in degs:
         # now overwrite with only "within" polys
         idx = where((array(poly_bvals) > 0) & (array(in_poly) == 1))[0]
         if len(idx) > 0:
-            bvals[i] = nanmean(array(poly_bvals)[idx])
+            bvals[i] = nanmean(array(poly_bvals)[idx])                       
             bsig[i]  = nanmean(array(poly_sigma)[idx]) - bvals[i]
        
+# if no number, then get b-falue from neodom
+print('Filling data gaps with neo-domains')
+for i in range(0, len(bvals)):
+  if isnan(bvals[i]):
+    point = Point(glons[i], glats[i])
+    for shape, shp_b, shp_bl in zip(nd_shapes, shp_bvals_nd, shp_bvals_low_nd):
+        poly = Polygon(shape.points)
+        
+        # check if point in poly
+        if point.within(poly) or point.touches(poly):
+             #print('in poly'
+             shp_bs = shp_b - shp_bl
+             poly_bvals.append(shp_b)
+             poly_sigma.append(shp_bs)
+             
+             bvals[i] = shp_b
+             bsig[i] = shp_bs - shp_b
+
 ###############################################################################
 # map b-value
 ###############################################################################
@@ -281,11 +310,10 @@ f = open('gridded_bval.csv', 'w')
 f.write(txt)
 f.close()
 
-
-
 '''
 # convert smoothed csv to surface
 gmt surface gridded_bval.csv -Gneodomains_bval.grd -I30c -R108/156/-48/-10
 
 # fill nan values with neodomains grid
-gmt grdmath smoothed_bval.grd DUP ISNAN neodomains_bval.grd EXCH IFELSE = smoothed_bval_filled.grd
+gmt grdmath smoothed_bval.grd DUP ISNAN neodomains_bval.grd EXCH IFELSE = smoothed_bval_filled.grd - this may not be needed!
+'''

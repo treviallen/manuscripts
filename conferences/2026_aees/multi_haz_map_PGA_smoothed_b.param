@@ -1,3 +1,3 @@
 b_variable_smoothed_seismicity_models
-NSHA23 b-Value;jobs/neodom_b_var_mc/results/hazard_map-mean_4.csv
-Smoothed b-Value;jobs/smoothed_b_var_mc/results/hazard_map-mean_12.csv
+Domains b-Value;jobs/neodom_b_var_mc/results/neodoms_hazard_map-mean_25.csv
+Smoothed b-Value;jobs/smoothed_b_var_mc/results/gridded_hazard_map-mean_26.csv

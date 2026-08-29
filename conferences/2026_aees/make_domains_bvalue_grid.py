@@ -52,12 +52,11 @@ import shapefile
 from os import path
 from get_bvalue import get_simple_neotectonic_domain_params
     
-refShpFile = path.join('shapefiles','Domains_NSHA23_MFD.shp')
+#refShpFile = path.join('shapefiles','Domains_NSHA23_MFD.shp')
+refShpFile = '/Users/trev/Documents/Geoscience_Australia/NSHA2023/source_models/zones/2026_testing/domains_2026amt/shapefiles/Domains_2026AMT_MFD.shp'
 domshp = shapefile.Reader(refShpFile)
 
-#mmax, bval, bval_sig = get_simple_neotectonic_domain_params(148, -30, domshp)
-
-    
+#mmax, bval, bval_sig = get_simple_neotectonic_domain_params(148, -30, domshp)    
 
 spacing = 0.1
 grid_lims = {"xmin": 108.,

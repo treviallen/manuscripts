@@ -1,8 +1,8 @@
 from numpy import arange, around, array, random, delete, where, reshape, log10, sqrt, \
                   mean, floor, isnan, polyfit, poly1d, zeros_like
 from os import system, path
-from misc_tools import dictlist2array, get_binned_stats
-from obspy import Trace
+from misc_tools import dictlist2array, get_binned_stats, get_office_colours
+#from obspy import Trace
 import pickle
 import matplotlib.pyplot as plt
 import matplotlib as mpl
@@ -44,28 +44,29 @@ mw_array = dictlist2array(events, 'mw')
 ################################################################################r
 # get mean diff between MLs
 ################################################################################r
+oc = get_office_colours()
+pltlett = ['(a)', '(b)', '(c)', '(d)', '(e)', '(f)']
 
 def fit_parabola(c, x):
     return c[0] * (x+c[2])**3 + c[1]
 
 
 mlm92_diff = mlm92_2800_array - mlm92_2080_array
-fig = plt.figure(1, figsize=(6,6))
+fig = plt.figure(1, figsize=(12,5))
 #bins = arange(0., 0.2, 0.01)
 #plt.hist(mlm92_diff, bins)
-plt.plot(mlm92_2080_array, mlm92_diff, 'o', ms=6, c='0.5')
+plt.subplot(121)
+plt.plot(mlm92_2080_array, mlm92_diff, 'o', ms=6, c=oc[0], label='Simulated')
 plt.ylabel('Wood-Anderson Sensitivity ML Difference', fontsize=14)
-plt.xlabel('ML (Sensitivity = 2080)', fontsize=14)
-plt.grid(which='both')
 
 # get binned data
 bins = arange(1.5, 6.6, 0.2)
-medamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, mlm92_2080_array, mlm92_diff)
-plt.errorbar(medx, medamp, yerr=stdbin, fmt='s', ms=8, \
-             mfc='r', mec='k', ecolor='r', elinewidth=2., ls='none', zorder=2000)
+medamp, stdbin, medxf, binstrp, nperbin = get_binned_stats(bins, mlm92_2080_array, mlm92_diff)
+plt.errorbar(medxf, medamp, yerr=stdbin, fmt='s', ms=8, \
+             mfc=oc[2], mec='k', ecolor=oc[2], elinewidth=2., ls='none', zorder=2000, label='Binned')
 
 # regress linear data
-slope, intercept, r_value, p_value, std_err  = linregress(medx, medamp)
+slope, intercept, r_value, p_value, std_err  = linregress(medxf, medamp)
 
 # plot data
 xplt = array([1., 6.5])
@@ -73,10 +74,65 @@ yplt = slope * xplt + intercept
 #plt.plot(xplt, yplt, 'k-', lw=2.5)
 
 # try polyfit porabola
-x_norm = (medx - medx.mean())/medx.std()
+xrng = arange(1.5,6.51,0.01)
+x_norm = (medxf - medxf.mean())/medxf.std()
 fit_normalized = polyfit(x_norm, medamp, 4)
 f = poly1d(fit_normalized)
-plt.plot(medx, f(x_norm), 'k-', lw=2.5, zorder=10000)
+plt.plot(medxf, f(x_norm), 'k-', lw=2.5, zorder=10000, label='Simulated Fit')
+
+plt.legend(loc=1, fontsize=12)
+plt.ylim([0.075, 0.12])
+plt.xlabel('ML (Sensitivity = 2080)', fontsize=14)
+plt.grid(which='both')
+
+xpos = 0.1
+ypos = 0.122
+plt.text(xpos, ypos, pltlett[0], fontsize=20, va='bottom', ha='left')
+
+###########
+#now plot empirical
+
+# add empirical data from Allen (2026)
+csvfile = '/Users/trev/Documents/Manuscripts/manuscripts/2026/source_params_hazard_sensitivity/brune_stats_cluster.csv'
+
+lines = open(csvfile).readlines()[1:]
+ml2080 = []
+ml2800 = []
+mags = []
+qual = []
+stressdrops = []
+cluster = []
+
+for line in lines:
+    dat = line.strip().split(',')
+    ml2080.append(float(dat[-3]))
+    ml2800.append(float(dat[-4]))
+    mags.append(float(dat[8]))
+    qual.append(float(dat[-5]))
+    stressdrops.append(float(dat[10]))
+    cluster.append(int(float(dat[-1])))
+
+mldiff = array(ml2800) - array(ml2080)
+ml2080 = array(ml2080)
+qual = array(qual)
+
+plt.subplot(122)
+
+idx = where(qual == 1)[0]
+plt.plot(ml2080[idx], mldiff[idx], 'o', ms=6, mfc=oc[4], mec='k', label='Empirical')
+
+medamp, stdbin, medx, binstrp, nperbin = get_binned_stats(bins, ml2080[idx], mldiff[idx])
+plt.errorbar(medx, medamp, yerr=stdbin, fmt='s', ms=8, \
+             mfc=oc[6], mec='k', ecolor=oc[6], elinewidth=2., ls='none', zorder=2000, label='Binned')
+             
+plt.plot(medxf, f(x_norm), 'k-', lw=2.5, zorder=10000, label='Simulated Fit')
+
+plt.legend(loc=1, fontsize=12)
+plt.ylim([0.075, 0.12])
+plt.xlabel('ML (Sensitivity = 2080)', fontsize=14)
+plt.grid(which='both')
+plt.text(xpos, ypos, pltlett[1], fontsize=20, va='bottom', ha='left')
+
 
 '''
 fn = fit_normalized

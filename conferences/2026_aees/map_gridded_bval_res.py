@@ -17,7 +17,7 @@ from scipy.interpolate import griddata
 # set defaults
 ###############################################################################
 
-degs = ['8', '6', '5', '4', '3', '2']
+degs = ['8', '7', '6', '5', '4', '3', '2']
 #degs = ['6', '4', '3', '2']
 basepath = '/Users/trev/Documents/Geoscience_Australia/NSHA2023/source_models/zones/2026_hex'
 
