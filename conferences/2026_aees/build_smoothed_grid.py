@@ -13,6 +13,10 @@ Example:
     python build_smoothed_grid.py --catalogue NSHA23CAT_V0.1_hmtk_post_pub_declustered.csv  --completeness single_completeness.csv --spacing 0.5  --bvalue 1.1 --output smoothed_grid.csv
     
     %run build_smoothed_grid.py NSHA23CAT_V0.1_hmtk_post_pub_declustered.csv single_completeness.csv 0.1 neodomains_bval.grd smoothed_grid.csv
+    
+    %run build_smoothed_grid.py ..\\nsha23_cat_files\\NSHA23CAT_V0.2_hmtk_trunc_2026_amt_declustered.csv single_completeness.csv 0.1 neodomains_bval.grd neodomains_smoothed_grid.csv
+
+    %run build_smoothed_grid.py ..\\nsha23_cat_files\\NSHA23CAT_V0.2_hmtk_trunc_2026_amt_declustered.csv single_completeness.csv 0.1 smoothed_bval_filled.grd var_bval_smoothed_grid.csv
 """
 
 import argparse
@@ -20,7 +24,7 @@ import shapefile
 import numpy as np
 import pandas as pd
 from sys import argv
-from os import path
+from os import path, remove
 from openquake.hmtk.seismicity.smoothing import spatial_utils
 
 from openquake.hmtk.parsers.catalogue.csv_catalogue_parser import (
@@ -99,7 +103,7 @@ args = parser.parse_args()
 """
 
 catalogue_file = argv[1]
-completeness_file = argv[2]
+completeness_file = argv[2] # this is overwritten in "smoothed_seismicity_modified" - need to clean up!
 spacing = float(argv[3])
 bgrd = argv[4]
 out_grid = argv[5]
@@ -176,7 +180,8 @@ smoothed_grid = smoother.run_analysis(
 
 # get Mmin after the fact and append to smoothed_grid
 print('Getting Mmin, SHmax post-hoc')
-compshp = path.join('C:\\NSHA2023\\source_models\\zones\\shapefiles\\Other','gridded_polygons_3d_completeness_adj.shp') # gridded model for updated Mc - Apr 2023        
+#compshp = path.join('C:\\NSHA2023\\source_models\\zones\\shapefiles\\Other','gridded_polygons_3d_completeness_adj.shp') # gridded model for updated Mc - Apr 2023        
+compshp = path.join('shapefiles','2026_gridded_3deg_completeness.shp') # gridded model for updated Mc - Aug 2026        
 shp_data = shapefile.Reader(compshp)
 
 mmin = []
@@ -196,6 +201,8 @@ smoothed_grid = np.hstack((smoothed_grid, shmax_grd.reshape(len(shmax_grd), 1)))
 smoothed_grid = np.hstack((smoothed_grid, shmax_sig_grd.reshape(len(shmax_sig_grd), 1)))
 
 # Kluge smoothed data to get b-values
+remove('lolasb.txt')
+remove('lolas.txt')
 bvalues_grd = spatial_utils.get_location_bval(smoothed_grid[:,0], smoothed_grid[:,1], bgrd)
 bvalues_grd = np.array(bvalues_grd)
 idx = np.where(np.isnan(bvalues_grd))[0]
@@ -263,7 +270,7 @@ output_df = pd.DataFrame(
     ]
 )
 
-output_df.to_csv("smoothed_data_variable_bvalue_const_mc.csv", index=False)
+output_df.to_csv("smoothed_data_smoothed_bvalue_var_mc.csv", index=False)
 # ------------------------------------------------------------------
 # Save results        self, 
 # ------------------------------------------------------------------

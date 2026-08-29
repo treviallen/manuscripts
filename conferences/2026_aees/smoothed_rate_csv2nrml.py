@@ -32,10 +32,12 @@ RUPTURE_ASPECT_RATIO = 1.5
 # -----------------------------------------------------------------------------
 # Create NRML document
 # -----------------------------------------------------------------------------
-
+'''
+<nrml xmlns="http://openquake.org/xmlns/nrml/0.4" xmlns:gml="http://www.opengis.net/gml">
+'''
 NS = {
     "gml": "http://www.opengis.net/gml",
-    "nrml": "http://openquake.org/xmlns/nrml/0.5"
+    "nrml": "http://openquake.org/xmlns/nrml/0.4"
 }
 
 ET.register_namespace("", NS["nrml"])
@@ -90,7 +92,7 @@ for idx, row in df.iterrows():
             "{http://www.opengis.net/gml}pos"
         )
         
-        pos.text = f"{row.longitude} {row.latitude}"
+        pos.text = ' '.join((str('%0.3f' % row.longitude),str('%0.3f' % row.latitude)))
         
         usd = ET.SubElement(geom, "upperSeismoDepth")
         usd.text = str(row.usd)
@@ -176,3 +178,15 @@ with open(OUTPUT_XML, "w", encoding="utf-8") as f:
     f.write(pretty_xml)
 
 print(f"Written: {OUTPUT_XML}")
+
+# fix rows 2 and -1
+print('Fixing namesmespace...')
+lines = open(OUTPUT_XML).readlines()
+lines[1] = '<nrml xmlns="http://openquake.org/xmlns/nrml/0.4" xmlns:gml="http://www.opengis.net/gml">' + '\n'
+lines[-1] = '</nrml>'
+
+strlines = ''.join(lines)
+
+f = open(OUTPUT_XML,'w')
+f.write(strlines)
+f.close()
